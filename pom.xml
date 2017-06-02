@@ -45,6 +45,8 @@
     </distributionManagement>
 
     <modules>
+        <module>poom-services-parent</module>
+        <module>poomjobs</module>
     </modules>
 
     <prerequisites>
