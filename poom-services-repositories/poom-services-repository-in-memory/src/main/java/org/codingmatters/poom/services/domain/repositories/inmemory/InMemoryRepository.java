@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * Created by nelt on 6/5/17.
@@ -52,19 +53,26 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
         if(this.store.isEmpty()) {
             return new PagedEntityList.DefaultPagedEntityList<>(page, false, Collections.emptyList());
         }
-
-        int start = page * pageSize;
-        if(start >= this.store.size()) {
+        if(page * pageSize >= this.store.size()) {
             return new PagedEntityList.DefaultPagedEntityList<>(page, false, Collections.emptyList());
         }
+        return this.page(this.store.values().toArray(new Entity[this.store.values().size()]), page, pageSize);
+    }
 
-        int end = Math.min((page + 1) * pageSize, this.store.size());
+    protected Stream<Entity<V>> stream() {
+        return this.store.values().stream().map(e -> (Entity<V>)e);
+    }
 
-        boolean hasNextPage = (page + 1) * pageSize < this.store.size();
+    protected PagedEntityList<V> paged(Stream<Entity<V>> stream, int page, int pageSize) {
+        return this.page(stream.<Entity>toArray(length -> new Entity[length]), page, pageSize);
+    }
 
-        Entity[] entities = this.store.values().toArray(new Entity[this.store.values().size()]);
+    private PagedEntityList<V> page(Entity<V>[] entities, int page, int pageSize) {
+        int start = page * pageSize;
+        int end = Math.min((page + 1) * pageSize, entities.length);
+        boolean hasNextPage = (page + 1) * pageSize < entities.length;
+
         Entity[] results = new Entity[end - start];
-
         System.arraycopy(entities, start, results, 0, results.length);
 
         return new PagedEntityList.DefaultPagedEntityList<>(page, hasNextPage, Arrays.asList(results));

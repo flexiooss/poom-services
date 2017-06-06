@@ -41,4 +41,13 @@ public class MutableEntity<V> implements Entity<V> {
         this.version = this.version.add(BigInteger.ONE);
         this.value = newValue;
     }
+
+    @Override
+    public String toString() {
+        return "MutableEntity{" +
+                "id='" + id + '\'' +
+                ", version=" + version +
+                ", value=" + value +
+                '}';
+    }
 }
