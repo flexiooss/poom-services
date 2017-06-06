@@ -46,6 +46,9 @@
 
     <modules>
         <module>poom-services-parent</module>
+        <module>poom-services-bom</module>
+        <module>poom-services-domain</module>
+        <module>poom-services-repositories</module>
         <module>poomjobs</module>
     </modules>
 
