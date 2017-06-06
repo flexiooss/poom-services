@@ -4,12 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.codingmatters.poom</groupId>
+    <parent>
+        <groupId>org.codingmatters.poom</groupId>
+        <artifactId>poom-services</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../</relativePath>
+    </parent>
+
     <artifactId>poom-services-parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
-    <packaging>pom</packaging>
 
     <dependencies>
         <dependency>
