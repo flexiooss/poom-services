@@ -49,6 +49,7 @@
         <module>poom-services-bom</module>
         <module>poom-services-domain</module>
         <module>poom-services-repositories</module>
+        <module>poom-services-support</module>
         <module>poomjobs</module>
     </modules>
 
@@ -76,7 +77,6 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-
         </plugins>
 
         <pluginManagement>
