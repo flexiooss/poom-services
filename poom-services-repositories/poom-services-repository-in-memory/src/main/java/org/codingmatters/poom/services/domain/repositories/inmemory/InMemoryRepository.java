@@ -3,6 +3,7 @@ package org.codingmatters.poom.services.domain.repositories.inmemory;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.servives.domain.entities.Entity;
+import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
 import org.codingmatters.poom.servives.domain.entities.MutableEntity;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 
@@ -22,7 +23,7 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
     public Entity<V> create(V withValue) throws RepositoryException {
         MutableEntity<V> entity = new MutableEntity<>(UUID.randomUUID().toString(), withValue);
         this.store.put(entity.id(), entity);
-        return entity;
+        return ImmutableEntity.from(entity);
     }
 
     @Override
@@ -31,9 +32,11 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
     }
 
     @Override
-    public void update(Entity<V> entity, V withValue) throws RepositoryException {
+    public Entity<V> update(Entity<V> entity, V withValue) throws RepositoryException {
         if(this.store.containsKey(entity.id())) {
-            this.store.get(entity.id()).changeValue(withValue);
+            MutableEntity<V> storedEntity = this.store.get(entity.id());
+            storedEntity.changeValue(withValue);
+            return ImmutableEntity.from(storedEntity);
         } else {
             throw new RepositoryException("cannot update entity, no such entity in store : " + entity.id());
         }
@@ -74,6 +77,10 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
 
         Entity[] results = new Entity[end - start];
         System.arraycopy(entities, start, results, 0, results.length);
+
+        for (int i = 0; i < results.length; i++) {
+            results[i] = ImmutableEntity.from(results[i]);
+        }
 
         return new PagedEntityList.DefaultPagedEntityList<>(page, hasNextPage, Arrays.asList(results));
     }

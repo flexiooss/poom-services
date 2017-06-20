@@ -50,10 +50,12 @@ public class InMemoryRepositoryTest {
     public void update() throws Exception {
         Entity<String> entity = this.repository.create("yopyop");
 
-        this.repository.update(entity, "yipyip");
+        Entity<String> updated = this.repository.update(entity, "yipyip");
 
-        assertThat(entity.version().intValue(), is(2));
-        assertThat(entity.value(), is("yipyip"));
+        assertThat(updated, is(not(entity)));
+
+        assertThat(updated.version().intValue(), is(2));
+        assertThat(updated.value(), is("yipyip"));
 
         assertThat(this.repository.retrieve(entity.id()).version().intValue(), is(2));
         assertThat(this.repository.retrieve(entity.id()).value(), is("yipyip"));
