@@ -13,7 +13,7 @@ public class ChangeBuilder<V, C extends Change<V>> {
         this.creator = creator;
     }
 
-    public Change<V> to(V newValue) {
+    public C to(V newValue) {
         return this.creator.create(this.currentValue, newValue);
     }
 
