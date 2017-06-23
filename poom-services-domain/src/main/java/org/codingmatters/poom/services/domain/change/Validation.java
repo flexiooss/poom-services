@@ -1,4 +1,4 @@
-package org.codingmatters.poom.poomjobs.domain;
+package org.codingmatters.poom.services.domain.change;
 
 import java.util.Objects;
 
