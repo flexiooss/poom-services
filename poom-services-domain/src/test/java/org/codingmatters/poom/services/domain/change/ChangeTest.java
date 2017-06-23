@@ -23,7 +23,7 @@ public class ChangeTest {
     static public class StringChange extends Change<String> {
 
         static public ChangeBuilder<String, StringChange> from(String currentValue) {
-            return new ChangeBuilder<>(currentValue, (current, newValue) -> new StringChange(current, newValue));
+            return new ChangeBuilder<>(currentValue, StringChange::new);
         }
 
         private StringChange(String currentValue, String newValue) {
