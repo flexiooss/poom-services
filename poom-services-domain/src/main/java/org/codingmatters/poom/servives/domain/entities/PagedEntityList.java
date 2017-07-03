@@ -11,15 +11,18 @@ import java.util.List;
 public interface PagedEntityList<V> extends List<Entity<V>> {
     int page();
     boolean hasNextPage();
+    long totalSize();
 
     class DefaultPagedEntityList<V> extends LinkedList<Entity<V>> implements PagedEntityList<V> {
         private final int page;
         private final boolean nextPage;
+        private final long totalSize;
 
-        public DefaultPagedEntityList(int page, boolean nextPage, Collection<Entity<V>> collection) {
+        public DefaultPagedEntityList(int page, boolean nextPage, long totalSize, Collection<Entity<V>> collection) {
             super(collection);
             this.page = page;
             this.nextPage = nextPage;
+            this.totalSize = totalSize;
         }
 
         @Override
@@ -30,6 +33,11 @@ public interface PagedEntityList<V> extends List<Entity<V>> {
         @Override
         public boolean hasNextPage() {
             return this.nextPage;
+        }
+
+        @Override
+        public long totalSize() {
+            return this.totalSize;
         }
     }
 }

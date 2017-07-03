@@ -54,10 +54,10 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
     @Override
     public PagedEntityList<V> all(int page, int pageSize) throws RepositoryException {
         if(this.store.isEmpty()) {
-            return new PagedEntityList.DefaultPagedEntityList<>(page, false, Collections.emptyList());
+            return new PagedEntityList.DefaultPagedEntityList<>(page, false, 0, Collections.emptyList());
         }
         if(page * pageSize >= this.store.size()) {
-            return new PagedEntityList.DefaultPagedEntityList<>(page, false, Collections.emptyList());
+            return new PagedEntityList.DefaultPagedEntityList<>(page, false, this.store.size(), Collections.emptyList());
         }
         return this.page(this.store.values().toArray(new Entity[this.store.values().size()]), page, pageSize);
     }
@@ -82,6 +82,6 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
             results[i] = ImmutableEntity.from(results[i]);
         }
 
-        return new PagedEntityList.DefaultPagedEntityList<>(page, hasNextPage, Arrays.asList(results));
+        return new PagedEntityList.DefaultPagedEntityList<>(page, hasNextPage, results.length, Arrays.asList(results));
     }
 }
