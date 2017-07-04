@@ -16,7 +16,7 @@ public class InMemoryRepositoryTest {
 
     private Repository<String, String> repository = new InMemoryRepository<String, String>() {
         @Override
-        public PagedEntityList<String> search(String query, int page, int pageSize) throws RepositoryException {
+        public PagedEntityList<String> search(String query, long startIndex, long endIndex) throws RepositoryException {
             return null;
         }
     };
@@ -75,8 +75,9 @@ public class InMemoryRepositoryTest {
 
         assertThat(list, is(notNullValue()));
         assertThat(list, hasSize(0));
-        assertThat(list.page(), is(0));
-        assertThat(list.hasNextPage(), is(false));
+        assertThat(list.startIndex(), is(0L));
+        assertThat(list.endIndex(), is(0L));
+        assertThat(list.total(), is(0L));
     }
 
     @Test
@@ -87,36 +88,41 @@ public class InMemoryRepositoryTest {
 
         assertThat(list, is(notNullValue()));
         assertThat(list, hasSize(1));
-        assertThat(list.page(), is(0));
-        assertThat(list.hasNextPage(), is(false));
+        assertThat(list.startIndex(), is(0L));
+        assertThat(list.endIndex(), is(0L));
+        assertThat(list.total(), is(1L));
         assertThat(list.get(0).value(), is("one"));
     }
 
     @Test
-    public void all_firstPageOfTwo() throws Exception {
+    public void all_range_startingAt0() throws Exception {
         for (int i = 0; i < 10; i++) {
             this.repository.create("elt-" + i);
         }
 
-        PagedEntityList<String> list = this.repository.all(0, 5);
+        PagedEntityList<String> list = this.repository.all(0, 4);
 
         assertThat(list, hasSize(5));
-        assertThat(list.hasNextPage(), is(true));
+        assertThat(list.startIndex(), is(0L));
+        assertThat(list.endIndex(), is(4L));
+        assertThat(list.total(), is(10L));
         for (int i = 0; i < list.size(); i++) {
             assertThat(list.get(i).value(), is("elt-" + i));
         }
     }
 
     @Test
-    public void all_secondOfTwo() throws Exception {
+    public void all_range_startingAt5() throws Exception {
         for (int i = 0; i < 10; i++) {
             this.repository.create("elt-" + i);
         }
 
-        PagedEntityList<String> list = this.repository.all(1, 5);
+        PagedEntityList<String> list = this.repository.all(5, 9);
 
         assertThat(list, hasSize(5));
-        assertThat(list.hasNextPage(), is(false));
+        assertThat(list.startIndex(), is(5L));
+        assertThat(list.endIndex(), is(9L));
+        assertThat(list.total(), is(10L));
         for (int i = 0; i < list.size(); i++) {
             assertThat(list.get(i).value(), is("elt-" + (5 + i)));
         }
@@ -128,10 +134,12 @@ public class InMemoryRepositoryTest {
             this.repository.create("elt-" + i);
         }
 
-        PagedEntityList<String> list = this.repository.all(2, 5);
+        PagedEntityList<String> list = this.repository.all(10, 14);
 
         assertThat(list, hasSize(2));
-        assertThat(list.hasNextPage(), is(false));
+        assertThat(list.startIndex(), is(10L));
+        assertThat(list.endIndex(), is(11L));
+        assertThat(list.total(), is(12L));
         for (int i = 0; i < list.size(); i++) {
             assertThat(list.get(i).value(), is("elt-" + (10 + i)));
         }
@@ -143,9 +151,11 @@ public class InMemoryRepositoryTest {
             this.repository.create("elt-" + i);
         }
 
-        PagedEntityList<String> list = this.repository.all(2, 5);
+        PagedEntityList<String> list = this.repository.all(12, 15);
 
         assertThat(list, hasSize(0));
-        assertThat(list.hasNextPage(), is(false));
+        assertThat(list.startIndex(), is(0L));
+        assertThat(list.endIndex(), is(0L));
+        assertThat(list.total(), is(10L));
     }
 }

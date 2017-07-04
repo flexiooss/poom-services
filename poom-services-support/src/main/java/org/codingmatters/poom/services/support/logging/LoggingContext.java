@@ -1,4 +1,4 @@
-package org.codingmatters.poom.services.support;
+package org.codingmatters.poom.services.support.logging;
 
 import org.slf4j.MDC;
 

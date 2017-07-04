@@ -12,6 +12,6 @@ public interface Repository<V, Q> {
     Entity<V> retrieve(String id) throws RepositoryException;
     Entity<V>  update(Entity<V> entity, V withValue) throws RepositoryException;
     void delete(Entity<V> entity) throws RepositoryException;
-    PagedEntityList<V> all(int page, int pageSize) throws RepositoryException;
-    PagedEntityList<V> search(Q query, int page, int pageSize) throws RepositoryException;
+    PagedEntityList<V> all(long startIndex, long endIndex) throws RepositoryException;
+    PagedEntityList<V> search(Q query, long startIndex, long endIndex) throws RepositoryException;
 }

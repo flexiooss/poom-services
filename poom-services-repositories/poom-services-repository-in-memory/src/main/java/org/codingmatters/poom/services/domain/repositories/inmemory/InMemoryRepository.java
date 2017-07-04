@@ -52,28 +52,27 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
     }
 
     @Override
-    public PagedEntityList<V> all(int page, int pageSize) throws RepositoryException {
+    public PagedEntityList<V> all(long startIndex, long endIndex) throws RepositoryException {
         if(this.store.isEmpty()) {
-            return new PagedEntityList.DefaultPagedEntityList<>(page, false, 0, Collections.emptyList());
+            return new PagedEntityList.DefaultPagedEntityList<>(0, 0, 0, Collections.emptyList());
         }
-        if(page * pageSize >= this.store.size()) {
-            return new PagedEntityList.DefaultPagedEntityList<>(page, false, this.store.size(), Collections.emptyList());
+        if(startIndex >= this.store.size()) {
+            return new PagedEntityList.DefaultPagedEntityList<>(0, 0, this.store.size(), Collections.emptyList());
         }
-        return this.page(this.store.values().toArray(new Entity[this.store.values().size()]), page, pageSize);
+        return this.slice(this.store.values().toArray(new Entity[this.store.values().size()]), startIndex, endIndex);
     }
 
     protected Stream<Entity<V>> stream() {
         return this.store.values().stream().map(e -> (Entity<V>)e);
     }
 
-    protected PagedEntityList<V> paged(Stream<Entity<V>> stream, int page, int pageSize) {
-        return this.page(stream.<Entity>toArray(length -> new Entity[length]), page, pageSize);
+    protected PagedEntityList<V> paged(Stream<Entity<V>> stream, long startIndex, long endIndex) {
+        return this.slice(stream.<Entity>toArray(length -> new Entity[length]), startIndex, endIndex);
     }
 
-    private PagedEntityList<V> page(Entity<V>[] entities, int page, int pageSize) {
-        int start = page * pageSize;
-        int end = Math.min((page + 1) * pageSize, entities.length);
-        boolean hasNextPage = (page + 1) * pageSize < entities.length;
+    private PagedEntityList<V> slice(Entity<V>[] entities, long startIndex, long endIndex) {
+        int start = (int) startIndex;
+        int end = (int) Math.min(endIndex + 1, entities.length);
 
         Entity[] results = new Entity[end - start];
         System.arraycopy(entities, start, results, 0, results.length);
@@ -82,6 +81,6 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
             results[i] = ImmutableEntity.from(results[i]);
         }
 
-        return new PagedEntityList.DefaultPagedEntityList<>(page, hasNextPage, results.length, Arrays.asList(results));
+        return new PagedEntityList.DefaultPagedEntityList<>(startIndex, end - 1, entities.length, Arrays.asList(results));
     }
 }
