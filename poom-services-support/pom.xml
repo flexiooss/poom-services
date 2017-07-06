@@ -15,5 +15,11 @@
 
     <name>${project.groupId}:${project.artifactId}</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.codingmatters.poom</groupId>
+            <artifactId>poom-services-domain</artifactId>
+        </dependency>
+    </dependencies>
     
 </project>
