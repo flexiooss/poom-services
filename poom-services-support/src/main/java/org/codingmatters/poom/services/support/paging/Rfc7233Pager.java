@@ -16,7 +16,7 @@ public class Rfc7233Pager<V,Q> {
         return new UnitBuilder(requestedRange);
     }
 
-    static public class UnitBuilder<V,Q> {
+    static public class UnitBuilder {
         private final String requestedRange;
 
         private UnitBuilder(String requestedRange) {
@@ -29,7 +29,7 @@ public class Rfc7233Pager<V,Q> {
     }
 
 
-    static public class MaxPageSizeBuilder<V,Q> {
+    static public class MaxPageSizeBuilder {
         private final String unit;
         private final String requestedRange;
 
@@ -107,21 +107,13 @@ public class Rfc7233Pager<V,Q> {
         return this.end;
     }
 
-    public boolean isValid() {
-        return valid;
-    }
-
-    public String validationMessage() {
-        return validationMessage;
-    }
-
     public Page page() throws RepositoryException {
         return this.page(() -> this.repository.all(this.start(), this.end()));
     }
 
     public Page page(ResultListSupplier<V> requester) throws RepositoryException {
         String acceptRange = String.format("%s %d", this.unit, this.maxPageSize);
-        if(this.isValid()) {
+        if(this.valid) {
             PagedEntityList<V> list = requester.get();
             String contentRange = String.format("%s %d-%d/%d",
                     this.unit,
