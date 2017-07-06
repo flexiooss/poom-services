@@ -111,6 +111,10 @@ public class Rfc7233Pager<V,Q> {
         return this.page(() -> this.repository.all(this.start(), this.end()));
     }
 
+    public Page page(Q query) throws RepositoryException {
+        return this.page(() -> this.repository.search(query, this.start(), this.end()));
+    }
+
     public Page page(ResultListSupplier<V> requester) throws RepositoryException {
         String acceptRange = String.format("%s %d", this.unit, this.maxPageSize);
         if(this.valid) {
