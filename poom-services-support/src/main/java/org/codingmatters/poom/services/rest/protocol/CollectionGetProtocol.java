@@ -23,9 +23,9 @@ public interface CollectionGetProtocol<V, Q, Req, Resp> extends Function<Req, Re
 
     Q parseQuery(Req request);
 
-    Resp partialJobList(Rfc7233Pager.Page page);
-    Resp completeList(Rfc7233Pager.Page page);
-    Resp invalidRangeQuery(Rfc7233Pager.Page page, String errorToken);
+    Resp partialJobList(Rfc7233Pager.Page<V> page);
+    Resp completeList(Rfc7233Pager.Page<V> page);
+    Resp invalidRangeQuery(Rfc7233Pager.Page<V> page, String errorToken);
     Resp unexpectedError(RepositoryException e, String errorToken);
 
     default Resp apply(Req request) {
@@ -39,7 +39,7 @@ public interface CollectionGetProtocol<V, Q, Req, Resp> extends Function<Req, Re
 
                 Q query = this.parseQuery(request);
 
-                Rfc7233Pager.Page page;
+                Rfc7233Pager.Page<V> page;
                 if(query != null) {
                     page = pager.page(query);
                 } else {

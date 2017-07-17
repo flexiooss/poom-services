@@ -87,6 +87,11 @@ public class Rfc7233Pager<V,Q> {
                 endIndex = Long.parseLong(rangeMatcher.group(2));
             }
         }
+
+        if(endIndex - startIndex > this.maxPageSize) {
+            endIndex = startIndex + this.maxPageSize - 1;
+        }
+
         this.start = startIndex;
         this.end = endIndex;
 
@@ -99,23 +104,23 @@ public class Rfc7233Pager<V,Q> {
         }
     }
 
-    public long start() {
+    private long start() {
         return this.start;
     }
 
-    public long end() {
+    private long end() {
         return this.end;
     }
 
-    public Page page() throws RepositoryException {
+    public Page<V> page() throws RepositoryException {
         return this.page(() -> this.repository.all(this.start(), this.end()));
     }
 
-    public Page page(Q query) throws RepositoryException {
+    public Page<V> page(Q query) throws RepositoryException {
         return this.page(() -> this.repository.search(query, this.start(), this.end()));
     }
 
-    public Page page(ResultListSupplier<V> requester) throws RepositoryException {
+    private Page<V> page(ResultListSupplier<V> requester) throws RepositoryException {
         String acceptRange = String.format("%s %d", this.unit, this.maxPageSize);
         if(this.valid) {
             PagedEntityList<V> list = requester.get();
@@ -125,19 +130,19 @@ public class Rfc7233Pager<V,Q> {
                     list.endIndex(),
                     list.total()
             );
-            return new Page(list, contentRange, acceptRange, this.valid, this.validationMessage, requestedRange);
+            return new Page<>(list, contentRange, acceptRange, this.valid, this.validationMessage, requestedRange);
         } else {
             PagedEntityList<V> list = this.repository.all(0, 0);
             String contentRange = String.format("%s */%d",
                     this.unit,
                     list.total()
             );
-            return new Page(list, contentRange, acceptRange, this.valid, this.validationMessage, requestedRange);
+            return new Page<>(list, contentRange, acceptRange, this.valid, this.validationMessage, requestedRange);
         }
     }
 
 
-    public class Page {
+    static public class Page<V> {
         private final PagedEntityList<V> list;
         private final String contentRange;
         private final String acceptRange;
