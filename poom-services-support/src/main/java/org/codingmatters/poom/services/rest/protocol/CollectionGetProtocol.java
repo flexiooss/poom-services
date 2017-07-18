@@ -23,7 +23,7 @@ public interface CollectionGetProtocol<V, Q, Req, Resp> extends Function<Req, Re
 
     Q parseQuery(Req request);
 
-    Resp partialJobList(Rfc7233Pager.Page<V> page);
+    Resp partialList(Rfc7233Pager.Page<V> page);
     Resp completeList(Rfc7233Pager.Page<V> page);
     Resp invalidRangeQuery(Rfc7233Pager.Page<V> page, String errorToken);
     Resp unexpectedError(RepositoryException e, String errorToken);
@@ -48,7 +48,7 @@ public interface CollectionGetProtocol<V, Q, Req, Resp> extends Function<Req, Re
 
                 if(page.isValid()) {
                     if (page.isPartial()) {
-                        return this.partialJobList(page);
+                        return this.partialList(page);
                     } else {
                         return this.completeList(page);
                     }

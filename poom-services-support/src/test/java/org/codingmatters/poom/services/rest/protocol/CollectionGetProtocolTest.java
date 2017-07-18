@@ -239,7 +239,7 @@ public class CollectionGetProtocolTest {
         }
 
         @Override
-        public Response partialJobList(Rfc7233Pager.Page<String> page) {
+        public Response partialList(Rfc7233Pager.Page<String> page) {
             return new Response(page, null, null);
         }
 
