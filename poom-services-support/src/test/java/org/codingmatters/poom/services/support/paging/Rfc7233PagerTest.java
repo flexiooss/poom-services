@@ -2,12 +2,10 @@ package org.codingmatters.poom.services.support.paging;
 
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.test.utils.StringInMemoryRepository;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 /**
  * Created by nelt on 7/13/17.
@@ -211,15 +209,46 @@ public class Rfc7233PagerTest {
         assertThat(page.validationMessage(), is(nullValue()));
     }
 
-    @Ignore
     @Test
-    public void validation() throws Exception {
-        fail("NYIMPL");
+    public void whenRangeIsInvalid__thenReturnEptyResut_withValidRanges() throws Exception {
+        for(int i = 0 ; i < 15 ; i++) {
+            this.repository.create("test-" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("10-8")
+                .unit("String")
+                .maxPageSize(10)
+                .pager(this.repository)
+                .page();
+
+        assertThat(page.isValid(), is(false));
+        assertThat(page.validationMessage(), is("start must be before end of range"));
+        assertThat(page.isPartial(), is(true));
+
+        assertThat(page.acceptRange(), is("String 10"));
+        assertThat(page.contentRange(), is("String */15"));
+        assertThat(page.requestedRange(), is("10-8"));
     }
 
-    @Ignore
     @Test
     public void query() throws Exception {
-        fail("NYIMPL");
+        for(int i = 0 ; i < 5 ; i++) {
+            this.repository.create("matches " + i);
+            this.repository.create("doesn't match " + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("0-9")
+                .unit("String")
+                .maxPageSize(10)
+                .pager(this.repository)
+                .page("matches ");
+
+        assertThat(page.isValid(), is(true));
+        assertThat(page.list().total(), is(5L));
+        assertThat(page.list(), hasSize(5));
+
+        for(int i = 0 ; i < 5 ; i++) {
+            assertThat(page.list().get(i).value(), is("matches " + i));
+        }
     }
 }
