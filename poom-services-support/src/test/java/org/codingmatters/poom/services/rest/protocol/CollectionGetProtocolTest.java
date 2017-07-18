@@ -8,6 +8,8 @@ import org.codingmatters.poom.services.test.utils.StringInMemoryRepository;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -211,6 +213,11 @@ public class CollectionGetProtocolTest {
 
         TestCollectionGetHandler(Repository<String, String> repository) {
             this.repository = repository;
+        }
+
+        @Override
+        public Logger log() {
+            return LoggerFactory.getLogger(TestCollectionGetHandler.class);
         }
 
         @Override
