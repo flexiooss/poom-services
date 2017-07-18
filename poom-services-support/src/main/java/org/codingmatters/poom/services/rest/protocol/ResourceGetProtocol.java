@@ -1,4 +1,4 @@
-package org.codingmatters.poomjobs.service.handlers;
+package org.codingmatters.poom.services.rest.protocol;
 
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.repositories.Repository;
