@@ -28,7 +28,7 @@ public interface CollectionPostProtocol<V, Q, Req, Resp> extends Function<Req, R
             if (creation.validation().isValid()) {
                 try {
                     Entity<V> entity = this.repository().create(creation.applied());
-                    MDC.put("job-id", entity.id());
+                    MDC.put("entity-id", entity.id());
                     this.log().info("created entity {}", entity.id());
 
                     return this.entityCreated(creation, entity);
