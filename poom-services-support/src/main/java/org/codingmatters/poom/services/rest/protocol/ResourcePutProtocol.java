@@ -43,7 +43,7 @@ public interface ResourcePutProtocol<V, Q, Req, Resp> extends Function<Req, Resp
                     } else {
                         String errorToken = UUID.randomUUID().toString();
                         MDC.put("error-token", errorToken);
-                        this.log().info("illegal job change: {}", change.validation().message());
+                        this.log().info("illegal entity change: {}", change.validation().message());
                         return this.invalidUpdate(change, errorToken);
                     }
                 } else {
@@ -54,11 +54,10 @@ public interface ResourcePutProtocol<V, Q, Req, Resp> extends Function<Req, Resp
                     return this.entityNotFound(errorToken);
                 }
             } catch (RepositoryException e) {
-
                 String errorToken = UUID.randomUUID().toString();
                 MDC.put("error-token", errorToken);
 
-                this.log().error("unexpected error while looking up job : {}", this.entityId(request));
+                this.log().error("unexpected error while looking up entity: {}", this.entityId(request));
                 this.log().debug("unexpected exception", e);
                 return this.unexpectedError(e, errorToken);
             }
