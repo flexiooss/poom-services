@@ -6,10 +6,11 @@ import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
 import org.codingmatters.poom.servives.domain.entities.MutableEntity;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -17,26 +18,26 @@ import java.util.stream.Stream;
  * Created by nelt on 6/5/17.
  */
 public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
-    private final LinkedHashMap<String, MutableEntity<V>> store = new LinkedHashMap<>();
+    static private final Logger log = LoggerFactory.getLogger(InMemoryRepository.class);
+
+    private final Store<V> store = new Store<>();
 
     @Override
     public Entity<V> create(V withValue) throws RepositoryException {
         MutableEntity<V> entity = new MutableEntity<>(UUID.randomUUID().toString(), withValue);
-        this.store.put(entity.id(), entity);
+        this.store.store(entity);
         return ImmutableEntity.from(entity);
     }
 
     @Override
     public Entity<V> retrieve(String id) throws RepositoryException {
-        return this.store.get(id);
+        return ImmutableEntity.from(this.store.get(id));
     }
 
     @Override
     public Entity<V> update(Entity<V> entity, V withValue) throws RepositoryException {
-        if(this.store.containsKey(entity.id())) {
-            MutableEntity<V> storedEntity = this.store.get(entity.id());
-            storedEntity.changeValue(withValue);
-            return ImmutableEntity.from(storedEntity);
+        if(this.store.isStored(entity)) {
+            return ImmutableEntity.from(this.store.update(entity, withValue));
         } else {
             throw new RepositoryException("cannot update entity, no such entity in store : " + entity.id());
         }
@@ -44,8 +45,8 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
 
     @Override
     public void delete(Entity<V> entity) throws RepositoryException {
-        if(this.store.containsKey(entity.id())) {
-            this.store.remove(entity.id());
+        if(this.store.isStored(entity)) {
+            this.store.remove(entity);
         } else {
             throw new RepositoryException("cannot delete entity, no such entity in store : " + entity.id());
         }
@@ -59,11 +60,11 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
         if(startIndex >= this.store.size()) {
             return new PagedEntityList.DefaultPagedEntityList<>(0, 0, this.store.size(), Collections.emptyList());
         }
-        return this.slice(this.store.values().toArray(new Entity[this.store.values().size()]), startIndex, endIndex);
+        return this.slice(this.store.contents(), startIndex, endIndex);
     }
 
     protected Stream<Entity<V>> stream() {
-        return this.store.values().stream().map(e -> (Entity<V>)e);
+        return this.store.stream();
     }
 
     protected PagedEntityList<V> paged(Stream<Entity<V>> stream, long startIndex, long endIndex) {
@@ -73,6 +74,10 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
     private PagedEntityList<V> slice(Entity<V>[] entities, long startIndex, long endIndex) {
         int start = (int) startIndex;
         int end = (int) Math.min(endIndex + 1, entities.length);
+
+        if(end - start < 0) {
+            return new PagedEntityList.DefaultPagedEntityList<>(startIndex, 0, entities.length, Arrays.asList(new Entity[0]));
+        }
 
         Entity[] results = new Entity[end - start];
         System.arraycopy(entities, start, results, 0, results.length);

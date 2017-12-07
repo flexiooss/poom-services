@@ -8,7 +8,7 @@ import java.math.BigInteger;
 public class ImmutableEntity<V> implements Entity<V> {
 
     static public <V> ImmutableEntity<V> from(Entity<V> entity) {
-        return new ImmutableEntity<>(entity.id(), entity.version(), entity.value());
+        return entity != null ? new ImmutableEntity<>(entity.id(), entity.version(), entity.value()) : null;
     }
 
     private final String id;
