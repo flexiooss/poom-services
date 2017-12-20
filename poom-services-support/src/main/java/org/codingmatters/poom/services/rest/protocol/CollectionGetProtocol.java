@@ -16,7 +16,7 @@ import java.util.function.Function;
 public interface CollectionGetProtocol<V, Q, Req, Resp> extends Function<Req, Resp> {
 
     Logger log();
-    Repository<V, Q> repository();
+    Repository<V, Q> repository(Req request);
 
     int maxPageSize();
 
@@ -37,7 +37,7 @@ public interface CollectionGetProtocol<V, Q, Req, Resp> extends Function<Req, Re
                 Rfc7233Pager<V, Q> pager = Rfc7233Pager.forRequestedRange(this.rfc7233Range(request))
                         .unit(this.rfc7233Unit())
                         .maxPageSize(this.maxPageSize())
-                        .pager(this.repository());
+                        .pager(this.repository(request));
 
                 Q query = this.parseQuery(request);
 
