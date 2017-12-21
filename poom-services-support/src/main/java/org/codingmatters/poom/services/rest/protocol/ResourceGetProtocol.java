@@ -17,7 +17,7 @@ import java.util.function.Function;
 public interface ResourceGetProtocol<V, Q, Req, Resp> extends Function<Req, Resp> {
 
     Logger log();
-    Repository<V, Q> repository();
+    Repository<V, Q> repository(Req request);
     String entityId(Req request);
 
     Resp entityFound(Entity<V> entity);
@@ -37,7 +37,7 @@ public interface ResourceGetProtocol<V, Q, Req, Resp> extends Function<Req, Resp
             }
 
             try {
-                Entity<V> entity = this.repository().retrieve(this.entityId(request));
+                Entity<V> entity = this.repository(request).retrieve(this.entityId(request));
                 if (entity != null) {
                     log().info("request for entity {} returns version {}", entity.id(), entity.version());
                     return this.entityFound(entity);

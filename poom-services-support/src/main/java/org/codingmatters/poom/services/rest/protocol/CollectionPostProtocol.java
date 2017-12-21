@@ -15,7 +15,7 @@ import java.util.function.Function;
 public interface CollectionPostProtocol<V, Q, Req, Resp> extends Function<Req, Resp> {
 
     Logger log();
-    Repository<V, Q> repository();
+    Repository<V, Q> repository(Req request);
 
     Change<V> valueCreation(Req request);
     Resp entityCreated(Change<V> creation, Entity<V> entity);
@@ -35,7 +35,7 @@ public interface CollectionPostProtocol<V, Q, Req, Resp> extends Function<Req, R
             Change<V> creation = valueCreation(request);
             if (creation.validation().isValid()) {
                 try {
-                    Entity<V> entity = this.repository().create(creation.applied());
+                    Entity<V> entity = this.repository(request).create(creation.applied());
                     MDC.put("entity-id", entity.id());
                     this.log().info("created entity {}", entity.id());
 

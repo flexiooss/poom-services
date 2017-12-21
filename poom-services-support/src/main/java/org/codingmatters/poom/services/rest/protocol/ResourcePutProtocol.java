@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 public interface ResourcePutProtocol<V, Q, Req, Resp> extends Function<Req, Resp> {
     Logger log();
-    Repository<V, Q> repository();
+    Repository<V, Q> repository(Req request);
 
     String entityId(Req request);
     Change<V> valueUpdate(Req request, Entity<V> entity);
@@ -36,7 +36,8 @@ public interface ResourcePutProtocol<V, Q, Req, Resp> extends Function<Req, Resp
             }
 
             try {
-                Entity<V> entity = this.repository().retrieve(this.entityId(request));
+                Repository<V, Q> repository = this.repository(request);
+                Entity<V> entity = repository.retrieve(this.entityId(request));
                 if(entity != null) {
                     MDC.put("entity-id", entity.id());
 
@@ -45,7 +46,7 @@ public interface ResourcePutProtocol<V, Q, Req, Resp> extends Function<Req, Resp
                     if(change.validation().isValid()) {
                         V newValue = change.applied();
 
-                        entity = this.repository().update(entity, newValue);
+                        entity = repository.update(entity, newValue);
 
                         this.log().info("entity updated");
                         return this.entityUpdated(entity);

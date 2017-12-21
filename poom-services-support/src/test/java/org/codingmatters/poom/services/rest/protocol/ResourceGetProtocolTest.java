@@ -91,7 +91,7 @@ public class ResourceGetProtocolTest {
         }
 
         @Override
-        public Repository<String, String> repository() {
+        public Repository<String, String> repository(Request request) {
             return this.repository;
         }
 
