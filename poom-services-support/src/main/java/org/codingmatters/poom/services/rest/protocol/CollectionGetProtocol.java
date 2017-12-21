@@ -7,6 +7,7 @@ import org.codingmatters.poom.services.support.paging.Rfc7233Pager;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -30,9 +31,16 @@ public interface CollectionGetProtocol<V, Q, Req, Resp> extends Function<Req, Re
     Resp invalidRangeQuery(Rfc7233Pager.Page<V> page, String errorToken);
     Resp unexpectedError(RepositoryException e, String errorToken);
 
+    default Optional<Resp> validate(Req request) { return Optional.ofNullable(null); }
+
     default Resp apply(Req request) {
         try(LoggingContext ctx = LoggingContext.start()) {
             MDC.put("request-id", UUID.randomUUID().toString());
+            Optional<Resp> invalidResponse = this.validate(request);
+            if(invalidResponse.isPresent()) {
+                return invalidResponse.get();
+            }
+
             try {
                 Rfc7233Pager<V, Q> pager = Rfc7233Pager.forRequestedRange(this.rfc7233Range(request))
                         .unit(this.rfc7233Unit())

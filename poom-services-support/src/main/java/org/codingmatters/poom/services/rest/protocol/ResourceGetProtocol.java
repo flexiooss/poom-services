@@ -7,6 +7,7 @@ import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -23,10 +24,18 @@ public interface ResourceGetProtocol<V, Q, Req, Resp> extends Function<Req, Resp
     Resp entityNotFound(String errorToken);
     Resp unexpectedError(String errorToken);
 
+    default Optional<Resp> validate(Req request) { return Optional.ofNullable(null); }
+
     @Override
     default Resp apply(Req request) {
         try(LoggingContext ctx = LoggingContext.start()) {
             MDC.put("request-id", UUID.randomUUID().toString());
+
+            Optional<Resp> invalidResponse = this.validate(request);
+            if(invalidResponse.isPresent()) {
+                return invalidResponse.get();
+            }
+
             try {
                 Entity<V> entity = this.repository().retrieve(this.entityId(request));
                 if (entity != null) {

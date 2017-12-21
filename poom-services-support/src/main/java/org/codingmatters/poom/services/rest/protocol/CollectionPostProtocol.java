@@ -8,6 +8,7 @@ import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -21,9 +22,16 @@ public interface CollectionPostProtocol<V, Q, Req, Resp> extends Function<Req, R
     Resp invalidCreation(Change<V> creation, String errorToken);
     Resp unexpectedError(Change<V> creation, RepositoryException e, String errorToken);
 
+    default Optional<Resp> validate(Req request) { return Optional.ofNullable(null); }
+
     default Resp apply(Req request) {
         try(LoggingContext ctx = LoggingContext.start()) {
             MDC.put("request-id", UUID.randomUUID().toString());
+            Optional<Resp> invalidResponse = this.validate(request);
+            if(invalidResponse.isPresent()) {
+                return invalidResponse.get();
+            }
+
             Change<V> creation = valueCreation(request);
             if (creation.validation().isValid()) {
                 try {
