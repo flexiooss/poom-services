@@ -18,7 +18,7 @@ public interface CollectionPostProtocol<V, Q, Req, Resp> extends Function<Req, R
     Repository<V, Q> repository(Req request);
 
     Change<V> valueCreation(Req request);
-    Resp entityCreated(Change<V> creation, Entity<V> entity);
+    Resp entityCreated(Req request, Change<V> creation, Entity<V> entity);
     Resp invalidCreation(Change<V> creation, String errorToken);
     Resp unexpectedError(Change<V> creation, RepositoryException e, String errorToken);
 
@@ -39,7 +39,7 @@ public interface CollectionPostProtocol<V, Q, Req, Resp> extends Function<Req, R
                     MDC.put("entity-id", entity.id());
                     this.log().info("created entity {}", entity.id());
 
-                    return this.entityCreated(creation, entity);
+                    return this.entityCreated(request, creation, entity);
                 } catch (RepositoryException e) {
                     String errorToken = UUID.randomUUID().toString();
                     MDC.put("error-token", errorToken);

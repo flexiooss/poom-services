@@ -133,7 +133,7 @@ public class CollectionPostProtocolTest {
         }
 
         @Override
-        public Response entityCreated(Change<String> creation, Entity<String> entity) {
+        public Response entityCreated(Request request, Change<String> creation, Entity<String> entity) {
             return new Response("entityCreated", creation, entity, null, null);
         }
 
