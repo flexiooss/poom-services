@@ -5,6 +5,7 @@ import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.support.logging.LoggingContext;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.util.Optional;
@@ -16,7 +17,10 @@ import java.util.function.Function;
  */
 public interface ResourceGetProtocol<V, Q, Req, Resp> extends Function<Req, Resp> {
 
-    Logger log();
+    default Logger log() {
+        return LoggerFactory.getLogger(this.getClass());
+    }
+
     Repository<V, Q> repository(Req request);
     String entityId(Req request);
 
