@@ -40,22 +40,30 @@ public interface ResourceGetProtocol<V, Q, Req, Resp> extends Function<Req, Resp
                 return invalidResponse.get();
             }
 
+            String entityId = this.entityId(request);
+            if(entityId == null) {
+                String errorToken = UUID.randomUUID().toString();
+                MDC.put("error-token", errorToken);
+                log().info("cannot find an entity given a null id");
+
+                return this.entityNotFound(errorToken);
+            }
             try {
-                Entity<V> entity = this.repository(request).retrieve(this.entityId(request));
+                Entity<V> entity = this.repository(request).retrieve(entityId);
                 if (entity != null) {
                     log().info("request for entity {} returns version {}", entity.id(), entity.version());
                     return this.entityFound(entity);
                 } else {
                     String errorToken = UUID.randomUUID().toString();
                     MDC.put("error-token", errorToken);
-                    log().info("no entity found with id: {}", this.entityId(request));
+                    log().info("no entity found with id: {}", entityId);
 
                     return this.entityNotFound(errorToken);
                 }
             } catch (RepositoryException e) {String errorToken = UUID.randomUUID().toString();
                 MDC.put("error-token", errorToken);
 
-                log().error("unexpected error while looking up entity : {}", this.entityId(request));
+                log().error("unexpected error while looking up entity : {}", entityId);
                 log().debug("unexpected exception", e);
                 return this.unexpectedError(errorToken);
             }
