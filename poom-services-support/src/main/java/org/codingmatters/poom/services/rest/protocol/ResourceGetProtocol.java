@@ -30,6 +30,13 @@ public interface ResourceGetProtocol<V, Q, Req, Resp> extends Function<Req, Resp
 
     default Optional<Resp> validate(Req request) { return Optional.ofNullable(null); }
 
+    default Entity<V> resolveEntity(String entityId, Req request) throws RepositoryException {
+        if(entityId == null) {
+            throw new RepositoryException("cannot find an entity given a null id");
+        }
+        return this.repository(request).retrieve(entityId);
+    }
+
     @Override
     default Resp apply(Req request) {
         try(LoggingContext ctx = LoggingContext.start()) {
@@ -39,17 +46,9 @@ public interface ResourceGetProtocol<V, Q, Req, Resp> extends Function<Req, Resp
             if(invalidResponse.isPresent()) {
                 return invalidResponse.get();
             }
-
             String entityId = this.entityId(request);
-            if(entityId == null) {
-                String errorToken = UUID.randomUUID().toString();
-                MDC.put("error-token", errorToken);
-                log().info("cannot find an entity given a null id");
-
-                return this.entityNotFound(errorToken);
-            }
             try {
-                Entity<V> entity = this.repository(request).retrieve(entityId);
+                Entity<V> entity = this.resolveEntity(entityId, request);
                 if (entity != null) {
                     log().info("request for entity {} returns version {}", entity.id(), entity.version());
                     return this.entityFound(entity);

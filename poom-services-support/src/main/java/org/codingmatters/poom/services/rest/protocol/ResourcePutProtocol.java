@@ -31,6 +31,13 @@ public interface ResourcePutProtocol<V, Q, Req, Resp> extends Function<Req, Resp
 
     default Optional<Resp> validate(Req request) { return Optional.ofNullable(null); }
 
+    default Entity<V> resolveEntity(String entityId, Req request) throws RepositoryException {
+        if(entityId == null) {
+            throw new RepositoryException("cannot find an entity given a null id");
+        }
+        return this.repository(request).retrieve(entityId);
+    }
+
     default Resp apply(Req request) {
         try(LoggingContext ctx = LoggingContext.start()) {
             MDC.put("request-id", UUID.randomUUID().toString());
@@ -42,7 +49,8 @@ public interface ResourcePutProtocol<V, Q, Req, Resp> extends Function<Req, Resp
 
             try {
                 Repository<V, Q> repository = this.repository(request);
-                Entity<V> entity = repository.retrieve(this.entityId(request));
+
+                Entity<V> entity = this.resolveEntity(this.entityId(request), request);
                 if(entity != null) {
                     MDC.put("entity-id", entity.id());
 
