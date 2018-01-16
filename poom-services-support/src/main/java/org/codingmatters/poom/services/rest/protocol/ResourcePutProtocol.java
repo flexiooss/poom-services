@@ -5,22 +5,13 @@ import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.support.logging.LoggingContext;
 import org.codingmatters.poom.servives.domain.entities.Entity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
-public interface ResourcePutProtocol<V, Q, Req, Resp> extends Function<Req, Resp> {
-
-    default Logger log() {
-        return LoggerFactory.getLogger(this.getClass());
-    }
-
-    Repository<V, Q> repository(Req request);
-
+public interface ResourcePutProtocol<V, Q, Req, Resp> extends RepositoryRequestProtocol<V, Q, Req, Resp>, Function<Req, Resp> {
     String entityId(Req request);
     Change<V> valueUpdate(Req request, Entity<V> entity);
 

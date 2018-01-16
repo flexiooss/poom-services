@@ -2,31 +2,20 @@ package org.codingmatters.poom.services.rest.protocol;
 
 import org.codingmatters.poom.services.domain.change.Change;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
-import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.support.logging.LoggingContext;
 import org.codingmatters.poom.servives.domain.entities.Entity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
-public interface CollectionPostProtocol<V, Q, Req, Resp> extends Function<Req, Resp> {
-
-    default Logger log() {
-        return LoggerFactory.getLogger(this.getClass());
-    }
-
-    Repository<V, Q> repository(Req request);
+public interface CollectionPostProtocol<V, Q, Req, Resp> extends RepositoryRequestProtocol<V, Q, Req, Resp>, Function<Req, Resp> {
 
     Change<V> valueCreation(Req request);
     Resp entityCreated(Req request, Change<V> creation, Entity<V> entity);
     Resp invalidCreation(Change<V> creation, String errorToken);
     Resp unexpectedError(Change<V> creation, RepositoryException e, String errorToken);
-
-    default Optional<Resp> validate(Req request) { return Optional.ofNullable(null); }
 
     default Resp apply(Req request) {
         try(LoggingContext ctx = LoggingContext.start()) {

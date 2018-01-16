@@ -1,11 +1,8 @@
 package org.codingmatters.poom.services.rest.protocol;
 
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
-import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.support.logging.LoggingContext;
 import org.codingmatters.poom.services.support.paging.Rfc7233Pager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.util.Optional;
@@ -15,15 +12,8 @@ import java.util.function.Function;
 /**
  * Created by nelt on 7/13/17.
  */
-public interface CollectionGetProtocol<V, Q, Req, Resp> extends Function<Req, Resp> {
-
-    default Logger log() {
-        return LoggerFactory.getLogger(this.getClass());
-    }
-
-    Repository<V, Q> repository(Req request);
-
-    int maxPageSize();
+public interface CollectionGetProtocol<V, Q, Req, Resp> extends RepositoryRequestProtocol<V, Q, Req, Resp>, Function<Req, Resp> {
+    default int maxPageSize() {return 50;}
 
     String rfc7233Unit();
     String rfc7233Range(Req request);
@@ -34,8 +24,6 @@ public interface CollectionGetProtocol<V, Q, Req, Resp> extends Function<Req, Re
     Resp completeList(Rfc7233Pager.Page<V> page);
     Resp invalidRangeQuery(Rfc7233Pager.Page<V> page, String errorToken);
     Resp unexpectedError(RepositoryException e, String errorToken);
-
-    default Optional<Resp> validate(Req request) { return Optional.ofNullable(null); }
 
     default Resp apply(Req request) {
         try(LoggingContext ctx = LoggingContext.start()) {

@@ -1,11 +1,8 @@
 package org.codingmatters.poom.services.rest.protocol;
 
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
-import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.support.logging.LoggingContext;
 import org.codingmatters.poom.servives.domain.entities.Entity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.util.Optional;
@@ -15,20 +12,12 @@ import java.util.function.Function;
 /**
  * Created by nelt on 7/18/17.
  */
-public interface ResourceGetProtocol<V, Q, Req, Resp> extends Function<Req, Resp> {
-
-    default Logger log() {
-        return LoggerFactory.getLogger(this.getClass());
-    }
-
-    Repository<V, Q> repository(Req request);
+public interface ResourceGetProtocol<V, Q, Req, Resp> extends RepositoryRequestProtocol<V, Q, Req, Resp>, Function<Req, Resp> {
     String entityId(Req request);
 
     Resp entityFound(Entity<V> entity);
     Resp entityNotFound(String errorToken);
     Resp unexpectedError(String errorToken);
-
-    default Optional<Resp> validate(Req request) { return Optional.ofNullable(null); }
 
     default Entity<V> resolveEntity(String entityId, Req request) throws RepositoryException {
         if(entityId == null) {
