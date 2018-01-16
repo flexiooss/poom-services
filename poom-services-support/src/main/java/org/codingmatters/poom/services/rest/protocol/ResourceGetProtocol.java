@@ -15,7 +15,7 @@ import java.util.function.Function;
 public interface ResourceGetProtocol<V, Q, Req, Resp> extends RepositoryRequestProtocol<V, Q, Req, Resp>, Function<Req, Resp> {
     String entityId(Req request);
 
-    Resp entityFound(Entity<V> entity);
+    Resp entityFound(Req request, Entity<V> entity);
     Resp entityNotFound(String errorToken);
     Resp unexpectedError(String errorToken);
 
@@ -40,7 +40,7 @@ public interface ResourceGetProtocol<V, Q, Req, Resp> extends RepositoryRequestP
                 Entity<V> entity = this.resolveEntity(entityId, request);
                 if (entity != null) {
                     log().info("request for entity {} returns version {}", entity.id(), entity.version());
-                    return this.entityFound(entity);
+                    return this.entityFound(request, entity);
                 } else {
                     String errorToken = UUID.randomUUID().toString();
                     MDC.put("error-token", errorToken);

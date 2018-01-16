@@ -101,7 +101,7 @@ public class ResourceGetProtocolTest {
         }
 
         @Override
-        public Response entityFound(Entity<String> entity) {
+        public Response entityFound(Request request, Entity<String> entity) {
             return new Response(entity, null, "entityFound");
         }
 
