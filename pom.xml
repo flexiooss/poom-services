@@ -44,6 +44,15 @@
         </repository>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <id>oss-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+
     <modules>
         <module>poom-services-parent</module>
         <module>poom-services-bom</module>
@@ -52,8 +61,6 @@
         <module>poom-services-support</module>
         <module>poomjobs</module>
     </modules>
-
-
 
     <prerequisites>
         <maven>3.0</maven>
