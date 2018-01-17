@@ -73,13 +73,6 @@
     <prerequisites>
         <maven>3.0</maven>
     </prerequisites>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </pluginRepository>
-    </pluginRepositories>
     
     <build>
         <plugins>
