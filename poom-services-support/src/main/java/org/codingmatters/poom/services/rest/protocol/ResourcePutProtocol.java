@@ -20,8 +20,6 @@ public interface ResourcePutProtocol<V, Q, Req, Resp> extends RepositoryRequestP
     Resp entityNotFound(String errorToken);
     Resp unexpectedError(RepositoryException e, String errorToken);
 
-    default Optional<Resp> validate(Req request) { return Optional.ofNullable(null); }
-
     default Entity<V> resolveEntity(String entityId, Req request) throws RepositoryException {
         if(entityId == null) {
             throw new RepositoryException("cannot find an entity given a null id");
