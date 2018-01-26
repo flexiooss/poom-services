@@ -4,6 +4,7 @@ package org.codingmatters.poom.servives.domain.entities;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -14,6 +15,7 @@ public interface PagedEntityList<V> extends List<Entity<V>> {
     long endIndex();
     long total();
     List<V> valueList();
+    List<V> valueList(Function<Entity<V>, V> entityMapper);
 
     class DefaultPagedEntityList<V> extends LinkedList<Entity<V>> implements PagedEntityList<V> {
         private final long startIndex;
@@ -44,7 +46,12 @@ public interface PagedEntityList<V> extends List<Entity<V>> {
 
         @Override
         public List<V> valueList() {
-            return this.stream().map(entity -> entity.value()).collect(Collectors.toList());
+            return this.valueList(entity -> entity.value());
+        }
+
+        @Override
+        public List<V> valueList(Function<Entity<V>, V> entityMapper) {
+            return this.stream().map(entityMapper).collect(Collectors.toList());
         }
     }
 }
