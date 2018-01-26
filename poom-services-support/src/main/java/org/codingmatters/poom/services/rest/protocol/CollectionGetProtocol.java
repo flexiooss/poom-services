@@ -25,6 +25,10 @@ public interface CollectionGetProtocol<V, Q, Req, Resp> extends RepositoryReques
     Resp invalidRangeQuery(Rfc7233Pager.Page<V> page, String errorToken, Req request);
     Resp unexpectedError(RepositoryException e, String errorToken);
 
+    default String rfc7233Unit(Req request) {
+        return this.rfc7233Unit();
+    }
+
     default Resp apply(Req request) {
         try(LoggingContext ctx = LoggingContext.start()) {
             MDC.put("request-id", UUID.randomUUID().toString());
