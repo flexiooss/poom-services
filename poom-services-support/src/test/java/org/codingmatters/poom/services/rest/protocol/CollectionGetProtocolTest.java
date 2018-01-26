@@ -246,17 +246,17 @@ public class CollectionGetProtocolTest {
         }
 
         @Override
-        public Response partialList(Rfc7233Pager.Page<String> page) {
+        public Response partialList(Rfc7233Pager.Page<String> page, Request request) {
             return new Response(page, null, null);
         }
 
         @Override
-        public Response completeList(Rfc7233Pager.Page<String> page) {
+        public Response completeList(Rfc7233Pager.Page<String> page, Request request) {
             return new Response(page, null, null);
         }
 
         @Override
-        public Response invalidRangeQuery(Rfc7233Pager.Page<String> page, String errorToken) {
+        public Response invalidRangeQuery(Rfc7233Pager.Page<String> page, String errorToken, Request request) {
             return new Response(page, errorToken, null);
         }
 

@@ -20,9 +20,9 @@ public interface CollectionGetProtocol<V, Q, Req, Resp> extends RepositoryReques
 
     Q parseQuery(Req request);
 
-    Resp partialList(Rfc7233Pager.Page<V> page);
-    Resp completeList(Rfc7233Pager.Page<V> page);
-    Resp invalidRangeQuery(Rfc7233Pager.Page<V> page, String errorToken);
+    Resp partialList(Rfc7233Pager.Page<V> page, Req request);
+    Resp completeList(Rfc7233Pager.Page<V> page, Req request);
+    Resp invalidRangeQuery(Rfc7233Pager.Page<V> page, String errorToken, Req request);
     Resp unexpectedError(RepositoryException e, String errorToken);
 
     default Resp apply(Req request) {
@@ -52,16 +52,16 @@ public interface CollectionGetProtocol<V, Q, Req, Resp> extends RepositoryReques
                 if(page.isValid()) {
                     if (page.isPartial()) {
                         this.log().info("returning partial {} list ({})", this.rfc7233Unit(), page.contentRange());
-                        return this.partialList(page);
+                        return this.partialList(page, request);
                     } else {
                         this.log().info("returning complete {} list ({})", this.rfc7233Unit(), page.contentRange());
-                        return this.completeList(page);
+                        return this.completeList(page, request);
                     }
                 } else {
                     String errorToken = UUID.randomUUID().toString();
                     MDC.put("error-token", errorToken);
                     this.log().info(page.validationMessage() + " (requested range: {})", page.requestedRange());
-                    return this.invalidRangeQuery(page, errorToken);
+                    return this.invalidRangeQuery(page, errorToken, request);
                 }
             } catch (RepositoryException e) {
                 String errorToken = UUID.randomUUID().toString();
