@@ -61,7 +61,7 @@ public class Rfc7233PagerTest {
     }
 
     @Test
-    public void whenNoRange__ifMoreElementsThanMaxPageSize__thenReturnCompleteList() throws Exception {
+    public void whenNoRange__ifMoreElementsThanMaxPageSize__thenReturnPartialList() throws Exception {
         for(int i = 0 ; i < 15 ; i++) {
             this.repository.create("test-" + i);
         }
@@ -132,7 +132,7 @@ public class Rfc7233PagerTest {
     }
 
     @Test
-    public void whenRange_andRangeSizeUnderMaxSize__ifMoreElementsThanRangeSize__thenReturnCompleteList() throws Exception {
+    public void whenRange_andRangeSizeUnderMaxSize__ifMoreElementsThanRangeSize__thenReturnPartialList() throws Exception {
         for(int i = 0 ; i < 15 ; i++) {
             this.repository.create("test-" + i);
         }
@@ -158,7 +158,7 @@ public class Rfc7233PagerTest {
     }
 
     @Test
-    public void whenOffsettedRange_andRangeSizeUnderMaxSize__ifMoreElementsThanRangeSize__thenReturnCompleteList() throws Exception {
+    public void whenOffsettedRange_andRangeSizeUnderMaxSize__ifMoreElementsThanRangeSize__thenReturnPartialList() throws Exception {
         for(int i = 0 ; i < 15 ; i++) {
             this.repository.create("test-" + i);
         }
@@ -179,6 +179,28 @@ public class Rfc7233PagerTest {
             assertThat(page.list().get(i).value(), is("test-" + (i + 4)));
         }
 
+        assertThat(page.isValid(), is(true));
+        assertThat(page.validationMessage(), is(nullValue()));
+    }
+
+    @Test
+    public void whenOffsettedRange_andRangeSizeOverMaxSize__ifLessElementsThanRangeSize__thenReturnCompleteList() throws Exception {
+        for(int i = 0 ; i < 15 ; i++) {
+            this.repository.create("test-" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("4-20")
+                .unit("String")
+                .maxPageSize(20)
+                .pager(this.repository)
+                .page();
+
+        assertThat(page.acceptRange(), is("String 20"));
+        assertThat(page.contentRange(), is("String 4-14/15"));
+        assertThat(page.requestedRange(), is("4-20"));
+
+        assertThat(page.isPartial(), is(false));
+        assertThat(page.list(), hasSize(11));
         assertThat(page.isValid(), is(true));
         assertThat(page.validationMessage(), is(nullValue()));
     }

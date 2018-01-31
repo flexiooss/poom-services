@@ -168,7 +168,7 @@ public class Rfc7233Pager<V,Q> {
         }
 
         public boolean isPartial() {
-            return this.list.size() < this.list.total();
+            return this.list.endIndex() < this.list.total() - 1;
         }
 
         public PagedEntityList<V> list() {
