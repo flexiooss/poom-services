@@ -6,6 +6,14 @@ import java.util.Objects;
  * Created by nelt on 6/23/17.
  */
 public class Validation {
+    static public Validation valid() {
+        return new Validation(true, null);
+    }
+
+    static public Validation invalid(String message) {
+        return new Validation(false, message);
+    }
+
     private final boolean isValid;
     private final String message;
 
