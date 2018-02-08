@@ -68,6 +68,7 @@
         <module>poom-services-repositories</module>
         <module>poom-services-support</module>
         <module>poomjobs</module>
+        <module>poom-ci</module>
     </modules>
 
     <prerequisites>
