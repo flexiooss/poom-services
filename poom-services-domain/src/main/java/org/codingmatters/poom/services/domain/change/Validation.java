@@ -10,8 +10,8 @@ public class Validation {
         return new Validation(true, null);
     }
 
-    static public Validation invalid(String message) {
-        return new Validation(false, message);
+    static public Validation invalid(String message, Object ... args) {
+        return new Validation(false, String.format(message, args));
     }
 
     private final boolean isValid;
