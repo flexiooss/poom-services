@@ -20,6 +20,19 @@ public interface ResourcePutProtocol<V, Q, Req, Resp> extends RepositoryRequestP
     Resp entityNotFound(String errorToken);
     Resp unexpectedError(RepositoryException e, String errorToken);
 
+    default Resp entityUpdated(Req request, Entity<V> entity) {
+        return this.entityUpdated(entity);
+    }
+    default Resp invalidUpdate(Req request, Change<V> change, String errorToken) {
+        return this.invalidUpdate(change, errorToken);
+    }
+    default Resp entityNotFound(Req request, String errorToken) {
+        return this.entityNotFound(errorToken);
+    }
+    default Resp unexpectedError(Req request, RepositoryException e, String errorToken) {
+        return this.unexpectedError(e, errorToken);
+    }
+
     default Entity<V> resolveEntity(String entityId, Req request) throws RepositoryException {
         if(entityId == null) {
             throw new RepositoryException("cannot find an entity given a null id");
@@ -51,7 +64,7 @@ public interface ResourcePutProtocol<V, Q, Req, Resp> extends RepositoryRequestP
                         entity = repository.update(entity, newValue);
 
                         this.log().info("entity updated");
-                        return this.entityUpdated(entity);
+                        return this.entityUpdated(request, entity);
                     } else {
                         String errorToken = UUID.randomUUID().toString();
                         MDC.put("error-token", errorToken);
