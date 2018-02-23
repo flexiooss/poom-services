@@ -1,6 +1,7 @@
 package org.codingmatters.poom.servives.domain.entities;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  * Created by nelt on 6/20/17.
@@ -43,5 +44,20 @@ public class ImmutableEntity<V> implements Entity<V> {
                 ", version=" + version +
                 ", value=" + value +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ImmutableEntity<?> that = (ImmutableEntity<?>) o;
+        return Objects.equals(this.id(), that.id()) &&
+                Objects.equals(this.version(), that.version()) &&
+                Objects.equals(this.value(), that.value());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.id(), this.version(), this.value());
     }
 }
