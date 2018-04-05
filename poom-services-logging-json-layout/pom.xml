@@ -11,25 +11,30 @@
         <relativePath>../poom-services-parent</relativePath>
     </parent>
 
-    <artifactId>poom-services-support</artifactId>
-
+    <artifactId>poom-services-logging-json-layout</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.codingmatters.poom</groupId>
-            <artifactId>poom-services-domain</artifactId>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codingmatters.poom</groupId>
-            <artifactId>poom-services-logging</artifactId>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>org.codingmatters.poom</groupId>
-            <artifactId>poom-services-repository-in-memory</artifactId>
-            <scope>test</scope>
+            <groupId>ch.qos.logback.contrib</groupId>
+            <artifactId>logback-json-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback.contrib</groupId>
+            <artifactId>logback-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
     </dependencies>
-    
+
 </project>
