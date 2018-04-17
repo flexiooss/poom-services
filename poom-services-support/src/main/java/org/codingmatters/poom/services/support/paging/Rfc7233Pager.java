@@ -66,8 +66,8 @@ public class Rfc7233Pager<V,Q> {
     private final int maxPageSize;
     private final String requestedRange;
     private final String validationMessage;
-    private long start;
-    private long end;
+    private final long start;
+    private final long end;
     private boolean valid;
 
     public Rfc7233Pager(Repository<V,Q> repository, String unit, int maxPageSize, String range) {
@@ -79,29 +79,35 @@ public class Rfc7233Pager<V,Q> {
         long startIndex = 0;
         long endIndex = startIndex + this.maxPageSize - 1;
 
-        if(range != null) {
+        if(range != null && ! range.isEmpty()) {
             Pattern RANGE_PATTERN = Pattern.compile("(\\d+)-(\\d+)");
             Matcher rangeMatcher = RANGE_PATTERN.matcher(range);
             if(rangeMatcher.matches()) {
                 startIndex = Long.parseLong(rangeMatcher.group(1));
                 endIndex = Long.parseLong(rangeMatcher.group(2));
+
+                if(endIndex - startIndex > this.maxPageSize) {
+                    endIndex = startIndex + this.maxPageSize - 1;
+                }
+
+                if(startIndex > endIndex) {
+                    this.valid = false;
+                    this.validationMessage = "start must be before end of range";
+                } else {
+                    this.valid = true;
+                    this.validationMessage = null;
+                }
+            } else {
+                this.valid = false;
+                this.validationMessage = "range is not parsable";
             }
-        }
-
-        if(endIndex - startIndex > this.maxPageSize) {
-            endIndex = startIndex + this.maxPageSize - 1;
-        }
-
-        this.start = startIndex;
-        this.end = endIndex;
-
-        if(this.start > this.end) {
-            this.valid = false;
-            this.validationMessage = "start must be before end of range";
         } else {
             this.valid = true;
             this.validationMessage = null;
         }
+
+        this.start = startIndex;
+        this.end = endIndex;
     }
 
     private long start() {

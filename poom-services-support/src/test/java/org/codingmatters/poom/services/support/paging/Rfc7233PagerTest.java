@@ -232,7 +232,7 @@ public class Rfc7233PagerTest {
     }
 
     @Test
-    public void whenRangeIsInvalid__thenReturnEptyResut_withValidRanges() throws Exception {
+    public void whenRangeIsInvalid__thenReturnEmptyResut_withValidRanges() throws Exception {
         for(int i = 0 ; i < 15 ; i++) {
             this.repository.create("test-" + i);
         }
@@ -250,6 +250,18 @@ public class Rfc7233PagerTest {
         assertThat(page.acceptRange(), is("String 10"));
         assertThat(page.contentRange(), is("String */15"));
         assertThat(page.requestedRange(), is("10-8"));
+    }
+
+    @Test
+    public void whenRangeIsNotParsable__thenRangeIsInvalid() throws Exception {
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("yopyop tagada")
+                .unit("String")
+                .maxPageSize(10)
+                .pager(this.repository)
+                .page();
+
+        assertThat(page.isValid(), is(false));
+        assertThat(page.validationMessage(), is("range is not parsable"));
     }
 
     @Test
