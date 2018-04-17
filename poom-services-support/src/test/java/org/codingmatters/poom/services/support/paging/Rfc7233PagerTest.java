@@ -35,6 +35,25 @@ public class Rfc7233PagerTest {
     }
 
     @Test
+    public void whenNoRangeAndQuery__ifRepositoryIsEmpty__thenReturnEmptyPage_andNullRequestedRange() throws Exception {
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange(null)
+                .unit("String")
+                .maxPageSize(10)
+                .pager(this.repository)
+                .page("");
+
+        assertThat(page.acceptRange(), is("String 10"));
+        assertThat(page.contentRange(), is("String 0-0/0"));
+        assertThat(page.requestedRange(), is(nullValue()));
+
+        assertThat(page.isPartial(), is(false));
+        assertThat(page.list(), is(empty()));
+
+        assertThat(page.isValid(), is(true));
+        assertThat(page.validationMessage(), is(nullValue()));
+    }
+
+    @Test
     public void whenNoRange__ifLessElementsThanMaxPageSize__thenReturnCompleteList() throws Exception {
         for(int i = 0 ; i < 5 ; i++) {
             this.repository.create("test-" + i);

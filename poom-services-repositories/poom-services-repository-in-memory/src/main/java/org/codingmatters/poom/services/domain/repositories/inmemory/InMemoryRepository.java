@@ -75,7 +75,7 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
         int start = (int) startIndex;
         int end = (int) Math.min(endIndex + 1, entities.length);
 
-        if(end - start < 0) {
+        if(end - start <= 0) {
             return new PagedEntityList.DefaultPagedEntityList<>(startIndex, 0, entities.length, Arrays.asList(new Entity[0]));
         }
 
