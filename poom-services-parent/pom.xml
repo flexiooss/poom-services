@@ -13,9 +13,12 @@
 
     <artifactId>poom-services-parent</artifactId>
     <packaging>pom</packaging>
-
     <name>${project.groupId}:${project.artifactId}</name>
 
+    <properties>
+        <docker.registry>localhost:5000</docker.registry>
+        <docker.namespace>poom-ci</docker.namespace>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -250,10 +253,56 @@
                                 </goals>
                                 <phase>package</phase>
                                 <configuration>
-                                    <appendAssemblyId>true</appendAssemblyId>
+                                    <attach>false</attach>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                    <finalName>docker-image-build</finalName>
                                     <descriptors>
                                         <descriptor>${project.basedir}/src/main/docker/docker-image-assembly.xml</descriptor>
                                     </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>docker-image-publisher</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/src/main/docker/docker-image-assembly.xml</exists>
+                </file>
+                <property>
+                    <name>dockerBuildAndPush</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>docker-image-build</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>docker-compose</executable>
+                                    <commandlineArgs>-f ${project.build.directory}/docker-image-build/docker-compose.yml build</commandlineArgs>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>docker-image-push</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>docker-compose</executable>
+                                    <commandlineArgs>-f ${project.build.directory}/docker-image-build/docker-compose.yml push</commandlineArgs>
                                 </configuration>
                             </execution>
                         </executions>
