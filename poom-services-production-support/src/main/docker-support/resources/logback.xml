@@ -4,7 +4,6 @@
             <layout class="org.codingmatters.poom.services.logging.logback.json.PoomJsonLayout">
                 <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter"/>
                 <appendLineSeparator>true</appendLineSeparator>
-                <prettyPrint>true</prettyPrint>
             </layout>
         </encoder>
     </appender>

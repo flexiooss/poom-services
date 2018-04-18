@@ -67,6 +67,7 @@
         <module>poom-services-domain</module>
         <module>poom-services-repositories</module>
         <module>poom-services-support</module>
+        <module>poom-services-production-support</module>
         <module>poom-services-logging-json-layout</module>
         <module>poom-services-logging</module>
         <module>poom-services-test-support</module>

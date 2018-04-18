@@ -10,4 +10,4 @@ RUN chmod a+x /var/service/service-endpoint.sh
 EXPOSE 9999
 ENV SERVICE_PORT=9999
 
-ENTRYPOINT ["/var/service/service-endpoint.sh", "org.codingmatters.poom.ci.github.webhook.GithubWebhookService"]
+ENTRYPOINT ["/var/service/service-endpoint.sh", "${service.class.name}"]

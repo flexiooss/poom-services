@@ -1,21 +1,21 @@
 <configuration>
-    <!--
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} %-5level %-100msg #### marker=%-8marker context: {%X{}} [%thread] at %logger#%method[%line]%n</pattern>
         </encoder>
     </appender>
-    -->
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-            <layout class="org.codingmatters.poom.services.logging.logback.json.PoomJsonLayout">
-                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter"/>
-                <appendLineSeparator>true</appendLineSeparator>
-                <prettyPrint>true</prettyPrint>
-            </layout>
-        </encoder>
-    </appender>
+
+    <!--<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">-->
+        <!--<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">-->
+            <!--<layout class="org.codingmatters.poom.services.logging.logback.json.PoomJsonLayout">-->
+                <!--<jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter"/>-->
+                <!--<appendLineSeparator>true</appendLineSeparator>-->
+                <!--<prettyPrint>true</prettyPrint>-->
+            <!--</layout>-->
+        <!--</encoder>-->
+    <!--</appender>-->
 
     <root level="debug">
         <appender-ref ref="STDOUT" />

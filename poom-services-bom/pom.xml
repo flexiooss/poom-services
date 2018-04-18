@@ -35,6 +35,17 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>poom-services-production-support</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poom-services-production-support</artifactId>
+                <classifier>docker-support</classifier>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>poom-services-logging-json-layout</artifactId>
                 <version>${project.version}</version>
             </dependency>
