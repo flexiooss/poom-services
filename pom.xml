@@ -69,6 +69,7 @@
         <module>poom-services-support</module>
         <module>poom-services-logging-json-layout</module>
         <module>poom-services-logging</module>
+        <module>poom-services-test-support</module>
         <module>poomjobs</module>
         <module>poom-ci</module>
     </modules>
