@@ -2,5 +2,5 @@
 
 echo "starting service..."
 export SERVICE_HOST=$(hostname -i)
-java -cp "/var/service/lib/*:/var/service/config/" "$@"
+exec java -cp "/var/service/lib/*:/var/service/config/" "$@"
 echo "service stopped"
