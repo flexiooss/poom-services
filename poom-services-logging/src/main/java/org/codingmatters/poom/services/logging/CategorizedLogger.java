@@ -17,4 +17,6 @@ public interface CategorizedLogger extends Log {
     Log confidential();
 
     Log audit();
+
+    Log performanceAlert();
 }
