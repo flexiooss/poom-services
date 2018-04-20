@@ -1,0 +1,6 @@
+---
+stages:
+  - name: build
+    exec:
+      - mvn clean install
+
