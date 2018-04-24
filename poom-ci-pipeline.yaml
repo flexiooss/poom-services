@@ -4,4 +4,8 @@ stages:
     exec:
       - mvn clean install
 
+  - name: notify-flexio
+    exec:
+      - curl htpp://www.google.com
+
 
