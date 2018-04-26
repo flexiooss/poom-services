@@ -2,27 +2,30 @@
 stages:
   - name: prepare-env
     exec:
+      - curl -XGET "$NOTIFY_URL&status=2&current-stage=$STAGE"
       - docker pull $CI_TOOLS_IMAGE
       - mkdir -p $WORKSPACE/.m2
 
   - name: build
     exec:
+      - curl -XGET "$NOTIFY_URL&status=2&current-stage=$STAGE"
       - $MVN clean install
 
   - name: deploy
     exec:
+      - curl -XGET "$NOTIFY_URL&status=2&current-stage=$STAGE"
       - $MVN deploy -DskipTests
 
 onSuccess:
   - name: notify-flexio
     exec:
-      - curl -XGET 'https://my.flexio.io/channelApi/flexHttpInOut/59d3a0105d443519843d0496/5adf40aededdbb452368cfca?repository=poom-services&status=0'
+      - curl -XGET "$NOTIFY_URL&status=0&current-stage="
 
 
 onError:
   - name: notify-flexio
     exec:
-      - curl -XGET 'https://my.flexio.io/channelApi/flexHttpInOut/59d3a0105d443519843d0496/5adf40aededdbb452368cfca?repository=poom-services&status=1'
+      - curl -XGET "$NOTIFY_URL&status=1current-stage="
 
 
 
@@ -30,3 +33,6 @@ env:
   - SETTING_FILE: /home/nel/.m2/settings.xml
   - CI_TOOLS_IMAGE: localhost:5000/poom-ci/ci-tools:0.0.1-SNAPSHOT
   - MVN: docker run --rm -v $SRC:/src -v $WORKSPACE/.m2:/root/.m2 -v $SETTING_FILE:/root/.m2/settings.xml $CI_TOOLS_IMAGE mvn -B
+  - REPOSITORY: $(git -C $SRC  remote get-url origin) .git)
+  - BRANCH: $(git -C $SRC rev-parse --abbrev-ref HEAD)
+  - NOTIFY_URL: "https://my.flexio.io/channelApi/flexHttpInOut/59d3a0105d443519843d0496/5adf40aededdbb452368cfca?repository=$REPOSITORY&branch=$BRANCH&pipeline-id=$PIPELINE_ID"
