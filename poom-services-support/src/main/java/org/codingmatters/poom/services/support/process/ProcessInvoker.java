@@ -16,7 +16,7 @@ public class ProcessInvoker {
     static public final long DEFAULT_TIMEOUT = 120;
     static public final TimeUnit DEFAULT_TIMEOUT_UNIT = TimeUnit.SECONDS;
 
-    static public final long DEFAULT_SHUTDOWN_TIMEOUT = 10;
+    static public final long DEFAULT_SHUTDOWN_TIMEOUT = 30;
     static public final TimeUnit DEFAULT_SHUTDOWN_TIMEOUT_UNIT = TimeUnit.SECONDS;
 
     private final long timeout;
