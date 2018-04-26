@@ -1,5 +1,9 @@
 ---
 stages:
+  - name: prepare-env
+    exec:
+      - docker pull $CI_TOOLS_IMAGE
+
   - name: build
     exec:
       - $MVN clean install
@@ -21,4 +25,5 @@ onError:
 
 
 env:
-  MVN: docker run --rm -v $SRC:/src -v $WORKSPACE/.m2:/root/.m2 localhost:5000/poom-ci/ci-tools:0.0.1-SNAPSHOT mvn -B
+  CI_TOOLS_IMAGE: localhost:5000/poom-ci/ci-tools:0.0.1-SNAPSHOT
+  MVN: docker run --rm -v $SRC:/src -v $WORKSPACE/.m2:/root/.m2 $CI_TOOLS_IMAGE mvn -B
