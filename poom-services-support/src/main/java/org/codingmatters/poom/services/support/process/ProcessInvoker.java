@@ -49,10 +49,13 @@ public class ProcessInvoker {
 
             process.waitFor(this.timeout, this.timeoutUnit);
             if(process.isAlive()) {
+                log.warn("process forcibly stopped after a {} {} timeout", this.timeout, this.timeoutUnit.name());
                 process.destroyForcibly();
                 return -1;
             } else {
-                return process.exitValue();
+                int exitValue = process.exitValue();
+                log.info("process normally finished with status {}", exitValue);
+                return exitValue;
             }
         } finally {
             pool.shutdown();
