@@ -50,7 +50,7 @@ public class ProcessInvoker {
             process.waitFor(this.timeout, this.timeoutUnit);
             if(process.isAlive()) {
                 process.destroyForcibly();
-                return process.exitValue();
+                return -1;
             } else {
                 return process.exitValue();
             }

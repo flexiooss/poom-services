@@ -8,6 +8,7 @@ stages:
       - mkdir -p $WORKSPACE/.m2
 
   - name: build
+    timeout: 10
     exec:
       #- curl -XGET "$NOTIFY_URL&status=2&current-stage=$STAGE"
       - $NOTIFY --data-urlencode "status=2" --data-urlencode "current-stage=$STAGE"
