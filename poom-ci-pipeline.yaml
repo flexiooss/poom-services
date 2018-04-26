@@ -4,7 +4,7 @@ stages:
     exec:
       - docker pull $CI_TOOLS_IMAGE
       - mkdir -p $WORKSPACE/.m2
-      - cp $SETTING_FILE $WORKSPACE/.m2
+      - ln -s $SETTING_FILE $WORKSPACE/.m2/settings.xml
 
   - name: build
     exec:
