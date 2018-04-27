@@ -36,10 +36,10 @@ onError:
 
 
 env:
-  - SETTING_FILE: /home/nel/.m2/settings.xml
+  - SETTING_FILE: /home/nel/Documents/POOM-CI/settings-oss.xml
   - CI_TOOLS_IMAGE: localhost:5000/poom-ci/ci-tools:0.0.1-SNAPSHOT
   - MVN: docker run --rm -v $SRC:/src -v $WORKSPACE/.m2:/root/.m2 -v $SETTING_FILE:/root/.m2/settings.xml $CI_TOOLS_IMAGE mvn -B
 #  - REPOSITORY: $(git -C $SRC  remote get-url origin) .git)
 #  - BRANCH: $(git -C $SRC rev-parse --abbrev-ref HEAD)
   - NOTIFY_URL: "https://my.flexio.io/channelApi/flexHttpInOut/59d3a0105d443519843d0496/5adf40aededdbb452368cfca?repository=$REPOSITORY&branch=$BRANCH&pipeline-id=$PIPELINE_ID"
-  - NOTIFY: curl -G -v "https://my.flexio.io/channelApi/flexHttpInOut/59d3a0105d443519843d0496/5adf40aededdbb452368cfca" --data-urlencode "repository=$REPOSITORY" --data-urlencode "branch=$BRANCH" --data-urlencode "pipeline-id=$PIPELINE_ID"
+  - NOTIFY: curl -G "https://my.flexio.io/channelApi/flexHttpInOut/59d3a0105d443519843d0496/5adf40aededdbb452368cfca" --data-urlencode "repository=$REPOSITORY" --data-urlencode "branch=$BRANCH" --data-urlencode "pipeline-id=$PIPELINE_ID"
