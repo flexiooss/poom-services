@@ -9,7 +9,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Poor Old Man's Web Services</name>
+    <name>Poor Man's Web Services</name>
     <description>Poor Old Man's Web Services</description>
     <url>https://github.com/nelt/poom-services</url>
 
