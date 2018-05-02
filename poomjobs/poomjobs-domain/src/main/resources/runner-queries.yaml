@@ -1,8 +1,0 @@
-RunnerQuery:
-  criteria:
-    $list: $RunnerCriteria
-
-RunnerCriteria:
-  nameCompetency: string
-  categoryCompetency: string
-  runtimeStatus: string
