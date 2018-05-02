@@ -1,5 +1,0 @@
-cipheredData:
-  certificate: bytes
-  iv: bytes
-  transportKeySpec: bytes
-  data: bytes
