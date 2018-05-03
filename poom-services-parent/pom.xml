@@ -188,7 +188,7 @@
                 <plugin>
                     <groupId>io.reformanda.semper</groupId>
                     <artifactId>dependencyversion-maven-plugin</artifactId>
-                    <version>1.0.0</version>
+                    <version>1.0.1</version>
                 </plugin>
             </plugins>
         </pluginManagement>
