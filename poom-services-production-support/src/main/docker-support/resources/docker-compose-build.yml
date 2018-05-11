@@ -4,5 +4,5 @@ services:
 
   service:
     build: .
-    image: ${docker.registry}/poom-ci/${project.artifactId}:${project.version}
+    image: ${docker.image.namespace}/${project.artifactId}:${project.version}
 
