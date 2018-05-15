@@ -7,6 +7,7 @@ public interface Env {
     String SERVICE_HOST = "SERVICE_HOST";
     String SERVICE_PORT = "SERVICE_PORT";
     String SERVICE_URL = "SERVICE_URL";
+    String SERVICE_REGISTRY_URL = "SERVICE_REGISTRY_URL";
 
     static Var mandatory(String envVariableName) {
         return optional(envVariableName)
@@ -14,8 +15,10 @@ public interface Env {
     }
 
     static Optional<Var> optional(String envVariableName) {
-        if(System.getenv(envVariableName) != null) {
-            return Optional.of(new Var(System.getenv(envVariableName)));
+        String value = EnvProvider.get().apply(envVariableName);
+
+        if(value != null) {
+            return Optional.of(new Var(value));
         } else {
             return Optional.empty();
         }
