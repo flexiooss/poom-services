@@ -45,7 +45,7 @@ public class MarkedCategorizedLogger implements CategorizedLogger {
 
     @Override
     public Log performanceAlert() {
-        return performanceAlert();
+        return this.perfLog;
     }
 
 
