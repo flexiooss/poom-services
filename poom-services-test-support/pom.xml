@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>org.codingmatters.poom</groupId>
-        <artifactId>poom-services-parent</artifactId>
+        <artifactId>poom-services</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -19,6 +19,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <version>4.12</version>
         </dependency>
     </dependencies>
     
