@@ -1,9 +1,10 @@
 FROM openjdk:8-jdk-alpine
 
 RUN mkdir -p /var/service/lib
-RUN mkdir -p /var/service/config
+RUN mkdir -p /var/service/config/logs
 COPY lib/* /var/service/lib/
-COPY logback.xml /var/service/config/
+COPY logback-text.xml /var/service/config/logs/
+COPY logback-json.xml /var/service/config/logs/
 COPY service-endpoint.sh /var/service/
 RUN chmod a+x /var/service/service-endpoint.sh
 
