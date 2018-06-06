@@ -9,6 +9,7 @@ import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
@@ -24,7 +25,32 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
 
     @Override
     public Entity<V> create(V withValue) throws RepositoryException {
-        MutableEntity<V> entity = new MutableEntity<>(UUID.randomUUID().toString(), withValue);
+        return this.quickCreate(UUID.randomUUID().toString(), withValue);
+    }
+
+    @Override
+    public Entity<V> createWithId(String id, V withValue) throws RepositoryException {
+        if(this.store.get(id) == null) {
+            return this.quickCreate(id, withValue);
+        } else {
+            throw new RepositoryException("entity already exists : " + id);
+        }
+    }
+
+    @Override
+    public Entity<V> createWithIdAndVersion(String id, BigInteger version, V withValue) throws RepositoryException {
+        if(this.store.get(id) == null) {
+            return this.quickCreate(id, version, withValue);
+        } else {
+            throw new RepositoryException("entity already exists : " + id);
+        }
+    }
+
+    private Entity<V> quickCreate(String id, V withValue) {
+        return this.quickCreate(id, BigInteger.ONE, withValue);
+    }
+    private Entity<V> quickCreate(String id, BigInteger version, V withValue) {
+        MutableEntity<V> entity = new MutableEntity<>(id, version, withValue);
         this.store.store(entity);
         return ImmutableEntity.from(entity);
     }
