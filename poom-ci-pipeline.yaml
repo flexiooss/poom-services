@@ -33,6 +33,7 @@ stages:
 onSuccess:
   - name: metadata
     exec:
+      - echo "will call upload project metadata with arguments $DEPENDENCIES_URL $SRC"
       - $UPLOAD_PROJECT_METADATA $DEPENDENCIES_URL $SRC
   - name: notify-flexio
     exec:
