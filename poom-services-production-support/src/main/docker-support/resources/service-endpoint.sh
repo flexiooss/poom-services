@@ -18,5 +18,6 @@ fi
 
 CLASSPATH="/var/service/lib/*:/var/service/config/"
 
+JVM_VM="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms$JVM_MIN_HEAP -Xmx$JVM_MAX_HEAP $JVM_OPTS"
 exec java -cp $CLASSPATH $LOGGER_CONFIG $JVM_VM "$@"
 echo "service stopped"
