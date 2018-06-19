@@ -4,7 +4,7 @@ echo "starting service..."
 
 if [ -z ${SERVICE_HOST} ]
 then
-    export SERVICE_HOST=$(hostname -i)
+    export SERVICE_HOST="0.0.0.0"
     echo "SERVICE_HOST not set, defaulting to $SERVICE_HOST"
 fi
 
