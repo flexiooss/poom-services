@@ -1,7 +1,12 @@
 #!/usr/bin/env sh
 
 echo "starting service..."
-export SERVICE_HOST=$(hostname -i)
+
+if [ -z ${SERVICE_HOST} ]
+then
+    export SERVICE_HOST=$(hostname -i)
+    echo "SERVICE_HOST not set, defaulting to $SERVICE_HOST"
+fi
 
 if [ -z ${LOGGING_TYPE} ]
 then
