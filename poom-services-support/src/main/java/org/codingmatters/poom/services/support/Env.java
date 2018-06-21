@@ -52,6 +52,10 @@ public interface Env {
     }
 
     class Var {
+        static Var value(String value) {
+            return new Var(value);
+        }
+
         private final String rawValue;
 
         public Var(String rawValue) {
