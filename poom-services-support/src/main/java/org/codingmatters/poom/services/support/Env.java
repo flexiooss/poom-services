@@ -1,5 +1,8 @@
 package org.codingmatters.poom.services.support;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.Optional;
 
 public interface Env {
@@ -15,13 +18,37 @@ public interface Env {
     }
 
     static Optional<Var> optional(String envVariableName) {
-        String value = EnvProvider.get().apply(envVariableName);
+        String value = null;
+
+        String varFile = EnvProvider.get().apply(envVariableName + "_FILE");
+        if(varFile != null) {
+            value = readFile(varFile);
+        }
+
+        if(value == null) {
+            value = EnvProvider.get().apply(envVariableName);
+        }
 
         if(value != null) {
             return Optional.of(new Var(value));
         } else {
             return Optional.empty();
         }
+    }
+
+    static String readFile(String varFile) {
+        StringBuilder result = new StringBuilder();
+        try {
+            try (Reader in = new FileReader(varFile)) {
+                char [] buffer = new char[1024];
+                for(int read = in.read(buffer) ; read != -1 ; read = in.read(buffer)) {
+                    result.append(buffer, 0, read);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("error reading environment variable from file " + varFile, e);
+        }
+        return result.toString();
     }
 
     class Var {
