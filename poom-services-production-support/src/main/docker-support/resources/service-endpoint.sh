@@ -4,8 +4,20 @@ echo "starting service..."
 
 if [ -z ${SERVICE_HOST} ]
 then
-    export SERVICE_HOST=$(hostname)
+    export SERVICE_HOST="0.0.0.0"
     echo "SERVICE_HOST not set, defaulting to $SERVICE_HOST"
+fi
+
+if [ -z ${SERVICE_PORT} ]
+then
+    export SERVICE_PORT="9999"
+    echo "SERVICE_PORT not set, defaulting to $SERVICE_PORT"
+fi
+
+if [ -z ${SERVICE_URL} ]
+then
+    export SERVICE_URL="http://$(hostname):$SERVICE_PORT"
+    echo "SERVICE_URL not set, defaulting to $SERVICE_URL"
 fi
 
 if [ -z ${LOGGING_TYPE} ]
