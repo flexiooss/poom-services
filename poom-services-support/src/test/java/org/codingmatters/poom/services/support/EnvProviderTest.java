@@ -58,6 +58,14 @@ public class EnvProviderTest {
         assertThat(Env.optional("VAR").get().asString(), is("YOP"));
     }
 
+    @Test
+    public void givenVarExist_andFileEndsWithNewLine_andVarFilePropertyExists__whenVarRequested__thenVarFileContentIsReturnedWithoutTrailingNewline() throws Exception {
+        this.testEnv.setProperty("VAR", "YIP");
+        this.testEnv.setProperty("VAR_FILE", this.writeContent("YOP\n", this.dir.newFile()).getAbsolutePath());
+
+        assertThat(Env.optional("VAR").get().asString(), is("YOP"));
+    }
+
 
 
     private File writeContent(String content, File f) throws IOException {

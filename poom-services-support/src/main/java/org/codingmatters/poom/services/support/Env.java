@@ -48,7 +48,7 @@ public interface Env {
         } catch (IOException e) {
             throw new RuntimeException("error reading environment variable from file " + varFile, e);
         }
-        return result.toString();
+        return result.toString().trim();
     }
 
     class Var {
