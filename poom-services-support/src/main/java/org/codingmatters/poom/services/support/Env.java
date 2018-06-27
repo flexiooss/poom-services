@@ -29,6 +29,10 @@ public interface Env {
             value = EnvProvider.get().apply(envVariableName);
         }
 
+        if(value == null) {
+            value = System.getProperty(envVariableName.replaceAll("_", ".").toLowerCase());
+        }
+
         if(value != null) {
             return Optional.of(new Var(value));
         } else {

@@ -30,6 +30,7 @@ public class EnvProviderTest {
     @After
     public void tearDown() throws Exception {
         EnvProvider.reset();
+        System.clearProperty("defined.with.property");
     }
 
     @Test
@@ -66,7 +67,31 @@ public class EnvProviderTest {
         assertThat(Env.optional("VAR").get().asString(), is("YOP"));
     }
 
+    @Test
+    public void givenFileDoesntExistsAndVarDoesntExist__whenPropertyExists__theyPropertyValueReturned() throws Exception {
+        System.setProperty("defined.with.property", "from-prop");
 
+        assertThat(Env.optional("DEFINED_WITH_PROPERTY").get().asString(), is("from-prop"));
+
+
+    }
+
+    @Test
+    public void givenFileDoesntExistsAndVarExists__whenPropertyExists__theVarPreceeds() throws Exception {
+        System.setProperty("defined.with.property", "from-prop");
+        this.testEnv.setProperty("DEFINED_WITH_PROPERTY", "from-env");
+
+        assertThat(Env.optional("DEFINED_WITH_PROPERTY").get().asString(), is("from-env"));
+    }
+
+    @Test
+    public void givenFileExistsAndVarExists__whenPropertyExists__theFilePreceeds() throws Exception {
+        System.setProperty("defined.with.property", "from-prop");
+        this.testEnv.setProperty("DEFINED_WITH_PROPERTY", "from-env");
+        this.testEnv.setProperty("DEFINED_WITH_PROPERTY_FILE", this.writeContent("from-file", this.dir.newFile()).getAbsolutePath());
+
+        assertThat(Env.optional("DEFINED_WITH_PROPERTY").get().asString(), is("from-file"));
+    }
 
     private File writeContent(String content, File f) throws IOException {
         try(OutputStream out = new FileOutputStream(f)) {
