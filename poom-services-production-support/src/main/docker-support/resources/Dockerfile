@@ -14,5 +14,6 @@ ENV SERVICE_PORT=9999
 ENV JVM_OPTS=""
 ENV JVM_MAX_HEAP="256m"
 ENV JVM_MIN_HEAP="$JVM_MAX_HEAP"
+ENV JVM_MEMORY_TUNING=""
 
 ENTRYPOINT ["/var/service/service-endpoint.sh", "${service.class.name}"]
