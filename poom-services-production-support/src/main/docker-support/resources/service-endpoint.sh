@@ -35,6 +35,20 @@ fi
 
 CLASSPATH="/var/service/lib/*:/var/service/config/"
 
-JVM_VM="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Xms$JVM_MIN_HEAP -Xmx$JVM_MAX_HEAP $JVM_MEMORY_TUNING $JVM_OPTS"
+JVM_VM="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap "
+JVM_VM="${JVM_VM} -Xms${JVM_MIN_HEAP}"
+JVM_VM="${JVM_VM} -Xmx${JVM_MAX_HEAP}"
+JVM_VM="${JVM_VM} -XX:MaxMetaspaceSize=${JVM_METASPACE} "
+JVM_VM="${JVM_VM} -XX:CompressedClassSpaceSize=${JVM_COMPRESSED_CLASS_SPACE}"
+JVM_VM="${JVM_VM} -Xss${JVM_THREAD_STACK_SIZE}"
+JVM_VM="${JVM_VM} -Xmn${JVM_YOUNG_GEN_HEAP}"
+JVM_VM="${JVM_VM} -XX:InitialCodeCacheSize=${JVM_INITIAL_CODE_CACHE_SIZE}"
+JVM_VM="${JVM_VM} -XX:ReservedCodeCacheSize=${JVM_RESERVED_CODE_CACHE_SIZE}"
+JVM_VM="${JVM_VM} -XX:MaxDirectMemorySize=${JVM_MAX_DIRECT_MEMORY_SIZE}"
+JVM_VM="${JVM_VM} -Djdk.nio.maxCachedBufferSize=${JVM_MAX_CACHED_BUFFER_SIZE}"
+JVM_VM="${JVM_VM} $JVM_MEMORY_TUNING $JVM_OPTS"
+
+echo "starting JVM with the following options : ${JVM_VM}"
+
 exec java -cp $CLASSPATH $LOGGER_CONFIG $JVM_VM "$@"
 echo "service stopped"
