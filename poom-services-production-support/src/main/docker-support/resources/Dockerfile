@@ -25,5 +25,10 @@ ENV JVM_RESERVED_CODE_CACHE_SIZE="8m"
 ENV JVM_MAX_DIRECT_MEMORY_SIZE="32m"
 ENV JVM_MAX_CACHED_BUFFER_SIZE="0"
 
+ENV MAIN_CLASS="${service.class.name}"
+ENV SERVICE_NAME="${project.groupId}:${project.artifactId}"
+ENV SERVICE_VERSION="${project.version}"
 
-ENTRYPOINT ["/var/service/service-endpoint.sh", "${service.class.name}"]
+VOLUME /var/service/report
+
+ENTRYPOINT ["/var/service/service-endpoint.sh"]

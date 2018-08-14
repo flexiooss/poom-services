@@ -35,6 +35,21 @@ fi
 
 CLASSPATH="/var/service/lib/*:/var/service/config/"
 
+##
+#   Initializing service report directory 
+#
+REPORT_DIR="/var/service/report/$(hostname)"
+mkdir -p $REPORT_DIR
+
+echo "MAIN_CLASS=${MAIN_CLASS}" >> $REPORT_DIR/service.desc.temp
+echo "SERVICE_NAME=${SERVICE_NAME}" >> $REPORT_DIR/service.desc.temp
+echo "SERVICE_VERSION=${SERVICE_VERSION}" >> $REPORT_DIR/service.desc.temp
+echo "SERVICE_START=$(date --utc +%Y-%m-%dT%T)" >> $REPORT_DIR/service.desc.temp
+echo "CONTAINER_ID=$(hostname)" >> $REPORT_DIR/service.desc.temp
+
+##
+#   Setting up JVM options 
+#
 JVM_VM="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap "
 JVM_VM="${JVM_VM} -Xms${JVM_MIN_HEAP}"
 JVM_VM="${JVM_VM} -Xmx${JVM_MAX_HEAP}"
@@ -47,8 +62,42 @@ JVM_VM="${JVM_VM} -XX:ReservedCodeCacheSize=${JVM_RESERVED_CODE_CACHE_SIZE}"
 JVM_VM="${JVM_VM} -XX:MaxDirectMemorySize=${JVM_MAX_DIRECT_MEMORY_SIZE}"
 JVM_VM="${JVM_VM} -Djdk.nio.maxCachedBufferSize=${JVM_MAX_CACHED_BUFFER_SIZE}"
 JVM_VM="${JVM_VM} $JVM_MEMORY_TUNING $JVM_OPTS"
+JVM_VM="${JVM_VM} -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${REPORT_DIR}/heap.hprof"
 
+##
+#   Trapping SIGINT and SIGTERM to pass them to the service
+#
+SERVICE_PID=0
+proxy_sigterm() {
+    echo "terminating service with pid ${SERVICE_PID}"
+    kill -SIGTERM $SERVICE_PID
+}
+proxy_sigint() {
+    echo "interrupting service with pid ${SERVICE_PID}"
+    kill -SIGINT $SERVICE_PID
+}
+trap 'proxy_sigterm' SIGTERM
+trap 'proxy_sigint' SIGINT
+
+##
+#   Running the service in the background
+#
 echo "starting JVM with the following options : ${JVM_VM}"
+java -cp $CLASSPATH $LOGGER_CONFIG $JVM_VM $MAIN_CLASS "$@" &
+SERVICE_PID=$!
 
-exec java -cp $CLASSPATH $LOGGER_CONFIG $JVM_VM "$@"
-echo "service stopped"
+wait $SERVICE_PID
+EXIT_STATUS=$?
+echo "service terminated with status ${EXIT_STATUS}"
+
+##
+#   finalizing service report
+#
+echo "SERVICE_END=$(date --utc +%Y-%m-%dT%T)" >> $REPORT_DIR/service.desc.temp
+echo "SERVICE_EXIT_STATUS=${EXIT_STATUS}" >> $REPORT_DIR/service.desc.temp
+mv $REPORT_DIR/service.desc.temp $REPORT_DIR/service.desc
+
+##
+#   Exiting with service's exit code
+#
+exit $EXIT_STATUS
