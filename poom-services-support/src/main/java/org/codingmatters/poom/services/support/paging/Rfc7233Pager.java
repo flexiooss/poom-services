@@ -1,9 +1,10 @@
 package org.codingmatters.poom.services.support.paging;
 
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
-import org.codingmatters.poom.services.domain.repositories.Repository;
+import org.codingmatters.poom.services.domain.repositories.EntityLister;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,12 +57,12 @@ public class Rfc7233Pager<V,Q> {
             this.requestedRange = requestedRange;
         }
 
-        public <V, Q> Rfc7233Pager<V,Q> pager(Repository<V, Q> repository) {
+        public <V, Q> Rfc7233Pager<V,Q> pager(EntityLister<V, Q> repository) {
             return new Rfc7233Pager<>(repository, this.unit, this.maxPageSize, this.requestedRange);
         }
     }
 
-    private final Repository<V,Q> repository;
+    private final EntityLister<V,Q> repository;
     private final String unit;
     private final int maxPageSize;
     private final String requestedRange;
@@ -70,7 +71,7 @@ public class Rfc7233Pager<V,Q> {
     private final long end;
     private boolean valid;
 
-    public Rfc7233Pager(Repository<V,Q> repository, String unit, int maxPageSize, String range) {
+    public Rfc7233Pager(EntityLister<V,Q> repository, String unit, int maxPageSize, String range) {
         this.repository = repository;
         this.unit = unit;
         this.maxPageSize = maxPageSize;
@@ -124,6 +125,14 @@ public class Rfc7233Pager<V,Q> {
 
     public Page<V> page(Q query) throws RepositoryException {
         return this.page(() -> this.repository.search(query, this.start(), this.end()));
+    }
+
+    public Page<V> page(Optional<Q> query) throws RepositoryException {
+        if(query.isPresent()) {
+            return page(query.get());
+        } else {
+            return this.page();
+        }
     }
 
     private Page<V> page(ResultListSupplier<V> requester) throws RepositoryException {
