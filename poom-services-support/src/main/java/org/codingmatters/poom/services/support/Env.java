@@ -1,5 +1,6 @@
 package org.codingmatters.poom.services.support;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -84,6 +85,10 @@ public interface Env {
 
         public Double asDouble() {
             return Double.valueOf(this.rawValue);
+        }
+
+        public File asFile() {
+            return new File(this.rawValue);
         }
     }
 
