@@ -10,11 +10,16 @@ import org.codingmatters.poom.services.support.Env;
 import org.codingmatters.rest.api.Processor;
 import org.codingmatters.rest.undertow.CdmHttpUndertowHandler;
 
+import java.util.Optional;
+import java.util.concurrent.Executors;
+
 public class ServiceReportService {
 
     static private final CategorizedLogger log = CategorizedLogger.getLogger(ServiceReportService.class);
 
     static public final String STORAGE_FOLDER = "STORAGE_FOLDER";
+    public static final String CALLBACK_URL = "CALLBACK_URL";
+    public static final String CALLBACK_POOL_SIZE = "CALLBACK_POOL_SIZE";
 
     static public void main(String[] args) {
         ServiceReportService service = fromEnv();
@@ -38,13 +43,22 @@ public class ServiceReportService {
                 jsonFactory
         );
 
+        ServiceReportApiHandlersFactory serviceReportApiHandlersFactory = new ServiceReportApiHandlersFactory(store);
+        Env.optional(CALLBACK_URL)
+                .ifPresent(var -> {
+                    serviceReportApiHandlersFactory.callbackUrl(Optional.of(var.asString()));
+                    serviceReportApiHandlersFactory.callbackPool(Executors.newFixedThreadPool(
+                            Env.optional(CALLBACK_POOL_SIZE).orElse(Env.Var.value("1")).asInteger()
+                    ));
+                });
+
         return new ServiceReportService(
                 Env.mandatory(Env.SERVICE_HOST).asString(),
                 Env.mandatory(Env.SERVICE_PORT).asInteger(),
                 new PoomServicesReportAPIProcessor(
                         "/service-report",
                         jsonFactory,
-                        new ServiceReportApiHandlersFactory(store).build()
+                        serviceReportApiHandlersFactory.build()
                 )
         );
     }

@@ -1,5 +1,6 @@
 package org.codingmatters.poom.services.report.api.service.handlers;
 
+import okhttp3.Request;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.services.report.api.ReportsPostRequest;
 import org.codingmatters.poom.services.report.api.ReportsPostResponse;
@@ -8,17 +9,30 @@ import org.codingmatters.poom.services.report.api.reportspostresponse.Status201;
 import org.codingmatters.poom.services.report.api.types.Error;
 import org.codingmatters.poom.services.report.api.types.Report;
 import org.codingmatters.poom.services.support.date.UTC;
+import org.codingmatters.rest.api.Processor;
+import org.codingmatters.rest.api.client.okhttp.OkHttpClientWrapper;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
 public class ReportCreation implements Function<ReportsPostRequest, ReportsPostResponse> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(ReportCreation.class);
 
     private final ReportStore store;
+    private final OkHttpClientWrapper client = OkHttpClientWrapper.build();
 
-    public ReportCreation(ReportStore store) {
+    private final ExecutorService callbackPool;
+    private final Optional<String> callbackUrl;
+
+    public ReportCreation(ReportStore store, Optional<String> callbackUrl, ExecutorService callbackPool) {
         this.store = store;
+        this.callbackUrl = callbackUrl;
+        this.callbackPool = callbackPool;
     }
 
     @Override
@@ -42,7 +56,11 @@ public class ReportCreation implements Function<ReportsPostRequest, ReportsPostR
 
         log.info("report creation requested {} dump, storing {}", report.hasDump() ? "with" : "without", report);
         try {
-            report = this.store.store(report, request.opt().payload());
+            Report result = this.store.store(report, request.opt().payload());
+            this.callbackPool.submit(() -> this.notify(result));
+            return ReportsPostResponse.builder().status201(Status201.builder()
+                    .payload(result)
+                    .build()).build();
         } catch (ReportStore.ReportStoreException e) {
             return ReportsPostResponse.builder()
                     .status500(status -> status.payload(error -> error
@@ -53,9 +71,39 @@ public class ReportCreation implements Function<ReportsPostRequest, ReportsPostR
                     .build();
         }
 
-        return ReportsPostResponse.builder().status201(Status201.builder()
-                .payload(report)
-                .build()).build();
+
+    }
+
+    private void notify(Report result) {
+        if(this.callbackUrl.isPresent()) {
+            try {
+                String url = this.callbackUrl.get();
+                url += "?" + this.queryParameter("name", result.name());
+                url += "&" + this.queryParameter("version", result.version());
+                url += "&" + this.queryParameter("main-class", result.mainClass());
+                url += "&" + this.queryParameter("container-id", result.containerId());
+                url += "&" + this.queryParameter("start", this.formatted(result.start()));
+                url += "&" + this.queryParameter("end", this.formatted(result.end()));
+                url += "&" + this.queryParameter("exit-status", result.exitStatus());
+                url += "&" + this.queryParameter("has-dump", result.hasDump().toString());
+                url += "&" + this.queryParameter("reported-at", this.formatted(result.reportedAt()));
+
+
+                this.client.execute(new Request.Builder()
+                        .url(url)
+                        .build());
+            } catch (IOException e) {
+
+            }
+        }
+    }
+
+    private String formatted(LocalDateTime date) {
+        return date != null ? date.format(Processor.Formatters.DATETIMEONLY.formatter) : null;
+    }
+
+    private String queryParameter(String name, String value) throws UnsupportedEncodingException {
+        return String.format("%s=%s", name, URLEncoder.encode(value, "UTF-8"));
     }
 
     private OptionalReportsPostResponse validate(ReportsPostRequest request) {

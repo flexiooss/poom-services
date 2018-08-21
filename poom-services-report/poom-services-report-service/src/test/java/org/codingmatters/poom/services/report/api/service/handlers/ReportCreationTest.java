@@ -1,37 +1,27 @@
 package org.codingmatters.poom.services.report.api.service.handlers;
 
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
-import org.codingmatters.poom.services.report.api.ReportsPostRequest;
 import org.codingmatters.poom.services.report.api.reportspostresponse.Status201;
 import org.codingmatters.poom.services.report.api.types.Report;
 import org.codingmatters.poom.services.report.api.types.ReportQuery;
-import org.codingmatters.poom.services.support.date.UTC;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 import org.codingmatters.rest.api.types.File;
 import org.codingmatters.rest.api.types.optional.OptionalFile;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-public class ReportCreationTest {
+public class ReportCreationTest extends AbstractReportCreationTest {
 
-    private static final String CONTAINER_ID = "cid";
-    private static final String SERVICE_NAME = "service";
-    private static final String SERVICE_VERSION = "version";
-    private static final String EXIT_STATUS = "42";
-    private static final String MAIN_CLASS = "service.MainClass";
 
     private ReportCreation handler;
-    private LocalDateTime start;
-    private LocalDateTime end;
 
     private final AtomicBoolean failNextStorage = new AtomicBoolean(false);
     private final AtomicReference<Object[]> lastStorageParams = new AtomicReference<>(null);
@@ -66,11 +56,10 @@ public class ReportCreationTest {
         }
     };
 
+
     @Before
     public void setUp() throws Exception {
-        this.handler = new ReportCreation(this.store);
-        this.start = UTC.now().minus(2, ChronoUnit.HOURS);
-        this.end = UTC.now().minus(1, ChronoUnit.HOURS);
+        this.handler = new ReportCreation(this.store, Optional.empty(), Executors.newFixedThreadPool(1));
     }
 
     @Test
@@ -87,8 +76,8 @@ public class ReportCreationTest {
                         .version(SERVICE_VERSION)
                         .mainClass(MAIN_CLASS)
                         .exitStatus(EXIT_STATUS)
-                        .start(start)
-                        .end(end)
+                        .start(START)
+                        .end(END)
                         .hasDump(false)
                         .build())
         );
@@ -119,8 +108,8 @@ public class ReportCreationTest {
                         .version(SERVICE_VERSION)
                         .mainClass(MAIN_CLASS)
                         .exitStatus(EXIT_STATUS)
-                        .start(start)
-                        .end(end)
+                        .start(START)
+                        .end(END)
                         .hasDump(true)
                         .build())
         );
@@ -183,18 +172,6 @@ public class ReportCreationTest {
         this.handler.apply(this.requestWithHeadersSet().build())
                 .opt().status500().orElseThrow(() -> new AssertionError("request should fail"));
         assertThat(this.lastStorageParams.get(), is(nullValue()));
-    }
-
-
-    private ReportsPostRequest.Builder requestWithHeadersSet() {
-        return ReportsPostRequest.builder()
-                .xContainerId(CONTAINER_ID)
-                .xName(SERVICE_NAME)
-                .xMainClass(MAIN_CLASS)
-                .xVersion(SERVICE_VERSION)
-                .xExitStatus(EXIT_STATUS)
-                .xStart(start)
-                .xEnd(end);
     }
 
 }
