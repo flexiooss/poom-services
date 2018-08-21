@@ -12,6 +12,7 @@
         <fileSet>
             <directory>${project.basedir}/src/main/docker</directory>
             <outputDirectory>/</outputDirectory>
+            <filtered>true</filtered>
         </fileSet>
     </fileSets>
 </assembly>
