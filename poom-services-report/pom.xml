@@ -19,5 +19,6 @@
         <module>poom-services-report-api-spec</module>
         <module>poom-services-report-api</module>
         <module>poom-services-report-service</module>
+        <module>poom-services-report-reporter</module>
     </modules>
 </project>
