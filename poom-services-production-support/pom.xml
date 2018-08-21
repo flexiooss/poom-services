@@ -14,6 +14,10 @@
     <artifactId>poom-services-production-support</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
 
+    <properties>
+        <docker.image.namespace>${codingmatters.docker.namespace}</docker.image.namespace>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
