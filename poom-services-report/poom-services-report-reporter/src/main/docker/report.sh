@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ "$#" -lt 2 ]; then
-    echo "usage: $0 <report folder> <service report api url>"
+    echo "usage: $0 <scanned folder> <service report api url>"
     exit 1
 fi
 

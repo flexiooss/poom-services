@@ -11,4 +11,4 @@ ENV SCANNED_DIR="/var/reports"
 ENV SCAN_DELAY=10
 ENV REPORT_API_URL=http://service-report:9999/service-report
 
-ENTRYPOINT ["/usr/local/bin/report.sh", "${SCANNED_DIR}"]
+ENTRYPOINT ["/usr/local/bin/report.sh", "${SCANNED_DIR}", "${REPORT_API_URL}"]
