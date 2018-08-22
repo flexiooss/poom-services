@@ -8,6 +8,7 @@ import org.codingmatters.rest.api.Processor;
 import org.codingmatters.rest.api.types.File;
 import org.codingmatters.rest.api.types.optional.OptionalFile;
 import org.codingmatters.rest.undertow.support.UndertowResource;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -111,5 +112,23 @@ public class ReportCreationCallbackTest extends AbstractReportCreationTest {
         assertThat(this.lastQueryParameters.get().get("exit-status"), contains("12"));
         assertThat(this.lastQueryParameters.get().get("has-dump"), contains("false"));
         assertThat(this.lastQueryParameters.get().get("reported-at"), contains("2012-12-12T12:12:12.000Z"));
+    }
+
+    @Ignore
+    @Test
+    public void realCallback() throws Exception {
+        ExecutorService callbackPool = Executors.newFixedThreadPool(1);
+        new ReportCreation(
+                this.store,
+                Optional.of("https://my.flexio.io/channelApi/flexHttpInOut/59d3a0105d443519843d0496/5b7cf26d35537330db5bc2f3"),
+                callbackPool
+        ).apply(this.requestWithHeadersSet()
+                .xExitStatus("12")
+                .build())
+                .opt().status201().orElseThrow(() -> new AssertionError("entity should be created"));
+
+
+        callbackPool.shutdown();
+        callbackPool.awaitTermination(1, TimeUnit.MINUTES);
     }
 }
