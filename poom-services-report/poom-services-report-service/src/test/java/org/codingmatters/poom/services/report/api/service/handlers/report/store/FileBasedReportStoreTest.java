@@ -7,6 +7,7 @@ import org.codingmatters.poom.services.report.api.types.Report;
 import org.codingmatters.poom.services.report.api.types.json.ReportReader;
 import org.codingmatters.poom.services.support.date.UTC;
 import org.codingmatters.rest.api.types.optional.OptionalFile;
+import org.codingmatters.rest.io.Content;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -135,7 +136,7 @@ public class FileBasedReportStoreTest {
                 .build(),
                 this.createFileWithContent("do you feel like we do ?"));
 
-        assertThat(this.store.dump(report.id()).get().content(), is("do you feel like we do ?".getBytes()));
+        assertThat(this.store.dump(report.id()).get().content().asBytes(), is("do you feel like we do ?".getBytes()));
         assertThat(this.store.dump(report.id()).get().contentType(), is("application/octet-stream"));
     }
 
@@ -191,6 +192,8 @@ public class FileBasedReportStoreTest {
     }
 
     private OptionalFile createFileWithContent(String content) {
-        return OptionalFile.of(org.codingmatters.rest.api.types.File.builder().content(content.getBytes()).build());
+        return OptionalFile.of(org.codingmatters.rest.api.types.File.builder().content(
+                Content.from(content.getBytes())
+        ).build());
     }
 }

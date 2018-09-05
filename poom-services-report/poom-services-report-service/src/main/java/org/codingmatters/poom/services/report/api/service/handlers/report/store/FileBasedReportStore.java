@@ -14,6 +14,7 @@ import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 import org.codingmatters.rest.api.types.optional.OptionalFile;
+import org.codingmatters.rest.io.Content;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -63,23 +64,27 @@ public class FileBasedReportStore implements ReportStore {
 
     @Override
     public Optional<org.codingmatters.rest.api.types.File> dump(String id) throws ReportStoreException {
-        File descriptorFile = reportAsset(id, ".dump");
-        if(! descriptorFile.exists()) return Optional.empty();
+        File dumpFile = reportAsset(id, ".dump");
+        if(! dumpFile.exists()) return Optional.empty();
+        return Optional.of(org.codingmatters.rest.api.types.File.builder()
+                            .content(Content.from(dumpFile))
+                            .contentType("application/octet-stream")
+                            .build());
 
-        try(FileInputStream in = new FileInputStream(descriptorFile); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            byte [] buffer = new byte[1024];
-            for(int read = in.read(buffer) ; read != -1 ; read = in.read(buffer)) {
-                out.write(buffer, 0, read);
-            }
-            out.flush();
-            out.close();
-            return Optional.of(org.codingmatters.rest.api.types.File.builder()
-                    .content(out.toByteArray())
-                    .contentType("application/octet-stream")
-                    .build());
-        } catch (IOException e) {
-            throw new ReportStoreException("failed reading dump file", e);
-        }
+//        try(FileInputStream in = new FileInputStream(descriptorFile); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+//            byte [] buffer = new byte[1024];
+//            for(int read = in.read(buffer) ; read != -1 ; read = in.read(buffer)) {
+//                out.write(buffer, 0, read);
+//            }
+//            out.flush();
+//            out.close();
+//            return Optional.of(org.codingmatters.rest.api.types.File.builder()
+//                    .content(out.toByteArray())
+//                    .contentType("application/octet-stream")
+//                    .build());
+//        } catch (IOException e) {
+//            throw new ReportStoreException("failed reading dump file", e);
+//        }
     }
 
 

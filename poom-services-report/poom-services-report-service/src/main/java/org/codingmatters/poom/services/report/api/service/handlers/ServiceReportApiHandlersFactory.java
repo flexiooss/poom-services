@@ -36,6 +36,10 @@ public class ServiceReportApiHandlersFactory {
                                 this.callbackPool
                 ))
                 .reportsGetHandler(new ReportBrowsing(store))
+
+                .reportGetHandler(new ReportRead(this.store))
+                .reportDumpGetHandler(new ReportDumpRead(this.store))
+
                 .build();
     }
 

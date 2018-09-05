@@ -7,6 +7,7 @@ import org.codingmatters.poom.services.report.api.types.ReportQuery;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 import org.codingmatters.rest.api.types.File;
 import org.codingmatters.rest.api.types.optional.OptionalFile;
+import org.codingmatters.rest.io.Content;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +20,6 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ReportCreationTest extends AbstractReportCreationTest {
-
 
     private ReportCreation handler;
 
@@ -92,7 +92,7 @@ public class ReportCreationTest extends AbstractReportCreationTest {
     public void givenHeadersAreSet__whenPayloadProvided__thenReportIsCreatedWithDump() {
         File dump = File.builder()
                 .contentType("application/octet-stream")
-                .content("do you feel like we do ?".getBytes())
+                .content(Content.from("do you feel like we do ?"))
                 .build();
         Status201 response = this.handler.apply(this.requestWithHeadersSet()
                 .payload(dump)
