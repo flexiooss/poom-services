@@ -10,7 +10,7 @@ fi
 
 if [ -z ${SERVICE_PORT} ]
 then
-    export SERVICE_PORT="9999"
+    export SERVICE_PORT="80"
     echo "SERVICE_PORT not set, defaulting to $SERVICE_PORT"
 fi
 

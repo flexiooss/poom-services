@@ -8,8 +8,8 @@ COPY logback-json.xml /var/service/config/logs/
 COPY service-endpoint.sh /var/service/
 RUN chmod a+x /var/service/service-endpoint.sh
 
-EXPOSE 9999
-ENV SERVICE_PORT=9999
+EXPOSE 80
+ENV SERVICE_PORT=80
 
 ENV JVM_OPTS=""
 ENV JVM_MEMORY_TUNING=""
