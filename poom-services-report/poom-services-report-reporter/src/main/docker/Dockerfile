@@ -9,6 +9,6 @@ VOLUME /var/reports
 
 ENV SCANNED_DIR="/var/reports"
 ENV SCAN_DELAY=10
-ENV REPORT_API_URL=http://service-report:9999/service-report
+ENV REPORT_API_URL=http://service-report/service-report
 
 ENTRYPOINT ["/usr/local/bin/report.sh"]
