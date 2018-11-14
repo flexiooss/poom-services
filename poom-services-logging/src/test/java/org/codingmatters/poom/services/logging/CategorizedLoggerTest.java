@@ -4,10 +4,16 @@ import org.codingmatters.poom.services.support.logging.LoggingContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
+import java.util.UUID;
 
 public class CategorizedLoggerTest {
 
     static private final CategorizedLogger log = CategorizedLogger.getLogger(CategorizedLoggerTest.class);
+    static private final Logger oldLog = LoggerFactory.getLogger(CategorizedLoggerTest.class);
     private LoggingContext ctx;
 
     @Before
@@ -47,5 +53,21 @@ public class CategorizedLoggerTest {
         System.out.println(log.audit().tokenized().info("yopyop"));
         System.out.println(log.audit().tokenized().info("yopyop {} {} {}", "a", "b", "c"));
         System.out.println(log.audit().tokenized().info("yopyop", new Throwable()));
+    }
+
+    @Test
+    public void givenUsingSlf4jLog__whenMdc__thenWillLog() {
+        MDC.put("error-token", UUID.randomUUID().toString());
+        oldLog.warn("account {} is not valid", "yopyop");
+    }
+
+    @Test
+    public void givenUsingSlf4jLog__whenNotUsingMdc__thenWillLog() {
+        oldLog.warn("account {} is not valid", "yopyop");
+    }
+
+    @Test
+    public void givenUsingSlf4jLog__whenNotUsingParameter__thenWillLog() {
+        oldLog.warn("account is not valid");
     }
 }
