@@ -10,6 +10,7 @@ import org.codingmatters.poom.services.report.api.types.Error;
 import org.codingmatters.poom.services.report.api.types.Report;
 import org.codingmatters.poom.services.support.date.UTC;
 import org.codingmatters.rest.api.Processor;
+import org.codingmatters.rest.api.client.okhttp.HttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpClientWrapper;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class ReportCreation implements Function<ReportsPostRequest, ReportsPostR
     static private final CategorizedLogger log = CategorizedLogger.getLogger(ReportCreation.class);
 
     private final ReportStore store;
-    private final OkHttpClientWrapper client = OkHttpClientWrapper.build();
+    private final HttpClientWrapper client = OkHttpClientWrapper.build();
 
     private final ExecutorService callbackPool;
     private final Optional<String> callbackUrl;
