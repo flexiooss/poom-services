@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Optional;
+import java.util.*;
 
 public interface Env {
 
@@ -69,6 +69,29 @@ public interface Env {
 
         public String asString() {
             return this.rawValue;
+        }
+
+        public List<String> asList(String separator) {
+            List<String> result = new LinkedList<>();
+
+            String str = this.rawValue;
+            while(str.indexOf(separator) != -1) {
+                String val = str.substring(0, str.indexOf(separator));
+                if(! val.isEmpty()) {
+                    result.add(val);
+                }
+                str = str.substring(str.indexOf(separator) + separator.length());
+            }
+
+            if(! str.isEmpty()) {
+                result.add(str);
+            }
+
+            return result;
+        }
+
+        public Set<String> asSet(String separator) {
+            return new HashSet<>(this.asList(separator));
         }
 
         public Integer asInteger() {
