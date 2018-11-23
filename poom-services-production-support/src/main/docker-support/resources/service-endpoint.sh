@@ -28,7 +28,7 @@ fi
 echo "setting logging type to ${LOGGING_TYPE} with level ${LOG_LEVEL}"
 
 LOGGER_CONFIG="-Dlogback.configurationFile=/var/service/config/logs/logback-${LOGGING_TYPE}.xml"
-if [ -z ${LOG_LEVEL} ]
+if [ -n ${LOG_LEVEL} ]
 then
     LOGGER_CONFIG="${LOGGER_CONFIG} -Droot.logger.level=${LOG_LEVEL}"
 fi
@@ -82,7 +82,7 @@ trap 'proxy_sigint' SIGINT
 ##
 #   Running the service in the background
 #
-echo "starting JVM with the following options : ${JVM_VM}"
+echo "starting JVM with {classpath=${CLASSPATH} ;  logging-config=${LOGGER_CONFIG} ; jvm-options=${JVM_VM} ; main-class=${MAIN_CLASS} ; args=$@"
 java -cp $CLASSPATH $LOGGER_CONFIG $JVM_VM $MAIN_CLASS "$@" &
 SERVICE_PID=$!
 
