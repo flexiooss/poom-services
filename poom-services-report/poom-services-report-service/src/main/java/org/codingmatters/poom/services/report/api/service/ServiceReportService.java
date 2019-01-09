@@ -18,6 +18,18 @@ public class ServiceReportService {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(ServiceReportService.class);
 
     static public final String STORAGE_FOLDER = "STORAGE_FOLDER";
+    /**
+     * CALLBACK_URL will be GETed with the following query parameters :
+     *     name: name
+     *     version: version
+     *     main-class: main-class
+     *     container-id: container-id
+     *     start: start
+     *     end: end
+     *     exit-status: exit-status
+     *     has-dump: has-dump
+     *     reported-at: reported-at
+     */
     public static final String CALLBACK_URL = "CALLBACK_URL";
     public static final String CALLBACK_POOL_SIZE = "CALLBACK_POOL_SIZE";
 
