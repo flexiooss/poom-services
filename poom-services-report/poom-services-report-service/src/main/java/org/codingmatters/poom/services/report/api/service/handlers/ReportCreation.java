@@ -1,6 +1,7 @@
 package org.codingmatters.poom.services.report.api.service.handlers;
 
 import okhttp3.Request;
+import okhttp3.Response;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.services.report.api.ReportsPostRequest;
 import org.codingmatters.poom.services.report.api.ReportsPostResponse;
@@ -46,7 +47,7 @@ public class ReportCreation implements Function<ReportsPostRequest, ReportsPostR
                 .start(request.xStart())
                 .end(request.xEnd())
                 .exitStatus(request.xExitStatus())
-                .hasDump(request.opt().payload().content().isPresent())
+                .hasDump(request.opt().payload().content().isPresent() && request.payload().content().length() > 0)
                 .reportedAt(UTC.now())
                 .build();
 
@@ -55,10 +56,12 @@ public class ReportCreation implements Function<ReportsPostRequest, ReportsPostR
             return invalid.get();
         }
 
-        log.info("report creation requested {} dump, storing {}", report.hasDump() ? "with" : "without", report);
         try {
             Report result = this.store.store(report, request.opt().payload());
-            this.callbackPool.submit(() -> this.notify(result));
+            log.info("report stored {} dump, storing {}", report.hasDump() ? "with" : "without", report);
+            if(this.callbackPool != null) {
+                this.callbackPool.submit(() -> this.notify(result));
+            }
             return ReportsPostResponse.builder().status201(Status201.builder()
                     .payload(result)
                     .build()).build();
@@ -75,27 +78,34 @@ public class ReportCreation implements Function<ReportsPostRequest, ReportsPostR
 
     }
 
-    private void notify(Report result) {
+    private void notify(Report report) {
         if(this.callbackUrl.isPresent()) {
             try {
                 String url = this.callbackUrl.get();
-                url += "?" + this.queryParameter("name", result.name());
-                url += "&" + this.queryParameter("version", result.version());
-                url += "&" + this.queryParameter("main-class", result.mainClass());
-                url += "&" + this.queryParameter("container-id", result.containerId());
-                url += "&" + this.queryParameter("start", this.formatted(result.start()));
-                url += "&" + this.queryParameter("end", this.formatted(result.end()));
-                url += "&" + this.queryParameter("exit-status", result.exitStatus());
-                url += "&" + this.queryParameter("has-dump", result.hasDump().toString());
-                url += "&" + this.queryParameter("reported-at", this.formatted(result.reportedAt()));
+                url += "?" + this.queryParameter("name", report.name());
+                url += "&" + this.queryParameter("version", report.version());
+                url += "&" + this.queryParameter("main-class", report.mainClass());
+                url += "&" + this.queryParameter("container-id", report.containerId());
+                url += "&" + this.queryParameter("start", this.formatted(report.start()));
+                url += "&" + this.queryParameter("end", this.formatted(report.end()));
+                url += "&" + this.queryParameter("exit-status", report.exitStatus());
+                url += "&" + this.queryParameter("has-dump", report.hasDump().toString());
+                url += "&" + this.queryParameter("reported-at", this.formatted(report.reportedAt()));
 
 
-                this.client.execute(new Request.Builder()
+                Response response = this.client.execute(new Request.Builder()
                         .url(url)
                         .build());
+                if(response.code() == 200) {
+                    log.info("notified report to {}", url);
+                } else {
+                    log.error("error notifying to {}, response was {}", url, response);
+                }
             } catch (IOException e) {
-
+                log.error("error while notifying report to " + this.callbackUrl.get(), e);
             }
+        } else {
+            log.debug("not notifying report as no callback url defined");
         }
     }
 
