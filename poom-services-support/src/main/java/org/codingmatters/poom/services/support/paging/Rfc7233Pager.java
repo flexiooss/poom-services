@@ -18,8 +18,8 @@ public class Rfc7233Pager<V,Q> {
     }
 
     static public class UnitBuilder {
-        private final String requestedRange;
 
+        private final String requestedRange;
         private UnitBuilder(String requestedRange) {
             this.requestedRange = requestedRange;
         }
@@ -27,13 +27,13 @@ public class Rfc7233Pager<V,Q> {
         public MaxPageSizeBuilder unit(String unit) {
             return new MaxPageSizeBuilder(unit, this.requestedRange);
         }
+
     }
 
-
     static public class MaxPageSizeBuilder {
+
         private final String unit;
         private final String requestedRange;
-
         private MaxPageSizeBuilder(String unit, String requestedRange) {
             this.unit = unit;
             this.requestedRange = requestedRange;
@@ -42,15 +42,15 @@ public class Rfc7233Pager<V,Q> {
         public Builder maxPageSize(int maxPageSize) {
             return new Builder(this.unit, maxPageSize, this.requestedRange);
         }
+
     }
 
 
-
     static public class Builder {
+
         private final String unit;
         private final int maxPageSize;
         private final String requestedRange;
-
         private Builder(String unit, int maxPageSize, String requestedRange) {
             this.unit = unit;
             this.maxPageSize = maxPageSize;
@@ -60,63 +60,31 @@ public class Rfc7233Pager<V,Q> {
         public <V, Q> Rfc7233Pager<V,Q> pager(EntityLister<V, Q> repository) {
             return new Rfc7233Pager<>(repository, this.unit, this.maxPageSize, this.requestedRange);
         }
-    }
 
+
+    }
     private final EntityLister<V,Q> repository;
     private final String unit;
     private final int maxPageSize;
     private final String requestedRange;
-    private final String validationMessage;
-    private final long start;
-    private final long end;
-    private boolean valid;
+    private final Range range;
 
-    public Rfc7233Pager(EntityLister<V,Q> repository, String unit, int maxPageSize, String range) {
+    public Rfc7233Pager(EntityLister<V,Q> repository, String unit, int maxPageSize, String requestedRange) {
         this.repository = repository;
         this.unit = unit;
         this.maxPageSize = maxPageSize;
-        this.requestedRange = range;
+        this.requestedRange = requestedRange;
 
-        long startIndex = 0;
-        long endIndex = startIndex + this.maxPageSize - 1;
+        this.range = Range.fromRequestedRange(requestedRange, maxPageSize);
 
-        if(range != null && ! range.isEmpty()) {
-            Pattern RANGE_PATTERN = Pattern.compile("(\\d+)-(\\d+)");
-            Matcher rangeMatcher = RANGE_PATTERN.matcher(range);
-            if(rangeMatcher.matches()) {
-                startIndex = Long.parseLong(rangeMatcher.group(1));
-                endIndex = Long.parseLong(rangeMatcher.group(2));
-
-                if(endIndex - startIndex > this.maxPageSize) {
-                    endIndex = startIndex + this.maxPageSize - 1;
-                }
-
-                if(startIndex > endIndex) {
-                    this.valid = false;
-                    this.validationMessage = "start must be before end of range";
-                } else {
-                    this.valid = true;
-                    this.validationMessage = null;
-                }
-            } else {
-                this.valid = false;
-                this.validationMessage = "range is not parsable";
-            }
-        } else {
-            this.valid = true;
-            this.validationMessage = null;
-        }
-
-        this.start = startIndex;
-        this.end = endIndex;
     }
 
     private long start() {
-        return this.start;
+        return this.range.start();
     }
 
     private long end() {
-        return this.end;
+        return this.range.end();
     }
 
     public Page<V> page() throws RepositoryException {
@@ -137,7 +105,7 @@ public class Rfc7233Pager<V,Q> {
 
     private Page<V> page(ResultListSupplier<V> requester) throws RepositoryException {
         String acceptRange = String.format("%s %d", this.unit, this.maxPageSize);
-        if(this.valid) {
+        if(this.range.isValid()) {
             PagedEntityList<V> list = requester.get();
             String contentRange = String.format("%s %d-%d/%d",
                     this.unit,
@@ -145,14 +113,14 @@ public class Rfc7233Pager<V,Q> {
                     list.endIndex(),
                     list.total()
             );
-            return new Page<>(list, contentRange, acceptRange, this.valid, this.validationMessage, requestedRange);
+            return new Page<>(list, contentRange, acceptRange, this.range.isValid(), this.range.validationMessage(), requestedRange);
         } else {
             PagedEntityList<V> list = this.repository.all(0, 0);
             String contentRange = String.format("%s */%d",
                     this.unit,
                     list.total()
             );
-            return new Page<>(list, contentRange, acceptRange, this.valid, this.validationMessage, requestedRange);
+            return new Page<>(list, contentRange, acceptRange, this.range.isValid(), this.range.validationMessage(), requestedRange);
         }
     }
 
