@@ -4,6 +4,12 @@
                       https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.codingmatters</groupId>
+        <artifactId>codingmatters-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
     <groupId>org.codingmatters.poom</groupId>
     <artifactId>poom-services</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -11,7 +17,7 @@
 
     <name>Poor Man's Web Services</name>
     <description>Poor Old Man's Web Services</description>
-    <url>https://github.com/nelt/poom-services</url>
+    <url>https://github.com/flexiooss/poom-services</url>
 
     <licenses>
         <license>
@@ -28,21 +34,10 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:nelt/poom-services</connection>
-        <developerConnection>scm:git:git@github.com:nelt/poom-services.git</developerConnection>
-        <url>git@github.com:nelt/poom-services.git</url>
+        <connection>scm:git:git@github.com:flexiooss/poom-services</connection>
+        <developerConnection>scm:git:git@github.com:flexiooss/poom-services.git</developerConnection>
+        <url>git@github.com:flexiooss/poom-services.git</url>
     </scm>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 
     <repositories>
         <repository>
@@ -61,8 +56,11 @@
         </pluginRepository>
     </pluginRepositories>
 
+    <properties>
+        <codingmatters.docker.namespace>localhost:5000/codingmatters</codingmatters.docker.namespace>
+    </properties>
+
     <modules>
-        <module>poom-services-parent</module>
         <module>poom-services-bom</module>
         <module>poom-services-domain</module>
         <module>poom-services-repositories</module>
@@ -74,115 +72,259 @@
         <module>poom-services-test-support</module>
     </modules>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.codingmatters.poom</groupId>
+                <artifactId>poom-services-bom</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codingmatters.value.objects</groupId>
+                <artifactId>cdm-value-objects-bom</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codingmatters.rest</groupId>
+                <artifactId>cdm-rest-bom</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>2.8.5</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>2.8.5</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.8.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.25</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>1.7.25</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>1.2.3</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.2.3</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback.contrib</groupId>
+                <artifactId>logback-json-classic</artifactId>
+                <version>0.1.5</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback.contrib</groupId>
+                <artifactId>logback-jackson</artifactId>
+                <version>0.1.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>2.4.0</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <prerequisites>
         <maven>3.0</maven>
     </prerequisites>
     
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-        </plugins>
-
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.5.1</version>
-                </plugin>
                 <plugin>
                     <groupId>org.codingmatters.value.objects</groupId>
                     <artifactId>cdm-value-objects-maven-plugin</artifactId>
                     <version>0.0.1-SNAPSHOT</version>
                 </plugin>
-
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.9.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <version>1.5</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.6.6</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.5.0</version>
+                    <groupId>org.codingmatters.rest</groupId>
+                    <artifactId>cdm-rest-maven-plugin</artifactId>
+                    <version>0.0.1-SNAPSHOT</version>
                 </plugin>
             </plugins>
         </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>io.reformanda.semper</groupId>
+                <artifactId>dependencyversion-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>set-all</id>
+                        <goals>
+                            <goal>set-version</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
+
 
     <profiles>
         <profile>
-            <id>deploy-to-ossrh</id>
+            <id>docker-image-assembler</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/src/main/docker/docker-image-assembly.xml</exists>
+                </file>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.codingmatters.poom</groupId>
+                    <artifactId>poom-services-logging-json-layout</artifactId>
+                    <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                    <scope>runtime</scope>
+                </dependency>
+
+
+                <dependency>
+                    <groupId>org.codingmatters.poom</groupId>
+                    <artifactId>poom-services-production-support</artifactId>
+                    <classifier>docker-support</classifier>
+                    <scope>runtime</scope>
+                </dependency>
+            </dependencies>
+
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
+                        <artifactId>maven-assembly-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>attach-sources</id>
+                                <id>docker-image-build</id>
                                 <goals>
-                                    <goal>jar-no-fork</goal>
+                                    <goal>single</goal>
                                 </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <attach>false</attach>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                    <finalName>docker-image-build</finalName>
+                                    <descriptors>
+                                        <descriptor>${project.basedir}/src/main/docker/docker-image-assembly.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>docker-image-publisher</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/src/main/docker/docker-image-assembly.xml</exists>
+                </file>
+                <property>
+                    <name>dockerBuildAndPush</name>
+                </property>
+            </activation>
 
+            <build>
+                <plugins>
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                        </configuration>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>docker-image-build</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>docker-compose</executable>
+                                    <commandlineArgs>-f ${project.build.directory}/docker-image-build/docker-compose.yml build</commandlineArgs>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>docker-image-push</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>docker-compose</executable>
+                                    <commandlineArgs>-f ${project.build.directory}/docker-image-build/docker-compose.yml push</commandlineArgs>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
