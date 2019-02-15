@@ -39,17 +39,36 @@ public class Eventually {
         long start = System.currentTimeMillis();
         AssertionError last = null;
         do {
+            T actualValue = this.getActualValue(actual);
             try {
-                MatcherAssert.assertThat(reason, actual.get(), matcher);
+                MatcherAssert.assertThat(reason, actualValue, matcher);
                 return;
             } catch (AssertionError ae) {
                 last = ae;
-            } catch (Exception e) {
-                last = new AssertionError("failed invoking actual value supplier", e);
             }
+            this.sleepAWhile();
         } while (System.currentTimeMillis() - start < this.timeout);
 
         throw last;
+    }
+
+    private void sleepAWhile() {
+        try {
+            Thread.sleep(this.timeout / 10);
+        } catch (InterruptedException e) {
+            throw new AssertionError("failed while eventually asserting", e);
+        }
+    }
+
+    private <T> T getActualValue(CheckedSupplier<T> actual) {
+        AssertionError last;
+        T actualValue = null;
+        try {
+            actualValue = actual.get();
+        } catch (Exception e) {
+            last = new AssertionError("failed invoking actual value supplier", e);
+        }
+        return actualValue;
     }
 
 }
