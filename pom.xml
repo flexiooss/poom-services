@@ -46,11 +46,23 @@
             <releases><enabled>false</enabled></releases>
             <snapshots><enabled>true</enabled></snapshots>
         </repository>
+        <repository>
+            <id>oss-staging</id>
+            <url>https://oss.sonatype.org/content/groups/staging</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>oss-snapshots</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>oss-staging</id>
+            <url>https://oss.sonatype.org/content/groups/staging</url>
             <releases><enabled>false</enabled></releases>
             <snapshots><enabled>true</enabled></snapshots>
         </pluginRepository>
@@ -61,7 +73,6 @@
     </properties>
 
     <modules>
-        <!--<module>poom-services-bom</module>-->
         <module>poom-services-domain</module>
         <module>poom-services-repositories</module>
         <module>poom-services-support</module>
@@ -91,14 +102,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!--<dependency>-->
-                <!--<groupId>org.codingmatters.poom</groupId>-->
-                <!--<artifactId>poom-services-bom</artifactId>-->
-                <!--<version>0.0.1-SNAPSHOT</version>-->
-                <!--<scope>import</scope>-->
-                <!--<type>pom</type>-->
-            <!--</dependency>-->
-
             <dependency>
                 <groupId>org.codingmatters.value.objects</groupId>
                 <artifactId>codingmatters-value-objects</artifactId>
@@ -213,7 +216,6 @@
             </plugin>
         </plugins>
     </build>
-
 
     <profiles>
         <profile>
