@@ -61,7 +61,7 @@
     </properties>
 
     <modules>
-        <module>poom-services-bom</module>
+        <!--<module>poom-services-bom</module>-->
         <module>poom-services-domain</module>
         <module>poom-services-repositories</module>
         <module>poom-services-support</module>
@@ -91,17 +91,17 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.codingmatters.poom</groupId>
-                <artifactId>poom-services-bom</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.codingmatters.poom</groupId>-->
+                <!--<artifactId>poom-services-bom</artifactId>-->
+                <!--<version>0.0.1-SNAPSHOT</version>-->
+                <!--<scope>import</scope>-->
+                <!--<type>pom</type>-->
+            <!--</dependency>-->
 
             <dependency>
                 <groupId>org.codingmatters.value.objects</groupId>
-                <artifactId>cdm-value-objects-bom</artifactId>
+                <artifactId>codingmatters-value-objects</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
                 <scope>import</scope>
                 <type>pom</type>
@@ -109,12 +109,71 @@
 
             <dependency>
                 <groupId>org.codingmatters.rest</groupId>
-                <artifactId>cdm-rest-bom</artifactId>
+                <artifactId>codingmatters-rest</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
 
+            <!--BOM-->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poom-services-domain</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poom-services-repository-in-memory</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poom-services-support</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poom-services-production-support</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poom-services-production-support</artifactId>
+                <classifier>docker-support</classifier>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poom-services-logging-json-layout</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poom-services-logging</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poom-services-test-support</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poom-services-report-api-spec</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poom-services-report-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>poom-services-report-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!--// BOM-->
         </dependencies>
     </dependencyManagement>
 
@@ -217,50 +276,6 @@
                                     <descriptors>
                                         <descriptor>${project.basedir}/src/main/docker/docker-image-assembly.xml</descriptor>
                                     </descriptors>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>docker-image-publisher</id>
-            <activation>
-                <file>
-                    <exists>${basedir}/src/main/docker/docker-image-assembly.xml</exists>
-                </file>
-                <property>
-                    <name>dockerBuildAndPush</name>
-                </property>
-            </activation>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>docker-image-build</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>docker-compose</executable>
-                                    <commandlineArgs>-f ${project.build.directory}/docker-image-build/docker-compose.yml build</commandlineArgs>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>docker-image-push</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>docker-compose</executable>
-                                    <commandlineArgs>-f ${project.build.directory}/docker-image-build/docker-compose.yml push</commandlineArgs>
                                 </configuration>
                             </execution>
                         </executions>
