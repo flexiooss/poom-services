@@ -12,7 +12,7 @@
 
     <groupId>org.codingmatters.poom</groupId>
     <artifactId>poom-services</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0</version>
     <packaging>pom</packaging>
 
     <name>Poor Man's Web Services</name>
@@ -93,7 +93,7 @@
             <dependency>
                 <groupId>org.codingmatters.value.objects</groupId>
                 <artifactId>codingmatters-value-objects</artifactId>
-                <version>1.0.0</version>
+                <version>1.1.0</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -108,61 +108,61 @@
 
             <!--BOM-->
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-domain</artifactId>
-                <version>${project.version}</version>
+                <version>1.2.0</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-repository-in-memory</artifactId>
-                <version>${project.version}</version>
+                <version>1.2.0</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-support</artifactId>
-                <version>${project.version}</version>
+                <version>1.2.0</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-production-support</artifactId>
-                <version>${project.version}</version>
+                <version>1.2.0</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-production-support</artifactId>
                 <classifier>docker-support</classifier>
-                <version>${project.version}</version>
+                <version>1.2.0</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-logging-json-layout</artifactId>
-                <version>${project.version}</version>
+                <version>1.2.0</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-logging</artifactId>
-                <version>${project.version}</version>
+                <version>1.2.0</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-test-support</artifactId>
-                <version>${project.version}</version>
+                <version>1.2.0</version>
             </dependency>
 
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-api-spec</artifactId>
-                <version>${project.version}</version>
+                <version>1.2.0</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-api</artifactId>
-                <version>${project.version}</version>
+                <version>1.2.0</version>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-service</artifactId>
-                <version>${project.version}</version>
+                <version>1.2.0</version>
             </dependency>
             <!--// BOM-->
         </dependencies>
@@ -174,12 +174,12 @@
                 <plugin>
                     <groupId>org.codingmatters.value.objects</groupId>
                     <artifactId>cdm-value-objects-maven-plugin</artifactId>
-                    <version>1.0.0</version>
+                    <version>1.1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codingmatters.rest</groupId>
                     <artifactId>cdm-rest-maven-plugin</artifactId>
-                    <version>1.3.0</version>
+                    <version>1.4.0</version>
                 </plugin>
                 <plugin>
                     <groupId>io.reformanda.semper</groupId>
