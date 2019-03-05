@@ -101,7 +101,7 @@
             <dependency>
                 <groupId>org.codingmatters.rest</groupId>
                 <artifactId>codingmatters-rest</artifactId>
-                <version>1.3.0</version>
+                <version>1.4.0</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
