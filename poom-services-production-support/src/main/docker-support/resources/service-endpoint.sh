@@ -50,19 +50,50 @@ echo "CONTAINER_ID=$(hostname)" >> $REPORT_DIR/service.desc.temp
 ##
 #   Setting up JVM options 
 #
-JVM_VM="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap "
-JVM_VM="${JVM_VM} -Xms${JVM_MIN_HEAP}"
-JVM_VM="${JVM_VM} -Xmx${JVM_MAX_HEAP}"
-JVM_VM="${JVM_VM} -XX:MaxMetaspaceSize=${JVM_METASPACE} "
-JVM_VM="${JVM_VM} -XX:CompressedClassSpaceSize=${JVM_COMPRESSED_CLASS_SPACE}"
-JVM_VM="${JVM_VM} -Xss${JVM_THREAD_STACK_SIZE}"
-JVM_VM="${JVM_VM} -Xmn${JVM_YOUNG_GEN_HEAP}"
-JVM_VM="${JVM_VM} -XX:InitialCodeCacheSize=${JVM_INITIAL_CODE_CACHE_SIZE}"
-JVM_VM="${JVM_VM} -XX:ReservedCodeCacheSize=${JVM_RESERVED_CODE_CACHE_SIZE}"
-JVM_VM="${JVM_VM} -XX:MaxDirectMemorySize=${JVM_MAX_DIRECT_MEMORY_SIZE}"
-JVM_VM="${JVM_VM} -Djdk.nio.maxCachedBufferSize=${JVM_MAX_CACHED_BUFFER_SIZE}"
+JVM_VM=""
+if [ -n ${JVM_MIN_HEAP} ]
+then
+    JVM_VM="${JVM_VM} -Xms${JVM_MIN_HEAP} "
+fi
+if [ -n ${JVM_MAX_HEAP} ]
+then
+    JVM_VM="${JVM_VM} -Xmx${JVM_MAX_HEAP} "
+fi
+if [ -n ${JVM_METASPACE} ]
+then
+    JVM_VM="${JVM_VM} -XX:MaxMetaspaceSize=${JVM_METASPACE} "
+fi
+if [ -n ${JVM_COMPRESSED_CLASS_SPACE} ]
+then
+    JVM_VM="${JVM_VM} -XX:CompressedClassSpaceSize=${JVM_COMPRESSED_CLASS_SPACE} "
+fi
+if [ -n ${JVM_THREAD_STACK_SIZE} ]
+then
+    JVM_VM="${JVM_VM} -Xss${JVM_THREAD_STACK_SIZE} "
+fi
+if [ -n ${JVM_YOUNG_GEN_HEAP} ]
+then
+    JVM_VM="${JVM_VM} -Xmn${JVM_YOUNG_GEN_HEAP} "
+fi
+if [ -n ${JVM_INITIAL_CODE_CACHE_SIZE} ]
+then
+    JVM_VM="${JVM_VM} -XX:InitialCodeCacheSize=${JVM_INITIAL_CODE_CACHE_SIZE} "
+fi
+if [ -n ${JVM_RESERVED_CODE_CACHE_SIZE} ]
+then
+    JVM_VM="${JVM_VM} -XX:ReservedCodeCacheSize=${JVM_RESERVED_CODE_CACHE_SIZE} "
+fi
+if [ -n ${JVM_MAX_DIRECT_MEMORY_SIZE} ]
+then
+    JVM_VM="${JVM_VM} -XX:MaxDirectMemorySize=${JVM_MAX_DIRECT_MEMORY_SIZE} "
+fi
+if [ -n ${JVM_MAX_CACHED_BUFFER_SIZE} ]
+then
+    JVM_VM="${JVM_VM} -Djdk.nio.maxCachedBufferSize=${JVM_MAX_CACHED_BUFFER_SIZE} "
+fi
+
 JVM_VM="${JVM_VM} $JVM_MEMORY_TUNING $JVM_OPTS"
-JVM_VM="${JVM_VM} -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${REPORT_DIR}/heap.hprof"
+JVM_VM="${JVM_VM} -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${REPORT_DIR}/heap.hprof"
 
 ##
 #   Trapping SIGINT and SIGTERM to pass them to the service
