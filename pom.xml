@@ -58,6 +58,9 @@
 
     <properties>
         <codingmatters.docker.namespace>localhost:5000/codingmatters</codingmatters.docker.namespace>
+
+        <poom.service.base.image>codingmatters/poom-service-base</poom.service.base.image>
+        <poom.service.base.image.version>1.0.0</poom.service.base.image.version>
     </properties>
 
     <modules>
