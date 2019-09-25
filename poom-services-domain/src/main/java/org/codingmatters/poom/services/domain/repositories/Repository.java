@@ -14,6 +14,10 @@ public interface Repository<V, Q> extends EntityLister<V, Q> {
     Entity<V>  update(Entity<V> entity, V withValue) throws RepositoryException;
     void delete(Entity<V> entity) throws RepositoryException;
 
+    default void deleteFrom(Q query) throws RepositoryException {
+        throw new UnsupportedOperationException();
+    }
+
     default Entity<V> createWithId(String id, V withValue) throws RepositoryException {
         throw new UnsupportedOperationException();
     }
