@@ -1,3 +1,4 @@
 level: dev
 schemes: [maven]
-version: 1.11.0
+topics: []
+version: 1.12.0
