@@ -12,7 +12,7 @@
 
     <groupId>org.codingmatters.poom</groupId>
     <artifactId>poom-services</artifactId>
-    <version>1.12.0</version>
+    <version>1.13.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Poor Man's Web Services</name>
@@ -125,59 +125,59 @@
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-domain</artifactId>
-                <version>1.12.0</version>
+                <version>1.13.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-repository-in-memory</artifactId>
-                <version>1.12.0</version>
+                <version>1.13.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-support</artifactId>
-                <version>1.12.0</version>
+                <version>1.13.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-production-support</artifactId>
-                <version>1.12.0</version>
+                <version>1.13.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-production-support</artifactId>
                 <classifier>docker-support</classifier>
-                <version>1.12.0</version>
+                <version>1.13.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-logging-json-layout</artifactId>
-                <version>1.12.0</version>
+                <version>1.13.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-logging</artifactId>
-                <version>1.12.0</version>
+                <version>1.13.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-test-support</artifactId>
-                <version>1.12.0</version>
+                <version>1.13.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-api-spec</artifactId>
-                <version>1.12.0</version>
+                <version>1.13.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-api</artifactId>
-                <version>1.12.0</version>
+                <version>1.13.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-service</artifactId>
-                <version>1.12.0</version>
+                <version>1.13.0-SNAPSHOT</version>
             </dependency>
             <!--// BOM-->
         </dependencies>
