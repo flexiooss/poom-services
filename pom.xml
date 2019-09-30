@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.codingmatters</groupId>
         <artifactId>codingmatters-parent</artifactId>
-        <version>1.4.0</version>
+        <version>1.8.0</version>
     </parent>
 
     <groupId>org.codingmatters.poom</groupId>
     <artifactId>poom-services</artifactId>
-    <version>1.11.2</version>
+    <version>1.12.0</version>
     <packaging>pom</packaging>
 
     <name>Poor Man's Web Services</name>
@@ -41,18 +41,31 @@
 
     <repositories>
         <repository>
-            <id>oss-staging</id>
-            <url>https://oss.sonatype.org/content/groups/staging</url>
-            <releases><enabled>true</enabled></releases>
+            <id>codingmatters-snapshots</id>
+            <url>http://maven.ci.flexio.io:8080/repository/codingmatters-snapshots/</url>
+            <releases><enabled>false</enabled></releases>
             <snapshots><enabled>true</enabled></snapshots>
         </repository>
+        <repository>
+            <id>codingmatters-releases</id>
+            <url>http://maven.ci.flexio.io:8080/repository/codingmatters-releases/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
     </repositories>
+
     <pluginRepositories>
         <pluginRepository>
-            <id>oss-staging</id>
-            <url>https://oss.sonatype.org/content/groups/staging</url>
-            <releases><enabled>true</enabled></releases>
+            <id>codingmatters-snapshots</id>
+            <url>http://maven.ci.flexio.io:8080/repository/codingmatters-snapshots/</url>
+            <releases><enabled>false</enabled></releases>
             <snapshots><enabled>true</enabled></snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>codingmatters-releases</id>
+            <url>http://maven.ci.flexio.io:8080/repository/codingmatters-releases/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
         </pluginRepository>
     </pluginRepositories>
 
@@ -95,7 +108,7 @@
             <dependency>
                 <groupId>org.codingmatters.value.objects</groupId>
                 <artifactId>codingmatters-value-objects</artifactId>
-                <version>1.8.0</version>
+                <version>1.11.0</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -103,7 +116,7 @@
             <dependency>
                 <groupId>org.codingmatters.rest</groupId>
                 <artifactId>codingmatters-rest</artifactId>
-                <version>1.11.0</version>
+                <version>1.12.0</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -112,59 +125,59 @@
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-domain</artifactId>
-                <version>1.11.2</version>
+                <version>1.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-repository-in-memory</artifactId>
-                <version>1.11.2</version>
+                <version>1.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-support</artifactId>
-                <version>1.11.2</version>
+                <version>1.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-production-support</artifactId>
-                <version>1.11.2</version>
+                <version>1.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-production-support</artifactId>
                 <classifier>docker-support</classifier>
-                <version>1.11.2</version>
+                <version>1.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-logging-json-layout</artifactId>
-                <version>1.11.2</version>
+                <version>1.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-logging</artifactId>
-                <version>1.11.2</version>
+                <version>1.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-test-support</artifactId>
-                <version>1.11.2</version>
+                <version>1.12.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-api-spec</artifactId>
-                <version>1.11.2</version>
+                <version>1.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-api</artifactId>
-                <version>1.11.2</version>
+                <version>1.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-service</artifactId>
-                <version>1.11.2</version>
+                <version>1.12.0</version>
             </dependency>
             <!--// BOM-->
         </dependencies>
@@ -176,12 +189,12 @@
                 <plugin>
                     <groupId>org.codingmatters.value.objects</groupId>
                     <artifactId>cdm-value-objects-maven-plugin</artifactId>
-                    <version>1.8.0</version>
+                    <version>1.11.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codingmatters.rest</groupId>
                     <artifactId>cdm-rest-maven-plugin</artifactId>
-                    <version>1.11.0</version>
+                    <version>1.12.0</version>
                 </plugin>
                 <plugin>
                     <groupId>io.reformanda.semper</groupId>
