@@ -17,7 +17,7 @@ NULL : 'null' ;
 GT : '>' ;
 GTE : '>=' ;
 LT : '<' ;
-LTE : '<=>' ;
+LTE : '<=' ;
 EQ : '==' ;
 STARTS_WITH : 'starts with';
 ENDS_WITH : 'ends with';

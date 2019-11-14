@@ -30,7 +30,7 @@ public class EventsGenerator extends PropertyFilterBaseVisitor {
 
     @Override
     public Object visitStringOperand(PropertyFilterParser.StringOperandContext ctx) {
-        this.stack.push(ctx.getText());
+        this.stack.push(ctx.getText().substring(1, ctx.getText().length() - 1));
         return this.stack.peek();
     }
 
