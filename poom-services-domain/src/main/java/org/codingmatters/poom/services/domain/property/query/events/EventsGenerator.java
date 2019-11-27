@@ -7,6 +7,10 @@ import org.codingmatters.poom.services.domain.property.query.parsers.PropertyFil
 import java.util.Stack;
 
 public class EventsGenerator extends PropertyFilterBaseVisitor {
+    enum SpecialValues {
+        NULL
+    }
+
     private final FilterEvents events;
     private final Stack<Object> stack = new Stack<>();
 
@@ -48,7 +52,7 @@ public class EventsGenerator extends PropertyFilterBaseVisitor {
 
     @Override
     public Object visitNullOperand(PropertyFilterParser.NullOperandContext ctx) {
-        this.stack.push(null);
+        this.stack.push(SpecialValues.NULL);
         return this.stack.peek();
     }
 
@@ -71,7 +75,9 @@ public class EventsGenerator extends PropertyFilterBaseVisitor {
             } else if (ctx.operator().LTE() != null) {
                 return this.events.lowerThanOrEqualsProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
             } else if (ctx.operator().EQ() != null) {
-                return this.events.isEqualsProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
+                return this.eqPropExpression(ctx);
+            } else if (ctx.operator().NEQ() != null) {
+                return this.neqPropExpression(ctx);
             } else if (ctx.operator().STARTS_WITH() != null) {
                 return this.events.startsWithProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
             } else if (ctx.operator().ENDS_WITH() != null) {
@@ -89,7 +95,9 @@ public class EventsGenerator extends PropertyFilterBaseVisitor {
             } else if (ctx.operator().LTE() != null) {
                 return this.events.lowerThanOrEquals(ctx.IDENTIFIER().getText(), this.stack.pop());
             } else if (ctx.operator().EQ() != null) {
-                return this.events.isEquals(ctx.IDENTIFIER().getText(), this.stack.pop());
+                return eqExpression(ctx);
+            } else if (ctx.operator().NEQ() != null) {
+                return neqExpression(ctx);
             } else if (ctx.operator().STARTS_WITH() != null) {
                 return this.events.startsWith(ctx.IDENTIFIER().getText(), this.stack.pop());
             } else if (ctx.operator().ENDS_WITH() != null) {
@@ -99,6 +107,31 @@ public class EventsGenerator extends PropertyFilterBaseVisitor {
             }
         }
         return null;
+    }
+
+    private Object eqExpression(PropertyFilterParser.ComparisonContext ctx) {
+        Object value = this.stack.pop();
+        if(SpecialValues.NULL.equals(value)) {
+            return this.events.isNull(ctx.IDENTIFIER().getText());
+        } else {
+            return this.events.isEquals(ctx.IDENTIFIER().getText(), value);
+        }
+    }
+
+    private Object neqExpression(PropertyFilterParser.ComparisonContext ctx) {
+        Object value = this.stack.pop();
+        if(SpecialValues.NULL.equals(value)) {
+            return this.events.isNotNull(ctx.IDENTIFIER().getText());
+        } else {
+            return this.events.isNotEquals(ctx.IDENTIFIER().getText(), value);
+        }
+    }
+
+    private Object eqPropExpression(PropertyFilterParser.ComparisonContext ctx) {
+        return this.events.isEqualsProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
+    }
+    private Object neqPropExpression(PropertyFilterParser.ComparisonContext ctx) {
+        return this.events.isNotEqualsProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
     }
 
     @Override

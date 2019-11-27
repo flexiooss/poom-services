@@ -6,10 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -113,5 +110,90 @@ public class PropertyQueryParserTest {
                 .parse(query);
 
         assertThat(events.result(), is("and(and(or(l1 > 1, l2 > 2, ), l3 > 3, ), not(l4 > 4), )"));
+    }
+
+    @Test
+    public void given__when__thenIsNull() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 == null").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<String>() {
+            @Override
+            public String isNull(String property) throws FilterEventError {
+                parsed.add(property + " is null");
+                return parsed.get(parsed.size() - 1);
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed, contains("l1 is null"));
+    }
+
+    @Test
+    public void given__when__thenIsNotNull() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 != null").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<String>() {
+            @Override
+            public String isNotNull(String property) throws FilterEventError {
+                parsed.add(property + " is not null");
+                return parsed.get(parsed.size() - 1);
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed, contains("l1 is not null"));
+    }
+
+    @Test
+    public void given__when__thenIsNotEqualTo() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 != 12").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<String>() {
+            @Override
+            public String isNotEquals(String left, Object right) throws FilterEventError {
+                parsed.add(left + " is not equal to " + right);
+                return parsed.get(parsed.size() - 1);
+            }
+
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed, contains("l1 is not equal to 12"));
+    }
+
+    @Test
+    public void given__when__thenIsNotEqualToProperty() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 != l2").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<String>() {
+            @Override
+            public String isNotEqualsProperty(String left, String right) throws FilterEventError {
+                parsed.add(left + " is not equal to property " + right);
+                return parsed.get(parsed.size() - 1);
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed, contains("l1 is not equal to property l2"));
     }
 }

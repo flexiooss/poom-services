@@ -19,6 +19,7 @@ GTE : '>=' ;
 LT : '<' ;
 LTE : '<=' ;
 EQ : '==' ;
+NEQ : '!=' ;
 STARTS_WITH : 'starts with';
 ENDS_WITH : 'ends with';
 CONTAINS : 'contains';
@@ -60,6 +61,7 @@ operator
     | LT
     | LTE
     | EQ
+    | NEQ
     | STARTS_WITH
     | ENDS_WITH
     | CONTAINS

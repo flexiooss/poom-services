@@ -12,8 +12,12 @@ public interface FilterEvents<T> {
     default T lowerThanProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T lowerThanOrEquals(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T lowerThanOrEqualsProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
+    default T isNull(String property) throws FilterEventError {throw new FilterEventError("feature not implemented");}
+    default T isNotNull(String property) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T isEquals(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T isEqualsProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
+    default T isNotEquals(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
+    default T isNotEqualsProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T startsWith(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T startsWithProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T endsWith(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
