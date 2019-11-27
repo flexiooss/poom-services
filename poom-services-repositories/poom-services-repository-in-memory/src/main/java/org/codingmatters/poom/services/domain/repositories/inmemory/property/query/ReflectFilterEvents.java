@@ -74,6 +74,30 @@ public class ReflectFilterEvents extends StackedFilterEvents<Predicate> {
     }
 
     @Override
+    public Void isNotEquals(String left, Object right) throws FilterEventError {
+        this.push(o -> ! Operators.eq(this.propertyResolver.resolve(o, left), right));
+        return null;
+    }
+
+    @Override
+    public Void isNotEqualsProperty(String left, String right) throws FilterEventError {
+        this.push(o -> ! Operators.eq(this.propertyResolver.resolve(o, left), this.propertyResolver.resolve(o, right)));
+        return null;
+    }
+
+    @Override
+    public Void isNull(String property) throws FilterEventError {
+        this.push(o -> this.propertyResolver.resolve(o, property) == null);
+        return null;
+    }
+
+    @Override
+    public Void isNotNull(String property) throws FilterEventError {
+        this.push(o -> this.propertyResolver.resolve(o, property) != null);
+        return null;
+    }
+
+    @Override
     public Void startsWith(String left, Object right) throws FilterEventError {
         this.push(o -> Operators.startsWith(this.propertyResolver.resolve(o, left), right));
         return null;
