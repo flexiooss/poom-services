@@ -1,0 +1,8 @@
+Simple:
+  a: long
+  b: long
+  c: string
+  d: string
+  e:
+    f: string
+    g: string
