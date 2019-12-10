@@ -108,7 +108,7 @@
             <dependency>
                 <groupId>org.codingmatters.value.objects</groupId>
                 <artifactId>codingmatters-value-objects</artifactId>
-                <version>1.14.0-SNAPSHOT</version>
+                <version>1.14.0</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -189,7 +189,7 @@
                 <plugin>
                     <groupId>org.codingmatters.value.objects</groupId>
                     <artifactId>cdm-value-objects-maven-plugin</artifactId>
-                    <version>1.14.0-SNAPSHOT</version>
+                    <version>1.14.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codingmatters.rest</groupId>
