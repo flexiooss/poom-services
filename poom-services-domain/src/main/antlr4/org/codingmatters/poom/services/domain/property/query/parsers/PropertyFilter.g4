@@ -27,7 +27,7 @@ CONTAINS : 'contains';
 // DECIMAL, IDENTIFIER, COMMENTS, WS are set using regular expressions
 
 DECIMAL : '-'?[0-9]+('.'[0-9]+)? ;
-IDENTIFIER : [a-zA-Z_]+[a-zA-Z_\-.0-9]* ;
+IDENTIFIER : [a-zA-Z_\-.0-9]* ;
 QUOTED_STRING: '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 
 WS : [ \r\t\u000C\n]+ -> skip ;

@@ -196,4 +196,17 @@ public class PropertyQueryParserTest {
 
         assertThat(parsed, contains("l1 is not equal to property l2"));
     }
+
+
+    @Test
+    public void givenExpressionsWithProperties__whenAPropertyStartsWithADigit__thenParsesOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("1prop == 12").build();
+        List<String> props = Collections.synchronizedList(new LinkedList<>());
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(s -> props.add(s) || true)
+                .build(FilterEvents.noop()).parse(query);
+
+        assertThat(props, contains("1prop"));
+    }
 }
