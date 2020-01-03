@@ -4,6 +4,7 @@ import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.property.query.PropertyQueryParser;
 import org.codingmatters.poom.services.domain.property.query.events.FilterEventException;
+import org.codingmatters.poom.services.domain.property.query.events.SortEventException;
 import org.codingmatters.poom.services.domain.property.query.validation.InvalidPropertyException;
 import org.codingmatters.poom.services.domain.repositories.inmemory.property.query.PropertyResolver;
 import org.codingmatters.poom.services.domain.repositories.inmemory.property.query.ReflectFilterEvents;
@@ -46,7 +47,7 @@ public class InMemoryRepositoryWithPropertyQuery<V> extends InMemoryRepository<V
         ReflectFilterEvents events = new ReflectFilterEvents(this.valueClass);
         try {
             this.parserBuilder.build(events).parse(query);
-        } catch (InvalidPropertyException | FilterEventException e) {
+        } catch (InvalidPropertyException | FilterEventException | SortEventException e) {
             throw new RepositoryException("unparseable query : " + query, e);
         }
         return events.result();

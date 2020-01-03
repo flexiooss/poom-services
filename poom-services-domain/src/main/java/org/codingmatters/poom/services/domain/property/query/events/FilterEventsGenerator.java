@@ -6,7 +6,7 @@ import org.codingmatters.poom.services.domain.property.query.parsers.PropertyFil
 
 import java.util.Stack;
 
-public class EventsGenerator extends PropertyFilterBaseVisitor {
+public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     enum SpecialValues {
         NULL
     }
@@ -18,7 +18,7 @@ public class EventsGenerator extends PropertyFilterBaseVisitor {
         this.stack.clear();
     }
 
-    public EventsGenerator(FilterEvents events) {
+    public FilterEventsGenerator(FilterEvents events) {
         this.events = events;
     }
 
