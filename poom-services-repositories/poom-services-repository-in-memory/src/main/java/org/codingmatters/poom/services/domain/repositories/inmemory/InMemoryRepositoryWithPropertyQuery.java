@@ -8,9 +8,11 @@ import org.codingmatters.poom.services.domain.property.query.events.SortEventExc
 import org.codingmatters.poom.services.domain.property.query.validation.InvalidPropertyException;
 import org.codingmatters.poom.services.domain.repositories.inmemory.property.query.PropertyResolver;
 import org.codingmatters.poom.services.domain.repositories.inmemory.property.query.ReflectFilterEvents;
+import org.codingmatters.poom.services.domain.repositories.inmemory.property.query.ReflectSortEvents;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 
+import java.util.Comparator;
 import java.util.function.Predicate;
 
 public class InMemoryRepositoryWithPropertyQuery<V> extends InMemoryRepository<V, PropertyQuery> {
@@ -31,7 +33,8 @@ public class InMemoryRepositoryWithPropertyQuery<V> extends InMemoryRepository<V
     @Override
     public PagedEntityList<V> search(PropertyQuery query, long startIndex, long endIndex) throws RepositoryException {
         Predicate queryPredicate = this.queryPredicate(query);
-        return this.paged(this.stream().filter(vEntity -> queryPredicate.test(vEntity.value())), startIndex, endIndex);
+        Comparator queryComparator = this.queryComparator(query);
+        return this.paged(this.stream().filter(vEntity -> queryPredicate.test(vEntity.value())).sorted(queryComparator), startIndex, endIndex);
     }
 
     @Override
@@ -45,6 +48,17 @@ public class InMemoryRepositoryWithPropertyQuery<V> extends InMemoryRepository<V
 
     public Predicate queryPredicate(PropertyQuery query) throws RepositoryException {
         ReflectFilterEvents events = new ReflectFilterEvents(this.valueClass);
+        try {
+            this.parserBuilder.build(events).parse(query);
+        } catch (InvalidPropertyException | FilterEventException | SortEventException e) {
+            throw new RepositoryException("unparseable query : " + query, e);
+        }
+        return events.result();
+    }
+
+
+    private Comparator<Entity> queryComparator(PropertyQuery query) throws RepositoryException {
+        ReflectSortEvents events = new ReflectSortEvents(this.valueClass);
         try {
             this.parserBuilder.build(events).parse(query);
         } catch (InvalidPropertyException | FilterEventException | SortEventException e) {

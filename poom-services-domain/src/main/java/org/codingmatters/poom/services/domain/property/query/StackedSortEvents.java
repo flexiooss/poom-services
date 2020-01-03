@@ -5,11 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-public class StackedFilterEvents<T> implements FilterEvents<Void> {
+public class StackedSortEvents<T> implements SortEvents<Void> {
     private final Stack<T> stack = new Stack<>();
     private final T defaultValue;
 
-    public StackedFilterEvents(T defaultValue) {
+    public StackedSortEvents(T defaultValue) {
         this.defaultValue = defaultValue;
     }
 

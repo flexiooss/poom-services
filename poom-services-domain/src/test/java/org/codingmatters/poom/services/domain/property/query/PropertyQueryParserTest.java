@@ -69,7 +69,7 @@ public class PropertyQueryParserTest {
     public void givenFilterEventsImplemented__whenParsing__thenExpressionIsParsed() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("(l1 > 1 || l2 >2) && l3 > 3 && ! l4 > 4").build();
 
-        StackedFilterEvents<String> events = new StackedFilterEvents<String>() {
+        StackedFilterEvents<String> events = new StackedFilterEvents<String>("") {
             @Override
             public Void graterThan(String left, Object right) throws FilterEventError {
                 this.push(left + " > " + right);

@@ -10,6 +10,7 @@ public class ReflectFilterEvents extends StackedFilterEvents<Predicate> {
     private final PropertyResolver propertyResolver;
 
     public ReflectFilterEvents(Class valueObjectCalss) {
+        super(o -> true);
         this.propertyResolver = new PropertyResolver(valueObjectCalss);
     }
 
