@@ -1,6 +1,7 @@
 package org.codingmatters.poom.services.domain.property.query;
 
 import org.codingmatters.poom.services.domain.property.query.events.FilterEventError;
+import org.codingmatters.poom.services.domain.property.query.events.SortEventError;
 import org.codingmatters.poom.services.domain.property.query.validation.InvalidPropertyException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,10 +66,10 @@ public class PropertyQueryParserTest {
     }
 
     @Test
-    public void givenEventsImplemented__whenParsing__thenExpressionIsParsed() throws Exception {
+    public void givenFilterEventsImplemented__whenParsing__thenExpressionIsParsed() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("(l1 > 1 || l2 >2) && l3 > 3 && ! l4 > 4").build();
 
-        StackedFilterEvents<String> events = new StackedFilterEvents<String>() {
+        StackedFilterEvents<String> events = new StackedFilterEvents<String>("") {
             @Override
             public Void graterThan(String left, Object right) throws FilterEventError {
                 this.push(left + " > " + right);
@@ -208,5 +209,38 @@ public class PropertyQueryParserTest {
                 .build(FilterEvents.noop()).parse(query);
 
         assertThat(props, contains("1prop"));
+    }
+
+    @Test
+    public void givenSortEventImplements__whenPropertyAreValid__thenEventsAreGenerated() throws Exception {
+        PropertyQuery query = PropertyQuery.builder()
+                .sort("p1 asc, p2, p3 desc")
+                .build();
+
+        StringBuilder result = new StringBuilder("|");
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new SortEvents() {
+                    @Override
+                    public Object sorted(String property, Direction direction) throws SortEventError {
+                        result.append(property).append(" ").append(direction.name()).append("|");
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(result.toString(), is("|p1 ASC|p2 ASC|p3 DESC|"));
+    }
+
+    @Test
+    public void givenSortEventImplements__whenPropertyAreInvalid__thenInvalidPropertyException() throws Exception {
+        PropertyQuery query = PropertyQuery.builder()
+                .sort("p1 asc, p2, p3 desc")
+                .build();
+
+        thrown.expect(InvalidPropertyException.class);
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> false)
+                .build().parse(query);
     }
 }
