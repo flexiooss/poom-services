@@ -7,13 +7,13 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services</artifactId>
-        <version>1.17.0</version>
+        <version>1.18.0</version>
         <relativePath>../</relativePath>
     </parent>
 
     <groupId>org.codingmatters.poom</groupId>
     <artifactId>poom-services-test-support</artifactId>
-    <version>1.17.0</version>
+    <version>1.18.0</version>
     <name>${project.groupId}:${project.artifactId}</name>
 
     <dependencies>
@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
+            <artifactId>hamcrest</artifactId>
         </dependency>
         <dependency>
             <groupId>org.codingmatters.value.objects</groupId>
