@@ -116,7 +116,7 @@
             <dependency>
                 <groupId>org.codingmatters.rest</groupId>
                 <artifactId>codingmatters-rest</artifactId>
-                <version>1.16.0</version>
+                <version>1.17.0</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
