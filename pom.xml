@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters</groupId>
         <artifactId>codingmatters-parent</artifactId>
-        <version>1.12.0-SNAPSHOT</version>
+        <version>1.12.0</version>
     </parent>
 
     <groupId>org.codingmatters.poom</groupId>
@@ -101,8 +101,8 @@
         <codingmatters.docker.namespace>localhost:5000/codingmatters</codingmatters.docker.namespace>
         <poom.service.base.image>codingmatters/poom-service-base</poom.service.base.image>
         <poom.service.base.image.version>1.0.0</poom.service.base.image.version>
-        <codingmatters-value-objects.version>1.19.0-SNAPSHOT</codingmatters-value-objects.version>
-        <codingmatters-rest.version>1.19.0-SNAPSHOT</codingmatters-rest.version>
+        <codingmatters-value-objects.version>1.19.0</codingmatters-value-objects.version>
+        <codingmatters-rest.version>1.19.0</codingmatters-rest.version>
     </properties>
 
     <dependencyManagement>
