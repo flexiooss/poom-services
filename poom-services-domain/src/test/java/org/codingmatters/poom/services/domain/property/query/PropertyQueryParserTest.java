@@ -5,6 +5,7 @@ import org.codingmatters.poom.services.domain.property.query.events.SortEventErr
 import org.codingmatters.poom.services.domain.property.query.validation.InvalidPropertyException;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.rules.ExpectedException;
 
 import java.util.*;
@@ -242,5 +243,11 @@ public class PropertyQueryParserTest {
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> false)
                 .build().parse(query);
+    }
+
+    @Ignore
+    @Test
+    public void givenErrorFilter__when__then() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 !== 12").build();
     }
 }
