@@ -93,7 +93,8 @@ then
 fi
 
 JVM_VM="${JVM_VM} $JVM_MEMORY_TUNING $JVM_OPTS"
-JVM_VM="${JVM_VM} -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${REPORT_DIR}/heap.hprof"
+#JVM_VM="${JVM_VM} -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${REPORT_DIR}/heap.hprof"
+JVM_VM="${JVM_VM} -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${REPORT_DIR}/heap.hprof"
 
 ##
 #   Trapping SIGINT and SIGTERM to pass them to the service
@@ -113,7 +114,8 @@ trap 'proxy_sigint' SIGINT
 ##
 #   Running the service in the background
 #
-echo "starting JVM with {classpath=${CLASSPATH} ;  logging-config=${LOGGER_CONFIG} ; jvm-options=${JVM_VM} ; main-class=${MAIN_CLASS} ; args=$@"
+JAVA_VERSION=$(java -version 2>&1 | tr '\n' ':')
+echo "starting JVM with {java-version=${JAVA_VERSION} ;  classpath=${CLASSPATH} ; logging-config=${LOGGER_CONFIG} ; jvm-options=${JVM_VM} ; main-class=${MAIN_CLASS} ; args=$@"
 java -cp $CLASSPATH $LOGGER_CONFIG $JVM_VM $MAIN_CLASS "$@" &
 SERVICE_PID=$!
 

@@ -1,4 +1,4 @@
-FROM ${poom.service.base.image}:${poom.service.base.image.version}
+FROM ${codingmatters.docker.namespace}:${poom.service.base.image}:${poom.service.base.image.version}
 
 RUN mkdir -p /var/service/lib
 RUN mkdir -p /var/service/config/logs
