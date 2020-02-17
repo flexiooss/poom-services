@@ -1,5 +1,8 @@
 package org.codingmatters.poom.services.domain.repositories.inmemory.property.query;
 
+import org.codingmatters.value.objects.values.ObjectValue;
+import org.codingmatters.value.objects.values.PropertyValue;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -16,7 +19,8 @@ public class PropertyResolver {
             return this.hasNestedProperty(this.head(property), this.tail(property));
         }
         try {
-            return this.valueObjectCalss.getMethod(property) != null;
+            if(this.valueObjectCalss == ObjectValue.class) return true;
+            return methodForProperty(property) != null;
         } catch (NoSuchMethodException e) {
             return false;
         }
@@ -28,10 +32,31 @@ public class PropertyResolver {
 
     private boolean hasNestedProperty(String property, String subpath) {
         try {
-            Method method = this.valueObjectCalss.getMethod(property);
+            Method method = methodForProperty(property);
             return new PropertyResolver(method.getReturnType()).hasProperty(subpath);
         } catch (NoSuchMethodException e) {
             return false;
+        }
+    }
+
+    private Method methodForProperty(String property) throws NoSuchMethodException {
+        if(this.valueObjectCalss == ObjectValue.class) {
+            return this.valueObjectCalss.getMethod("property", String.class);
+        } else {
+            return this.valueObjectCalss.getMethod(property);
+        }
+    }
+
+    private Object invokePropertyMethode(String property, Method method, Object on) throws InvocationTargetException, IllegalAccessException {
+        if(this.valueObjectCalss == ObjectValue.class) {
+            PropertyValue propertyValue = (PropertyValue) method.invoke(on, property);
+            if(propertyValue.cardinality().equals(PropertyValue.Cardinality.SINGLE)) {
+                return propertyValue.single().rawValue();
+            } else {
+                return propertyValue.rawValue();
+            }
+        } else {
+            return method.invoke(on);
         }
     }
 
@@ -40,7 +65,7 @@ public class PropertyResolver {
             return this.resolveNestedProperty(o, this.head(property), this.tail(property));
         }
         try {
-            return this.valueObjectCalss.getMethod(property).invoke(o);
+            return this.invokePropertyMethode(property, this.methodForProperty(property), o);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             return null;
         }
@@ -48,8 +73,8 @@ public class PropertyResolver {
 
     private Object resolveNestedProperty(Object o, String property, String subpath) {
         try {
-            Method method = this.valueObjectCalss.getMethod(property);
-            Object sub = method.invoke(o);
+            Method method = methodForProperty(property);
+            Object sub = this.invokePropertyMethode(property, method, o);
             return new PropertyResolver(method.getReturnType()).resolve(sub, subpath);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             return null;

@@ -25,7 +25,7 @@ public class PropertyPrefixer {
         return result.build();
     }
 
-    public void rewriteFilter(PropertyQuery query, PropertyQuery.Builder result) {
+    private void rewriteFilter(PropertyQuery query, PropertyQuery.Builder result) {
         CodePointCharStream input = CharStreams.fromString(query.filter());
         CommonTokenStream tokens = new CommonTokenStream(new PropertyFilterLexer(input));
         PropertyFilterParser parser = new PropertyFilterParser(tokens);
@@ -35,7 +35,7 @@ public class PropertyPrefixer {
         result.filter(visitor.result());
     }
 
-    public void rewriteSort(PropertyQuery query, PropertyQuery.Builder result) {
+    private void rewriteSort(PropertyQuery query, PropertyQuery.Builder result) {
         CodePointCharStream input = CharStreams.fromString(query.sort());
         CommonTokenStream tokens = new CommonTokenStream(new PropertySortLexer(input));
         PropertySortParser parser = new PropertySortParser(tokens);
