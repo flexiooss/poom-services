@@ -3,6 +3,9 @@ package org.codingmatters.poom.services.domain.repositories.inmemory.property.qu
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.property.query.PropertyQueryParser;
 import org.codingmatters.test.Simple;
+import org.codingmatters.test.WithObject;
+import org.codingmatters.value.objects.values.ObjectValue;
+import org.codingmatters.value.objects.values.PropertyValue;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -215,5 +218,14 @@ public class ReflectFilterEventsTest {
 
         assertFalse(events.result().test(Simple.builder().a(12L).build()));
         assertTrue(events.result().test(Simple.builder().a(11L).build()));
+    }
+
+    @Test
+    public void givenObjectNestedObject__whenNestedEquals__thenPredicateIsOk() throws Exception {
+        ReflectFilterEvents events = new ReflectFilterEvents(WithObject.class);
+        PropertyQueryParser.builder().build(events).parse(PropertyQuery.builder().filter("p.a == 'toto'").build());
+
+        assertTrue(events.result().test(WithObject.builder().p(ObjectValue.builder().property("a", PropertyValue.builder().stringValue("toto")).build()).build()));
+        assertFalse(events.result().test(WithObject.builder().p(ObjectValue.builder().property("a", PropertyValue.builder().stringValue("tutu")).build()).build()));
     }
 }

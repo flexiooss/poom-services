@@ -6,13 +6,22 @@ import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 
 public class DateMatchers {
+
+    static public LocalDateTime atMilliPrecision(LocalDateTime from) {
+        return from.with(ChronoField.MICRO_OF_SECOND, 0).with(ChronoField.MILLI_OF_SECOND, from.get(ChronoField.MILLI_OF_SECOND));
+    }
+    static public LocalTime atMilliPrecision(LocalTime from) {
+        return from.with(ChronoField.MICRO_OF_SECOND, 0).with(ChronoField.MILLI_OF_SECOND, from.get(ChronoField.MILLI_OF_SECOND));
+    }
 
     static public Date plus(Date now, long value, int CALENDAR_CONSTANT) {
         Calendar cal = Calendar.getInstance();
