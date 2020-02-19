@@ -6,6 +6,7 @@ import org.codingmatters.poom.services.domain.property.query.PropertyQueryParser
 import org.codingmatters.poom.services.domain.property.query.events.FilterEventException;
 import org.codingmatters.poom.services.domain.property.query.events.SortEventException;
 import org.codingmatters.poom.services.domain.property.query.validation.InvalidPropertyException;
+import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.repositories.inmemory.property.query.PropertyResolver;
 import org.codingmatters.poom.services.domain.repositories.inmemory.property.query.ReflectFilterEvents;
 import org.codingmatters.poom.services.domain.repositories.inmemory.property.query.ReflectSortEvents;
@@ -17,17 +18,41 @@ import java.util.function.Predicate;
 
 public class InMemoryRepositoryWithPropertyQuery<V> extends InMemoryRepository<V, PropertyQuery> {
 
+    static <V> Repository<V, PropertyQuery> validating(Class<? extends V> valueClass) {
+        return new InMemoryRepositoryWithPropertyQuery<>(valueClass, true);
+    }
+
+    static <V> Repository<V, PropertyQuery> notValidating(Class<? extends V> valueClass) {
+        return new InMemoryRepositoryWithPropertyQuery<>(valueClass, false);
+    }
+
     private final Class<? extends V> valueClass;
     private PropertyQueryParser.Builder parserBuilder;
 
+    @Deprecated(forRemoval = true)
     public InMemoryRepositoryWithPropertyQuery(Class<? extends V> valueClass) {
+        this(valueClass, true);
+    }
+
+    private InMemoryRepositoryWithPropertyQuery(Class<? extends V> valueClass, boolean validating) {
         this.valueClass = valueClass;
         PropertyResolver resolver = new PropertyResolver(valueClass);
         this.parserBuilder = PropertyQueryParser
                 .builder()
                 .leftHandSidePropertyValidator(s -> resolver.hasProperty(s))
                 .rightHandSidePropertyValidator(s -> resolver.hasProperty(s))
-                ;
+        ;
+        if(validating) {
+            this.parserBuilder = PropertyQueryParser
+                    .builder()
+                    .leftHandSidePropertyValidator(s -> resolver.hasProperty(s))
+                    .rightHandSidePropertyValidator(s -> resolver.hasProperty(s))
+            ;
+        } else {
+            this.parserBuilder = PropertyQueryParser
+                    .builder()
+            ;
+        }
     }
 
     @Override
