@@ -125,6 +125,26 @@ public interface FilterEvents<T> {
             public T or() throws FilterEventError {
                 return null;
             }
+
+            @Override
+            public T isNull(String property) throws FilterEventError {
+                return null;
+            }
+
+            @Override
+            public T isNotNull(String property) throws FilterEventError {
+                return null;
+            }
+
+            @Override
+            public T isNotEquals(String left, Object right) throws FilterEventError {
+                return null;
+            }
+
+            @Override
+            public T isNotEqualsProperty(String left, String right) throws FilterEventError {
+                return null;
+            }
         };
     }
 
