@@ -4,6 +4,11 @@ import org.codingmatters.poom.services.domain.property.query.FilterEvents;
 import org.codingmatters.poom.services.domain.property.query.parsers.PropertyFilterBaseVisitor;
 import org.codingmatters.poom.services.domain.property.query.parsers.PropertyFilterParser;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Stack;
 
 public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
@@ -60,6 +65,36 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     public Object visitPropertyOperand(PropertyFilterParser.PropertyOperandContext ctx) {
         this.stack.push(new Property(ctx.IDENTIFIER().getText()));
         return this.stack.peek();
+    }
+
+    @Override
+    public Object visitDateOperand(PropertyFilterParser.DateOperandContext ctx) {
+        this.stack.push(LocalDate.parse(ctx.DATE_LITERAL().getText()));
+        return this.stack.peek();
+    }
+
+    @Override
+    public Object visitTimeOperand(PropertyFilterParser.TimeOperandContext ctx) {
+        this.stack.push(LocalTime.parse(ctx.TIME_LITERAL().getText()));
+        return this.stack.peek();
+    }
+
+    @Override
+    public Object visitDatetimeOperand(PropertyFilterParser.DatetimeOperandContext ctx) {
+        this.stack.push(LocalDateTime.parse(ctx.DATETIME_LITERAL().getText()));
+        return this.stack.peek();
+    }
+
+    @Override
+    public Object visitUtcDatetimeOperand(PropertyFilterParser.UtcDatetimeOperandContext ctx) {
+        this.stack.push(ZonedDateTime.parse(ctx.UTC_DATETIME_LITERAL().getText()));
+        return super.visitUtcDatetimeOperand(ctx);
+    }
+
+    @Override
+    public Object visitZonedDatetimeOperand(PropertyFilterParser.ZonedDatetimeOperandContext ctx) {
+        this.stack.push(ZonedDateTime.parse(ctx.ZONED_DATETIME_LITERAL().getText()));
+        return super.visitZonedDatetimeOperand(ctx);
     }
 
     @Override

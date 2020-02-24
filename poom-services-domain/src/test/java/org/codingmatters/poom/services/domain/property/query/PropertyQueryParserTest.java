@@ -8,10 +8,13 @@ import org.junit.Test;
 import org.junit.Ignore;
 import org.junit.rules.ExpectedException;
 
+import java.time.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.*;
+
 
 public class PropertyQueryParserTest {
 
@@ -250,4 +253,117 @@ public class PropertyQueryParserTest {
     public void givenErrorFilter__when__then() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("l1 !== 12").build();
     }
+
+    @Test
+    public void whenDatetimeLiteral__thenParsedToLocalDatetime() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("a == 2019-05-06T12:06:00.123").build();
+        StringBuilder result = new StringBuilder("|");
+
+        AtomicReference<Object> parsed = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object isEquals(String left, Object right) throws FilterEventError {
+                        parsed.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+
+        assertThat(parsed.get(), is(notNullValue()));
+        assertThat(parsed.get(), isA(LocalDateTime.class));
+    }
+
+    @Test
+    public void whenUtcDatetimeLitteral__thenParsedZonedDatetimeWithUTCOffset() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("a == 2019-05-06T12:06:00.123Z").build();
+        StringBuilder result = new StringBuilder("|");
+
+        AtomicReference<Object> parsed = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object isEquals(String left, Object right) throws FilterEventError {
+                        parsed.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+
+        assertThat(parsed.get(), is(notNullValue()));
+        assertThat(parsed.get(), isA(ZonedDateTime.class));
+        assertThat(((ZonedDateTime)parsed.get()).getOffset(), is(ZoneOffset.UTC));
+    }
+
+    @Test
+    public void whenZonedDatetimeLitteral__thenParsedToZonedDatetimeWithGivenOffset() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("a == 2019-05-06T12:06:00.123+03:30").build();
+        StringBuilder result = new StringBuilder("|");
+
+        AtomicReference<Object> parsed = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object isEquals(String left, Object right) throws FilterEventError {
+                        parsed.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+
+        assertThat(parsed.get(), is(notNullValue()));
+        assertThat(parsed.get(), isA(ZonedDateTime.class));
+        assertThat(((ZonedDateTime)parsed.get()).getOffset(), is(ZoneOffset.ofHoursMinutes(3,30)));
+    }
+
+    @Test
+    public void date() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("a == 2019-05-06").build();
+        StringBuilder result = new StringBuilder("|");
+
+        AtomicReference<Object> parsed = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object isEquals(String left, Object right) throws FilterEventError {
+                        parsed.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+
+        assertThat(parsed.get(), is(notNullValue()));
+        assertThat(parsed.get(), isA(LocalDate.class));
+    }
+
+    @Test
+    public void time() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("a == 12:06:00.123").build();
+        StringBuilder result = new StringBuilder("|");
+
+        AtomicReference<Object> parsed = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object isEquals(String left, Object right) throws FilterEventError {
+                        parsed.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+
+        assertThat(parsed.get(), is(notNullValue()));
+        assertThat(parsed.get(), isA(LocalTime.class));
+    }
+
 }
