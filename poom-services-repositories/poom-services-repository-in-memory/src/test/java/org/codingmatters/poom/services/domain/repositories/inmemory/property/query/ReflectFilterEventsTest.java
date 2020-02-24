@@ -8,6 +8,8 @@ import org.codingmatters.value.objects.values.ObjectValue;
 import org.codingmatters.value.objects.values.PropertyValue;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
+
 import static org.junit.Assert.*;
 
 public class ReflectFilterEventsTest {
@@ -227,5 +229,23 @@ public class ReflectFilterEventsTest {
 
         assertTrue(events.result().test(WithObject.builder().p(ObjectValue.builder().property("a", PropertyValue.builder().stringValue("toto")).build()).build()));
         assertFalse(events.result().test(WithObject.builder().p(ObjectValue.builder().property("a", PropertyValue.builder().stringValue("tutu")).build()).build()));
+    }
+
+    @Test
+    public void givenSimpleObject__whenDatetimeEquals__thenPredicateIsOk() throws Exception {
+        ReflectFilterEvents events = new ReflectFilterEvents(Simple.class);
+        PropertyQueryParser.builder().build(events).parse(PropertyQuery.builder().filter("aDate == 1970-01-02T03:04:05.678").build());
+
+        assertTrue(events.result().test(Simple.builder().aDate(LocalDateTime.of(1970, 1, 2, 3, 4, 5, 678000000)).build()));
+        assertFalse(events.result().test(Simple.builder().aDate(LocalDateTime.of(2020, 1, 2, 3, 4, 5, 678000000)).build()));
+    }
+
+    @Test
+    public void givenSimpleObject__whenDatetimeGreatherThan__thenPredicateIsOk() throws Exception {
+        ReflectFilterEvents events = new ReflectFilterEvents(Simple.class);
+        PropertyQueryParser.builder().build(events).parse(PropertyQuery.builder().filter("aDate > 2001-01-02T03:04:05.678").build());
+
+        assertFalse(events.result().test(Simple.builder().aDate(LocalDateTime.of(1970, 1, 2, 3, 4, 5, 678000000)).build()));
+        assertTrue(events.result().test(Simple.builder().aDate(LocalDateTime.of(2020, 1, 2, 3, 4, 5, 678000000)).build()));
     }
 }

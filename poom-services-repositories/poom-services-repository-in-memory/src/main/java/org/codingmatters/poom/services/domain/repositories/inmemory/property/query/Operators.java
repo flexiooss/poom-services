@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Objects;
 
@@ -15,11 +16,6 @@ public interface Operators {
 
     static Object normalized(Object o) {
         if(o == null) return o;
-
-        if(o instanceof LocalDateTime) return DATETIMEONLY_FORMATTER.format((TemporalAccessor) o);
-        if(o instanceof LocalDate) return DATEONLY_FORMATTER.format((TemporalAccessor) o);
-        if(o instanceof LocalTime) return TIMEONLY_FORMATTER.format((TemporalAccessor) o);
-
         return o;
     }
 
@@ -30,13 +26,15 @@ public interface Operators {
         if(left == null) {
             return false;
         }
-        if(right instanceof Number) {
-            if(left instanceof Number) {
+        if(right instanceof Comparable) {
+            if(left instanceof Comparable) {
                 if(strict) {
-                    return ((Number)left).doubleValue() > ((Number)right).doubleValue();
+                    return ((Comparable)left).compareTo(right) > 0;
                 } else {
-                    return ((Number)left).doubleValue() >= ((Number)right).doubleValue();
+                    return ((Comparable)left).compareTo(right) >= 0;
                 }
+            } else {
+                return false;
             }
         }
 
@@ -50,13 +48,16 @@ public interface Operators {
         if(left == null) {
             return false;
         }
-        if(right instanceof Number) {
-            if(left instanceof Number) {
+
+        if(right instanceof Comparable) {
+            if(left instanceof Comparable) {
                 if(strict) {
-                    return ((Number)left).doubleValue() < ((Number)right).doubleValue();
+                    return ((Comparable)left).compareTo(right) < 0;
                 } else {
-                    return ((Number)left).doubleValue() <= ((Number)right).doubleValue();
+                    return ((Comparable)left).compareTo(right) <= 0;
                 }
+            } else {
+                return false;
             }
         }
 

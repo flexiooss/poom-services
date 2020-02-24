@@ -18,8 +18,6 @@ public class OperatorsTest {
 
         assertTrue(Operators.eq(aDate, aDate));
         assertFalse(Operators.eq(aDate, aDate.plusDays(1L)));
-        assertTrue(Operators.eq(aDate, this.format(aDate)));
-        assertFalse(Operators.eq(aDate, this.format(aDate.plusDays(1L))));
     }
 
     @Test
@@ -28,8 +26,6 @@ public class OperatorsTest {
 
         assertTrue(Operators.eq(aDate, aDate));
         assertFalse(Operators.eq(aDate, aDate.plusDays(1L)));
-        assertTrue(Operators.eq(aDate, this.format(aDate)));
-        assertFalse(Operators.eq(aDate, this.format(aDate.plusDays(1L))));
     }
 
     @Test
@@ -38,8 +34,6 @@ public class OperatorsTest {
 
         assertTrue(Operators.eq(aDate, aDate));
         assertFalse(Operators.eq(aDate, aDate.plusHours(1L)));
-        assertTrue(Operators.eq(aDate, this.format(aDate)));
-        assertFalse(Operators.eq(aDate, this.format(aDate.plusHours(1L))));
     }
 
     private String format(LocalTime time) {

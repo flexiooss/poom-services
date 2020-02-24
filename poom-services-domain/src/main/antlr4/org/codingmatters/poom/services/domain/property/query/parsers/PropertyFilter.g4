@@ -24,7 +24,14 @@ STARTS_WITH : 'starts with';
 ENDS_WITH : 'ends with';
 CONTAINS : 'contains';
 
-// DECIMAL, IDENTIFIER, COMMENTS, WS are set using regular expressions
+/* Dates and times : watchout, order matters */
+ZONED_DATETIME_LITERAL: [0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9]'T'[0-9][0-9]':'[0-9][0-9]':'[0-9][0-9]'.'[0-9][0-9][0-9][+\-][0-9][0-9]':'[0-9][0-9];
+UTC_DATETIME_LITERAL: [0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9]'T'[0-9][0-9]':'[0-9][0-9]':'[0-9][0-9]'.'[0-9][0-9][0-9]'Z';
+DATETIME_LITERAL: [0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9]'T'[0-9][0-9]':'[0-9][0-9]':'[0-9][0-9]'.'[0-9][0-9][0-9];
+
+DATE_LITERAL: [0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9];
+
+TIME_LITERAL: [0-9][0-9]':'[0-9][0-9]':'[0-9][0-9]'.'[0-9][0-9][0-9];
 
 DECIMAL : '-'?[0-9]+('.'[0-9]+)? ;
 IDENTIFIER : [a-zA-Z_\-.0-9]* ;
@@ -53,6 +60,13 @@ operand
     | TRUE                          #trueOperand
     | FALSE                         #falseOperand
     | NULL                          #nullOperand
+    | TIME_LITERAL                  #timeOperand
+    | UTC_TIME_LITERAL                  #timeOperand
+    | ZONED_TIME_LITERAL                  #timeOperand
+    | DATETIME_LITERAL              #datetimeOperand
+    | UTC_DATETIME_LITERAL          #utcDatetimeOperand
+    | ZONED_DATETIME_LITERAL        #zonedDatetimeOperand
+    | DATE_LITERAL                  #dateOperand
     ;
 
 operator
