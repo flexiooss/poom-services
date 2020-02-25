@@ -319,6 +319,29 @@ public class PropertyQueryParserTest {
     }
 
     @Test
+    public void whenZonedDatetimeLitteralWithFullNanos__thenParsedToZonedDatetimeWithGivenOffset() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("a == 2019-05-06T12:06:00.123456789+03:30").build();
+        StringBuilder result = new StringBuilder("|");
+
+        AtomicReference<Object> parsed = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object isEquals(String left, Object right) throws FilterEventError {
+                        parsed.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+
+        assertThat(parsed.get(), is(notNullValue()));
+        assertThat(parsed.get(), isA(ZonedDateTime.class));
+        assertThat(((ZonedDateTime)parsed.get()).getOffset(), is(ZoneOffset.ofHoursMinutes(3,30)));
+    }
+
+    @Test
     public void date() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("a == 2019-05-06").build();
         StringBuilder result = new StringBuilder("|");
@@ -387,10 +410,10 @@ public class PropertyQueryParserTest {
 
     @Test
     public void whenFilterWithSyntaxError__thenThrowsWithReport() throws Exception {
-        PropertyQuery query = PropertyQuery.builder().filter("expiresAt < 2020-02-25T06:27:38.868945").build();
+        PropertyQuery query = PropertyQuery.builder().filter("expiresAt < 2020-02-25T06:27:38.132456789123456789").build();
 
         thrown.expect(FilterEventException.class);
-        thrown.expectMessage("1 syntax error found while parsing filter \"expiresAt < 2020-02-25T06:27:38.868945\" : [line 1:35 extraneous input '945' expecting <EOF>]");
+        thrown.expectMessage("1 syntax error found while parsing filter \"expiresAt < 2020-02-25T06:27:38.132456789123456789\" : [line 1:41 extraneous input '123456789' expecting <EOF>]");
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
                 .build(new FilterEvents() {}).parse(query);
