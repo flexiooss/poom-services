@@ -1,8 +1,9 @@
 package org.codingmatters.poom.services.domain.property.query;
 
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.ErrorNode;
+import org.antlr.v4.runtime.tree.ParseTreeListener;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.codingmatters.poom.services.domain.property.query.events.*;
 import org.codingmatters.poom.services.domain.property.query.parsers.PropertyFilterLexer;
 import org.codingmatters.poom.services.domain.property.query.parsers.PropertyFilterParser;
@@ -77,12 +78,27 @@ public class PropertyQueryParser {
     }
 
     public void parseFilter(String filter) throws InvalidPropertyException, FilterEventException {
+        ReportErrorListener errors = new ReportErrorListener();
+
         CodePointCharStream input = CharStreams.fromString(filter);
-        CommonTokenStream tokens = new CommonTokenStream(new PropertyFilterLexer(input));
+        PropertyFilterLexer lexer = new PropertyFilterLexer(input);
+        lexer.addErrorListener(errors);
+
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
         PropertyFilterParser parser = new PropertyFilterParser(tokens);
 
+        parser.addErrorListener(errors);
+
         FilterPropertyValidation propertyValidation = new FilterPropertyValidation(this.leftHandSidePropertyValidator, this.rightHandSidePropertyValidator);
-        propertyValidation.visit(parser.criterion());
+        PropertyFilterParser.CriterionContext criterion = parser.criterion();
+        if(! errors.report().isEmpty()) {
+            throw new FilterEventException(String.format("%d syntax error%s found while parsing filter \"%s\" : %s",
+                    errors.report().size(),
+                    errors.report().size() > 1 ? "s" : "",
+                    filter, errors.report()));
+        }
+
+        propertyValidation.visit(criterion);
         propertyValidation.isValid();
         try {
             tokens.seek(0);
@@ -93,12 +109,25 @@ public class PropertyQueryParser {
     }
 
     private void parseSort(String sort) throws SortEventException, InvalidPropertyException {
+        ReportErrorListener errors = new ReportErrorListener();
+
         CodePointCharStream input = CharStreams.fromString(sort);
-        CommonTokenStream tokens = new CommonTokenStream(new PropertySortLexer(input));
+        PropertySortLexer lexer = new PropertySortLexer(input);
+        lexer.addErrorListener(errors);
+
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
         PropertySortParser parser = new PropertySortParser(tokens);
+        parser.addErrorListener(errors);
 
         SortPropertyValidation propertyValidation = new SortPropertyValidation(this.leftHandSidePropertyValidator);
-        propertyValidation.visit(parser.sortExpression());
+        PropertySortParser.SortExpressionContext expression = parser.sortExpression();
+        if(! errors.report().isEmpty()) {
+            throw new SortEventException(String.format("%d syntax error%s found while parsing sort \"%s\" : %s",
+                    errors.report().size(), errors.report().size() > 1 ? "s" : "",
+                    sort, errors.report()
+            ));
+        }
+        propertyValidation.visit(expression);
         propertyValidation.isValid();
         try {
             tokens.seek(0);
