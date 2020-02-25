@@ -1,7 +1,9 @@
 package org.codingmatters.poom.services.domain.property.query;
 
 import org.codingmatters.poom.services.domain.property.query.events.FilterEventError;
+import org.codingmatters.poom.services.domain.property.query.events.FilterEventException;
 import org.codingmatters.poom.services.domain.property.query.events.SortEventError;
+import org.codingmatters.poom.services.domain.property.query.events.SortEventException;
 import org.codingmatters.poom.services.domain.property.query.validation.InvalidPropertyException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -248,12 +250,6 @@ public class PropertyQueryParserTest {
                 .build().parse(query);
     }
 
-    @Ignore
-    @Test
-    public void givenErrorFilter__when__then() throws Exception {
-        PropertyQuery query = PropertyQuery.builder().filter("l1 !== 12").build();
-    }
-
     @Test
     public void whenDatetimeLiteral__thenParsedToLocalDatetime() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("a == 2019-05-06T12:06:00.123").build();
@@ -366,4 +362,37 @@ public class PropertyQueryParserTest {
         assertThat(parsed.get(), isA(LocalTime.class));
     }
 
+    @Test
+    public void whenSortSyntaxError__thenThrowsWithReport() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().sort("&é'(-è_ç").build();
+
+        thrown.expect(SortEventException.class);
+        thrown.expectMessage("4 syntax errors found while parsing sort \"&é'(-è_ç\" : [line 1:0 token recognition error at: '&', line 1:1 token recognition error at: 'é', line 1:2 token recognition error at: ''(-è_ç', line 1:8 mismatched input '<EOF>' expecting IDENTIFIER]");
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {}).parse(query);
+    }
+
+
+    @Test
+    public void whenLexerErrorInFilter__thenThrowsWithReport() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 !== 12").build();
+
+        thrown.expect(FilterEventException.class);
+        thrown.expectMessage("1 syntax error found while parsing filter \"l1 !== 12\" : [line 1:5 token recognition error at: '= ']");
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {}).parse(query);
+    }
+
+    @Test
+    public void whenFilterWithSyntaxError__thenThrowsWithReport() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("expiresAt < 2020-02-25T06:27:38.868945").build();
+
+        thrown.expect(FilterEventException.class);
+        thrown.expectMessage("1 syntax error found while parsing filter \"expiresAt < 2020-02-25T06:27:38.868945\" : [line 1:35 extraneous input '945' expecting <EOF>]");
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {}).parse(query);
+    }
 }
