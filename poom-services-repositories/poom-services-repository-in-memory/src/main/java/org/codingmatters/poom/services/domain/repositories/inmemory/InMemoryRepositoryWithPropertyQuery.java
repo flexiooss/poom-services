@@ -18,11 +18,11 @@ import java.util.function.Predicate;
 
 public class InMemoryRepositoryWithPropertyQuery<V> extends InMemoryRepository<V, PropertyQuery> {
 
-    static <V> Repository<V, PropertyQuery> validating(Class<? extends V> valueClass) {
+    static public <V> Repository<V, PropertyQuery> validating(Class<? extends V> valueClass) {
         return new InMemoryRepositoryWithPropertyQuery<>(valueClass, true);
     }
 
-    static <V> Repository<V, PropertyQuery> notValidating(Class<? extends V> valueClass) {
+    static public <V> Repository<V, PropertyQuery> notValidating(Class<? extends V> valueClass) {
         return new InMemoryRepositoryWithPropertyQuery<>(valueClass, false);
     }
 
