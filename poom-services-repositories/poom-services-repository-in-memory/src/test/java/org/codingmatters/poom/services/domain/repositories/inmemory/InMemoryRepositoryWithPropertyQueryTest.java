@@ -9,6 +9,9 @@ import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -19,9 +22,44 @@ public class InMemoryRepositoryWithPropertyQueryTest {
 
     @Before
     public void setUp() throws Exception {
-        for (long i = 0; i < 1000; i++) {
+        for (long i = 0; i < 500; i++) {
+            long j = 999-i;
             this.repository.create(Simple.builder().a(i).e(E.builder().f("" + i).build()).build());
+            this.repository.create(Simple.builder().a(j).e(E.builder().f("" + j).build()).build());
+            this.repository.create(Simple.builder().a(j).e(E.builder().f(null).build()).build());
         }
+    }
+
+    @Test
+    public void test() throws Exception {
+        List<String> collect;
+        collect  = this.repository.search( PropertyQuery.builder().sort( "e.f desc" ).build(), 0, 2 ).stream().map( e -> e.value().e().f() ).collect( Collectors.toList() );
+        System.out.println( collect );
+        assertThat(
+                collect,
+                contains("999", "998", "997")
+        );
+
+        collect = this.repository.search( PropertyQuery.builder().sort( "e.f asc" ).build(), 0, 2 ).stream().map( e -> e.value().e().f() ).collect( Collectors.toList() );
+        System.out.println( collect );
+        assertThat(
+                collect,
+                contains("0", "1", "2")
+        );
+
+        collect = this.repository.search( PropertyQuery.builder().sort( "e.f DESC" ).build(), 0, 2 ).stream().map( e -> e.value().e().f() ).collect( Collectors.toList() );
+        System.out.println( collect );
+        assertThat(
+                collect,
+                contains("999", "998", "997")
+        );
+
+        collect = this.repository.search( PropertyQuery.builder().sort( "e.f ASC" ).build(), 0, 2 ).stream().map( e -> e.value().e().f() ).collect( Collectors.toList() );
+        System.out.println( collect );
+        assertThat(
+                collect,
+                contains("0", "1", "2")
+        );
     }
 
     @Test
