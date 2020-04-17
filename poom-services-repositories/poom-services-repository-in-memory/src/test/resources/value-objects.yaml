@@ -8,7 +8,11 @@ Simple:
     g: string
     h: long
   aDate: date-time
+  ref: $Ref
 
 WithObject:
   p:
     $value-object: org.codingmatters.value.objects.values.ObjectValue
+
+Ref:
+  a: long

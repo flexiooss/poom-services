@@ -3,6 +3,7 @@ package org.codingmatters.poom.services.domain.repositories.inmemory;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.test.Ref;
 import org.codingmatters.test.Simple;
 import org.codingmatters.test.simple.E;
 import org.junit.Before;
@@ -21,7 +22,15 @@ public class InMemoryRepositoryWithPropertyQueryTest {
     @Before
     public void setUp() throws Exception {
         for (long i = 0; i < 1000; i++) {
-            this.repository.create(Simple.builder().a(i).e(E.builder().f("" + i).g(i % 2 == 0 ? "" + i : null).h(i).build()).build());
+            this.repository.create(Simple.builder()
+                    .a(i)
+                    .e(E.builder()
+                            .f("" + i)
+                            .g(i % 2 == 0 ? "" + i : null)
+                            .h(i)
+                            .build())
+                    .ref(Ref.builder().a(i).build())
+                    .build());
         }
     }
 
@@ -90,6 +99,21 @@ public class InMemoryRepositoryWithPropertyQueryTest {
     public void sortNestedASC() throws Exception {
         assertThat(
                 this.repository.search(PropertyQuery.builder().sort("e.h ASC").build(), 0, 2).stream().map(e -> e.value().e().h()).collect(Collectors.toList()),
+                contains(0L, 1L, 2L)
+        );
+    }
+
+    @Test
+    public void givenNestedInReference__whenDesc__thenSortedDescending() throws Exception {
+        assertThat(
+                this.repository.search(PropertyQuery.builder().sort("ref.a desc").build(), 0, 2).stream().map(e -> e.value().ref().a()).collect(Collectors.toList()),
+                contains(999L, 998L, 997L)
+        );
+    }
+    @Test
+    public void givenNestedInReference__whenAsc__thenSortedAscending() throws Exception {
+        assertThat(
+                this.repository.search(PropertyQuery.builder().sort("ref.a asc").build(), 0, 2).stream().map(e -> e.value().ref().a()).collect(Collectors.toList()),
                 contains(0L, 1L, 2L)
         );
     }
