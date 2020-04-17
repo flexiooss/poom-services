@@ -44,7 +44,7 @@ public class InMemoryRepositoryWithPropertyQueryTest {
         System.out.println( collect );
         assertThat(
                 collect,
-                contains("0", "1", "2")
+                contains("0", "1", "10")
         );
 
         collect = this.repository.search( PropertyQuery.builder().sort( "e.f DESC" ).build(), 0, 2 ).stream().map( e -> e.value().e().f() ).collect( Collectors.toList() );
@@ -58,7 +58,7 @@ public class InMemoryRepositoryWithPropertyQueryTest {
         System.out.println( collect );
         assertThat(
                 collect,
-                contains("0", "1", "2")
+                contains("0", "1", "10")
         );
     }
 
