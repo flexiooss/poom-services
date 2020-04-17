@@ -8,6 +8,7 @@ import org.codingmatters.test.simple.E;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.contains;
@@ -46,6 +47,7 @@ public class InMemoryRepositoryWithPropertyQueryTest {
 
     @Test
     public void givenPropertyIsNestedAndString__whenSortingOnNullWithDesc__thenResultsAreSortedNullFirst() throws Exception {
+        System.out.println(this.repository.search(PropertyQuery.builder().sort("e.g DESC").build(), 0, 2).stream().map(e -> e.value().e().g()).collect(Collectors.toList()));
         assertThat(
                 this.repository.search(PropertyQuery.builder().sort("e.g DESC").build(), 0, 2).stream().map(e -> e.value().e().g()).collect(Collectors.toList()),
                 contains(null, null, null)
@@ -54,6 +56,7 @@ public class InMemoryRepositoryWithPropertyQueryTest {
 
     @Test
     public void givenPropertyIsNestedAndString__whenSortingWithNullWithAsc__thenResultsAreSortedDescAlphabetically() throws Exception {
+        System.out.println(this.repository.search(PropertyQuery.builder().sort("e.g ASC").build(), 0, 2).stream().map(e -> e.value().e().g()).collect(Collectors.toList()));
         assertThat(
                 this.repository.search(PropertyQuery.builder().sort("e.g ASC").build(), 0, 2).stream().map(e -> e.value().e().g()).collect(Collectors.toList()),
                 contains("0", "10", "100")
@@ -62,6 +65,7 @@ public class InMemoryRepositoryWithPropertyQueryTest {
 
     @Test
     public void givenPropertyIsNestedAndString__whenSortingWithLowerCaseDesc__thenResultsAreSortedDescAlphabetically() throws Exception {
+        System.out.println(this.repository.search(PropertyQuery.builder().sort("e.f desc").build(), 0, 2).stream().map(e -> e.value().e().f()).collect(Collectors.toList()));
         assertThat(
                 this.repository.search(PropertyQuery.builder().sort("e.f desc").build(), 0, 2).stream().map(e -> e.value().e().f()).collect(Collectors.toList()),
                 contains("999", "998", "997")
