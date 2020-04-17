@@ -37,11 +37,6 @@ public class InMemoryRepositoryWithPropertyQuery<V> extends InMemoryRepository<V
     private InMemoryRepositoryWithPropertyQuery(Class<? extends V> valueClass, boolean validating) {
         this.valueClass = valueClass;
         PropertyResolver resolver = new PropertyResolver(valueClass);
-        this.parserBuilder = PropertyQueryParser
-                .builder()
-                .leftHandSidePropertyValidator(s -> resolver.hasProperty(s))
-                .rightHandSidePropertyValidator(s -> resolver.hasProperty(s))
-        ;
         if(validating) {
             this.parserBuilder = PropertyQueryParser
                     .builder()

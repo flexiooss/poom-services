@@ -6,6 +6,7 @@ Simple:
   e:
     f: string
     g: string
+    h: long
   aDate: date-time
 
 WithObject:

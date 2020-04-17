@@ -25,6 +25,18 @@ public class ReflectSortEvents extends StackedSortEvents<Comparator<Entity>> {
         Object v1 = this.propertyResolver.resolve(e1.value(), property);
         Object v2 = this.propertyResolver.resolve(e2.value(), property);
 
+        if(v1 == null) {
+            if(v2 == null) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+
+        if(v2 == null) {
+            return -1;
+        }
+
         if(v1 instanceof Comparable && v2 instanceof Comparable) {
             return Objects.compare((Comparable) v1, (Comparable) v2, Comparator.naturalOrder());
         } else {
