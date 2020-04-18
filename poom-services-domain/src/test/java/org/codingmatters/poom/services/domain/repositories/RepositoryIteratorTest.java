@@ -62,7 +62,7 @@ public class RepositoryIteratorTest {
         RepositoryIterator<String, String> iterator = RepositoryIterator.all(this.lister, 10);
 
         for (int i = 0; i <= 5; i++) {
-            iterator.hasNext();
+            assertThat(iterator.hasNext(), is(true));
             Entity<String> next = iterator.next();
             assertThat(next.value(), is("element-" + i));
         }
@@ -83,9 +83,9 @@ public class RepositoryIteratorTest {
         RepositoryIterator<String, String> iterator = RepositoryIterator.all(this.lister, 10);
 
         for (int i = 0; i < 15; i++) {
-            iterator.hasNext();
+            assertThat(iterator.hasNext(), is(true));
             Entity<String> next = iterator.next();
-            assertThat(next.value(), is("element-" + i));
+            assertThat("element " + i, next.value(), is("element-" + i));
         }
         assertThat(iterator.hasNext(), is(false));
 
@@ -112,9 +112,27 @@ public class RepositoryIteratorTest {
         ));
     }
 
+    @Test
+    public void givenRepositoryWithThreePage__whenStreamingIterating__thenAllElementsAreStreamed() throws Exception {
+        this.nextPages.add(new PagedEntityList.DefaultPagedEntityList<String>(0L, 9L, 25L, this.elements(0, 9)));
+        this.nextPages.add(new PagedEntityList.DefaultPagedEntityList<String>(10L, 19L, 25L, this.elements(10, 19)));
+        this.nextPages.add(new PagedEntityList.DefaultPagedEntityList<String>(20L, 24L, 25L, this.elements(20, 24)));
+        this.nextPages.add(new PagedEntityList.DefaultPagedEntityList<>(0L, 0L, 25L, Collections.emptyList()));
+
+        List<Entity<String>> elements = RepositoryIterator.allStreamed(this.lister, 10).collect(Collectors.toList());
+        assertThat(elements, hasSize(25));
+
+        assertThat(this.requests, contains(
+                new Request(null, 0L, 9L),
+                new Request(null, 10L, 19L),
+                new Request(null, 20L, 29L),
+                new Request(null, 25L, 34L)
+        ));
+    }
+
     private List<Entity<String>> elements(int start, int end) {
         List<Entity<String>> result = new LinkedList<>();
-        for (int i = 0; i <= end ; i++) {
+        for (int i = start; i <= end ; i++) {
             result.add(new ImmutableEntity<>("" + i, BigInteger.ONE, "element-" + i));
         }
         return result;

@@ -60,6 +60,7 @@ public class DefaultRepositoryIterator<V, Q> implements RepositoryIterator<V, Q>
             this.positionInPage = 0;
         } else if(this.positionInPage >= this.currentPage.size()){
             this.currentPage = this.queryPage(this.currentPage.endIndex() + 1, this.currentPage.endIndex() + this.pageSize);
+            this.positionInPage = 0;
         }
     }
 
