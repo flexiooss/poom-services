@@ -9,6 +9,7 @@ import org.codingmatters.test.simple.E;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -155,5 +156,36 @@ public class InMemoryRepositoryWithPropertyQueryTest {
         for (long i = 0; i < 10; i++) {
             assertThat(i + "th", actual.get((int) i).value().a(), is(500 + i));
         }
+    }
+
+    @Test
+    public void whenTwoSortCriteria__thenSecondAppliedWhenFirstCriterionIsEquals() throws Exception {
+        this.repository.deleteFrom(PropertyQuery.builder().build());
+        assertThat(this.repository.all(0L, 0L).total(), is(0L));
+
+        this.repository.create(Simple.builder().a(3L).b(3L).build());
+        this.repository.create(Simple.builder().a(3L).b(2L).build());
+        this.repository.create(Simple.builder().a(3L).b(1L).build());
+
+        this.repository.create(Simple.builder().a(2L).b(3L).build());
+        this.repository.create(Simple.builder().a(2L).b(2L).build());
+        this.repository.create(Simple.builder().a(2L).b(1L).build());
+
+        this.repository.create(Simple.builder().a(1L).b(3L).build());
+        this.repository.create(Simple.builder().a(1L).b(2L).build());
+        this.repository.create(Simple.builder().a(1L).b(1L).build());
+
+        List<String> actual = this.repository.search(PropertyQuery.builder().sort("a asc, b asc").build(), 0L, 100L)
+                .valueList().stream().map(s -> s.a() + "/" + s.b())
+                .collect(Collectors.toList());
+        System.out.println(actual);
+        assertThat(
+                actual,
+                contains(
+                    "1/1", "1/2", "1/3",
+                    "2/1", "2/2", "2/3",
+                    "3/1", "3/2", "3/3"
+                )
+        );
     }
 }

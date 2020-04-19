@@ -17,7 +17,14 @@ public class ReflectSortEvents extends StackedSortEvents<Comparator<Entity>> {
 
     @Override
     public Void sorted(String property, Direction direction) throws SortEventError {
-        this.push((e1, e2) -> direction.equals(Direction.ASC) ? this.compare(e1, e2, property) : this.compare(e2, e1, property));
+        Comparator<Entity> comparator = (e1, e2) -> direction.equals(Direction.ASC) ? this.compare(e1, e2, property) : this.compare(e2, e1, property);
+
+        if(this.isEmpty()) {
+            this.push(comparator);
+        } else {
+            Comparator<Entity> previous = this.pop();
+            this.push((e1, e2) -> compareThisAndThen(e1, e2, previous, comparator));
+        }
         return null;
     }
 
@@ -41,6 +48,15 @@ public class ReflectSortEvents extends StackedSortEvents<Comparator<Entity>> {
             return Objects.compare((Comparable) v1, (Comparable) v2, Comparator.naturalOrder());
         } else {
             return 0;
+        }
+    }
+
+    private int compareThisAndThen(Entity e1, Entity e2, Comparator<Entity> c1, Comparator<Entity> c2) {
+        int result1 = c1.compare(e1, e2);
+        if(result1 == 0) {
+            return c2.compare(e1, e2);
+        } else {
+            return result1;
         }
     }
 }

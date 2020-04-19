@@ -29,6 +29,10 @@ public class StackedSortEvents<T> implements SortEvents<Void> {
         return this.stack.pop();
     }
 
+    public boolean isEmpty() {
+        return stack.isEmpty();
+    }
+
     protected List<T> popAll() {
         List<T> result = new LinkedList<>();
         while(! this.stack.empty()) {
