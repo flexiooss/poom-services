@@ -2,22 +2,39 @@ package org.codingmatters.poom.services.domain.repositories.inmemory;
 
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.repositories.Repository;
+import org.codingmatters.poom.services.domain.repositories.RepositoryIterator;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 import org.junit.Test;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Created by nelt on 6/6/17.
  */
 public class InMemoryRepositoryTest {
 
+    private List<Request> allRequests = new LinkedList<>();
+    private List<PagedEntityList<String>> responses = new LinkedList<>();
+
     private Repository<String, String> repository = new InMemoryRepository<String, String>() {
         @Override
         public PagedEntityList<String> search(String query, long startIndex, long endIndex) throws RepositoryException {
             return null;
+        }
+
+        @Override
+        public PagedEntityList<String> all(long startIndex, long endIndex) throws RepositoryException {
+            allRequests.add(new Request(startIndex, endIndex));
+            PagedEntityList<String> result = super.all(startIndex, endIndex);
+            responses.add(result);
+            return result;
         }
     };
 
@@ -157,5 +174,87 @@ public class InMemoryRepositoryTest {
         assertThat(list.startIndex(), is(0L));
         assertThat(list.endIndex(), is(0L));
         assertThat(list.total(), is(10L));
+    }
+
+    @Test
+    public void givenRepoHas100Elements__whenStreaming_andPageSiseIs10__then() throws Exception {
+        for (int i = 0; i < 100; i++) {
+            this.repository.create("elt-" + i);
+        }
+
+        List<Entity<String>> actual = RepositoryIterator.allStreamed(this.repository, 10).collect(Collectors.toList());
+        System.out.println("REQUESTS");
+        for (Request request : this.allRequests) {
+            System.out.println("\t" + request);
+        }
+        System.out.println("RESPONSES");
+        for (PagedEntityList<String> response : this.responses) {
+            System.out.println("\t" + response);
+        }
+
+
+        assertThat(
+                actual,
+                hasSize(100)
+        );
+    }
+
+
+    @Test
+    public void givenRepoHas100Elements__whenIterating_andPageSiseIs10__then() throws Exception {
+        for (int i = 0; i < 100; i++) {
+            this.repository.create("elt-" + i);
+        }
+
+        RepositoryIterator<String, String> iterator = RepositoryIterator.all(this.repository, 10);
+        for (int i = 0; i < 100; i++) {
+            System.out.println("iteration " + i);
+            assertThat("has next " + i, iterator.hasNext(), is(true));
+            assertThat("element " + i, iterator.next().value(), is("elt-" + i));
+        }
+
+        assertThat(iterator.hasNext(), is(false));
+
+        System.out.println("REQUESTS");
+        for (Request request : this.allRequests) {
+            System.out.println("\t" + request);
+        }
+        System.out.println("RESPONSES");
+        for (PagedEntityList<String> response : this.responses) {
+            System.out.println("\t" + response);
+        }
+
+    }
+
+    class Request {
+        public final Long start;
+        public final Long end;
+
+        public Request(Long start, Long end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Request request = (Request) o;
+            return Objects.equals(start, request.start) &&
+                    Objects.equals(end, request.end);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(start, end);
+        }
+
+        @Override
+        public String toString() {
+            return "Request{" +
+                    "start=" + start +
+                    ", end=" + end +
+                    '}';
+        }
     }
 }

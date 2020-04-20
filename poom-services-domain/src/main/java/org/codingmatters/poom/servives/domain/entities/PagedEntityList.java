@@ -53,5 +53,15 @@ public interface PagedEntityList<V> extends List<Entity<V>> {
         public List<V> valueList(Function<Entity<V>, V> entityMapper) {
             return this.stream().map(entityMapper).collect(Collectors.toList());
         }
+
+        @Override
+        public String toString() {
+            return "DefaultPagedEntityList{" +
+                    "startIndex=" + startIndex +
+                    ", endIndex=" + endIndex +
+                    ", total=" + total +
+                    ", elements" + super.toString() +
+                    '}';
+        }
     }
 }

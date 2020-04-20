@@ -10,9 +10,9 @@ OR : '||' ;
 LPAR : '(';
 RPAR : ')';
 
-TRUE  : 'true' ;
-FALSE : 'false' ;
-NULL : 'null' ;
+TRUE  : T R U E ;
+FALSE : F A L S E ;
+NULL : N U L L ;
 
 GT : '>' ;
 GTE : '>=' ;
@@ -20,9 +20,9 @@ LT : '<' ;
 LTE : '<=' ;
 EQ : '==' ;
 NEQ : '!=' ;
-STARTS_WITH : 'starts with';
-ENDS_WITH : 'ends with';
-CONTAINS : 'contains';
+STARTS_WITH : S T A R T S ' ' W I T H;
+ENDS_WITH : E N D S ' ' W I T H;
+CONTAINS : C O N T A I N S;
 
 /* Dates and times : watchout, order matters */
 ZONED_DATETIME_LITERAL: [0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9]'T'[0-9][0-9]':'[0-9][0-9]':'[0-9][0-9]'.'[0-9][0-9][0-9][0-9]?[0-9]?[0-9]?[0-9]?[0-9]?[0-9]?[+\-][0-9][0-9]':'[0-9][0-9];
@@ -80,3 +80,32 @@ operator
     | ENDS_WITH
     | CONTAINS
     ;
+
+
+
+fragment A : [aA]; // match either an 'a' or 'A'
+fragment B : [bB];
+fragment C : [cC];
+fragment D : [dD];
+fragment E : [eE];
+fragment F : [fF];
+fragment G : [gG];
+fragment H : [hH];
+fragment I : [iI];
+fragment J : [jJ];
+fragment K : [kK];
+fragment L : [lL];
+fragment M : [mM];
+fragment N : [nN];
+fragment O : [oO];
+fragment P : [pP];
+fragment Q : [qQ];
+fragment R : [rR];
+fragment S : [sS];
+fragment T : [tT];
+fragment U : [uU];
+fragment V : [vV];
+fragment W : [wW];
+fragment X : [xX];
+fragment Y : [yY];
+fragment Z : [zZ];
