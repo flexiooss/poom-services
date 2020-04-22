@@ -58,8 +58,8 @@ public class PropertyResolver {
         } else {
             Object value = method.invoke(on);
 
-            if(value != null && this.valueObjectCalss.isEnum()) {
-                return this.valueObjectCalss.getMethod("name").invoke(value);
+            if(value != null && value.getClass().isEnum()) {
+                return value.getClass().getMethod("name").invoke(value);
             } else {
                 return value;
             }
