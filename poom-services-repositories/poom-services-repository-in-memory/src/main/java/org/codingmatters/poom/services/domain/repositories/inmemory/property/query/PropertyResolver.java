@@ -47,7 +47,7 @@ public class PropertyResolver {
         }
     }
 
-    private Object invokePropertyMethode(String property, Method method, Object on) throws InvocationTargetException, IllegalAccessException {
+    private Object invokePropertyMethode(String property, Method method, Object on) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         if(this.valueObjectCalss == ObjectValue.class) {
             PropertyValue propertyValue = (PropertyValue) method.invoke(on, property);
             if(propertyValue.cardinality().equals(PropertyValue.Cardinality.SINGLE)) {
@@ -56,7 +56,13 @@ public class PropertyResolver {
                 return propertyValue.rawValue();
             }
         } else {
-            return method.invoke(on);
+            Object value = method.invoke(on);
+
+            if(value != null && value.getClass().isEnum()) {
+                return value.getClass().getMethod("name").invoke(value);
+            } else {
+                return value;
+            }
         }
     }
 
