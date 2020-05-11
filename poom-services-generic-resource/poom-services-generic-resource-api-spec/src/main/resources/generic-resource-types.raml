@@ -1,0 +1,32 @@
+
+  Message:
+    type: object
+    properties:
+      key: string
+      args:
+        type: array
+        items: string
+
+  Error:
+    type: object
+    properties:
+      token: string
+      code:
+        enum: [
+          ILLEGAL_RANGE_SPEC,
+          UNEXPECTED_ERROR,
+          OVERLOADED,
+          RESOURCE_NOT_FOUND,
+          ILLEGAL_RESOURCE_CREATION,
+          ILLEGAL_RESOURCE_CHANGE,
+          INVALID_OBJECT_FOR_CREATION,
+          INVALID_OBJECT_FOR_REPLACEMENT,
+          INVALID_OBJECT_FOR_UPDATE,
+          ENTITY_CREATION_NOT_ALLOWED,
+          ENTITY_REPLACEMENT_NOT_ALLOWED,
+          ENTITY_UPDATE_NOT_ALLOWED,
+          INVALID_ACCOUNT,
+          BAD_REQUEST]
+      messages:
+        type: array
+        items: Message
