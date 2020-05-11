@@ -87,7 +87,6 @@
         <module>poom-services-logging-json-layout</module>
         <module>poom-services-logging</module>
         <module>poom-services-test-support</module>
-        <module>poom-services-generic-resource</module>
     </modules>
 
     <dependencies>
