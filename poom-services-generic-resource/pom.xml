@@ -5,14 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.flexio.services.edge.ui.generic.resource</groupId>
-        <artifactId>flexio-generic-resource-ui</artifactId>
-        <version>1.45.0-SNAPSHOT</version>
+        <groupId>org.codingmatters.poom</groupId>
+        <artifactId>poom-services</artifactId>
+        <version>1.36.0-SNAPSHOT</version>
+        <relativePath>../</relativePath>
     </parent>
 
     <groupId>org.codingmatters.poom</groupId>
     <artifactId>poom-services-generic-resource</artifactId>
-    <version>0-SNAPSHOT</version>
+    <version>1.36.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
