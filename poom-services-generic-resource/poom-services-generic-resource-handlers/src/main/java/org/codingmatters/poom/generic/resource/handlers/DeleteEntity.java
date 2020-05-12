@@ -15,9 +15,9 @@ import java.util.function.Function;
 public class DeleteEntity implements Function<EntityDeleteRequest, EntityDeleteResponse> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(DeleteEntity.class);
 
-    private final GenericResourceAdapter.Provider<ObjectValue> adapterProvider;
+    private final GenericResourceAdapter.Provider<ObjectValue, ObjectValue, ObjectValue, ObjectValue> adapterProvider;
 
-    public DeleteEntity(GenericResourceAdapter.Provider<ObjectValue> adapterProvider) {
+    public DeleteEntity(GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider) {
         this.adapterProvider = adapterProvider;
     }
 

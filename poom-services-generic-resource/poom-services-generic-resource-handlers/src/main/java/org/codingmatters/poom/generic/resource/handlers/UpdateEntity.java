@@ -17,9 +17,9 @@ import java.util.function.Function;
 public class UpdateEntity implements Function<EntityPatchRequest, EntityPatchResponse> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(UpdateEntity.class);
 
-    private final GenericResourceAdapter.Provider<ObjectValue> adapterProvider;
+    private final GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider;
 
-    public UpdateEntity(GenericResourceAdapter.Provider<ObjectValue> adapterProvider) {
+    public UpdateEntity(GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider) {
         this.adapterProvider = adapterProvider;
     }
 

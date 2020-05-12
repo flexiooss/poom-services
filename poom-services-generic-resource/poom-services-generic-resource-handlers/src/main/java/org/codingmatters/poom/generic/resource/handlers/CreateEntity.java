@@ -17,9 +17,9 @@ import java.util.function.Function;
 public class CreateEntity implements Function<PagedCollectionPostRequest, PagedCollectionPostResponse> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(CreateEntity.class);
 
-    private final GenericResourceAdapter.Provider<ObjectValue> adapterProvider;
+    private final GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider;
 
-    public CreateEntity(GenericResourceAdapter.Provider<ObjectValue> adapterProvider) {
+    public CreateEntity(GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider) {
         this.adapterProvider = adapterProvider;
     }
 

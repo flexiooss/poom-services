@@ -18,9 +18,9 @@ import java.util.function.Function;
 public class BrowseEntities implements Function<PagedCollectionGetRequest, PagedCollectionGetResponse> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(BrowseEntities.class);
 
-    private final GenericResourceAdapter.Provider<ObjectValue> adapterProvider;
+    private final GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider;
 
-    public BrowseEntities(GenericResourceAdapter.Provider<ObjectValue> adapterProvider) {
+    public BrowseEntities(GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider) {
         this.adapterProvider = adapterProvider;
     }
 

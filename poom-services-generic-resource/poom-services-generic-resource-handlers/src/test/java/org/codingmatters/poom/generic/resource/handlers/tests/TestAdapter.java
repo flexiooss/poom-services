@@ -27,7 +27,7 @@ public class TestAdapter implements GenericResourceAdapter {
     }
 
     @Override
-    public GenericResourceAdapter.CRUD<ObjectValue> crud() {
+    public GenericResourceAdapter.CRUD<ObjectValue,ObjectValue, ObjectValue, ObjectValue> crud() {
         return this.crud;
     }
 

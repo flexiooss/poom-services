@@ -5,7 +5,7 @@ import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
 import org.codingmatters.value.objects.values.ObjectValue;
 
 public class GenericResourceHandlersBuilder extends GenericResourceHandlers.Builder {
-    public GenericResourceHandlersBuilder(GenericResourceAdapter.Provider<ObjectValue> adapterProvider) {
+    public GenericResourceHandlersBuilder(GenericResourceAdapter.Provider<ObjectValue, ObjectValue, ObjectValue, ObjectValue> adapterProvider) {
         this.pagedCollectionPostHandler(new CreateEntity(adapterProvider));
         this.entityPutHandler(new ReplaceEntity(adapterProvider));
         this.entityPatchHandler(new UpdateEntity(adapterProvider));

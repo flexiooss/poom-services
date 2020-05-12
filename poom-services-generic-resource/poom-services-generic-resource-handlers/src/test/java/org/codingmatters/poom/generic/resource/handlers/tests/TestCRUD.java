@@ -9,7 +9,7 @@ import org.codingmatters.value.objects.values.ObjectValue;
 import java.util.Optional;
 import java.util.Set;
 
-public class TestCRUD implements GenericResourceAdapter.CRUD<ObjectValue> {
+public class TestCRUD implements GenericResourceAdapter.CRUD<ObjectValue,ObjectValue, ObjectValue, ObjectValue> {
 
     @Override
     public Set<Action> supportedActions() {

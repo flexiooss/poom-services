@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TestAdapter implements GenericResourceAdapter<ObjectValue> {
+public class TestAdapter implements GenericResourceAdapter<ObjectValue,ObjectValue, ObjectValue, ObjectValue> {
 
     public final AtomicInteger listCounter = new AtomicInteger(0);
     public final AtomicInteger searchCounter = new AtomicInteger(0);
@@ -33,7 +33,7 @@ public class TestAdapter implements GenericResourceAdapter<ObjectValue> {
     public static final ObjectValue OBJECT_VALUE = ObjectValue.builder().property("p", PropertyValue.builder().stringValue("v").build()).build();
 
     @Override
-    public CRUD<ObjectValue> crud() {
+    public CRUD<ObjectValue,ObjectValue, ObjectValue, ObjectValue> crud() {
         return new CRUD<>() {
             @Override
             public String entityRepositoryUrl() {

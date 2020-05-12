@@ -17,9 +17,9 @@ import java.util.function.Function;
 public class GetEntity implements Function<EntityGetRequest, EntityGetResponse> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(GetEntity.class);
 
-    private final GenericResourceAdapter.Provider<ObjectValue> adapterProvider;
+    private final GenericResourceAdapter.Provider<ObjectValue, ObjectValue, ObjectValue, ObjectValue> adapterProvider;
 
-    public GetEntity(GenericResourceAdapter.Provider<ObjectValue> adapterProvider) {
+    public GetEntity(GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider) {
         this.adapterProvider = adapterProvider;
     }
 

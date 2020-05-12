@@ -17,9 +17,9 @@ import java.util.function.Function;
 public class ReplaceEntity implements Function<EntityPutRequest, EntityPutResponse> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(ReplaceEntity.class);
 
-    private final GenericResourceAdapter.Provider<ObjectValue> adapterProvider;
+    private final GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider;
 
-    public ReplaceEntity(GenericResourceAdapter.Provider<ObjectValue> adapterProvider) {
+    public ReplaceEntity(GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider) {
         this.adapterProvider = adapterProvider;
     }
 
