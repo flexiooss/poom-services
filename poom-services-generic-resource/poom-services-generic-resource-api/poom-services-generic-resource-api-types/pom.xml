@@ -17,17 +17,9 @@
             <groupId>org.codingmatters.value.objects</groupId>
             <artifactId>cdm-value-objects-values</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>io.flexio.io</groupId>-->
-<!--            <artifactId>flexio-mongo-io-values</artifactId>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>bson</artifactId>
         </dependency>
     </dependencies>
 
@@ -53,31 +45,6 @@
                         </goals>
                         <configuration>
                             <destination-package>org.codingmatters.poom.api.generic.resource.api</destination-package>
-                            <api-spec-resource>generic-resource.raml</api-spec-resource>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>io.flexio.io</groupId>
-                <artifactId>flexio-mongo-io-maven-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codingmatters.poom.api</groupId>
-                        <artifactId>poom-services-generic-resource-api-spec</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <id>mongo</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>mongo-mapping</goal>
-                        </goals>
-                        <configuration>
-                            <destination-package>org.codingmatters.poom.api.generic.resource.api.types</destination-package>
                             <api-spec-resource>generic-resource.raml</api-spec-resource>
                         </configuration>
                     </execution>

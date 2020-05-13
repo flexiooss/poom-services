@@ -5,221 +5,35 @@ description: Generic Resource
 baseUri: https://api.codingmatters.org/ui/resource
 mediaType: application/json
 
-annotationTypes:
-  value-object-hint:
-    type: string[]
-  conforms-to:
-    type: string[]
-  already-defined:
-    type: string
-  object-impl:
-    enum: [ Val, ObjectValue ]
-
 /:
   displayName: paged collection
-  type: {pagedCollection: {entityType: object, entityCreationType: object}}
+  get:
+    is: [rfc7233Browsing: {entityType: object, entityCreationType: object, error: Error}]
+  post:
+    is: [entityCreation: {entityType: object, entityCreationType: object, error: Error}]
   /{entity-id}:
     displayName: entity
-    type: {entity: {entityType: object, entityReplaceType: object, entityUpdateType: object}}
+    get:
+      is: [entityRetrieve: {entityType: object, error: Error}]
+    put:
+      is: [entityReplace: {entityType: object, entityReplaceType: object, error: Error}]
+    patch:
+      is: [entityUpdate: {entityType: object, entityUpdateType: object, error: Error}]
+    delete:
+      is: [entityDelete: {error: Error}]
 
+annotationTypes:
+  !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/annotation-types/codingmatters.raml
 
 types:
-  Message:
-    type: object
-    properties:
-      key: string
-      args:
-        type: array
-        items: string
+  Message: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/types/message.raml
+  Error: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/types/error-with-messages.raml
 
-  Error:
-    type: object
-    properties:
-      token: string
-      code:
-        enum: [
-          ILLEGAL_RANGE_SPEC,
-          UNEXPECTED_ERROR,
-          OVERLOADED,
-          RESOURCE_NOT_FOUND,
-          ILLEGAL_RESOURCE_CREATION,
-          ILLEGAL_RESOURCE_CHANGE,
-          INVALID_OBJECT_FOR_CREATION,
-          INVALID_OBJECT_FOR_REPLACEMENT,
-          INVALID_OBJECT_FOR_UPDATE,
-          ENTITY_CREATION_NOT_ALLOWED,
-          ENTITY_REPLACEMENT_NOT_ALLOWED,
-          ENTITY_UPDATE_NOT_ALLOWED,
-          INVALID_ACCOUNT,
-          BAD_REQUEST]
-      messages:
-        type: array
-        items: Message
+traits:
+  rfc7233Browsing: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/traits/collection/rfc7233-browse-collection.raml
+  entityCreation: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/traits/collection/create.raml
+  entityRetrieve: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/traits/entity/retrieve.raml
+  entityReplace: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/traits/entity/replace.raml
+  entityUpdate: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/traits/entity/update.raml
+  entityDelete: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/traits/entity/delete.raml
 
-
-resourceTypes:
-  pagedCollection:
-    usage: used to implement a paged collection
-    description: |
-      A paged collection of <<entityType>>.
-      The GET method enables to paginate over <<entityType>> entities while conforming to RFC 7233 paging.
-      The POST method enables to create <<entityType>> by providing a <<entityCreationType>> as body.
-    get:
-      description: |
-        RFC 7233 paged collection of arbitrary objects.
-        Filtering and ordering are optional features.
-      headers:
-        range:
-          type: string
-          required: false
-      queryParameters:
-        filter:
-           type: string
-           description: |
-              Conforms to PropertyFilter grammar from poom-services-org.codingmatters.poom.generic.resource.domain.
-              Dotted properties are supported for nested objects.
-              Supported properties are left to the implementation.
-        order-by:
-           type: string
-           description: |
-              Confirms to PropertySort grammar from poom-services-org.codingmatters.poom.generic.resource.domain.
-              Dotted properties are supported for nested objects.
-              Supported properties are left to the implementation.
-      responses:
-        200:
-          description: |
-            complete list or last elements of the list
-          headers:
-            Content-Range: string
-            Accept-Range: string
-          body: <<entityType>>[]
-        206:
-          description: |
-            partial list
-          headers:
-            Content-Range: string
-            Accept-Range: string
-          body: <<entityType>>[]
-        416:
-          description: |
-            the specified range is not acceptable (Error code is ILLEGAL_RANGE_SPEC).
-          headers:
-            Content-Range: string
-            Accept-Range: string
-          body: Error
-        400:
-          description: |
-            the query is not acceptable (Error code is ILLEGAL_REQUEST).
-          body: Error
-        404:
-          description: |
-            No paged resource found. Code RESOURCE_NOT_FOUND.
-          body: Error
-        500:
-          description: UNEXPECTED_ERROR.
-          body: Error
-    post:
-      description: |
-        creates an entity from an object validated agains the config form dialog
-      body: object
-      responses:
-        201:
-          headers:
-            x-entity-id: string
-            location: string
-          body: <<entityCreationType>>
-        400:
-          body: Error
-        401:
-          body: Error
-        403:
-          body: Error
-        404:
-          body: Error
-        405:
-          body: Error
-        500:
-          body: Error
-
-  entity:
-    uriParameters:
-      entity-id: string
-    get:
-      description: |
-        gets a <<entityType>> entity
-      responses:
-        200:
-          headers:
-            x-entity-id: string
-            location: string
-          body: <<entityType>>
-        400:
-          body: Error
-        401:
-          body: Error
-        403:
-          body: Error
-        404:
-          body: Error
-        500:
-          body: Error
-
-    put:
-      description: |
-        replaces a <<entityType>> entity given the <<entityReplaceType>> body
-      body: <<entityReplaceType>>
-      responses:
-        200:
-          headers:
-            x-entity-id: string
-            location: string
-          body: <<entityType>>
-        400:
-          body: Error
-        401:
-          body: Error
-        403:
-          body: Error
-        404:
-          body: Error
-        405:
-          body: Error
-        500:
-          body: Error
-    patch:
-      description: |
-        partially updates a <<entityType>> entity given the <<entityUpdateType>> body
-      body: <<entityUpdateType>>
-      responses:
-        200:
-          headers:
-            x-entity-id: string
-            location: string
-          body: <<entityType>>
-        400:
-          body: Error
-        401:
-          body: Error
-        403:
-          body: Error
-        404:
-          body: Error
-        405:
-          body: Error
-        500:
-          body: Error
-    delete:
-      description: deletes an entity
-      responses:
-        204:
-          description: resource deleted
-        400:
-          body: Error
-        401:
-          body: Error
-        403:
-          body: Error
-        404:
-          body: Error
-        500:
-          body: Error
