@@ -1,0 +1,40 @@
+#%RAML 1.0
+title: Generic Resource
+version: v2
+description: Generic Resource
+baseUri: https://api.codingmatters.org/ui/resource
+mediaType: application/json
+
+/:
+  displayName: paged collection
+  get:
+    is: [rfc7233Browsing: {entityType: object, entityCreationType: object, error: Error}]
+  post:
+    is: [entityCreation: {entityType: object, entityCreationType: object, error: Error}]
+  /{entity-id}:
+    displayName: entity
+    uriParameters:
+      entity-id: string
+    get:
+      is: [entityRetrieve: {entityType: object, error: Error}]
+    put:
+      is: [entityReplace: {entityType: object, entityReplaceType: object, error: Error}]
+    patch:
+      is: [entityUpdate: {entityType: object, entityUpdateType: object, error: Error}]
+    delete:
+      is: [entityDelete: {error: Error}]
+
+annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/annotation-types/codingmatters.raml
+
+types:
+  Message: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/types/message.raml
+  Error: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/types/error-with-messages.raml
+
+traits:
+  rfc7233Browsing: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/traits/collection/rfc7233-browse-collection.raml
+  entityCreation: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/traits/collection/create.raml
+  entityRetrieve: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/traits/entity/retrieve.raml
+  entityReplace: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/traits/entity/replace.raml
+  entityUpdate: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/traits/entity/update.raml
+  entityDelete: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/traits/entity/delete.raml
+
