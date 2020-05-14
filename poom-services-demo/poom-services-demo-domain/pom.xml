@@ -5,23 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.codingmatters.poom.apis.demo</groupId>
-        <artifactId>poom-services-demo-api</artifactId>
+        <groupId>org.codingmatters.poom.demo</groupId>
+        <artifactId>poom-services-demo</artifactId>
         <version>1.37.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>poom-services-demo-api-client</artifactId>
+    <artifactId>poom-services-demo-domain</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
 
     <dependencies>
-        <dependency>
-            <groupId>org.codingmatters.poom.apis.demo</groupId>
-            <artifactId>poom-services-demo-api-types</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codingmatters.rest</groupId>
-            <artifactId>cdm-rest-client-api</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -31,30 +23,24 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codingmatters.rest</groupId>
-                <artifactId>cdm-rest-maven-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codingmatters.poom.apis.demo</groupId>
-                        <artifactId>poom-services-demo-api-spec</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
+                <groupId>org.codingmatters.value.objects</groupId>
+                <artifactId>cdm-value-objects-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>client</id>
+                        <id>stages-spec</id>
                         <phase>generate-sources</phase>
                         <goals>
-                            <goal>generate-all-clients</goal>
+                            <goal>generate</goal>
+                            <goal>json</goal>
                         </goals>
                         <configuration>
-                            <root-package>org.codingmatters.poom.apis.demo</root-package>
-                            <api-spec-resource>demo-api.raml</api-spec-resource>
-                            <vendor>flexio-corp</vendor>
+                            <destination-package>org.codingmatters.poom.demo.domain.spec</destination-package>
+                            <input-spec>src/main/resources/store.yaml</input-spec>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>

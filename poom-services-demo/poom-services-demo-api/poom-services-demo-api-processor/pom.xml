@@ -11,6 +11,7 @@
     </parent>
 
     <artifactId>poom-services-demo-api-processor</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
 
     <dependencies>
         <dependency>

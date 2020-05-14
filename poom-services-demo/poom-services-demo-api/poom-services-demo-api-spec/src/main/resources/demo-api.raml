@@ -6,6 +6,11 @@ mediaType: application/json
 
 /{store}:
   displayName: stores
+  description: Stores
+  get:
+    description: |
+      Lists all the stores
+    is: [rfc7233Browsing: {entityType: object, error: Error}]
 
   /movies:
     displayName: store movies
