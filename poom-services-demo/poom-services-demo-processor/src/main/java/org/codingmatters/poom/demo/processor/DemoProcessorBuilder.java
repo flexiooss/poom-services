@@ -8,6 +8,8 @@ import org.codingmatters.poom.demo.processor.handlers.StoreBrowse;
 import org.codingmatters.poom.generic.resource.processor.GenericResourceProcessorBuilder;
 import org.codingmatters.rest.api.Processor;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 public class DemoProcessorBuilder {
 
     private final GenericResourceProcessorBuilder processorBuilder;
@@ -23,6 +25,7 @@ public class DemoProcessorBuilder {
         this.processorBuilder = new GenericResourceProcessorBuilder(apiPath, jsonFactory);
 
         this.handlers = this.buildHandlers();
+        this.interceptMovies();
     }
 
     private DemoHandlers buildHandlers() {
@@ -31,7 +34,16 @@ public class DemoProcessorBuilder {
                 .build();
     }
 
+    private void interceptMovies() {
+        ThreadLocal<AtomicReference<String>> storeContext = new ThreadLocal();
+
+        this.processorBuilder.preprocessedResourceAt("/{store}/movies",
+                (requestDelegate, responseDelegate) -> storeContext.get().set(requestDelegate.uriParameters("/{store}/movies").get("store").get(0)),
+                () -> this.storeManager.movieResourceAdapter(storeContext.get().get())
+        );
+    }
+
     public Processor build() {
-        return processorBuilder.build(new DemoProcessor(this.apiPath, this.jsonFactory, this.handlers));
+        return this.processorBuilder.build(new DemoProcessor(this.apiPath, this.jsonFactory, this.handlers));
     }
 }

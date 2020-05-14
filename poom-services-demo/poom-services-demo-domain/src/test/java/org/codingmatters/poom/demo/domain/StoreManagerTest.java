@@ -1,14 +1,20 @@
 package org.codingmatters.poom.demo.domain;
 
+import org.codingmatters.poom.apis.demo.api.types.Movie;
 import org.codingmatters.poom.demo.domain.spec.Store;
 import org.codingmatters.poom.demo.domain.spec.store.Address;
+import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.repositories.inmemory.InMemoryRepositoryWithPropertyQuery;
 import org.junit.Test;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isA;
 
 public class StoreManagerTest {
 
@@ -22,7 +28,8 @@ public class StoreManagerTest {
                     .build()).build();
 
     private final Repository<Store, PropertyQuery> repository = InMemoryRepositoryWithPropertyQuery.validating(Store.class);
-    private final StoreManager manager = new StoreManager(repository);
+    private AtomicReference<Repository<Movie, PropertyQuery>> nextMovieRepository = new AtomicReference<>();
+    private final StoreManager manager = new StoreManager(repository, store -> Optional.ofNullable(this.nextMovieRepository.get()));
 
     @Test
     public void givenRepositoryIsEmpty__whenLookingUpExistenceOfAStore__thenFalse() throws Exception {
@@ -39,5 +46,28 @@ public class StoreManagerTest {
     public void givenRepositoryHasValues__whenLookingUpExistenceOfAStore_andNoStoreWithThatNameExists__thenFalse() throws Exception {
         this.repository.create(STORE);
         assertThat(manager.storeExists("no sich store"), is(false));
+    }
+
+    @Test
+    public void givenStoreExists__whenGettingMovieAdapter__thenMovieCRUD_andMoviePager() throws Exception {
+        this.repository.create(STORE);
+        this.nextMovieRepository.set(InMemoryRepositoryWithPropertyQuery.validating(Movie.class));
+
+        assertThat(this.manager.movieResourceAdapter(STORE.name()).crud(), isA(MovieCRUD.class));
+        assertThat(this.manager.movieResourceAdapter(STORE.name()).pager().unit(), is("Movie"));
+        assertThat(this.manager.movieResourceAdapter(STORE.name()).pager().maxPageSize(), is(1000));
+    }
+
+    @Test
+    public void givenStoreExists__whenGettingMovieAdapter_andProblemGettingMovieRepo__thenUnexpectedExceptionAdapter() throws Exception {
+        this.repository.create(STORE);
+        this.nextMovieRepository.set(null);
+
+        assertThat(this.manager.movieResourceAdapter(STORE.name()), isA(GenericResourceAdapter.UnexpectedExceptionAdapter.class));
+    }
+
+    @Test
+    public void givenStoreDoesntExists__whenGettingMovieAdapter__thenNotFoundADapter() throws Exception {
+        assertThat(this.manager.movieResourceAdapter("whatever"), isA(GenericResourceAdapter.NotFoundAdapter.class));
     }
 }
