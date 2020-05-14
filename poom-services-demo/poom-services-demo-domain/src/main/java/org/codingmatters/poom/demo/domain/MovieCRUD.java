@@ -21,12 +21,16 @@ public class MovieCRUD implements GenericResourceAdapter.CRUD<Movie, MovieCreati
     private Set<Action> actions;
     private final String store;
     private final Repository<Movie, PropertyQuery> repository;
-    private Movie.Category category;
+    private Optional<Movie.Category> category;
 
     public MovieCRUD(Set<Action> actions, String store, Repository<Movie, PropertyQuery> repository) {
+        this(actions, store, repository, null);
+    }
+    public MovieCRUD(Set<Action> actions, String store, Repository<Movie, PropertyQuery> repository, Movie.Category category) {
         this.actions = actions;
         this.store = store;
         this.repository = repository;
+        this.category = Optional.ofNullable(category);
     }
 
     @Override
@@ -51,12 +55,25 @@ public class MovieCRUD implements GenericResourceAdapter.CRUD<Movie, MovieCreati
     @Override
     public Entity<Movie> createEntityFrom(MovieCreationData value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
         try {
-            Entity<Movie> entity = this.repository.create(Movie.builder()
-                    .category(this.category)
-                    .title(value.title())
-                    .filmMaker(value.filmMaker())
-                    .build());
-            return this.repository.update(entity, entity.value().withId(entity.id()));
+            if(this.category.isPresent()) {
+                Entity<Movie> entity = this.repository.create(Movie.builder()
+                        .category(this.category.get())
+                        .title(value.title())
+                        .filmMaker(value.filmMaker())
+                        .build());
+                entity = this.repository.update(entity, entity.value().withId(entity.id()));
+                log.info("movie created : {}", entity);
+                return entity;
+            } else {
+                throw new BadRequestException(
+                        Error.builder()
+                                .code(Error.Code.BAD_REQUEST)
+                                .token(log.tokenized().info("create movie called without a category scope"))
+                                .description("create movie must be invoked in a category context")
+                                .build(),
+                        "no category provided"
+                );
+            }
         } catch (RepositoryException e) {
             throw this.repositoryError(e);
         }
@@ -66,7 +83,31 @@ public class MovieCRUD implements GenericResourceAdapter.CRUD<Movie, MovieCreati
     public Entity<Movie> replaceEntityWith(String id, Movie value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
         try {
             Entity<Movie> entity = this.repository.retrieve(id);
-            return this.repository.update(entity, value.withId(entity.id()));
+            if(entity == null) {
+                throw new NotFoundException(
+                        Error.builder()
+                                .code(Error.Code.RESOURCE_NOT_FOUND)
+                                .token(log.tokenized().info("replace movie called for an unexistent movie {}", id))
+                                .description("no such movie")
+                                .build(),
+                        "no movie with id " + id
+                );
+            } else {
+                if(value.opt().id().isPresent()) {
+                    if(! value.id().equals(entity.id())) {
+                        throw new BadRequestException(
+                                Error.builder()
+                                    .code(Error.Code.BAD_REQUEST)
+                                    .token(log.tokenized().info("replace movie tries to change id to {}, movie was {}", id, entity))
+                                    .description("movie id is immutable")
+                                    .build(),
+                                "");
+                    }
+                }
+                entity = this.repository.update(entity, value.withId(entity.id()));
+                log.info("movie replaced : {}", entity);
+                return entity;
+            }
         } catch (RepositoryException e) {
             throw this.repositoryError(e);
         }
@@ -83,6 +124,16 @@ public class MovieCRUD implements GenericResourceAdapter.CRUD<Movie, MovieCreati
             Entity<Movie> entity = this.repository.retrieve(id);
             if (entity != null) {
                 this.repository.delete(entity);
+                log.info("movie deleted : {}", entity);
+            } else {
+                throw new NotFoundException(
+                        Error.builder()
+                                .code(Error.Code.RESOURCE_NOT_FOUND)
+                                .token(log.tokenized().info("delete movie called for an unexistent movie {}", id))
+                                .description("no such movie")
+                                .build(),
+                        "no movie with id " + id
+                );
             }
         } catch (RepositoryException e) {
             throw this.repositoryError(e);
