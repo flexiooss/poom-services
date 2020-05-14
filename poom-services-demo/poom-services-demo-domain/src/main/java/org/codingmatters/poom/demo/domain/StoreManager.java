@@ -3,6 +3,7 @@ package org.codingmatters.poom.demo.domain;
 import org.codingmatters.poom.demo.domain.spec.Store;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
+import org.codingmatters.poom.services.domain.repositories.EntityLister;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 
@@ -20,5 +21,8 @@ public class StoreManager {
         return entities.total() > 0;
     }
 
+    public EntityLister<Store, PropertyQuery> storeLister() {
+        return this.storeRepository;
+    }
 
 }

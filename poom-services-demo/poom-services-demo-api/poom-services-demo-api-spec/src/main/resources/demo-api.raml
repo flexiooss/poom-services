@@ -4,7 +4,7 @@ version: 1
 baseUri: https://api.codingmatters.org/demo
 mediaType: application/json
 
-/{store}:
+/:
   displayName: stores
   description: Stores
   get:
@@ -12,82 +12,85 @@ mediaType: application/json
       Lists all the stores
     is: [rfc7233Browsing: {entityType: object, error: Error}]
 
-  /movies:
-    displayName: store movies
-    uriParameters:
-      store: string
-    description: |
-      Movies available in this store.
+  /{store}:
+    displayName: a store
 
-    get:
-      description: |
-        Lists all the movies
-      is: [rfc7233Browsing: {entityType: Movie, error: Error}]
-
-    /{movie-id}:
-      displayName: movie
+    /movies:
+      displayName: store movies
       uriParameters:
-        movie-id: string
+        store: string
+      description: |
+        Movies available in this store.
 
       get:
-        is: [entityRetrieve: {entityType: Movie, error: Error}]
-      put:
         description: |
-          The movie data is replaced entirely.
-          The movie id cannot be changed :
-          * if an id is setted in the body it should should be the same than in the uri (a 400 is returned is not)
-          * it is ok not to set an id
-        is: [entityReplace: {entityType: Movie, entityReplaceType: Movie, error: Error}]
-      delete:
-        is: [entityDelete: {error: Error}]
+          Lists all the movies
+        is: [rfc7233Browsing: {entityType: Movie, error: Error}]
 
-      /rentals:
-        displayName: movie rentals
-        description: |
-          Rentals for this movie
+      /{movie-id}:
+        displayName: movie
+        uriParameters:
+          movie-id: string
+
         get:
-          is: [rfc7233Browsing: {entityType: Rental, error: Error}]
-        post:
+          is: [entityRetrieve: {entityType: Movie, error: Error}]
+        put:
           description: |
-            A rental request is :
-            * accepted if the movie is not currently rented (201)
-            * refused if the movie is already rented (400)
-          is: [entityCreation: {entityType: Rental, entityCreationType: RentalRequest, error: Error}]
+            The movie data is replaced entirely.
+            The movie id cannot be changed :
+            * if an id is setted in the body it should should be the same than in the uri (a 400 is returned is not)
+            * it is ok not to set an id
+          is: [entityReplace: {entityType: Movie, entityReplaceType: Movie, error: Error}]
+        delete:
+          is: [entityDelete: {error: Error}]
 
-        /{rental-id}:
-          displayName: rental
-          uriParameters:
-            rental-id: string
-
+        /rentals:
+          displayName: movie rentals
+          description: |
+            Rentals for this movie
           get:
-            is: [entityRetrieve: {entityType: Rental, error: Error}]
-          patch:
+            is: [rfc7233Browsing: {entityType: Rental, error: Error}]
+          post:
             description: |
-              Rental action can be :
-              * a RETURN : the return date is filled, the price is caculated, the status is updated
-              * an EXTENSION : the due-date is extended of a few days
-            is: [entityUpdate: {entityType: Rental, entityUpdateType: RentalAction, error: Error}]
+              A rental request is :
+              * accepted if the movie is not currently rented (201)
+              * refused if the movie is already rented (400)
+            is: [entityCreation: {entityType: Rental, entityCreationType: RentalRequest, error: Error}]
 
-  /category/{category}:
-    displayName: category movies
-    uriParameters:
-      category: string
+          /{rental-id}:
+            displayName: rental
+            uriParameters:
+              rental-id: string
 
-    get:
-      is: [rfc7233Browsing: {entityType: Movie, error: Error}]
-    post:
-      description: |
-        create a movie belonging to this category
-      is: [entityCreation: {entityType: Movie, entityCreationType: object, error: Error}]
+            get:
+              is: [entityRetrieve: {entityType: Rental, error: Error}]
+            patch:
+              description: |
+                Rental action can be :
+                * a RETURN : the return date is filled, the price is caculated, the status is updated
+                * an EXTENSION : the due-date is extended of a few days
+              is: [entityUpdate: {entityType: Rental, entityUpdateType: RentalAction, error: Error}]
 
-  /customers/{customer}/rentals:
-    displayName: customer rentals
-    uriParameters:
-      customer: string
-    get:
-      description: |
-        Lists this customer's rentals
-      is: [rfc7233Browsing: {entityType: Rental, error: Error}]
+    /category/{category}:
+      displayName: category movies
+      uriParameters:
+        category: string
+
+      get:
+        is: [rfc7233Browsing: {entityType: Movie, error: Error}]
+      post:
+        description: |
+          create a movie belonging to this category
+        is: [entityCreation: {entityType: Movie, entityCreationType: object, error: Error}]
+
+    /customers/{customer}/rentals:
+      displayName: customer rentals
+      uriParameters:
+        customer: string
+      get:
+        description: |
+          Lists this customer's rentals
+        is: [rfc7233Browsing: {entityType: Rental, error: Error}]
 
 annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/annotation-types/codingmatters.raml
 
