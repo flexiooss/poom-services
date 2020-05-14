@@ -2,13 +2,13 @@
 title: Generic Resource
 version: v2
 description: Generic Resource
-baseUri: https://api.codingmatters.org/ui/resource
+baseUri: https://api.codingmatters.org/generic/resource
 mediaType: application/json
 
 /:
   displayName: paged collection
   get:
-    is: [rfc7233Browsing: {entityType: object, entityCreationType: object, error: Error}]
+    is: [rfc7233Browsing: {entityType: object, error: Error}]
   post:
     is: [entityCreation: {entityType: object, entityCreationType: object, error: Error}]
   /{entity-id}:
