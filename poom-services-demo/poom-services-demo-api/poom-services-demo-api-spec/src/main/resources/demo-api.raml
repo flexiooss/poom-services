@@ -6,14 +6,6 @@ mediaType: application/json
 
 /{store}:
   displayName: stores
-  /customers/{customer}/rentals:
-    displayName: customer rentals
-    uriParameters:
-      customer: string
-    get:
-      description: |
-        Lists this customer's rentals
-      is: [rfc7233Browsing: {entityType: Rental, error: Error}]
 
   /movies:
     displayName: store movies
@@ -83,6 +75,14 @@ mediaType: application/json
         create a movie belonging to this category
       is: [entityCreation: {entityType: Movie, entityCreationType: object, error: Error}]
 
+  /customers/{customer}/rentals:
+    displayName: customer rentals
+    uriParameters:
+      customer: string
+    get:
+      description: |
+        Lists this customer's rentals
+      is: [rfc7233Browsing: {entityType: Rental, error: Error}]
 
 annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/annotation-types/codingmatters.raml
 
