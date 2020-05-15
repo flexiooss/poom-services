@@ -53,9 +53,9 @@ public class StoreManagerTest {
         this.repository.create(STORE);
         this.nextMovieRepository.set(InMemoryRepositoryWithPropertyQuery.validating(Movie.class));
 
-        assertThat(this.manager.movieResourceAdapter(STORE.name()).crud(), isA(MovieCRUD.class));
-        assertThat(this.manager.movieResourceAdapter(STORE.name()).pager().unit(), is("Movie"));
-        assertThat(this.manager.movieResourceAdapter(STORE.name()).pager().maxPageSize(), is(1000));
+        assertThat(this.manager.storeMoviesAdpter(STORE.name()).crud(), isA(MovieCRUD.class));
+        assertThat(this.manager.storeMoviesAdpter(STORE.name()).pager().unit(), is("Movie"));
+        assertThat(this.manager.storeMoviesAdpter(STORE.name()).pager().maxPageSize(), is(1000));
     }
 
     @Test
@@ -63,11 +63,11 @@ public class StoreManagerTest {
         this.repository.create(STORE);
         this.nextMovieRepository.set(null);
 
-        assertThat(this.manager.movieResourceAdapter(STORE.name()), isA(GenericResourceAdapter.UnexpectedExceptionAdapter.class));
+        assertThat(this.manager.storeMoviesAdpter(STORE.name()), isA(GenericResourceAdapter.UnexpectedExceptionAdapter.class));
     }
 
     @Test
     public void givenStoreDoesntExists__whenGettingMovieAdapter__thenNotFoundADapter() throws Exception {
-        assertThat(this.manager.movieResourceAdapter("whatever"), isA(GenericResourceAdapter.NotFoundAdapter.class));
+        assertThat(this.manager.storeMoviesAdpter("whatever"), isA(GenericResourceAdapter.NotFoundAdapter.class));
     }
 }

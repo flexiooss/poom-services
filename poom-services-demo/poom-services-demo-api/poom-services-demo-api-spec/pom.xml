@@ -13,5 +13,25 @@
     <artifactId>poom-services-demo-api-spec</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
 
+<!--    <build>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.codingmatters.rest</groupId>-->
+<!--                <artifactId>cdm-rest-maven-plugin</artifactId>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>api-doc-gen-crontab</id>-->
+<!--                        <phase>site</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>generate-api-doc</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <api-spec-file>${basedir}/src/main/resources/demo-api.raml</api-spec-file>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
+<!--    </build>-->
     
 </project>

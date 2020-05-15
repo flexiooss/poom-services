@@ -36,11 +36,18 @@ public class DemoProcessorBuilder {
 
     private void interceptMovies() {
         ThreadLocal<AtomicReference<String>> storeContext = new ThreadLocal();
+        ThreadLocal<AtomicReference<String>> categoryContext = new ThreadLocal();
 
         this.processorBuilder.preprocessedResourceAt("/{store}/movies",
                 (requestDelegate, responseDelegate) -> storeContext.get().set(requestDelegate.uriParameters("/{store}/movies").get("store").get(0)),
-                () -> this.storeManager.movieResourceAdapter(storeContext.get().get())
+                () -> this.storeManager.storeMoviesAdpter(storeContext.get().get())
         );
+        this.processorBuilder.preprocessedResourceAt("/{store}/category/{category}",
+                (requestDelegate, responseDelegate) -> {
+                    storeContext.get().set(requestDelegate.uriParameters("/{store}/category/{category}").get("store").get(0));
+                    categoryContext.get().set(requestDelegate.uriParameters("/{store}/category/{category}").get("category").get(0));
+                },
+                () -> this.storeManager.categoryMoviesAdpter(storeContext.get().get(), categoryContext.get().get()));
     }
 
     public Processor build() {

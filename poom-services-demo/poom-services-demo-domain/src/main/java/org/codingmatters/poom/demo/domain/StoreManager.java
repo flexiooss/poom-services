@@ -13,6 +13,7 @@ import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 public class StoreManager {
@@ -37,7 +38,21 @@ public class StoreManager {
         return this.storeRepository;
     }
 
-    public GenericResourceAdapter<Movie, MovieCreationData, Movie, Void> movieResourceAdapter(String store) {
+    public GenericResourceAdapter<Movie, MovieCreationData, Movie, Void> categoryMoviesAdpter(String store, String categoryName) {
+        try {
+            Movie.Category category = Movie.Category.valueOf(categoryName);
+            return this.movieAdapter(store, Action.create, category);
+        } catch (IllegalArgumentException e) {
+            log.info("category movie adapter called for a non existing category : {}", categoryName);
+            return new GenericResourceAdapter.NotFoundAdapter<>();
+        }
+    }
+
+    public GenericResourceAdapter<Movie, MovieCreationData, Movie, Void> storeMoviesAdpter(String store) {
+        return this.movieAdapter(store, Action.replace, null);
+    }
+
+    private GenericResourceAdapter<Movie, MovieCreationData, Movie, Void> movieAdapter(String store, Set<Action> actions, Movie.Category category) {
         try {
             if(! this.storeExists(store)) {
                 log.warn("request on an unexisting store {}", store);
@@ -54,7 +69,7 @@ public class StoreManager {
         }
 
         return new GenericResourceAdapter.DefaultAdapter<Movie, MovieCreationData, Movie, Void>(
-                new MovieCRUD(Action.replace, store, movieRepository.get()),
+                new MovieCRUD(actions, store, movieRepository.get(), category),
                 new GenericResourceAdapter.DefaultPager<>("Movie", 1000, movieRepository.get())
         );
     }
