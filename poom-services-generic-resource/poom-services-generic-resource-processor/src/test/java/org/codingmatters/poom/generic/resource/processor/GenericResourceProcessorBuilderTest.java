@@ -23,7 +23,7 @@ public class GenericResourceProcessorBuilderTest {
     @Test
     public void givenAdapterSettedOnBaseUrl__whenGettingBaseUrl__thenGenericCollectionAtBaseURL() throws Exception {
         TestAdapter adapter = new TestAdapter();
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .resourceAt("", () -> adapter)
                 .build();
@@ -32,9 +32,53 @@ public class GenericResourceProcessorBuilderTest {
     }
 
     @Test
+    public void givenAdapterSettedOnEmptyPath__whenGettingBaseUrl__thenGenericCollectionAtBaseURL() throws Exception {
+        TestAdapter adapter = new TestAdapter();
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("", new JsonFactory());
+        Processor processor = builder
+                .resourceAt("", () -> adapter)
+                .build();
+
+        this.asertGenericCollectionAt(BASE_URL, processor, adapter);
+    }
+
+    @Test
+    public void givenAdapterSettedOnNullPath__whenGettingBaseUrl__thenGenericCollectionAtBaseURL() throws Exception {
+        TestAdapter adapter = new TestAdapter();
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(null, new JsonFactory());
+        Processor processor = builder
+                .resourceAt("", () -> adapter)
+                .build();
+
+        this.asertGenericCollectionAt(BASE_URL, processor, adapter);
+    }
+
+    @Test
+    public void givenAdapterSettedOnSubpath__whenGettingBaseUrl__thenGenericCollectionAtBaseURL() throws Exception {
+        TestAdapter adapter = new TestAdapter();
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/down/the/path", new JsonFactory());
+        Processor processor = builder
+                .resourceAt("", () -> adapter)
+                .build();
+
+        this.asertGenericCollectionAt(BASE_URL + "/down/the/path", processor, adapter);
+    }
+
+    @Test
+    public void givenAdapterSettedOnSubpathWithTrailingSlash__whenGettingBaseUrl__thenGenericCollectionAtBaseURL() throws Exception {
+        TestAdapter adapter = new TestAdapter();
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/down/the/path", new JsonFactory());
+        Processor processor = builder
+                .resourceAt("", () -> adapter)
+                .build();
+
+        this.asertGenericCollectionAt(BASE_URL + "/down/the/path/", processor, adapter);
+    }
+
+    @Test
     public void givenAdapterSettedOnBaseUrl__whenGettingWithTrailingSlash__thenGenericCollectionAtBaseURL() throws Exception {
         TestAdapter adapter = new TestAdapter();
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .resourceAt("", () -> adapter)
                 .build();
@@ -45,7 +89,7 @@ public class GenericResourceProcessorBuilderTest {
     @Test
     public void givenAdapterSettedOnSlash__whenGettingWithTrailingSlash__thenGenericCollectionAtBaseURL() throws Exception {
         TestAdapter adapter = new TestAdapter();
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .resourceAt("/", () -> adapter)
                 .build();
@@ -56,7 +100,7 @@ public class GenericResourceProcessorBuilderTest {
     @Test
     public void givenAdapterSettedOnSlash__whenGettingBaseUrl__thenGenericCollectionAtBaseURL() throws Exception {
         TestAdapter adapter = new TestAdapter();
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .resourceAt("/", () -> adapter)
                 .build();
@@ -67,7 +111,7 @@ public class GenericResourceProcessorBuilderTest {
     @Test
     public void givenOneAdapterSetted__whenAdapterSettedOnChild__thenGenericCollectionAtChildURL() throws Exception {
         TestAdapter adapter = new TestAdapter();
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .resourceAt("/else/where", () -> adapter)
                 .build();
@@ -78,7 +122,7 @@ public class GenericResourceProcessorBuilderTest {
     @Test
     public void givenOneAdapterSetted__whenAdapterSettedOnPathWithUriParam__thenGenericCollectionAtChildURL() throws Exception {
         TestAdapter adapter = new TestAdapter();
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .resourceAt("/some/{param}/where", () -> adapter)
                 .build();
@@ -90,7 +134,7 @@ public class GenericResourceProcessorBuilderTest {
     public void givenTwoAdaptersSetted__whenAdapterSettedOnSiblings__thenGenericCollectionAtBothURL() throws Exception {
         TestAdapter adapter1 = new TestAdapter();
         TestAdapter adapter2 = new TestAdapter();
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .resourceAt("/here", () -> adapter1)
                 .resourceAt("/there", () -> adapter2)
@@ -104,7 +148,7 @@ public class GenericResourceProcessorBuilderTest {
     public void givenFallbackProcessorDefined__whenNoResourceDefined__thenFallbackHit() throws Exception {
         AtomicInteger fallbackHit = new AtomicInteger(0);
 
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .build((requestDelegate, responseDelegate) -> fallbackHit.incrementAndGet());
 
@@ -119,7 +163,7 @@ public class GenericResourceProcessorBuilderTest {
         AtomicInteger fallbackHit = new AtomicInteger(0);
 
         TestAdapter adapter = new TestAdapter();
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .resourceAt("", () -> adapter)
                 .build((requestDelegate, responseDelegate) -> fallbackHit.incrementAndGet());
@@ -133,7 +177,7 @@ public class GenericResourceProcessorBuilderTest {
         AtomicInteger fallbackHit = new AtomicInteger(0);
 
         TestAdapter adapter = new TestAdapter();
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .resourceAt("", () -> adapter)
                 .build((requestDelegate, responseDelegate) -> fallbackHit.incrementAndGet());
@@ -149,7 +193,7 @@ public class GenericResourceProcessorBuilderTest {
         AtomicInteger fallbackHit = new AtomicInteger(0);
 
         TestAdapter adapter = new TestAdapter();
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .resourceAt("/here", () -> adapter)
                 .build((requestDelegate, responseDelegate) -> fallbackHit.incrementAndGet());
@@ -165,7 +209,7 @@ public class GenericResourceProcessorBuilderTest {
         AtomicInteger fallbackHit = new AtomicInteger(0);
 
         TestAdapter adapter = new TestAdapter();
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .resourceAt("/here", () -> adapter)
                 .build((requestDelegate, responseDelegate) -> fallbackHit.incrementAndGet());
@@ -181,7 +225,7 @@ public class GenericResourceProcessorBuilderTest {
         AtomicInteger fallbackHit = new AtomicInteger(0);
 
         TestAdapter adapter = new TestAdapter();
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .resourceAt("/here", () -> adapter)
                 .build((requestDelegate, responseDelegate) -> fallbackHit.incrementAndGet());
@@ -194,7 +238,7 @@ public class GenericResourceProcessorBuilderTest {
     public void givenAdapterSetted__whenPreProcessorDefined__thenPreprocessorIsCalled() throws Exception {
         AtomicInteger preprocessed = new AtomicInteger();
 
-        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder(BASE_URL, new JsonFactory());
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
                 .preprocessedResourceAt("", (req, res) -> preprocessed.incrementAndGet(), () -> new TestAdapter())
                 .build();

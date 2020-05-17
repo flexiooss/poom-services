@@ -6,6 +6,7 @@ import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
 import org.codingmatters.poom.generic.resource.handlers.GenericResourceHandlersBuilder;
 import org.codingmatters.poom.generic.resource.processor.internal.InterceptedResourcesProcessor;
 import org.codingmatters.rest.api.Processor;
+import org.codingmatters.value.objects.values.ObjectValue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,8 +19,19 @@ public class GenericResourceProcessorBuilder {
     private final String apiPath;
 
     public GenericResourceProcessorBuilder(String apiPath, JsonFactory jsonFactory) {
-        this.apiPath = apiPath;
+        this.apiPath = this.normalized(apiPath);
         this.jsonFactory = jsonFactory;
+    }
+
+    private String normalized(String apiPath) {
+        if(apiPath == null || apiPath.isEmpty()) return "";
+        while (apiPath.startsWith("/")) {
+            apiPath = apiPath.substring(1);
+        }
+        while (apiPath.endsWith("/")) {
+            apiPath = apiPath.substring(apiPath.length() - 1);
+        }
+        return apiPath.isEmpty() ? "" : "/" + apiPath;
     }
 
     public Processor build(Processor fallbackProcessor) {
@@ -29,7 +41,11 @@ public class GenericResourceProcessorBuilder {
         return this.build(null);
     }
 
-    public GenericResourceProcessorBuilder preprocessedResourceAt(String basePattern, Processor preProcessor, GenericResourceAdapter.Provider adapterProvider) {
+    public GenericResourceProcessorBuilder preprocessedResourceAt(
+            String basePattern,
+            Processor preProcessor,
+            GenericResourceAdapter.Provider<ObjectValue, ObjectValue, ObjectValue, ObjectValue> adapterProvider
+    ) {
         if(basePattern.isEmpty() || basePattern.equals("/")) {
             basePattern = "";
         } else if(! basePattern.startsWith("/")) {
@@ -51,7 +67,10 @@ public class GenericResourceProcessorBuilder {
         return this;
     }
 
-    public GenericResourceProcessorBuilder resourceAt(String basePattern, GenericResourceAdapter.Provider adapterProvider) {
+    public GenericResourceProcessorBuilder resourceAt(
+            String basePattern,
+            GenericResourceAdapter.Provider<ObjectValue, ObjectValue, ObjectValue, ObjectValue> adapterProvider
+    ) {
         return this.preprocessedResourceAt(basePattern, null, adapterProvider);
     }
 

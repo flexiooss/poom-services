@@ -70,7 +70,7 @@ public class StoreManager {
 
         return new GenericResourceAdapter.DefaultAdapter<Movie, MovieCreationData, Movie, Void>(
                 new MovieCRUD(actions, store, movieRepository.get(), category),
-                new GenericResourceAdapter.DefaultPager<>("Movie", 1000, movieRepository.get())
+                new MoviePager(movieRepository.get(), category)
         );
     }
 }

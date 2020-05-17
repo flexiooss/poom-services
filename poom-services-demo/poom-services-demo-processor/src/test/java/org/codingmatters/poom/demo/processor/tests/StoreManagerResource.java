@@ -1,18 +1,13 @@
 package org.codingmatters.poom.demo.processor.tests;
 
-import org.codingmatters.poom.apis.demo.api.categorymoviesgetresponse.optional.OptionalStatus200;
 import org.codingmatters.poom.apis.demo.api.types.Movie;
 import org.codingmatters.poom.demo.domain.StoreManager;
 import org.codingmatters.poom.demo.domain.spec.Store;
-import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
-import org.codingmatters.poom.services.domain.repositories.inmemory.InMemoryRepository;
 import org.codingmatters.poom.services.domain.repositories.inmemory.InMemoryRepositoryWithPropertyQuery;
 import org.junit.rules.ExternalResource;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 

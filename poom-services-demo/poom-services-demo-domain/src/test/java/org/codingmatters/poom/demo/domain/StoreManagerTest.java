@@ -54,6 +54,8 @@ public class StoreManagerTest {
         this.nextMovieRepository.set(InMemoryRepositoryWithPropertyQuery.validating(Movie.class));
 
         assertThat(this.manager.storeMoviesAdpter(STORE.name()).crud(), isA(MovieCRUD.class));
+
+        assertThat(this.manager.storeMoviesAdpter(STORE.name()).pager(), isA(MoviePager.class));
         assertThat(this.manager.storeMoviesAdpter(STORE.name()).pager().unit(), is("Movie"));
         assertThat(this.manager.storeMoviesAdpter(STORE.name()).pager().maxPageSize(), is(1000));
     }
