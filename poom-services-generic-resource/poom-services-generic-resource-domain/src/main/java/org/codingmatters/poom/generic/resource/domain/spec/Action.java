@@ -13,6 +13,7 @@ public enum Action {
     static public final Set<Action> create = new HashSet<>(Arrays.asList(CREATE));
     static public final Set<Action> update = new HashSet<>(Arrays.asList(UPDATE));
     static public final Set<Action> replace = new HashSet<>(Arrays.asList(REPLACE));
+    static public final Set<Action> none = new HashSet<>();
 
     static public Optional<Action> from(String name) {
         if(name == null) return Optional.empty();

@@ -240,7 +240,7 @@ public class GenericResourceProcessorBuilderTest {
 
         GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/", new JsonFactory());
         Processor processor = builder
-                .preprocessedResourceAt("", (req, res) -> preprocessed.incrementAndGet(), () -> new TestAdapter())
+                .resourceAt("", (req, res) -> preprocessed.incrementAndGet(), () -> new TestAdapter())
                 .build();
 
         try(TestResponseDeleguate response = new TestResponseDeleguate();) {

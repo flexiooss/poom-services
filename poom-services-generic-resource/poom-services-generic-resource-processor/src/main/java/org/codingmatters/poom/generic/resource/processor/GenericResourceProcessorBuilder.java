@@ -41,7 +41,7 @@ public class GenericResourceProcessorBuilder {
         return this.build(null);
     }
 
-    public GenericResourceProcessorBuilder preprocessedResourceAt(
+    public GenericResourceProcessorBuilder resourceAt(
             String basePattern,
             Processor preProcessor,
             GenericResourceAdapter.Provider<ObjectValue, ObjectValue, ObjectValue, ObjectValue> adapterProvider
@@ -71,7 +71,7 @@ public class GenericResourceProcessorBuilder {
             String basePattern,
             GenericResourceAdapter.Provider<ObjectValue, ObjectValue, ObjectValue, ObjectValue> adapterProvider
     ) {
-        return this.preprocessedResourceAt(basePattern, null, adapterProvider);
+        return this.resourceAt(basePattern, null, adapterProvider);
     }
 
     protected Processor buildResourceProcessor(GenericResourceAdapter.Provider adapterProvider, String pathPattern) {

@@ -88,6 +88,82 @@ public interface GenericResourceAdapter<EntityTpe, CreationType, ReplaceType, Up
         }
     }
 
+    class BadRequestAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> implements GenericResourceAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
+
+        private CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud = new CRUD<EntityTpe, CreationType, ReplaceType, UpdateType>() {
+            @Override
+            public String entityRepositoryUrl() {
+                return null;
+            }
+
+            @Override
+            public Set<Action> supportedActions() {
+                return Action.all;
+            }
+
+            @Override
+            public Optional<Entity<EntityTpe>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+                throw new BadRequestException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
+            }
+
+            @Override
+            public Entity<EntityTpe> createEntityFrom(CreationType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+                throw new BadRequestException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
+            }
+
+            @Override
+            public Entity<EntityTpe> replaceEntityWith(String id, ReplaceType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+                throw new BadRequestException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
+            }
+
+            @Override
+            public Entity<EntityTpe> updateEntityWith(String id, UpdateType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+                throw new BadRequestException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
+            }
+
+            @Override
+            public void deleteEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+                throw new BadRequestException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
+            }
+        };
+        private Pager<EntityTpe> pager = new Pager<EntityTpe>() {
+            @Override
+            public String unit() {
+                return null;
+            }
+
+            @Override
+            public int maxPageSize() {
+                return 0;
+            }
+
+            @Override
+            public EntityLister<EntityTpe, PropertyQuery> lister() {
+                return new EntityLister<EntityTpe, PropertyQuery>() {
+                    @Override
+                    public PagedEntityList<EntityTpe> all(long startIndex, long endIndex) throws RepositoryException {
+                        return new PagedEntityList.DefaultPagedEntityList<>(0, 0, 0, Collections.emptyList());
+                    }
+
+                    @Override
+                    public PagedEntityList<EntityTpe> search(PropertyQuery query, long startIndex, long endIndex) throws RepositoryException {
+                        return new PagedEntityList.DefaultPagedEntityList<>(0, 0, 0, Collections.emptyList());
+                    }
+                };
+            }
+        };
+
+        @Override
+        public CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud() {
+            return this.crud;
+        }
+
+        @Override
+        public Pager<EntityTpe> pager() {
+            return this.pager;
+        }
+    }
+
     class NotFoundAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> implements GenericResourceAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
 
         private CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud = new CRUD<EntityTpe, CreationType, ReplaceType, UpdateType>() {

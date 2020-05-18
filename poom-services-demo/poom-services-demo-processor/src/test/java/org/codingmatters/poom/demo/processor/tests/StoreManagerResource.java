@@ -21,7 +21,7 @@ public class StoreManagerResource extends ExternalResource {
     protected void before() throws Throwable {
         super.before();
         this.storeRepository = InMemoryRepositoryWithPropertyQuery.validating(Store.class);
-        this.storeManager = new StoreManager(this.storeRepository, this::movieRepository);
+        this.storeManager = new StoreManager(this.storeRepository, this::movieRepository, null);
     }
 
     private Optional<Repository<Movie, PropertyQuery>> movieRepository(String store) {

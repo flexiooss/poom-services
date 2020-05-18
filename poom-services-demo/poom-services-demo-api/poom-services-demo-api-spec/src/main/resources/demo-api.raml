@@ -121,7 +121,12 @@ types:
       start: datetime-only
       due-date: datetime-only
       returned-date: datetime-only
-      price: number
+      billing:
+        type: object
+        properties:
+          price: number
+          frequentRenterPoints: integer
+
 
   RentalRequest:
     type: object

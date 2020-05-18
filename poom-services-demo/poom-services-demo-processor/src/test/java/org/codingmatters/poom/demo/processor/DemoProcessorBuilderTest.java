@@ -3,6 +3,7 @@ package org.codingmatters.poom.demo.processor;
 import com.fasterxml.jackson.core.JsonFactory;
 import org.codingmatters.poom.apis.demo.api.*;
 import org.codingmatters.poom.apis.demo.api.types.Movie;
+import org.codingmatters.poom.apis.demo.api.types.Rental;
 import org.codingmatters.poom.apis.demo.client.DemoClient;
 import org.codingmatters.poom.apis.demo.client.DemoRequesterClient;
 import org.codingmatters.poom.demo.domain.StoreManager;
@@ -65,14 +66,19 @@ public class DemoProcessorBuilderTest {
 
     private final Repository<Store, PropertyQuery> storeRepository = InMemoryRepositoryWithPropertyQuery.validating(Store.class);
     private final Map<String, Repository<Movie, PropertyQuery>> movieRepositories = new HashMap<>();
+    private final Map<String, Repository<Rental, PropertyQuery>> rentalRepositories = new HashMap<>();
 
     public StoreManager storeManager = new StoreManager(
             storeRepository,
-            this::movieRepository
-    );
+            this::movieRepository,
+            this::rentalRepository);
 
     private Optional<Repository<Movie, PropertyQuery>> movieRepository(String store) {
         return Optional.of(movieRepositories.computeIfAbsent(store, storeName -> InMemoryRepositoryWithPropertyQuery.validating(Movie.class)));
+    }
+
+    private Optional<Repository<Rental, PropertyQuery>> rentalRepository(String store) {
+        return Optional.of(rentalRepositories.computeIfAbsent(store, storeName -> InMemoryRepositoryWithPropertyQuery.validating(Rental.class)));
     }
 
     @Rule

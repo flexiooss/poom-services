@@ -1,6 +1,6 @@
 package org.codingmatters.poom.demo.domain;
 
-import org.codingmatters.poom.apis.demo.api.types.Movie;
+import org.codingmatters.poom.apis.demo.api.types.*;
 import org.codingmatters.poom.demo.domain.spec.Store;
 import org.codingmatters.poom.demo.domain.spec.store.Address;
 import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
@@ -27,9 +27,22 @@ public class StoreManagerTest {
                     .country("USA")
                     .build()).build();
 
+    static public Movie MOVIE = Movie.builder()
+            .id("42")
+            .title("Psycho")
+            .filmMaker("Alfred Hitchcock")
+            .category(Movie.Category.HORROR)
+            .build();
+
+
     private final Repository<Store, PropertyQuery> repository = InMemoryRepositoryWithPropertyQuery.validating(Store.class);
     private AtomicReference<Repository<Movie, PropertyQuery>> nextMovieRepository = new AtomicReference<>();
-    private final StoreManager manager = new StoreManager(repository, store -> Optional.ofNullable(this.nextMovieRepository.get()));
+    private AtomicReference<Repository<Rental, PropertyQuery>> nextRentalRepository = new AtomicReference<>();
+    private final StoreManager manager = new StoreManager(
+            repository,
+            store -> Optional.ofNullable(this.nextMovieRepository.get()),
+            store -> Optional.ofNullable(this.nextRentalRepository.get())
+    );
 
     @Test
     public void givenRepositoryIsEmpty__whenLookingUpExistenceOfAStore__thenFalse() throws Exception {
@@ -53,11 +66,12 @@ public class StoreManagerTest {
         this.repository.create(STORE);
         this.nextMovieRepository.set(InMemoryRepositoryWithPropertyQuery.validating(Movie.class));
 
-        assertThat(this.manager.storeMoviesAdpter(STORE.name()).crud(), isA(MovieCRUD.class));
+        GenericResourceAdapter<Movie, MovieCreationData, Movie, Void> actual = this.manager.storeMoviesAdpter(STORE.name());
 
-        assertThat(this.manager.storeMoviesAdpter(STORE.name()).pager(), isA(MoviePager.class));
-        assertThat(this.manager.storeMoviesAdpter(STORE.name()).pager().unit(), is("Movie"));
-        assertThat(this.manager.storeMoviesAdpter(STORE.name()).pager().maxPageSize(), is(1000));
+        assertThat(actual.crud(), isA(MovieCRUD.class));
+        assertThat(actual.pager(), isA(MoviePager.class));
+        assertThat(actual.pager().unit(), is("Movie"));
+        assertThat(actual.pager().maxPageSize(), is(1000));
     }
 
     @Test
@@ -71,5 +85,57 @@ public class StoreManagerTest {
     @Test
     public void givenStoreDoesntExists__whenGettingMovieAdapter__thenNotFoundADapter() throws Exception {
         assertThat(this.manager.storeMoviesAdpter("whatever"), isA(GenericResourceAdapter.NotFoundAdapter.class));
+    }
+
+    @Test
+    public void givenStoreExists__whenGettingRentalAdapter_andProblemGettingMovieRepo__thenUnexpectedExceptionAdapter() throws Exception {
+        this.repository.create(STORE);
+        this.nextMovieRepository.set(null);
+        this.nextRentalRepository.set(InMemoryRepositoryWithPropertyQuery.validating(Rental.class));
+
+        assertThat(this.manager.movieRentalsAdapter(STORE.name(), MOVIE.id()), isA(GenericResourceAdapter.UnexpectedExceptionAdapter.class));
+    }
+
+    @Test
+    public void givenStoreExists_andMovieExists__whenGettingRentalAdapter_andProblemGettingRentalRepo__thenUnexpectedExceptionAdapter() throws Exception {
+        this.repository.create(STORE);
+        this.nextMovieRepository.set(InMemoryRepositoryWithPropertyQuery.validating(Movie.class));
+        this.nextMovieRepository.get().createWithId(MOVIE.id(), MOVIE);
+        this.nextRentalRepository.set(null);
+
+        assertThat(this.manager.movieRentalsAdapter(STORE.name(), MOVIE.id()), isA(GenericResourceAdapter.UnexpectedExceptionAdapter.class));
+    }
+
+    @Test
+    public void givenStoreExists__whenGettingRentalAdapter_andMovieDoesntExists__thenNotFoundAdapter() throws Exception {
+        this.repository.create(STORE);
+        this.nextMovieRepository.set(InMemoryRepositoryWithPropertyQuery.validating(Movie.class));
+        this.nextRentalRepository.set(InMemoryRepositoryWithPropertyQuery.validating(Rental.class));
+
+        assertThat(this.manager.movieRentalsAdapter(STORE.name(), MOVIE.id()), isA(GenericResourceAdapter.NotFoundAdapter.class));
+    }
+
+    @Test
+    public void givenStoreDoesntExist__whenGettingRentalAdapter__thenNotFoundAdapter() throws Exception {
+        this.nextMovieRepository.set(InMemoryRepositoryWithPropertyQuery.validating(Movie.class));
+        this.nextMovieRepository.get().createWithId(MOVIE.id(), MOVIE);
+        this.nextRentalRepository.set(InMemoryRepositoryWithPropertyQuery.validating(Rental.class));
+
+        assertThat(this.manager.movieRentalsAdapter(STORE.name(), MOVIE.id()), isA(GenericResourceAdapter.NotFoundAdapter.class));
+    }
+
+    @Test
+    public void givenStoreExists_andMovieExists_andRentalRepoExists__whenGettingRentalAdapter__thenRentalCRUD_andPager() throws Exception {
+        this.repository.create(STORE);
+        this.nextMovieRepository.set(InMemoryRepositoryWithPropertyQuery.validating(Movie.class));
+        this.nextMovieRepository.get().createWithId(MOVIE.id(), MOVIE);
+        this.nextRentalRepository.set(InMemoryRepositoryWithPropertyQuery.validating(Rental.class));
+
+        GenericResourceAdapter<Rental, RentalRequest, Void, RentalAction> actual = this.manager.movieRentalsAdapter(STORE.name(), MOVIE.id());
+
+        assertThat(actual.crud(), isA(RentalCRUD.class));
+        assertThat(actual.pager(), isA(RentalPager.class));
+        assertThat(actual.pager().unit(), is("Rental"));
+        assertThat(actual.pager().maxPageSize(), is(1000));
     }
 }
