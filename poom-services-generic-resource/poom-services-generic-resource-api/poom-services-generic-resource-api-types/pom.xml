@@ -6,11 +6,11 @@
 
     <parent>
         <groupId>org.codingmatters.poom.api</groupId>
-        <artifactId>poom-services-generic-resource-api</artifactId>
+        <artifactId>poom-services-paged-collection-api</artifactId>
         <version>1.37.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>poom-services-generic-resource-api-types</artifactId>
+    <artifactId>poom-services-paged-collection-api-types</artifactId>
 
     <dependencies>
         <dependency>
@@ -32,7 +32,7 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.codingmatters.poom.api</groupId>
-                        <artifactId>poom-services-generic-resource-api-spec</artifactId>
+                        <artifactId>poom-services-paged-collection-api-spec</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>

@@ -6,12 +6,12 @@
 
     <parent>
         <groupId>org.codingmatters.poom</groupId>
-        <artifactId>poom-services-generic-resource</artifactId>
+        <artifactId>poom-services-paged-collection</artifactId>
         <version>1.37.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.codingmatters.poom.api</groupId>
-    <artifactId>poom-services-generic-resource-api</artifactId>
+    <artifactId>poom-services-paged-collection-api</artifactId>
     <packaging>pom</packaging>
 
     <modules>

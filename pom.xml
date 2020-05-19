@@ -183,36 +183,36 @@
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-service</artifactId>
                 <version>1.37.0-SNAPSHOT</version>
-	    </dependency>
+	        </dependency>
 
             <dependency>
                 <groupId>org.codingmatters.poom.api</groupId>
-                <artifactId>poom-services-generic-resource-api-spec</artifactId>
+                <artifactId>poom-services-paged-collection-api-spec</artifactId>
                 <version>1.37.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.api</groupId>
-                <artifactId>poom-services-generic-resource-api-types</artifactId>
+                <artifactId>poom-services-paged-collection-api-types</artifactId>
                 <version>1.37.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.api</groupId>
-                <artifactId>poom-services-generic-resource-api-processor</artifactId>
+                <artifactId>poom-services-paged-collection-api-processor</artifactId>
                 <version>1.37.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
-                <artifactId>poom-services-generic-resource-domain</artifactId>
+                <artifactId>poom-services-paged-collection-domain</artifactId>
                 <version>1.37.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
-                <artifactId>poom-services-generic-resource-handlers</artifactId>
+                <artifactId>poom-services-paged-collection-handlers</artifactId>
                 <version>1.37.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
-                <artifactId>poom-services-generic-resource-processor</artifactId>
+                <artifactId>poom-services-paged-collection-processor</artifactId>
                 <version>1.37.0-SNAPSHOT</version>
             </dependency>	    
 
