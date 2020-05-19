@@ -92,6 +92,30 @@ mediaType: application/json
           Lists this customer's rentals
         is: [rfc7233Browsing: {entityType: Rental, error: Error}]
 
+  /late-rental-tasks:
+    displayName: late rental tasks
+    description: |
+      Late rental tasks mark rental tha have a passed due date as being late.
+      When a task is created, the marking process starts for every stores and a 201 is immediatly returned.
+      The task status reports the end of the process.
+    get:
+      description: |
+        List the current and passed late rental tasks
+      is: [rfc7233Browsing: {entityType: LateRentalTask, error: Error}]
+
+    post:
+      description: |
+        create a movie belonging to this category
+      is: [entityCreation: {entityType: LateRentalTask, entityCreationType: object, error: Error}]
+
+    /{task-id}:
+      displayName: late rental task
+      uriParameters:
+        task-id: string
+
+      get:
+        is: [entityRetrieve: {entityType: LateRentalTask, error: Error}]
+
 annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/annotation-types/codingmatters.raml
 
 types:
@@ -138,6 +162,20 @@ types:
     properties:
       type:
         enum: [RETURN, EXTENSION]
+
+  LateRentalTask:
+    type: object
+    properties:
+      id: string
+      start: datetime-only
+      end: datetime-only
+      status:
+        enum: [RUNNING, FAILED, DONE]
+      report:
+        type: object
+        properties:
+          accountProcessed: integer
+          lateRentalCount: integer
 
   Message: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/types/message.raml
   Error: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.0.0/apis/core/types/error-with-messages.raml

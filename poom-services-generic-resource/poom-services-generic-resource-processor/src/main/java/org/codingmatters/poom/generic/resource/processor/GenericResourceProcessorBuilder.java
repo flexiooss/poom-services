@@ -23,20 +23,10 @@ public class GenericResourceProcessorBuilder {
         this.jsonFactory = jsonFactory;
     }
 
-    private String normalized(String apiPath) {
-        if(apiPath == null || apiPath.isEmpty()) return "";
-        while (apiPath.startsWith("/")) {
-            apiPath = apiPath.substring(1);
-        }
-        while (apiPath.endsWith("/")) {
-            apiPath = apiPath.substring(apiPath.length() - 1);
-        }
-        return apiPath.isEmpty() ? "" : "/" + apiPath;
-    }
-
     public Processor build(Processor fallbackProcessor) {
         return new InterceptedResourcesProcessor(this.apiPath, new HashMap<>(this.resourceProcessors), new HashMap<>(this.resourcePreProcessors), fallbackProcessor);
     }
+
     public Processor build() {
         return this.build(null);
     }
@@ -68,6 +58,17 @@ public class GenericResourceProcessorBuilder {
             GenericResourceAdapter.Provider<ObjectValue, ObjectValue, ObjectValue, ObjectValue> adapterProvider
     ) {
         return this.resourceAt(basePattern, null, adapterProvider);
+    }
+
+    private String normalized(String apiPath) {
+        if(apiPath == null || apiPath.isEmpty()) return "";
+        while (apiPath.startsWith("/")) {
+            apiPath = apiPath.substring(1);
+        }
+        while (apiPath.endsWith("/")) {
+            apiPath = apiPath.substring(apiPath.length() - 1);
+        }
+        return apiPath.isEmpty() ? "" : "/" + apiPath;
     }
 
     protected Processor buildResourceProcessor(GenericResourceAdapter.Provider adapterProvider, String pathPattern) {

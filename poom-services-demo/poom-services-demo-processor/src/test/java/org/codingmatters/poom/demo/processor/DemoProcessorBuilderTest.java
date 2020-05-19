@@ -2,17 +2,20 @@ package org.codingmatters.poom.demo.processor;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import org.codingmatters.poom.apis.demo.api.*;
+import org.codingmatters.poom.apis.demo.api.types.LateRentalTask;
 import org.codingmatters.poom.apis.demo.api.types.Movie;
 import org.codingmatters.poom.apis.demo.api.types.Rental;
 import org.codingmatters.poom.apis.demo.client.DemoClient;
 import org.codingmatters.poom.apis.demo.client.DemoRequesterClient;
 import org.codingmatters.poom.demo.domain.StoreManager;
+import org.codingmatters.poom.demo.domain.rentals.LateRentalProcessor;
 import org.codingmatters.poom.demo.domain.spec.Store;
 import org.codingmatters.poom.demo.domain.spec.store.Address;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.repositories.inmemory.InMemoryRepositoryWithPropertyQuery;
 import org.codingmatters.poom.services.support.date.UTC;
+import org.codingmatters.poom.services.tests.Eventually;
 import org.codingmatters.rest.api.client.okhttp.OkHttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpRequesterFactory;
 import org.codingmatters.rest.undertow.CdmHttpUndertowHandler;
@@ -27,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -65,6 +69,7 @@ public class DemoProcessorBuilderTest {
             .category(Movie.Category.HORROR)
             .build();
 
+    static private Eventually eventually = Eventually.defaults();
 
     private JsonFactory jsonFactory = new JsonFactory();
 
@@ -72,10 +77,15 @@ public class DemoProcessorBuilderTest {
     private final Map<String, Repository<Movie, PropertyQuery>> movieRepositories = new HashMap<>();
     private final Map<String, Repository<Rental, PropertyQuery>> rentalRepositories = new HashMap<>();
 
+    private Repository<LateRentalTask, PropertyQuery> lateRentalTaskRepository = InMemoryRepositoryWithPropertyQuery.validating(LateRentalTask.class);
+
     public StoreManager storeManager = new StoreManager(
             storeRepository,
             this::movieRepository,
-            this::rentalRepository);
+            this::rentalRepository,
+            new LateRentalProcessor(this.lateRentalTaskRepository, this.storeRepository, store -> this.rentalRepository(store)),
+            Executors.newSingleThreadExecutor()
+    );
 
     private Optional<Repository<Movie, PropertyQuery>> movieRepository(String store) {
         return Optional.of(movieRepositories.computeIfAbsent(store, storeName -> InMemoryRepositoryWithPropertyQuery.validating(Movie.class)));
@@ -186,5 +196,20 @@ public class DemoProcessorBuilderTest {
         assertThat(response.status200().payload().toArray(), is(arrayWithSize(2)));
 
         System.out.println(response.status200().payload());
+    }
+
+    @Test
+    public void lateRentalTaskSubmissionFollowUpAndReport() throws Exception {
+        LateRentalTasksPostResponse response = this.client.stores().lateRentalTasks().post(LateRentalTasksPostRequest.builder().payload(ObjectValue.builder().build()).build());
+
+        response.opt().status201().orElseThrow(() -> new AssertionError("expected 201, got " + response));
+        eventually.assertThat(
+                () -> this.client.stores().lateRentalTasks().lateRentalTask().get(LateRentalTaskGetRequest.builder().taskId(response.status201().xEntityId()).build())
+                        .status200().payload().status(),
+                is(LateRentalTask.Status.DONE)
+        );
+
+        System.out.println(this.client.stores().lateRentalTasks().lateRentalTask().get(LateRentalTaskGetRequest.builder().taskId(response.status201().xEntityId()).build()));
+
     }
 }

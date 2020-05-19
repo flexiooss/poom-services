@@ -91,6 +91,9 @@ public class DemoProcessorBuilder {
                 },
                 () -> this.bridgedRentalAdapter(this.storeManager.customerRentalsAdapter(storeContext.get().get(), customerContext.get().get()))
         );
+        this.processorBuilder.resourceAt("/late-rental-tasks",
+                () -> this.bridgedLateRentalTaskAdapter(this.storeManager.lateRentalTaskAdapter())
+        );
     }
 
     private GenericResourceAdapter<ObjectValue, ObjectValue, ObjectValue, ObjectValue> bridgedMovieAdapter(
@@ -106,13 +109,26 @@ public class DemoProcessorBuilder {
     }
 
     private GenericResourceAdapter<ObjectValue, ObjectValue, ObjectValue, ObjectValue> bridgedRentalAdapter(
-            GenericResourceAdapter<Rental, RentalRequest, Void, RentalAction> rentalAdapter) {
+            GenericResourceAdapter<Rental, RentalRequest, Void, RentalAction> rentalAdapter
+    ) {
         return new BridgedAdapter<>(
                 rentalAdapter,
                 rental -> rental == null ? null : ObjectValue.fromMap(rental.toMap()).build(),
                 value -> value == null ? null : RentalRequest.fromMap(value.toMap()).build(),
                 value -> null,
                 value -> value == null ? null : RentalAction.fromMap(value.toMap()).build()
+        );
+    }
+
+    private GenericResourceAdapter<ObjectValue, ObjectValue, ObjectValue, ObjectValue> bridgedLateRentalTaskAdapter(
+            GenericResourceAdapter<LateRentalTask, ObjectValue, Void, Void> lateRentalTaskAdapter
+    ) {
+        return new BridgedAdapter<>(
+                lateRentalTaskAdapter,
+                lateRentalTask -> lateRentalTask == null ? null : ObjectValue.fromMap(lateRentalTask.toMap()).build(),
+                value -> value,
+                value -> null,
+                value -> null
         );
     }
 

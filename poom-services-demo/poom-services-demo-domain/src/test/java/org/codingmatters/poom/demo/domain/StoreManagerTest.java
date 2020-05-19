@@ -1,6 +1,7 @@
 package org.codingmatters.poom.demo.domain;
 
 import org.codingmatters.poom.apis.demo.api.types.*;
+import org.codingmatters.poom.demo.domain.rentals.LateRentalProcessor;
 import org.codingmatters.poom.demo.domain.spec.Store;
 import org.codingmatters.poom.demo.domain.spec.store.Address;
 import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
@@ -10,6 +11,7 @@ import org.codingmatters.poom.services.domain.repositories.inmemory.InMemoryRepo
 import org.junit.Test;
 
 import java.util.Optional;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,10 +40,13 @@ public class StoreManagerTest {
     private final Repository<Store, PropertyQuery> repository = InMemoryRepositoryWithPropertyQuery.validating(Store.class);
     private AtomicReference<Repository<Movie, PropertyQuery>> nextMovieRepository = new AtomicReference<>();
     private AtomicReference<Repository<Rental, PropertyQuery>> nextRentalRepository = new AtomicReference<>();
+    private Repository<LateRentalTask, PropertyQuery> taskRepository = InMemoryRepositoryWithPropertyQuery.validating(LateRentalTask.class);
     private final StoreManager manager = new StoreManager(
             repository,
             store -> Optional.ofNullable(this.nextMovieRepository.get()),
-            store -> Optional.ofNullable(this.nextRentalRepository.get())
+            store -> Optional.ofNullable(this.nextRentalRepository.get()),
+            new LateRentalProcessor(this.taskRepository, this.repository, null),
+            null
     );
 
     @Test

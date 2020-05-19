@@ -2,6 +2,7 @@ package org.codingmatters.poom.demo.domain;
 
 import org.codingmatters.poom.apis.demo.api.types.*;
 import org.codingmatters.poom.demo.domain.billing.CategoryBillingProcessor;
+import org.codingmatters.poom.demo.domain.rentals.LateRentalProcessor;
 import org.codingmatters.poom.demo.domain.spec.Store;
 import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
@@ -12,9 +13,11 @@ import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.value.objects.values.ObjectValue;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
 public class StoreManager {
@@ -24,10 +27,21 @@ public class StoreManager {
     private final Function<String, Optional<Repository<Movie, PropertyQuery>>> movieRepositoryForStoreProvider;
     private final Function<String, Optional<Repository<Rental, PropertyQuery>>> rentalRepositoryForStoreProvider;
 
-    public StoreManager(Repository<Store, PropertyQuery> storeRepository, Function<String, Optional<Repository<Movie, PropertyQuery>>> movieRepositoryForStoreProvider, Function<String, Optional<Repository<Rental, PropertyQuery>>> rentalRepositoryForStoreProvider) {
+    private final LateRentalProcessor lateRentalProcessor;
+    private final ExecutorService pool;
+
+    public StoreManager(
+            Repository<Store, PropertyQuery> storeRepository,
+            Function<String, Optional<Repository<Movie, PropertyQuery>>> movieRepositoryForStoreProvider,
+            Function<String, Optional<Repository<Rental, PropertyQuery>>> rentalRepositoryForStoreProvider,
+            LateRentalProcessor lateRentalProcessor,
+            ExecutorService pool
+    ) {
         this.storeRepository = storeRepository;
         this.movieRepositoryForStoreProvider = movieRepositoryForStoreProvider;
         this.rentalRepositoryForStoreProvider = rentalRepositoryForStoreProvider;
+        this.lateRentalProcessor = lateRentalProcessor;
+        this.pool = pool;
     }
 
     public boolean storeExists(String storeName) throws RepositoryException {
@@ -141,6 +155,13 @@ public class StoreManager {
         return new GenericResourceAdapter.DefaultAdapter<Rental, RentalRequest, Void, RentalAction>(
                 null,
                 new CustomerRentalPager(repository.get(), customer)
+        );
+    }
+
+    public GenericResourceAdapter<LateRentalTask, ObjectValue, Void, Void> lateRentalTaskAdapter() {
+        return new GenericResourceAdapter.DefaultAdapter<>(
+                new LateRentalTaskCRUD(this.lateRentalProcessor, this.pool),
+                new GenericResourceAdapter.DefaultPager<>("LateRentalTask", 1000, this.lateRentalProcessor.taskRepository())
         );
     }
 }
