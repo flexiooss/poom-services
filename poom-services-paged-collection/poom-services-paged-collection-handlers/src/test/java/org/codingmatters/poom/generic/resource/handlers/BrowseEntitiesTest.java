@@ -1,9 +1,9 @@
 package org.codingmatters.poom.generic.resource.handlers;
 
 
-import org.codingmatters.poom.api.generic.resource.api.PagedCollectionGetRequest;
-import org.codingmatters.poom.api.generic.resource.api.PagedCollectionGetResponse;
-import org.codingmatters.poom.api.generic.resource.api.types.Error;
+import org.codingmatters.poom.api.paged.collection.api.PagedCollectionGetRequest;
+import org.codingmatters.poom.api.paged.collection.api.PagedCollectionGetResponse;
+import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.generic.resource.handlers.tests.TestAdapter;
 import org.codingmatters.poom.generic.resource.handlers.tests.TestPager;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;

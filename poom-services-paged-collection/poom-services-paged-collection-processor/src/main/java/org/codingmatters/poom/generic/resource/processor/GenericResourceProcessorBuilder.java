@@ -1,7 +1,7 @@
 package org.codingmatters.poom.generic.resource.processor;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import org.codingmatters.poom.api.generic.resource.processor.GenericResourceProcessor;
+import org.codingmatters.poom.api.paged.collection.processor.GenericResourceProcessor;
 import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
 import org.codingmatters.poom.generic.resource.handlers.GenericResourceHandlersBuilder;
 import org.codingmatters.poom.generic.resource.processor.internal.InterceptedResourcesProcessor;

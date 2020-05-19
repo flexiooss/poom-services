@@ -1,6 +1,6 @@
 package org.codingmatters.poom.generic.resource.domain.exceptions;
 
-import org.codingmatters.poom.api.generic.resource.api.types.Error;
+import org.codingmatters.poom.api.paged.collection.api.types.Error;
 
 public class UnexpectedException extends Exception {
     private final Error error;

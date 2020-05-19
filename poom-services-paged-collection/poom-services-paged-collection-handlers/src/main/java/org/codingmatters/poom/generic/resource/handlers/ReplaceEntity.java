@@ -1,10 +1,10 @@
 package org.codingmatters.poom.generic.resource.handlers;
 
-import org.codingmatters.poom.api.generic.resource.api.EntityPutRequest;
-import org.codingmatters.poom.api.generic.resource.api.EntityPutResponse;
-import org.codingmatters.poom.api.generic.resource.api.entityputresponse.*;
-import org.codingmatters.poom.api.generic.resource.api.types.Error;
-import org.codingmatters.poom.api.generic.resource.api.types.Message;
+import org.codingmatters.poom.api.paged.collection.api.EntityPutRequest;
+import org.codingmatters.poom.api.paged.collection.api.EntityPutResponse;
+import org.codingmatters.poom.api.paged.collection.api.entityputresponse.*;
+import org.codingmatters.poom.api.paged.collection.api.types.Error;
+import org.codingmatters.poom.api.paged.collection.api.types.Message;
 import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;

@@ -1,10 +1,10 @@
 package org.codingmatters.poom.generic.resource.handlers;
 
-import org.codingmatters.poom.api.generic.resource.api.EntityDeleteRequest;
-import org.codingmatters.poom.api.generic.resource.api.EntityDeleteResponse;
-import org.codingmatters.poom.api.generic.resource.api.entitydeleteresponse.*;
-import org.codingmatters.poom.api.generic.resource.api.types.Error;
-import org.codingmatters.poom.api.generic.resource.api.types.Message;
+import org.codingmatters.poom.api.paged.collection.api.EntityDeleteRequest;
+import org.codingmatters.poom.api.paged.collection.api.EntityDeleteResponse;
+import org.codingmatters.poom.api.paged.collection.api.entitydeleteresponse.*;
+import org.codingmatters.poom.api.paged.collection.api.types.Error;
+import org.codingmatters.poom.api.paged.collection.api.types.Message;
 import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.services.logging.CategorizedLogger;

@@ -1,6 +1,6 @@
 package org.codingmatters.poom.generic.resource.handlers;
 
-import org.codingmatters.poom.api.generic.resource.api.GenericResourceHandlers;
+import org.codingmatters.poom.api.paged.collection.api.GenericResourceHandlers;
 import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
 import org.codingmatters.poom.generic.resource.handlers.bridge.BridgedAdapter;
 import org.codingmatters.poom.servives.domain.entities.Entity;

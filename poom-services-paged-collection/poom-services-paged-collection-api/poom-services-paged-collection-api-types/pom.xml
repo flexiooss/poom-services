@@ -44,7 +44,7 @@
                             <goal>generate-api-types</goal>
                         </goals>
                         <configuration>
-                            <destination-package>org.codingmatters.poom.api.generic.resource.api</destination-package>
+                            <destination-package>org.codingmatters.poom.api.paged.collection.api</destination-package>
                             <api-spec-resource>generic-resource.raml</api-spec-resource>
                         </configuration>
                     </execution>

@@ -1,6 +1,6 @@
 package org.codingmatters.poom.demo.domain;
 
-import org.codingmatters.poom.api.generic.resource.api.types.Error;
+import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.apis.demo.api.types.LateRentalTask;
 import org.codingmatters.poom.demo.domain.rentals.LateRentalProcessor;
 import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;

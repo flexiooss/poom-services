@@ -1,6 +1,6 @@
 package org.codingmatters.poom.demo.domain;
 
-import org.codingmatters.poom.api.generic.resource.api.types.Error;
+import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.apis.demo.api.types.Movie;
 import org.codingmatters.poom.apis.demo.api.types.MovieCreationData;
 import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;

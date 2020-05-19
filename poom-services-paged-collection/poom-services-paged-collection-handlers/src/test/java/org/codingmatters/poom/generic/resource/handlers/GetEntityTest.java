@@ -1,8 +1,8 @@
 package org.codingmatters.poom.generic.resource.handlers;
 
-import org.codingmatters.poom.api.generic.resource.api.EntityGetRequest;
-import org.codingmatters.poom.api.generic.resource.api.EntityGetResponse;
-import org.codingmatters.poom.api.generic.resource.api.types.Error;
+import org.codingmatters.poom.api.paged.collection.api.EntityGetRequest;
+import org.codingmatters.poom.api.paged.collection.api.EntityGetResponse;
+import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.handlers.tests.TestAdapter;
 import org.codingmatters.poom.generic.resource.handlers.tests.TestCRUD;

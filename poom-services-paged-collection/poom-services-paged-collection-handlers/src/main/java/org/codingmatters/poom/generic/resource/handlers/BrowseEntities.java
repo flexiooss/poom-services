@@ -1,10 +1,10 @@
 package org.codingmatters.poom.generic.resource.handlers;
 
-import org.codingmatters.poom.api.generic.resource.api.PagedCollectionGetRequest;
-import org.codingmatters.poom.api.generic.resource.api.PagedCollectionGetResponse;
-import org.codingmatters.poom.api.generic.resource.api.pagedcollectiongetresponse.*;
-import org.codingmatters.poom.api.generic.resource.api.types.Error;
-import org.codingmatters.poom.api.generic.resource.api.types.Message;
+import org.codingmatters.poom.api.paged.collection.api.PagedCollectionGetRequest;
+import org.codingmatters.poom.api.paged.collection.api.PagedCollectionGetResponse;
+import org.codingmatters.poom.api.paged.collection.api.pagedcollectiongetresponse.*;
+import org.codingmatters.poom.api.paged.collection.api.types.Error;
+import org.codingmatters.poom.api.paged.collection.api.types.Message;
 import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;

@@ -51,8 +51,8 @@
                             <goal>generate-server-side</goal>
                         </goals>
                         <configuration>
-                            <destination-package>org.codingmatters.poom.api.generic.resource.processor</destination-package>
-                            <types-package>org.codingmatters.poom.api.generic.resource.api</types-package>
+                            <destination-package>org.codingmatters.poom.api.paged.collection.processor</destination-package>
+                            <types-package>org.codingmatters.poom.api.paged.collection.api</types-package>
                             <api-spec-resource>generic-resource.raml</api-spec-resource>
                         </configuration>
                     </execution>
