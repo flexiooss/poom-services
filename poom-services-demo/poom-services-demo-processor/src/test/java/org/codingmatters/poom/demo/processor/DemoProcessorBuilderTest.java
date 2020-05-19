@@ -12,6 +12,7 @@ import org.codingmatters.poom.demo.domain.spec.store.Address;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.repositories.inmemory.InMemoryRepositoryWithPropertyQuery;
+import org.codingmatters.poom.services.support.date.UTC;
 import org.codingmatters.rest.api.client.okhttp.OkHttpClientWrapper;
 import org.codingmatters.rest.api.client.okhttp.OkHttpRequesterFactory;
 import org.codingmatters.rest.undertow.CdmHttpUndertowHandler;
@@ -25,6 +26,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -51,11 +53,13 @@ public class DemoProcessorBuilderTest {
 
 
     static public Movie A_MOVIE = Movie.builder()
+            .id(UUID.randomUUID().toString())
             .title("Vertigo")
             .filmMaker("Alfred Hitchcock")
             .category(Movie.Category.REGULAR)
             .build();
     static public Movie ANOTHER_MOVIE = Movie.builder()
+            .id(UUID.randomUUID().toString())
             .title("Psycho")
             .filmMaker("Alfred Hitchcock")
             .category(Movie.Category.HORROR)
@@ -95,23 +99,39 @@ public class DemoProcessorBuilderTest {
         );
 
         this.storeRepository.create(NETFLIX);
-        this.movieRepository(NETFLIX.name()).get().create(A_MOVIE);
-        this.movieRepository(NETFLIX.name()).get().create(ANOTHER_MOVIE);
+        this.movieRepository(NETFLIX.name()).get().createWithId(A_MOVIE.id(), A_MOVIE);
+        this.movieRepository(NETFLIX.name()).get().createWithId(ANOTHER_MOVIE.id(), ANOTHER_MOVIE);
 
         this.storeRepository.create(VIDEO_FUTUR);
+
+        this.rentalRepository(NETFLIX.name()).get().createWithId("r0001", Rental.builder().id("r0001")
+                .customer("john-doe")
+                .movie(A_MOVIE)
+                .start(UTC.now().minusDays(4))
+                .status(Rental.Status.OUT)
+                .dueDate(UTC.now().minusDays(1))
+                .build());
+        this.rentalRepository(NETFLIX.name()).get().createWithId("r0002", Rental.builder().id("r0002")
+                .customer("john-doe")
+                .movie(ANOTHER_MOVIE)
+                .start(UTC.now().minusDays(1))
+                .status(Rental.Status.OUT)
+                .dueDate(UTC.now().plusDays(2))
+                .build());
     }
 
     @Test
     public void stores() throws Exception {
         StoresGetResponse response = this.client.stores().get(StoresGetRequest.builder().build());
 
-        System.out.println(response);
         response.opt().status200().orElseThrow(() -> new AssertionError("expected 200, got " + response));
 
         assertThat(response.status200().payload().toArray(), is(arrayContaining(
                 ObjectValue.builder().property("store name", PropertyValue.builder().stringValue(NETFLIX.name()).build()).build(),
                 ObjectValue.builder().property("store name", PropertyValue.builder().stringValue(VIDEO_FUTUR.name()).build()).build()
         )));
+
+        System.out.println(response);
     }
 
     @Test
@@ -137,6 +157,33 @@ public class DemoProcessorBuilderTest {
         response.opt().status200().orElseThrow(() -> new AssertionError("expected 200, got " + response));
 
         assertThat(response.status200().payload().toArray(), is(arrayWithSize(1)));
+
+        System.out.println(response.status200().payload());
+    }
+
+    @Test
+    public void perMovieRentals() throws Exception {
+        MovieRentalsGetResponse response = this.client.stores().aStore().storeMovies().movie().movieRentals().get(MovieRentalsGetRequest.builder()
+                .store(NETFLIX.name())
+                .movieId(A_MOVIE.id())
+                .build());
+
+        response.opt().status200().orElseThrow(() -> new AssertionError("expected 200, got " + response));
+        assertThat(response.status200().payload().toArray(), is(arrayWithSize(1)));
+
+        System.out.println(response.status200().payload());
+    }
+
+    @Test
+    public void perCustomerRentals() throws Exception {
+        CustomerRentalsGetResponse response = this.client.stores().aStore().customerRentals().get(CustomerRentalsGetRequest.builder()
+                .store(NETFLIX.name())
+                .customer("john-doe")
+                .build());
+
+        response.opt().status200().orElseThrow(() -> new AssertionError("expected 200, got " + response));
+
+        assertThat(response.status200().payload().toArray(), is(arrayWithSize(2)));
 
         System.out.println(response.status200().payload());
     }

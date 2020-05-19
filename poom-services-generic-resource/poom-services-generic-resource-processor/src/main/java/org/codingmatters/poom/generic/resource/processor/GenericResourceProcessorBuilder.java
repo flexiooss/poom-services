@@ -52,13 +52,9 @@ public class GenericResourceProcessorBuilder {
             basePattern = "/" + basePattern;
         }
 
-        String pathPattern = basePattern.replaceAll("\\{\\w+\\}", "[^/]*");
-
-        Processor resourceProcessor = this.buildResourceProcessor(adapterProvider, pathPattern);
-
         this.resourceProcessors.put(
                 basePattern,
-                resourceProcessor
+                this.buildResourceProcessor(adapterProvider, basePattern)
         );
         if(preProcessor != null) {
             this.resourcePreProcessors.put(basePattern, preProcessor);
@@ -75,6 +71,9 @@ public class GenericResourceProcessorBuilder {
     }
 
     protected Processor buildResourceProcessor(GenericResourceAdapter.Provider adapterProvider, String pathPattern) {
-        return new GenericResourceProcessor(this.apiPath + pathPattern, this.jsonFactory, new GenericResourceHandlersBuilder(adapterProvider).build());
+        return new GenericResourceProcessor(
+                (this.apiPath + pathPattern).replaceAll("\\{[^\\}]+\\}", "[^/]+"),
+                this.jsonFactory,
+                new GenericResourceHandlersBuilder(adapterProvider).build());
     }
 }

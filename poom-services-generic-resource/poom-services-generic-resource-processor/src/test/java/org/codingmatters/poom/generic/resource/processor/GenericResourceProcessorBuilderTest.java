@@ -65,6 +65,28 @@ public class GenericResourceProcessorBuilderTest {
     }
 
     @Test
+    public void givenAdapterSettedOnSubpath_andSubpathHasOneUriParameter__whenGettingBaseUrl__thenGenericCollectionAtBaseURL() throws Exception {
+        TestAdapter adapter = new TestAdapter();
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/{param}/the/path", new JsonFactory());
+        Processor processor = builder
+                .resourceAt("", () -> adapter)
+                .build();
+
+        this.asertGenericCollectionAt(BASE_URL + "/down/the/path", processor, adapter);
+    }
+
+    @Test
+    public void givenAdapterSettedOnSubpath_andSubpathHasOneUriParameter_andParamNameHasDash__whenGettingBaseUrl__thenGenericCollectionAtBaseURL() throws Exception {
+        TestAdapter adapter = new TestAdapter();
+        GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/{pa-ram}/the/path", new JsonFactory());
+        Processor processor = builder
+                .resourceAt("", () -> adapter)
+                .build();
+
+        this.asertGenericCollectionAt(BASE_URL + "/down/the/path", processor, adapter);
+    }
+
+    @Test
     public void givenAdapterSettedOnSubpathWithTrailingSlash__whenGettingBaseUrl__thenGenericCollectionAtBaseURL() throws Exception {
         TestAdapter adapter = new TestAdapter();
         GenericResourceProcessorBuilder builder = new GenericResourceProcessorBuilder("/down/the/path", new JsonFactory());

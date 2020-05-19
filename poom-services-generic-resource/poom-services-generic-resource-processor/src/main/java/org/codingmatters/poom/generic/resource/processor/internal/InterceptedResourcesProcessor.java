@@ -26,8 +26,7 @@ public class InterceptedResourcesProcessor implements Processor {
     @Override
     public void process(RequestDelegate requestDelegate, ResponseDelegate responseDelegate) throws IOException {
         for (String pattern : this.processorForPattern.keySet()) {
-            String matcherPattern = pattern.replaceAll("\\{[^\\}]+\\}", "[^/]+");
-            Matcher matcher = requestDelegate.pathMatcher(this.apiPath + matcherPattern + "(/[^/]*/?|/?)");
+            Matcher matcher = requestDelegate.pathMatcher((this.apiPath + pattern).replaceAll("\\{[^\\}]+\\}", "[^/]+") + "(/[^/]*/?|/?)");
             if (matcher.matches()) {
                 this.preProcessorForPattern.getOrDefault(pattern, NOOP).process(requestDelegate, responseDelegate);
                 this.processorForPattern.get(pattern).process(requestDelegate, responseDelegate);
