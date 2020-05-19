@@ -13,10 +13,10 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
-public interface GenericResourceAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
+public interface PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
     @FunctionalInterface
     interface Provider<EntityTpe, CreationType, ReplaceType, UpdateType> {
-        GenericResourceAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> adapter() throws Exception;
+        PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> adapter() throws Exception;
     }
 
     CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud();
@@ -39,7 +39,7 @@ public interface GenericResourceAdapter<EntityTpe, CreationType, ReplaceType, Up
         void deleteEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
     }
 
-    class DefaultAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> implements GenericResourceAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
+    class DefaultAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> implements PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
 
         private final CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud;
         private final Pager<EntityTpe> lister;
@@ -88,7 +88,7 @@ public interface GenericResourceAdapter<EntityTpe, CreationType, ReplaceType, Up
         }
     }
 
-    class BadRequestAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> implements GenericResourceAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
+    class BadRequestAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> implements PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
 
         private CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud = new CRUD<EntityTpe, CreationType, ReplaceType, UpdateType>() {
             @Override
@@ -164,7 +164,7 @@ public interface GenericResourceAdapter<EntityTpe, CreationType, ReplaceType, Up
         }
     }
 
-    class NotFoundAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> implements GenericResourceAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
+    class NotFoundAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> implements PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
 
         private CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud = new CRUD<EntityTpe, CreationType, ReplaceType, UpdateType>() {
             @Override
@@ -240,7 +240,7 @@ public interface GenericResourceAdapter<EntityTpe, CreationType, ReplaceType, Up
         }
     }
 
-    class UnexpectedExceptionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> implements GenericResourceAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
+    class UnexpectedExceptionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> implements PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
 
         private CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud = new CRUD<EntityTpe, CreationType, ReplaceType, UpdateType>() {
             @Override

@@ -1,6 +1,6 @@
 package org.codingmatters.poom.generic.resource.handlers.tests;
 
-import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
+import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.servives.domain.entities.Entity;
@@ -9,7 +9,7 @@ import org.codingmatters.value.objects.values.ObjectValue;
 import java.util.Optional;
 import java.util.Set;
 
-public class TestCRUD implements GenericResourceAdapter.CRUD<ObjectValue,ObjectValue, ObjectValue, ObjectValue> {
+public class TestCRUD implements PagedCollectionAdapter.CRUD<ObjectValue,ObjectValue, ObjectValue, ObjectValue> {
 
     @Override
     public Set<Action> supportedActions() {

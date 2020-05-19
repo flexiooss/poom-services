@@ -1,11 +1,9 @@
 package org.codingmatters.poom.generic.resource.handlers.tests;
 
-import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
-import org.codingmatters.poom.generic.resource.domain.exceptions.*;
-import org.codingmatters.poom.generic.resource.domain.spec.Action;
+import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.value.objects.values.ObjectValue;
 
-public class TestAdapter implements GenericResourceAdapter {
+public class TestAdapter implements PagedCollectionAdapter {
 
     private final TestPager pager;
     private final TestCRUD crud;
@@ -27,12 +25,12 @@ public class TestAdapter implements GenericResourceAdapter {
     }
 
     @Override
-    public GenericResourceAdapter.CRUD<ObjectValue,ObjectValue, ObjectValue, ObjectValue> crud() {
+    public PagedCollectionAdapter.CRUD<ObjectValue,ObjectValue, ObjectValue, ObjectValue> crud() {
         return this.crud;
     }
 
     @Override
-    public GenericResourceAdapter.Pager<ObjectValue> pager() {
+    public PagedCollectionAdapter.Pager<ObjectValue> pager() {
         return this.pager;
     }
 }

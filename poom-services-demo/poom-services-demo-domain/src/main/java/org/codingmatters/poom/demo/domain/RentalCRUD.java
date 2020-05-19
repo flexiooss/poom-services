@@ -4,7 +4,7 @@ import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.apis.demo.api.types.*;
 import org.codingmatters.poom.apis.demo.api.types.rental.Billing;
 import org.codingmatters.poom.demo.domain.billing.BillingProcessor;
-import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
+import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
-public class RentalCRUD implements GenericResourceAdapter.CRUD<Rental, RentalRequest, Void, RentalAction> {
+public class RentalCRUD implements PagedCollectionAdapter.CRUD<Rental, RentalRequest, Void, RentalAction> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(RentalCRUD.class);
 
     private final Set<Action> actions;

@@ -1,6 +1,6 @@
 package org.codingmatters.poom.generic.resource.handlers.bridge;
 
-import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
+import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.servives.domain.entities.Entity;
@@ -11,8 +11,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-public class BridgedCRUD<EntityTpe, CreationType, ReplaceType, UpdateType> implements GenericResourceAdapter.CRUD<ObjectValue, ObjectValue, ObjectValue, ObjectValue> {
-    private final GenericResourceAdapter.CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> delegate;
+public class BridgedCRUD<EntityTpe, CreationType, ReplaceType, UpdateType> implements PagedCollectionAdapter.CRUD<ObjectValue, ObjectValue, ObjectValue, ObjectValue> {
+    private final PagedCollectionAdapter.CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> delegate;
 
     private final Function<EntityTpe, ObjectValue> fromEntityType;
     private final Function<ObjectValue, CreationType> toCreationType;
@@ -21,7 +21,7 @@ public class BridgedCRUD<EntityTpe, CreationType, ReplaceType, UpdateType> imple
 
 
     public BridgedCRUD(
-            GenericResourceAdapter.CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> delegate,
+            PagedCollectionAdapter.CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> delegate,
             Function<EntityTpe, ObjectValue> fromEntityType,
             Function<ObjectValue, CreationType> toCreationType,
             Function<ObjectValue, ReplaceType> toReplaceType,

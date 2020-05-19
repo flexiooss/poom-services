@@ -5,7 +5,7 @@ import org.codingmatters.poom.api.paged.collection.api.EntityDeleteResponse;
 import org.codingmatters.poom.api.paged.collection.api.entitydeleteresponse.*;
 import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.api.paged.collection.api.types.Message;
-import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
+import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.value.objects.values.ObjectValue;
@@ -15,15 +15,15 @@ import java.util.function.Function;
 public class DeleteEntity implements Function<EntityDeleteRequest, EntityDeleteResponse> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(DeleteEntity.class);
 
-    private final GenericResourceAdapter.Provider<ObjectValue, ObjectValue, ObjectValue, ObjectValue> adapterProvider;
+    private final PagedCollectionAdapter.Provider<ObjectValue, ObjectValue, ObjectValue, ObjectValue> adapterProvider;
 
-    public DeleteEntity(GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider) {
+    public DeleteEntity(PagedCollectionAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider) {
         this.adapterProvider = adapterProvider;
     }
 
     @Override
     public EntityDeleteResponse apply(EntityDeleteRequest request) {
-        GenericResourceAdapter adapter;
+        PagedCollectionAdapter adapter;
         try {
             adapter = this.adapterProvider.adapter();
         } catch (Exception e) {

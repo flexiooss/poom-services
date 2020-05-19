@@ -1,14 +1,14 @@
 package org.codingmatters.poom.demo.domain;
 
 import org.codingmatters.poom.apis.demo.api.types.Rental;
-import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
+import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.EntityLister;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 
-public class CustomerRentalPager implements GenericResourceAdapter.Pager<Rental>, EntityLister<Rental, PropertyQuery> {
+public class CustomerRentalPager implements PagedCollectionAdapter.Pager<Rental>, EntityLister<Rental, PropertyQuery> {
     private final Repository<Rental, PropertyQuery> repository;
     private final String customer;
 

@@ -3,7 +3,7 @@ package org.codingmatters.poom.demo.domain;
 import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.apis.demo.api.types.Movie;
 import org.codingmatters.poom.apis.demo.api.types.MovieCreationData;
-import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
+import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
@@ -15,7 +15,7 @@ import org.codingmatters.poom.servives.domain.entities.Entity;
 import java.util.Optional;
 import java.util.Set;
 
-public class MovieCRUD implements GenericResourceAdapter.CRUD<Movie, MovieCreationData, Movie, Void> {
+public class MovieCRUD implements PagedCollectionAdapter.CRUD<Movie, MovieCreationData, Movie, Void> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(MovieCRUD.class);
 
     private Set<Action> actions;

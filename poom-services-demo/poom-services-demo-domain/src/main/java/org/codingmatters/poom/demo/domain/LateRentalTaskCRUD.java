@@ -3,7 +3,7 @@ package org.codingmatters.poom.demo.domain;
 import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.apis.demo.api.types.LateRentalTask;
 import org.codingmatters.poom.demo.domain.rentals.LateRentalProcessor;
-import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
+import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
-public class LateRentalTaskCRUD implements GenericResourceAdapter.CRUD<LateRentalTask, ObjectValue, Void, Void> {
+public class LateRentalTaskCRUD implements PagedCollectionAdapter.CRUD<LateRentalTask, ObjectValue, Void, Void> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(LateRentalTaskCRUD.class);
 
     private final Repository<LateRentalTask, PropertyQuery> repository;

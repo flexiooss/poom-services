@@ -5,7 +5,7 @@ import org.codingmatters.poom.api.paged.collection.api.EntityPatchResponse;
 import org.codingmatters.poom.api.paged.collection.api.entitypatchresponse.*;
 import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.api.paged.collection.api.types.Message;
-import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
+import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
@@ -17,15 +17,15 @@ import java.util.function.Function;
 public class UpdateEntity implements Function<EntityPatchRequest, EntityPatchResponse> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(UpdateEntity.class);
 
-    private final GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider;
+    private final PagedCollectionAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider;
 
-    public UpdateEntity(GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider) {
+    public UpdateEntity(PagedCollectionAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider) {
         this.adapterProvider = adapterProvider;
     }
 
     @Override
     public EntityPatchResponse apply(EntityPatchRequest request) {
-        GenericResourceAdapter adapter = null;
+        PagedCollectionAdapter adapter = null;
         try {
             adapter = this.adapterProvider.adapter();
         } catch (Exception e) {

@@ -1,6 +1,6 @@
 package org.codingmatters.poom.generic.resource.processor.tests;
 
-import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
+import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TestAdapter implements GenericResourceAdapter<ObjectValue,ObjectValue, ObjectValue, ObjectValue> {
+public class TestAdapter implements PagedCollectionAdapter<ObjectValue,ObjectValue, ObjectValue, ObjectValue> {
 
     public final AtomicInteger listCounter = new AtomicInteger(0);
     public final AtomicInteger searchCounter = new AtomicInteger(0);

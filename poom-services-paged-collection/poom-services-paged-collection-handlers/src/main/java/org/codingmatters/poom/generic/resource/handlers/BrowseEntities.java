@@ -5,7 +5,7 @@ import org.codingmatters.poom.api.paged.collection.api.PagedCollectionGetRespons
 import org.codingmatters.poom.api.paged.collection.api.pagedcollectiongetresponse.*;
 import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.api.paged.collection.api.types.Message;
-import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
+import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
@@ -18,15 +18,15 @@ import java.util.function.Function;
 public class BrowseEntities implements Function<PagedCollectionGetRequest, PagedCollectionGetResponse> {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(BrowseEntities.class);
 
-    private final GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider;
+    private final PagedCollectionAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider;
 
-    public BrowseEntities(GenericResourceAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider) {
+    public BrowseEntities(PagedCollectionAdapter.Provider<ObjectValue,ObjectValue, ObjectValue, ObjectValue> adapterProvider) {
         this.adapterProvider = adapterProvider;
     }
 
     @Override
     public PagedCollectionGetResponse apply(PagedCollectionGetRequest request) {
-        GenericResourceAdapter adapter = null;
+        PagedCollectionAdapter adapter = null;
         try {
             adapter = this.adapterProvider.adapter();
         } catch (Exception e) {
@@ -38,7 +38,7 @@ public class BrowseEntities implements Function<PagedCollectionGetRequest, Paged
                     .build()).build()).build();
         }
 
-        GenericResourceAdapter.Pager pager = adapter.pager();
+        PagedCollectionAdapter.Pager pager = adapter.pager();
         if(pager == null) {
             String token = log.tokenized().error("adapter {} implementation breaks contract, pager cannot be null, request was : {}",
                     adapter.getClass(), request

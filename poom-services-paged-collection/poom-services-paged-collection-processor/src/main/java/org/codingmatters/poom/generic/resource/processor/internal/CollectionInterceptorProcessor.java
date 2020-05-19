@@ -9,14 +9,14 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-public class InterceptedResourcesProcessor implements Processor {
+public class CollectionInterceptorProcessor implements Processor {
     private static final Processor NOOP = (requestDelegate, responseDelegate) -> {};
     private final String apiPath;
     private final HashMap<String, Processor> processorForPattern;
     private final HashMap<String, Processor> preProcessorForPattern;
     private final Optional<Processor> fallbackProcessor;
 
-    public InterceptedResourcesProcessor(String apiPath, HashMap<String, Processor> processorForPattern, HashMap<String, Processor> preProcessorForPattern, Processor fallbackProcessor) {
+    public CollectionInterceptorProcessor(String apiPath, HashMap<String, Processor> processorForPattern, HashMap<String, Processor> preProcessorForPattern, Processor fallbackProcessor) {
         this.apiPath = apiPath;
         this.processorForPattern = processorForPattern;
         this.preProcessorForPattern = preProcessorForPattern;

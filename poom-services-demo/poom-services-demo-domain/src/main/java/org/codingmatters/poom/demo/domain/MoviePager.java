@@ -1,7 +1,7 @@
 package org.codingmatters.poom.demo.domain;
 
 import org.codingmatters.poom.apis.demo.api.types.Movie;
-import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
+import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.EntityLister;
@@ -10,7 +10,7 @@ import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 
 import java.util.Optional;
 
-public class MoviePager implements GenericResourceAdapter.Pager<Movie>, EntityLister<Movie, PropertyQuery> {
+public class MoviePager implements PagedCollectionAdapter.Pager<Movie>, EntityLister<Movie, PropertyQuery> {
     private final Repository<Movie, PropertyQuery> repository;
     private final Optional<Movie.Category> category;
 
