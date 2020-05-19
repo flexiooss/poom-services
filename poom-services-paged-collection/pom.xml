@@ -17,10 +17,10 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>poom-services-generic-resource-api</module>
-        <module>poom-services-generic-resource-domain</module>
-        <module>poom-services-generic-resource-handlers</module>
-        <module>poom-services-generic-resource-processor</module>
+        <module>poom-services-paged-collection-api</module>
+        <module>poom-services-paged-collection-domain</module>
+        <module>poom-services-paged-collection-handlers</module>
+        <module>poom-services-paged-collection-processor</module>
     </modules>
 
 </project>
