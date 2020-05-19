@@ -1,10 +1,9 @@
 package org.codingmatters.poom.demo.domain;
 
 import org.codingmatters.poom.apis.demo.api.types.*;
-import org.codingmatters.poom.demo.domain.rental.CategoryBillingProcessor;
+import org.codingmatters.poom.demo.domain.billing.CategoryBillingProcessor;
 import org.codingmatters.poom.demo.domain.spec.Store;
 import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
-import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;

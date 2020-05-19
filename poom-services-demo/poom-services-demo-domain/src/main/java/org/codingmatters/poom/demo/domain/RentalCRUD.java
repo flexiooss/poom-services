@@ -3,7 +3,7 @@ package org.codingmatters.poom.demo.domain;
 import org.codingmatters.poom.api.generic.resource.api.types.Error;
 import org.codingmatters.poom.apis.demo.api.types.*;
 import org.codingmatters.poom.apis.demo.api.types.rental.Billing;
-import org.codingmatters.poom.demo.domain.rental.BillingProcessor;
+import org.codingmatters.poom.demo.domain.billing.BillingProcessor;
 import org.codingmatters.poom.generic.resource.domain.GenericResourceAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;

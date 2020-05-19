@@ -1,11 +1,10 @@
-package org.codingmatters.poom.demo.domain.rental;
+package org.codingmatters.poom.demo.domain.billing;
 
 import org.codingmatters.poom.apis.demo.api.types.Movie;
 import org.codingmatters.poom.apis.demo.api.types.Rental;
 import org.codingmatters.poom.apis.demo.api.types.rental.Billing;
+import org.codingmatters.poom.demo.domain.billing.CategoryBillingProcessor;
 import org.codingmatters.poom.services.support.date.UTC;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

@@ -1,4 +1,4 @@
-package org.codingmatters.poom.demo.domain.rental;
+package org.codingmatters.poom.demo.domain.billing;
 
 import org.codingmatters.poom.apis.demo.api.types.Rental;
 import org.codingmatters.poom.apis.demo.api.types.rental.Billing;
