@@ -58,7 +58,7 @@ public class StoreManager {
     public PagedCollectionAdapter<Movie, MovieCreationData, Movie, Void> categoryMoviesAdpter(String store, String categoryName) {
         try {
             Movie.Category category = Movie.Category.valueOf(categoryName);
-            return this.movieAdapter(store, Action.create, category);
+            return this.movieAdapter(store, Action.actions(Action.CREATE), category);
         } catch (IllegalArgumentException e) {
             log.info("category movie adapter called for a non existing category : {}", categoryName);
             return new PagedCollectionAdapter.NotFoundAdapter<>();
@@ -66,7 +66,7 @@ public class StoreManager {
     }
 
     public PagedCollectionAdapter<Movie, MovieCreationData, Movie, Void> storeMoviesAdpter(String store) {
-        return this.movieAdapter(store, Action.replace, null);
+        return this.movieAdapter(store, Action.actions(Action.REPLACE), null);
     }
 
     private PagedCollectionAdapter<Movie, MovieCreationData, Movie, Void> movieAdapter(String store, Set<Action> actions, Movie.Category category) {
@@ -127,7 +127,7 @@ public class StoreManager {
         }
 
         return new PagedCollectionAdapter.DefaultAdapter<Rental, RentalRequest, Void, RentalAction>(
-                new RentalCRUD(Action.createUpdate, store, repository.get(), movie.value(), new CategoryBillingProcessor()),
+                new RentalCRUD(Action.actions(Action.CREATE, Action.UPDATE), store, repository.get(), movie.value(), new CategoryBillingProcessor()),
                 new RentalPager(repository.get(), movie.value())
         );
     }

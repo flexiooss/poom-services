@@ -40,11 +40,11 @@ public class BrowseEntities implements Function<PagedCollectionGetRequest, Paged
 
         PagedCollectionAdapter.Pager pager = adapter.pager();
         if(pager == null) {
-            String token = log.tokenized().error("adapter {} implementation breaks contract, pager cannot be null, request was : {}",
+            String token = log.tokenized().info("adapter {} has no pager, browsing method not allowed, request was : {}",
                     adapter.getClass(), request
             );
-            return PagedCollectionGetResponse.builder().status500(Status500.builder().payload(Error.builder()
-                    .code(Error.Code.UNEXPECTED_ERROR)
+            return PagedCollectionGetResponse.builder().status405(Status405.builder().payload(Error.builder()
+                    .code(Error.Code.COLLECTION_BROWSING_NOT_ALLOWED)
                     .token(token)
                     .messages(Message.builder().key(MessageKeys.SEE_LOGS_WITH_TOKEN).args(token).build())
                     .build()).build()).build();

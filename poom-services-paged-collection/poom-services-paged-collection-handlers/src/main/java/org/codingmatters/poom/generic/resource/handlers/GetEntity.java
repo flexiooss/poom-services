@@ -1,5 +1,6 @@
 package org.codingmatters.poom.generic.resource.handlers;
 
+import org.codingmatters.poom.api.paged.collection.api.EntityDeleteResponse;
 import org.codingmatters.poom.api.paged.collection.api.EntityGetRequest;
 import org.codingmatters.poom.api.paged.collection.api.EntityGetResponse;
 import org.codingmatters.poom.api.paged.collection.api.entitygetresponse.*;
@@ -7,6 +8,7 @@ import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.api.paged.collection.api.types.Message;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
+import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.codingmatters.value.objects.values.ObjectValue;

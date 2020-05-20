@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
 
 public class ReplaceEntityTest {
 
@@ -78,7 +77,7 @@ public class ReplaceEntityTest {
         EntityPutResponse response = new ReplaceEntity(() -> new TestAdapter(new TestCRUD() {
             @Override
             public Set<Action> supportedActions() {
-                return Action.createUpdate;
+                return Action.actions(Action.CREATE, Action.UPDATE);
             }
 
             @Override

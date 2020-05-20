@@ -47,7 +47,7 @@ public class CreateEntity implements Function<PagedCollectionPostRequest, PagedC
         }
 
         if(! adapter.crud().supportedActions().contains(Action.CREATE)) {
-            String token = log.tokenized().error("{} action not suppoprted, adapter only supports {}, request was {}",
+            String token = log.tokenized().info("{} action not supported, adapter only supports {}, request was {}",
                     Action.CREATE, adapter.crud().supportedActions(), request);
             return PagedCollectionPostResponse.builder().status405(Status405.builder().payload(Error.builder()
                     .code(Error.Code.ENTITY_CREATION_NOT_ALLOWED)

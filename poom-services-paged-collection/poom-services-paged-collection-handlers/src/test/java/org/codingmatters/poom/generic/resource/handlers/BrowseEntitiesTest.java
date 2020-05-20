@@ -100,13 +100,13 @@ public class BrowseEntitiesTest {
     }
 
     @Test
-    public void givenAdapterOk__whenPagerIsNull__then500_andErrorKeepsTrackOfLogToken() throws Exception {
+    public void givenAdapterOk__whenPagerIsNull__then405_andErrorKeepsTrackOfLogToken() throws Exception {
         PagedCollectionGetResponse response = new BrowseEntities(() -> new TestAdapter(null, null)).apply(PagedCollectionGetRequest.builder().build());
 
-        response.opt().status500().orElseThrow(() -> new AssertionError("expected 500, got " + response));
+        response.opt().status405().orElseThrow(() -> new AssertionError("expected 405, got " + response));
 
-        Error error = response.status500().payload();
-        assertThat(error.code(), is(Error.Code.UNEXPECTED_ERROR));
+        Error error = response.status405().payload();
+        assertThat(error.code(), is(Error.Code.COLLECTION_BROWSING_NOT_ALLOWED));
         assertThat(error.token(), is(notNullValue()));
         assertThat(error.messages().get(0).key(), is(MessageKeys.SEE_LOGS_WITH_TOKEN));
         assertThat(error.messages().get(0).args().toArray(), is(arrayContaining(error.token())));

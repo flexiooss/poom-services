@@ -2,11 +2,13 @@ package org.codingmatters.poom.generic.resource.handlers;
 
 import org.codingmatters.poom.api.paged.collection.api.EntityDeleteRequest;
 import org.codingmatters.poom.api.paged.collection.api.EntityDeleteResponse;
+import org.codingmatters.poom.api.paged.collection.api.PagedCollectionPostResponse;
 import org.codingmatters.poom.api.paged.collection.api.entitydeleteresponse.*;
 import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.api.paged.collection.api.types.Message;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
+import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.value.objects.values.ObjectValue;
 
@@ -39,6 +41,15 @@ public class DeleteEntity implements Function<EntityDeleteRequest, EntityDeleteR
                     adapter.getClass(), request);
             return EntityDeleteResponse.builder().status500(Status500.builder().payload(Error.builder()
                     .code(Error.Code.UNEXPECTED_ERROR)
+                    .token(token)
+                    .messages(Message.builder().key(MessageKeys.SEE_LOGS_WITH_TOKEN).args(token).build())
+                    .build()).build()).build();
+        }
+        if(! adapter.crud().supportedActions().contains(Action.DELETE)) {
+            String token = log.tokenized().info("{} action not supported, adapter only supports {}, request was {}",
+                    Action.DELETE, adapter.crud().supportedActions(), request);
+            return EntityDeleteResponse.builder().status405(Status405.builder().payload(Error.builder()
+                    .code(Error.Code.ENTITY_DELETE_NOT_ALLOWED)
                     .token(token)
                     .messages(Message.builder().key(MessageKeys.SEE_LOGS_WITH_TOKEN).args(token).build())
                     .build()).build()).build();

@@ -14,13 +14,14 @@ import org.codingmatters.value.objects.values.PropertyValue;
 import org.junit.Test;
 
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
 
 public class UpdateEntityTest {
 
@@ -78,7 +79,7 @@ public class UpdateEntityTest {
         EntityPatchResponse response = new UpdateEntity(() -> new TestAdapter(new TestCRUD() {
             @Override
             public Set<Action> supportedActions() {
-                return Action.createReplace;
+                return new HashSet<>(Arrays.asList(Action.CREATE, Action.REPLACE));
             }
 
             @Override

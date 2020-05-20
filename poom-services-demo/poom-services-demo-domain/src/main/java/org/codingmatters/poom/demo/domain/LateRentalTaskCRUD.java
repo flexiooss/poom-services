@@ -38,7 +38,7 @@ public class LateRentalTaskCRUD implements PagedCollectionAdapter.CRUD<LateRenta
 
     @Override
     public Set<Action> supportedActions() {
-        return Action.create;
+        return Action.actions(Action.CREATE);
     }
 
     @Override

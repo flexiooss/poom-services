@@ -141,7 +141,7 @@ public class DemoProcessorBuilderTest {
                 ObjectValue.builder().property("store name", PropertyValue.builder().stringValue(VIDEO_FUTUR.name()).build()).build()
         )));
 
-        System.out.println(response);
+        this.print("STORE LIST", response.status200().payload());
     }
 
     @Test
@@ -154,7 +154,7 @@ public class DemoProcessorBuilderTest {
 
         assertThat(response.status200().payload().toArray(), is(arrayWithSize(2)));
 
-        System.out.println(response.status200().payload());
+        this.print("STORE " + NETFLIX.name() + " MOVIES", response.status200().payload());
     }
 
     @Test
@@ -168,7 +168,10 @@ public class DemoProcessorBuilderTest {
 
         assertThat(response.status200().payload().toArray(), is(arrayWithSize(1)));
 
-        System.out.println(response.status200().payload());
+        this.print(
+                String.format("%s STORE %s category MOVIES", NETFLIX.name(), Movie.Category.HORROR),
+                response.status200().payload()
+        );
     }
 
     @Test
@@ -181,7 +184,10 @@ public class DemoProcessorBuilderTest {
         response.opt().status200().orElseThrow(() -> new AssertionError("expected 200, got " + response));
         assertThat(response.status200().payload().toArray(), is(arrayWithSize(1)));
 
-        System.out.println(response.status200().payload());
+        this.print(
+                String.format("MOVIE %s RENTALS", A_MOVIE.title()),
+                response.status200().payload()
+        );
     }
 
     @Test
@@ -195,21 +201,44 @@ public class DemoProcessorBuilderTest {
 
         assertThat(response.status200().payload().toArray(), is(arrayWithSize(2)));
 
-        System.out.println(response.status200().payload());
+        this.print(
+                "john doe RENTALS",
+                response.status200().payload()
+        );
     }
 
     @Test
     public void lateRentalTaskSubmissionFollowUpAndReport() throws Exception {
-        LateRentalTasksPostResponse response = this.client.stores().lateRentalTasks().post(LateRentalTasksPostRequest.builder().payload(ObjectValue.builder().build()).build());
+        LateRentalTasksPostResponse createResponse = this.client.stores().lateRentalTasks().post(LateRentalTasksPostRequest.builder()
+                .payload(ObjectValue.builder().build()).build()
+        );
 
-        response.opt().status201().orElseThrow(() -> new AssertionError("expected 201, got " + response));
+        createResponse.opt().status201().orElseThrow(() -> new AssertionError("expected 201, got " + createResponse));
+        this.print("TASK SUBMITTED", createResponse.status201().payload());
+
         eventually.assertThat(
-                () -> this.client.stores().lateRentalTasks().lateRentalTask().get(LateRentalTaskGetRequest.builder().taskId(response.status201().xEntityId()).build())
+                () -> this.client.stores().lateRentalTasks().lateRentalTask()
+                        .get(LateRentalTaskGetRequest.builder()
+                                .taskId(createResponse.status201().xEntityId())
+                                .build()
+                        )
                         .status200().payload().status(),
                 is(LateRentalTask.Status.DONE)
         );
 
-        System.out.println(this.client.stores().lateRentalTasks().lateRentalTask().get(LateRentalTaskGetRequest.builder().taskId(response.status201().xEntityId()).build()));
+        LateRentalTaskGetResponse retirveResponse = this.client.stores().lateRentalTasks().lateRentalTask()
+                .get(LateRentalTaskGetRequest.builder()
+                        .taskId(createResponse.status201().xEntityId())
+                        .build()
+                );
 
+        this.print("TASK DONE", retirveResponse.status200().payload());
+    }
+
+    private void print(String label, Object data) {
+        System.out.printf("\n\n##################################################################\n\n");
+        System.out.printf("%s ::\n", label);
+        System.out.printf("%s\n", data);
+        System.out.printf("\n\n##################################################################\n\n");
     }
 }
