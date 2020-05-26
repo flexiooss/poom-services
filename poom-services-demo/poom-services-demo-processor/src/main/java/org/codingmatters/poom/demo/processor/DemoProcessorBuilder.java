@@ -43,28 +43,28 @@ public class DemoProcessorBuilder {
         this.processorBuilder.collectionAt("/{store}/movies",
                 requestContext::setup,
                 () -> this.bridgedMovieAdapter(this.storeManager.storeMoviesAdpter(requestContext.requestDelegate()
-                        .uriParameters("/{store}/movies")
+                        .uriParameters("/{store}/movies.*")
                         .get("store").get(0)))
         );
         this.processorBuilder.collectionAt("/{store}/movies/{movie-id}/rentals",
                 requestContext::setup,
                 () -> this.bridgedRentalAdapter(this.storeManager.movieRentalsAdapter(
-                        requestContext.requestDelegate().uriParameters("/{store}/movies/{movie-id}/rentals").get("store").get(0),
-                        requestContext.requestDelegate().uriParameters("/{store}/movies/{movie-id}/rentals").get("movie-id").get(0)
+                        requestContext.requestDelegate().uriParameters("/{store}/movies/{movie-id}/rentals.*").get("store").get(0),
+                        requestContext.requestDelegate().uriParameters("/{store}/movies/{movie-id}/rentals.*").get("movie-id").get(0)
                 ))
         );
         this.processorBuilder.collectionAt("/{store}/category/{category}",
                 requestContext::setup,
                 () -> this.bridgedMovieAdapter(this.storeManager.categoryMoviesAdpter(
-                        requestContext.requestDelegate().uriParameters("/{store}/category/{category}").get("store").get(0),
-                        requestContext.requestDelegate().uriParameters("/{store}/category/{category}").get("category").get(0)
+                        requestContext.requestDelegate().uriParameters("/{store}/category/{category}.*").get("store").get(0),
+                        requestContext.requestDelegate().uriParameters("/{store}/category/{category}.*").get("category").get(0)
                 ))
         );
         this.processorBuilder.collectionAt("/{store}/customers/{customer}/rentals",
                 requestContext::setup,
                 () -> this.bridgedRentalAdapter(this.storeManager.customerRentalsAdapter(
-                        requestContext.requestDelegate().uriParameters("/{store}/customers/{customer}/rentals").get("store").get(0),
-                        requestContext.requestDelegate().uriParameters("/{store}/customers/{customer}/rentals").get("customer").get(0)
+                        requestContext.requestDelegate().uriParameters("/{store}/customers/{customer}/rentals.*").get("store").get(0),
+                        requestContext.requestDelegate().uriParameters("/{store}/customers/{customer}/rentals.*").get("customer").get(0)
                 ))
         );
         this.processorBuilder.collectionAt("/late-rental-tasks",

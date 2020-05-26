@@ -95,15 +95,17 @@ public class DemoProcessorBuilderTest {
         return Optional.of(rentalRepositories.computeIfAbsent(store, storeName -> InMemoryRepositoryWithPropertyQuery.validating(Rental.class)));
     }
 
+    static public String PREFIX = "/demo";
     @Rule
-    public UndertowResource server = new UndertowResource(new CdmHttpUndertowHandler(new DemoProcessorBuilder("/", this.jsonFactory, this.storeManager).build()));
+    public UndertowResource server = new UndertowResource(new CdmHttpUndertowHandler(new DemoProcessorBuilder(PREFIX, this.jsonFactory, this.storeManager).build()));
 
     private DemoClient client;
+
 
     @Before
     public void setUp() throws Exception {
         this.client = new DemoRequesterClient(
-                new OkHttpRequesterFactory(OkHttpClientWrapper.build() , () -> this.server.baseUrl()),
+                new OkHttpRequesterFactory(OkHttpClientWrapper.build() , () -> this.server.baseUrl() + PREFIX),
                 this.jsonFactory,
                 () -> this.server.baseUrl()
         );
@@ -158,6 +160,20 @@ public class DemoProcessorBuilderTest {
     }
 
     @Test
+    public void aMovie() throws Exception {
+        MovieGetResponse response = this.client.stores().aStore().storeMovies().movie().get(MovieGetRequest.builder()
+                .store(NETFLIX.name())
+                .movieId(A_MOVIE.id())
+                .build());
+
+        response.opt().status200().orElseThrow(() -> new AssertionError("expected 200, got " + response));
+
+        assertThat(response.status200().xEntityId(), is(A_MOVIE.id()));
+
+        this.print("MOVIE : ", response.status200().payload());
+    }
+
+    @Test
     public void perCategoryMovies() throws Exception {
         CategoryMoviesGetResponse response = this.client.stores().aStore().categoryMovies().get(CategoryMoviesGetRequest.builder()
                 .store(NETFLIX.name())
@@ -188,6 +204,20 @@ public class DemoProcessorBuilderTest {
                 String.format("MOVIE %s RENTALS", A_MOVIE.title()),
                 response.status200().payload()
         );
+    }
+
+    @Test
+    public void aRental() throws Exception {
+        RentalGetResponse response = this.client.stores().aStore().storeMovies().movie().movieRentals().rental().get(RentalGetRequest.builder()
+                .store(NETFLIX.name())
+                .movieId(A_MOVIE.id())
+                .rentalId("r0001")
+                .build());
+        response.opt().status200().orElseThrow(() -> new AssertionError("expected 200, got " + response));
+
+        assertThat(response.status200().xEntityId(), is("r0001"));
+
+        this.print("RENTAL : ", response.status200().payload());
     }
 
     @Test

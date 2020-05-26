@@ -1,0 +1,44 @@
+@startuml
+actor Client as client
+participant "API" as api
+
+==  RETRIEVE collection elements ==
+
+client -> api: <b>GET</b> /path/to/things?<b>filter</b>&<b>order-by</b>\
+        \n<i>headers</i>: \n\trange: <x>-<y>
+activate api
+    alt complete list or last entities
+        client <- api: <b>200</b>\
+            \n<i>headers</i>: \n\taccept-range: Thing <max-page-size> \n\tcontent-range: <r1>-<r2>/<total>\
+            \n<i>body</i>: [list of entities]
+    else partial list
+        client <- api: <b>206</b>\
+            \n<i>headers</i>: \n\taccept-range: Thing <max-page-size> \n\tcontent-range: <r1>-<r2>/<total>\
+            \n<i>body</i>: [list of entities]
+    else range is not acceptable
+        client <- api: <b>416</b>\
+            \n<i>headers</i>: \n\taccept-range: Thing <max-page-size> \n\tcontent-range: <r1>-<r2>/<total>\
+            \n<i>body</i>: {error description}
+    else other error
+        client <- api: one of <b>400, 404, 405, 500</b>\
+                \n<i>body</i>: {error description}
+    end
+deactivate api
+
+== CREATE entity ==
+
+client -> api: <b>POST</b> /path/to/things\
+    \n<i>body</i>: {creation-type representation}
+activate api
+    alt entity created
+        client <- api: <b>201</b> \
+            \n<i>headers</i>: \n\tx-entity-id \n\tlocation \
+            \n<i>body</i> {entity-type representation}
+    else
+        client <- api: one of <b>400, 401, 403, 404, 405, 500</b>\
+                \n<i>body</i>: {error description}
+    end
+deactivate api
+
+
+@enduml

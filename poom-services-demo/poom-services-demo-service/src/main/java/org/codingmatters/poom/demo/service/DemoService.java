@@ -1,0 +1,82 @@
+package org.codingmatters.poom.demo.service;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import io.undertow.Undertow;
+import org.codingmatters.poom.demo.processor.DemoProcessorBuilder;
+import org.codingmatters.poom.demo.service.support.DemoData;
+import org.codingmatters.poom.demo.service.support.StoreManagerSupport;
+import org.codingmatters.poom.services.logging.CategorizedLogger;
+import org.codingmatters.poom.services.support.Env;
+import org.codingmatters.rest.undertow.CdmHttpUndertowHandler;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class DemoService {
+    static private final CategorizedLogger log = CategorizedLogger.getLogger(DemoService.class);
+    private static final String API_PATH = "API_PATH";
+
+    public static void main(String[] args) {
+        StoreManagerSupport storeManagerSupport = new StoreManagerSupport();
+        new DemoData(storeManagerSupport).create();
+
+        DemoService service = new DemoService(
+                Env.mandatory(Env.SERVICE_HOST).asString(),
+                Env.mandatory(Env.SERVICE_PORT).asInteger(),
+                Env.optional(API_PATH).orElseGet(() -> new Env.Var("/demo")).asString(),
+                storeManagerSupport);
+
+        service.start();
+        try {
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        } finally {
+            service.stop();
+        }
+    }
+
+    private final String host;
+    private final int port;
+    private final String apiPath;
+    private final StoreManagerSupport storeManagerSupport;
+
+    private final ExecutorService pool;
+    private final DemoProcessorBuilder processorBuilder;
+
+    private Undertow server;
+
+    public DemoService(String host, int port, String apiPath, StoreManagerSupport storeManagerSupport) {
+        this.host = host;
+        this.port = port;
+        this.apiPath = apiPath;
+        this.storeManagerSupport = storeManagerSupport;
+        this.pool = Executors.newSingleThreadExecutor();
+
+        this.processorBuilder = new DemoProcessorBuilder(
+                apiPath,
+                new JsonFactory(),
+                this.storeManagerSupport.createStoreManager(this.pool)
+        );
+    }
+
+    public void start() {
+        log.info("starting demo service (%s:%s with base path %s)...", this.host, this.port, this.apiPath);
+        this.server = Undertow.builder()
+                .addHttpListener(this.port, this.host)
+                .setHandler(new CdmHttpUndertowHandler(this.processorBuilder.build()))
+                .build();
+        this.server.start();
+        log.info("demo service started.");
+    }
+
+    public void stop() {
+        log.info("stopping demo service...");
+        this.server.stop();
+        log.info("demo service stopped.");
+    }
+}

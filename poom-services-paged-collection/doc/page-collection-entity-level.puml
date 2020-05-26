@@ -1,0 +1,62 @@
+@startuml
+actor Client as client
+participant "API" as api
+
+== RETRIEVE entity ==
+
+client -> api: <b>GET</b> /path/to/things/<b>{entity-id}</b>
+activate api
+    alt entity retrieved
+        client <- api: <b>200</b> \
+            \n<i>headers</i>: \n\tx-entity-id \n\tlocation \
+            \n<i>body</i> {entity-type representation}
+    else
+        client <- api: one of <b>400, 401, 403, 404, 405, 500</b>\
+                \n<i>body</i>: {error description}
+    end
+deactivate api
+
+== REPLACE entity ==
+
+client -> api: <b>PUT</b> /path/to/things/<b>{entity-id}</b>\
+    \n<i>body</i>: {replace-type representation}
+activate api
+    alt entity replaced
+        client <- api: <b>200</b> \
+            \n<i>headers</i>: \n\tx-entity-id \n\tlocation \
+            \n<i>body</i> {entity-type representation}
+    else
+        client <- api: one of <b>400, 401, 403, 404, 405, 500</b>\
+                \n<i>body</i>: {error description}
+    end
+deactivate api
+
+== UPDATE entity ==
+
+client -> api: <b>PATCH</b> /path/to/things/<b>{entity-id}</b>\
+    \n<i>body</i>: {update-type representation}
+activate api
+    alt entity updated
+        client <- api: <b>200</b> \
+            \n<i>headers</i>: \n\tx-entity-id \n\tlocation \
+            \n<i>body</i> {entity-type representation}
+    else
+        client <- api: one of <b>400, 401, 403, 404, 405, 500</b>\
+                \n<i>body</i>: {error description}
+    end
+deactivate api
+
+== DELETE entity ==
+
+client -> api: <b>DELETE</b> /path/to/things/<b>{entity-id}</b>
+activate api
+    alt entity deleted
+        client <- api: <b>204</b>
+    else
+        client <- api: one of <b>400, 401, 403, 404, 405, 500</b>\
+                \n<i>body</i>: {error description}
+    end
+deactivate api
+
+
+@enduml
