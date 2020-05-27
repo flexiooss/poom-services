@@ -21,8 +21,8 @@ public class DemoService {
         new DemoData(storeManagerSupport).create();
 
         DemoService service = new DemoService(
-                Env.mandatory(Env.SERVICE_HOST).asString(),
-                Env.mandatory(Env.SERVICE_PORT).asInteger(),
+                Env.optional(Env.SERVICE_HOST).orElse(new Env.Var("0.0.0.0")).asString(),
+                Env.optional(Env.SERVICE_PORT).orElse(new Env.Var("8889")).asInteger(),
                 Env.optional(API_PATH).orElseGet(() -> new Env.Var("/demo")).asString(),
                 storeManagerSupport);
 

@@ -27,5 +27,9 @@
             <groupId>org.codingmatters.poom.demo</groupId>
             <artifactId>poom-services-demo-processor</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.codingmatters.rest</groupId>
+            <artifactId>cdm-rest-undertow</artifactId>
+        </dependency>
     </dependencies>
 </project>

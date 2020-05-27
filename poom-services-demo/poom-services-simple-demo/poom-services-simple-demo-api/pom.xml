@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.codingmatters.poom.simple.demo</groupId>
+        <artifactId>poom-services-simple-demo</artifactId>
+        <version>1.37.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
+    <artifactId>poom-services-simple-demo-api</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>poom-services-simple-demo-api-spec</module>
+        <module>poom-services-simple-demo-api-types</module>
+        <module>poom-services-simple-demo-api-processor</module>
+        <module>poom-services-simple-demo-api-client</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+<!--            BOM-->
+            <dependency>
+                <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
+                <artifactId>poom-services-simple-demo-api-spec</artifactId>
+                <version>1.37.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
+                <artifactId>poom-services-simple-demo-api-types</artifactId>
+                <version>1.37.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
+                <artifactId>poom-services-simple-demo-api-processor</artifactId>
+                <version>1.37.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
+                <artifactId>poom-services-simple-demo-api-client</artifactId>
+                <version>1.37.0-SNAPSHOT</version>
+            </dependency>
+<!--            //BOM-->
+        </dependencies>
+    </dependencyManagement>
+    
+</project>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.codingmatters.poom.simple.demo</groupId>
+        <artifactId>poom-services-simple-demo</artifactId>
+        <version>1.37.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.codingmatters.poom.services.simple.demo</groupId>
+    <artifactId>poom-services-simple-demo-service</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>poom-services-simple-demo-service-client-side-usage</module>
+        <module>poom-services-simple-demo-service-server-side-usage</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
+                <artifactId>poom-services-simple-demo-api</artifactId>
+                <version>1.37.0-SNAPSHOT</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
+</project>

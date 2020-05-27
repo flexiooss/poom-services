@@ -16,6 +16,8 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>poom-services-simple-demo</module>
+
         <module>poom-services-demo-api</module>
         <module>poom-services-demo-domain</module>
         <module>poom-services-demo-processor</module>

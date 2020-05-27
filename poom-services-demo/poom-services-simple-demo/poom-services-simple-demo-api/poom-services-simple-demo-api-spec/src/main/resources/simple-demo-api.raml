@@ -1,0 +1,79 @@
+#%RAML 1.0
+title: Simple Demo
+version: 1
+baseUri: https://api.codingmatters.org/simple-demo
+mediaType: application/json
+
+/songs:
+  displayName: song list
+  get:
+    queryParameters:
+      filter: string
+      order-by: string
+    headers:
+      range: string
+    responses:
+      200:
+        headers:
+          accept-range: string
+          content-range: string
+        body: Song[]
+      206:
+        headers:
+          accept-range: string
+          content-range: string
+        body: Song[]
+      416:
+        headers:
+          accept-range: string
+          content-range: string
+        body: object
+      400:
+        body: object
+      403:
+        body: object
+      404:
+        body: object
+      500:
+        body: object
+  post:
+    body: Song
+    responses:
+      201:
+        headers:
+          x-entity-id: string
+        body: Song
+      400:
+        body: object
+      403:
+        body: object
+      404:
+        body: object
+      500:
+        body: object
+
+  /{song-id}:
+    displayName: a song
+    uriParameters:
+      song-id: string
+    get:
+      responses:
+        200:
+          body: Song
+        400:
+          body: object
+        403:
+          body: object
+        404:
+          body: object
+        500:
+          body: object
+
+
+types:
+  Song:
+    type: object
+    properties:
+      id: string
+      title: string
+      author: string
