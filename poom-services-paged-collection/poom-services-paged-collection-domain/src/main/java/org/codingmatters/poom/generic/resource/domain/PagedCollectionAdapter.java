@@ -13,60 +13,60 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
-public interface PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
+public interface PagedCollectionAdapter<EntityType, CreationType, ReplaceType, UpdateType> {
     @FunctionalInterface
     interface Provider<EntityTpe, CreationType, ReplaceType, UpdateType> {
         PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> adapter() throws Exception;
     }
 
-    CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud();
-    Pager<EntityTpe> pager();
+    CRUD<EntityType, CreationType, ReplaceType, UpdateType> crud();
+    Pager<EntityType> pager();
 
-    interface Pager<EntityTpe> {
+    interface Pager<EntityType> {
         String unit();
         int maxPageSize();
-        EntityLister<EntityTpe, PropertyQuery> lister();
+        EntityLister<EntityType, PropertyQuery> lister();
     }
 
-    interface CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> {
+    interface CRUD<EntityType, CreationType, ReplaceType, UpdateType> {
         String entityRepositoryUrl();
         Set<Action> supportedActions();
 
-        Optional<Entity<EntityTpe>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
-        Entity<EntityTpe> createEntityFrom(CreationType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
-        Entity<EntityTpe> replaceEntityWith(String id, ReplaceType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
-        Entity<EntityTpe> updateEntityWith(String id, UpdateType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
+        Optional<Entity<EntityType>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
+        Entity<EntityType> createEntityFrom(CreationType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
+        Entity<EntityType> replaceEntityWith(String id, ReplaceType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
+        Entity<EntityType> updateEntityWith(String id, UpdateType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
         void deleteEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
     }
 
-    class DefaultAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> implements PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
+    class DefaultAdapter<EntityType, CreationType, ReplaceType, UpdateType> implements PagedCollectionAdapter<EntityType, CreationType, ReplaceType, UpdateType> {
 
-        private final CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud;
-        private final Pager<EntityTpe> lister;
+        private final CRUD<EntityType, CreationType, ReplaceType, UpdateType> crud;
+        private final Pager<EntityType> lister;
 
-        public DefaultAdapter(CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud, Pager<EntityTpe> lister) {
+        public DefaultAdapter(CRUD<EntityType, CreationType, ReplaceType, UpdateType> crud, Pager<EntityType> lister) {
             this.crud = crud;
             this.lister = lister;
         }
 
         @Override
-        public CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud() {
+        public CRUD<EntityType, CreationType, ReplaceType, UpdateType> crud() {
             return this.crud;
         }
 
         @Override
-        public Pager<EntityTpe> pager() {
+        public Pager<EntityType> pager() {
             return this.lister;
         }
     }
 
-    class DefaultPager<EntityTpe> implements Pager<EntityTpe> {
+    class DefaultPager<EntityType> implements Pager<EntityType> {
 
         private final String unit;
         private final int maxPageSize;
-        private final EntityLister<EntityTpe, PropertyQuery> lister;
+        private final EntityLister<EntityType, PropertyQuery> lister;
 
-        public DefaultPager(String unit, int maxPageSize, EntityLister<EntityTpe, PropertyQuery> lister) {
+        public DefaultPager(String unit, int maxPageSize, EntityLister<EntityType, PropertyQuery> lister) {
             this.unit = unit;
             this.maxPageSize = maxPageSize;
             this.lister = lister;
@@ -83,14 +83,14 @@ public interface PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, Up
         }
 
         @Override
-        public EntityLister<EntityTpe, PropertyQuery> lister() {
+        public EntityLister<EntityType, PropertyQuery> lister() {
             return this.lister;
         }
     }
 
-    class BadRequestAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> implements PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
+    class BadRequestAdapter<EntityType, CreationType, ReplaceType, UpdateType> implements PagedCollectionAdapter<EntityType, CreationType, ReplaceType, UpdateType> {
 
-        private CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud = new CRUD<EntityTpe, CreationType, ReplaceType, UpdateType>() {
+        private CRUD<EntityType, CreationType, ReplaceType, UpdateType> crud = new CRUD<EntityType, CreationType, ReplaceType, UpdateType>() {
             @Override
             public String entityRepositoryUrl() {
                 return null;
@@ -102,22 +102,22 @@ public interface PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, Up
             }
 
             @Override
-            public Optional<Entity<EntityTpe>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Optional<Entity<EntityType>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new BadRequestException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
             }
 
             @Override
-            public Entity<EntityTpe> createEntityFrom(CreationType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Entity<EntityType> createEntityFrom(CreationType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new BadRequestException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
             }
 
             @Override
-            public Entity<EntityTpe> replaceEntityWith(String id, ReplaceType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Entity<EntityType> replaceEntityWith(String id, ReplaceType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new BadRequestException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
             }
 
             @Override
-            public Entity<EntityTpe> updateEntityWith(String id, UpdateType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Entity<EntityType> updateEntityWith(String id, UpdateType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new BadRequestException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
             }
 
@@ -126,7 +126,7 @@ public interface PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, Up
                 throw new BadRequestException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
             }
         };
-        private Pager<EntityTpe> pager = new Pager<EntityTpe>() {
+        private Pager<EntityType> pager = new Pager<EntityType>() {
             @Override
             public String unit() {
                 return null;
@@ -138,15 +138,15 @@ public interface PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, Up
             }
 
             @Override
-            public EntityLister<EntityTpe, PropertyQuery> lister() {
-                return new EntityLister<EntityTpe, PropertyQuery>() {
+            public EntityLister<EntityType, PropertyQuery> lister() {
+                return new EntityLister<EntityType, PropertyQuery>() {
                     @Override
-                    public PagedEntityList<EntityTpe> all(long startIndex, long endIndex) throws RepositoryException {
+                    public PagedEntityList<EntityType> all(long startIndex, long endIndex) throws RepositoryException {
                         return new PagedEntityList.DefaultPagedEntityList<>(0, 0, 0, Collections.emptyList());
                     }
 
                     @Override
-                    public PagedEntityList<EntityTpe> search(PropertyQuery query, long startIndex, long endIndex) throws RepositoryException {
+                    public PagedEntityList<EntityType> search(PropertyQuery query, long startIndex, long endIndex) throws RepositoryException {
                         return new PagedEntityList.DefaultPagedEntityList<>(0, 0, 0, Collections.emptyList());
                     }
                 };
@@ -154,19 +154,19 @@ public interface PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, Up
         };
 
         @Override
-        public CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud() {
+        public CRUD<EntityType, CreationType, ReplaceType, UpdateType> crud() {
             return this.crud;
         }
 
         @Override
-        public Pager<EntityTpe> pager() {
+        public Pager<EntityType> pager() {
             return this.pager;
         }
     }
 
-    class NotFoundAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> implements PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> {
+    class NotFoundAdapter<EntityType, CreationType, ReplaceType, UpdateType> implements PagedCollectionAdapter<EntityType, CreationType, ReplaceType, UpdateType> {
 
-        private CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud = new CRUD<EntityTpe, CreationType, ReplaceType, UpdateType>() {
+        private CRUD<EntityType, CreationType, ReplaceType, UpdateType> crud = new CRUD<EntityType, CreationType, ReplaceType, UpdateType>() {
             @Override
             public String entityRepositoryUrl() {
                 return null;
@@ -178,22 +178,22 @@ public interface PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, Up
             }
 
             @Override
-            public Optional<Entity<EntityTpe>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Optional<Entity<EntityType>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new NotFoundException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
             }
 
             @Override
-            public Entity<EntityTpe> createEntityFrom(CreationType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Entity<EntityType> createEntityFrom(CreationType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new NotFoundException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
             }
 
             @Override
-            public Entity<EntityTpe> replaceEntityWith(String id, ReplaceType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Entity<EntityType> replaceEntityWith(String id, ReplaceType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new NotFoundException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
             }
 
             @Override
-            public Entity<EntityTpe> updateEntityWith(String id, UpdateType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Entity<EntityType> updateEntityWith(String id, UpdateType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new NotFoundException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
             }
 
@@ -202,7 +202,7 @@ public interface PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, Up
                 throw new NotFoundException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
             }
         };
-        private Pager<EntityTpe> pager = new Pager<EntityTpe>() {
+        private Pager<EntityType> pager = new Pager<EntityType>() {
             @Override
             public String unit() {
                 return null;
@@ -214,15 +214,15 @@ public interface PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, Up
             }
 
             @Override
-            public EntityLister<EntityTpe, PropertyQuery> lister() {
-                return new EntityLister<EntityTpe, PropertyQuery>() {
+            public EntityLister<EntityType, PropertyQuery> lister() {
+                return new EntityLister<EntityType, PropertyQuery>() {
                     @Override
-                    public PagedEntityList<EntityTpe> all(long startIndex, long endIndex) throws RepositoryException {
+                    public PagedEntityList<EntityType> all(long startIndex, long endIndex) throws RepositoryException {
                         return new PagedEntityList.DefaultPagedEntityList<>(0, 0, 0, Collections.emptyList());
                     }
 
                     @Override
-                    public PagedEntityList<EntityTpe> search(PropertyQuery query, long startIndex, long endIndex) throws RepositoryException {
+                    public PagedEntityList<EntityType> search(PropertyQuery query, long startIndex, long endIndex) throws RepositoryException {
                         return new PagedEntityList.DefaultPagedEntityList<>(0, 0, 0, Collections.emptyList());
                     }
                 };
@@ -230,12 +230,12 @@ public interface PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, Up
         };
 
         @Override
-        public CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud() {
+        public CRUD<EntityType, CreationType, ReplaceType, UpdateType> crud() {
             return this.crud;
         }
 
         @Override
-        public Pager<EntityTpe> pager() {
+        public Pager<EntityType> pager() {
             return this.pager;
         }
     }
