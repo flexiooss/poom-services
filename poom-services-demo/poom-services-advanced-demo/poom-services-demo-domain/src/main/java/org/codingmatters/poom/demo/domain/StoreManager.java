@@ -61,7 +61,7 @@ public class StoreManager {
             return this.movieAdapter(store, Action.actions(Action.CREATE), category);
         } catch (IllegalArgumentException e) {
             log.info("category movie adapter called for a non existing category : {}", categoryName);
-            return new PagedCollectionAdapter.NotFoundAdapter<>();
+            return PagedCollectionAdapter.notFoundAdapter();
         }
     }
 
@@ -73,95 +73,94 @@ public class StoreManager {
         try {
             if(! this.storeExists(store)) {
                 log.warn("request on an unexisting store {}", store);
-                return new PagedCollectionAdapter.NotFoundAdapter<>();
+                return PagedCollectionAdapter.notFoundAdapter();
             }
         } catch (RepositoryException e) {
             log.error("error accessing store repository", store);
-            return new PagedCollectionAdapter.UnexpectedExceptionAdapter<>();
+            return PagedCollectionAdapter.unexpectedExceptionAdapter();
         }
         Optional<Repository<Movie, PropertyQuery>> movieRepository = this.movieRepositoryForStoreProvider.apply(store);
         if(! movieRepository.isPresent()) {
             log.error("error accessing movie repository for store {}", store);
-            return new PagedCollectionAdapter.UnexpectedExceptionAdapter<>();
-        }
+            return PagedCollectionAdapter.unexpectedExceptionAdapter();        }
 
-        return new PagedCollectionAdapter.DefaultAdapter<Movie, MovieCreationData, Movie, Void>(
-                new MovieCRUD(actions, store, movieRepository.get(), category),
-                new MoviePager(movieRepository.get(), category)
-        );
+        return PagedCollectionAdapter.<Movie, MovieCreationData, Movie, Void>builder()
+                .crud(new MovieCRUD(actions, store, movieRepository.get(), category))
+                .pager(new MoviePager(movieRepository.get(), category))
+                .build();
     }
 
     public PagedCollectionAdapter<Rental, RentalRequest, Void, RentalAction> movieRentalsAdapter(String store, String movieId) {
         try {
             if(! this.storeExists(store)) {
                 log.warn("request on an unexisting store {}", store);
-                return new PagedCollectionAdapter.NotFoundAdapter<>();
+                return PagedCollectionAdapter.notFoundAdapter();
             }
         } catch (RepositoryException e) {
             log.error("error accessing store repository", store);
-            return new PagedCollectionAdapter.UnexpectedExceptionAdapter<>();
-        }
+            return PagedCollectionAdapter.unexpectedExceptionAdapter();        }
 
         Optional<Repository<Movie, PropertyQuery>> movieRepository = this.movieRepositoryForStoreProvider.apply(store);
         if(! movieRepository.isPresent()) {
             log.error("error accessing movie repository for store {}", store);
-            return new PagedCollectionAdapter.UnexpectedExceptionAdapter<>();
-        }
+            return PagedCollectionAdapter.unexpectedExceptionAdapter();        }
         Entity<Movie> movie = null;
         try {
             movie = movieRepository.get().retrieve(movieId);
             if(movie == null) {
                 log.info("no such movie {} in store {}", movieId, store);
-                return new PagedCollectionAdapter.NotFoundAdapter<>();
+                return PagedCollectionAdapter.notFoundAdapter();
             }
         } catch (RepositoryException e) {
             log.error("error accessing movies in repository for store {}", store);
-            return new PagedCollectionAdapter.UnexpectedExceptionAdapter<>();
-        }
+            return PagedCollectionAdapter.unexpectedExceptionAdapter();        }
 
         System.out.println(movie);
         Optional<Repository<Rental, PropertyQuery>> repository = this.rentalRepositoryForStoreProvider.apply(store);
         if(! repository.isPresent()) {
             log.error("error accessing rental repository for store {}", store);
-            return new PagedCollectionAdapter.UnexpectedExceptionAdapter<>();
-        }
+            return PagedCollectionAdapter.unexpectedExceptionAdapter();        }
 
-        return new PagedCollectionAdapter.DefaultAdapter<Rental, RentalRequest, Void, RentalAction>(
-                new RentalCRUD(Action.actions(Action.CREATE, Action.UPDATE), store, repository.get(), movie.value(), new CategoryBillingProcessor()),
-                new RentalPager(repository.get(), movie.value())
-        );
+        return PagedCollectionAdapter.<Rental, RentalRequest, Void, RentalAction>builder()
+                .crud(new RentalCRUD(
+                        Action.actions(Action.CREATE, Action.UPDATE),
+                        store,
+                        repository.get(),
+                        movie.value(),
+                        new CategoryBillingProcessor()
+                ))
+                .pager(new RentalPager(repository.get(), movie.value()))
+                .build();
     }
 
     public PagedCollectionAdapter<Rental, RentalRequest, Void, RentalAction> customerRentalsAdapter(String store, String customer) {
         try {
             if(! this.storeExists(store)) {
                 log.warn("request on an unexisting store {}", store);
-                return new PagedCollectionAdapter.NotFoundAdapter<>();
+                return PagedCollectionAdapter.notFoundAdapter();
             }
         } catch (RepositoryException e) {
             log.error("error accessing store repository", store);
-            return new PagedCollectionAdapter.UnexpectedExceptionAdapter<>();
-        }
+            return PagedCollectionAdapter.unexpectedExceptionAdapter();        }
         if(customer == null || customer.isEmpty()) {
             log.warn("request on an unexisting store {}", store);
-            return new PagedCollectionAdapter.NotFoundAdapter<>();
+            return PagedCollectionAdapter.notFoundAdapter();
         }
 
         Optional<Repository<Rental, PropertyQuery>> repository = this.rentalRepositoryForStoreProvider.apply(store);
         if(! repository.isPresent()) {
             log.error("error accessing rental repository for store {}", store);
-            return new PagedCollectionAdapter.UnexpectedExceptionAdapter<>();
-        }
-        return new PagedCollectionAdapter.DefaultAdapter<Rental, RentalRequest, Void, RentalAction>(
-                null,
-                new CustomerRentalPager(repository.get(), customer)
-        );
+            return PagedCollectionAdapter.unexpectedExceptionAdapter();        }
+        return PagedCollectionAdapter.<Rental, RentalRequest, Void, RentalAction>builder()
+                .crud(null)
+                .pager(new CustomerRentalPager(repository.get(), customer))
+                .build();
     }
 
     public PagedCollectionAdapter<LateRentalTask, ObjectValue, Void, Void> lateRentalTaskAdapter() {
-        return new PagedCollectionAdapter.DefaultAdapter<>(
-                new LateRentalTaskCRUD(this.lateRentalProcessor, this.pool),
-                new PagedCollectionAdapter.DefaultPager<>("LateRentalTask", 1000, this.lateRentalProcessor.taskRepository())
-        );
+        return PagedCollectionAdapter.<LateRentalTask, ObjectValue, Void, Void>builder()
+                .crud(new LateRentalTaskCRUD(this.lateRentalProcessor, this.pool))
+                .lister("LateRentalTask", 1000, this.lateRentalProcessor.taskRepository())
+                .build();
     }
 }
