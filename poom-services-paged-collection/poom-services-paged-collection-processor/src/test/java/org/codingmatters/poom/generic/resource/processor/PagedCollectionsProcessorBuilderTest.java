@@ -94,7 +94,7 @@ public class PagedCollectionsProcessorBuilderTest {
                 .collectionAt("", () -> adapter)
                 .build();
 
-        this.asertGenericCollectionAt(BASE_URL + "/down/the/path/", processor, adapter);
+       this.asertGenericCollectionAt(BASE_URL + "/down/the/path/", processor, adapter);
     }
 
     @Test

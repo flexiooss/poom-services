@@ -4,8 +4,9 @@ import com.fasterxml.jackson.core.JsonFactory;
 import org.codingmatters.poom.api.paged.collection.processor.GenericResourceProcessor;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.handlers.PagedCollectionHandlersBuilder;
-import org.codingmatters.poom.generic.resource.processor.internal.CollectionInterceptorProcessor;
 import org.codingmatters.rest.api.Processor;
+import org.codingmatters.rest.api.processors.MatchingPathProcessor;
+import org.codingmatters.rest.api.processors.ProcessorChain;
 import org.codingmatters.value.objects.values.ObjectValue;
 
 import java.util.HashMap;
@@ -14,7 +15,6 @@ import java.util.Map;
 public class PagedCollectionsProcessorBuilder {
 
     private final Map<String, Processor> resourceProcessors = new HashMap<>();
-    private final Map<String, Processor> resourcePreProcessors = new HashMap<>();
     private final JsonFactory jsonFactory;
     private final String apiPath;
 
@@ -23,12 +23,23 @@ public class PagedCollectionsProcessorBuilder {
         this.jsonFactory = jsonFactory;
     }
 
+    public String apiPath() {
+        return apiPath;
+    }
+
     public Processor build(Processor fallbackProcessor) {
-        return new CollectionInterceptorProcessor(this.apiPath, new HashMap<>(this.resourceProcessors), new HashMap<>(this.resourcePreProcessors), fallbackProcessor);
+        MatchingPathProcessor.Builder builder = new MatchingPathProcessor.Builder();
+        for (String resourcePath : this.resourceProcessors.keySet()) {
+            builder.whenMatching(
+                    (this.apiPath() + resourcePath).replaceAll("\\{[^\\}]+\\}", "[^/]+") + "(/[^/]*/?|/?)",
+                    this.resourceProcessors.get(resourcePath)
+            );
+        }
+        return builder.whenNoMatch(fallbackProcessor);
     }
 
     public Processor build() {
-        return this.build(null);
+        return this.build((requestDelegate, responseDelegate) -> {});
     }
 
     public PagedCollectionsProcessorBuilder collectionAt(
@@ -42,13 +53,11 @@ public class PagedCollectionsProcessorBuilder {
             basePattern = "/" + basePattern;
         }
 
+        Processor processor = this.buildResourceProcessor(adapterProvider, basePattern);
         this.resourceProcessors.put(
                 basePattern,
-                this.buildResourceProcessor(adapterProvider, basePattern)
+                preProcessor != null ? ProcessorChain.chain(preProcessor).then(processor) : processor
         );
-        if(preProcessor != null) {
-            this.resourcePreProcessors.put(basePattern, preProcessor);
-        }
 
         return this;
     }
@@ -60,6 +69,13 @@ public class PagedCollectionsProcessorBuilder {
         return this.collectionAt(basePattern, null, adapterProvider);
     }
 
+    protected Processor buildResourceProcessor(PagedCollectionAdapter.Provider adapterProvider, String pathPattern) {
+        return new GenericResourceProcessor(
+                (this.apiPath() + pathPattern).replaceAll("\\{[^\\}]+\\}", "[^/]+"),
+                this.jsonFactory,
+                new PagedCollectionHandlersBuilder(adapterProvider).build());
+    }
+
     private String normalized(String apiPath) {
         if(apiPath == null || apiPath.isEmpty()) return "";
         while (apiPath.startsWith("/")) {
@@ -69,12 +85,5 @@ public class PagedCollectionsProcessorBuilder {
             apiPath = apiPath.substring(apiPath.length() - 1);
         }
         return apiPath.isEmpty() ? "" : "/" + apiPath;
-    }
-
-    protected Processor buildResourceProcessor(PagedCollectionAdapter.Provider adapterProvider, String pathPattern) {
-        return new GenericResourceProcessor(
-                (this.apiPath + pathPattern).replaceAll("\\{[^\\}]+\\}", "[^/]+"),
-                this.jsonFactory,
-                new PagedCollectionHandlersBuilder(adapterProvider).build());
     }
 }
