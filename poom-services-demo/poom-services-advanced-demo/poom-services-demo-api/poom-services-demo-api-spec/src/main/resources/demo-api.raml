@@ -1,0 +1,190 @@
+#%RAML 1.0
+title: Demo
+version: 1
+baseUri: https://api.codingmatters.org/demo
+mediaType: application/json
+
+/:
+  displayName: stores
+  description: Stores
+  get:
+    description: |
+      Lists all the stores
+    is: [rfc7233Browsing: {entityType: object, error: Error}]
+
+  /{store}:
+    displayName: a store
+
+    /movies:
+      displayName: store movies
+      uriParameters:
+        store: string
+      description: |
+        Movies available in this store.
+
+      get:
+        description: |
+          Lists all the movies
+        is: [rfc7233Browsing: {entityType: Movie, error: Error}]
+
+      /{movie-id}:
+        displayName: movie
+        uriParameters:
+          movie-id: string
+
+        get:
+          is: [entityRetrieve: {entityType: Movie, error: Error}]
+        put:
+          description: |
+            The movie data is replaced entirely.
+            The movie id cannot be changed :
+            * if an id is setted in the body it should should be the same than in the uri (a 400 is returned is not)
+            * it is ok not to set an id
+          is: [entityReplace: {entityType: Movie, entityReplaceType: Movie, error: Error}]
+        delete:
+          is: [entityDelete: {error: Error}]
+
+        /rentals:
+          displayName: movie rentals
+          description: |
+            Rentals for this movie
+          get:
+            is: [rfc7233Browsing: {entityType: Rental, error: Error}]
+          post:
+            description: |
+              A rental request is :
+              * accepted if the movie is not currently rented (201)
+              * refused if the movie is already rented (400)
+            is: [entityCreation: {entityType: Rental, entityCreationType: RentalRequest, error: Error}]
+
+          /{rental-id}:
+            displayName: rental
+            uriParameters:
+              rental-id: string
+
+            get:
+              is: [entityRetrieve: {entityType: Rental, error: Error}]
+            patch:
+              description: |
+                Rental action can be :
+                * a RETURN : the return date is filled, the price is caculated, the status is updated
+                * an EXTENSION : the due-date is extended of a few days
+              is: [entityUpdate: {entityType: Rental, entityUpdateType: RentalAction, error: Error}]
+
+    /category/{category}:
+      displayName: category movies
+      uriParameters:
+        category: string
+
+      get:
+        is: [rfc7233Browsing: {entityType: Movie, error: Error}]
+      post:
+        description: |
+          create a movie belonging to this category
+        is: [entityCreation: {entityType: Movie, entityCreationType: object, error: Error}]
+
+    /customers/{customer}/rentals:
+      displayName: customer rentals
+      uriParameters:
+        customer: string
+      get:
+        description: |
+          Lists this customer's rentals
+        is: [rfc7233Browsing: {entityType: Rental, error: Error}]
+
+  /late-rental-tasks:
+    displayName: late rental tasks
+    description: |
+      Late rental tasks mark rental tha have a passed due date as being late.
+      When a task is created, the marking process starts for every stores and a 201 is immediatly returned.
+      The task status reports the end of the process.
+    get:
+      description: |
+        List the current and passed late rental tasks
+      is: [rfc7233Browsing: {entityType: LateRentalTask, error: Error}]
+
+    post:
+      description: |
+        create a movie belonging to this category
+      is: [entityCreation: {entityType: LateRentalTask, entityCreationType: object, error: Error}]
+
+    /{task-id}:
+      displayName: late rental task
+      uriParameters:
+        task-id: string
+
+      get:
+        is: [entityRetrieve: {entityType: LateRentalTask, error: Error}]
+
+annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/annotation-types/codingmatters.raml
+
+types:
+  Movie:
+    type: object
+    properties:
+      id: string
+      title: string
+      film-maker: string
+      category:
+        enum: [REGULAR, HORROR, CHILDREN]
+
+  MovieCreationData:
+    type: object
+    properties:
+      title: string
+      film-maker: string
+
+  Rental:
+    type: object
+    properties:
+      id: string
+      movie: Movie
+      customer: string
+      status:
+        enum: [OUT, LATE, RETURNED]
+      start: datetime-only
+      due-date: datetime-only
+      returned-date: datetime-only
+      billing:
+        type: object
+        properties:
+          price: number
+          frequentRenterPoints: integer
+
+
+  RentalRequest:
+    type: object
+    properties:
+      customer: string
+
+  RentalAction:
+    type: object
+    properties:
+      type:
+        enum: [RETURN, EXTENSION]
+
+  LateRentalTask:
+    type: object
+    properties:
+      id: string
+      start: datetime-only
+      end: datetime-only
+      status:
+        enum: [RUNNING, FAILED, DONE]
+      report:
+        type: object
+        properties:
+          accountProcessed: integer
+          lateRentalCount: integer
+
+  Message: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/types/message.raml
+  Error: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/types/error-with-messages.raml
+
+traits:
+  rfc7233Browsing: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/traits/collection/rfc7233-browse-collection.raml
+  entityCreation: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/traits/collection/create.raml
+  entityRetrieve: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/traits/entity/retrieve.raml
+  entityReplace: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/traits/entity/replace.raml
+  entityUpdate: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/traits/entity/update.raml
+  entityDelete: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/traits/entity/delete.raml
+

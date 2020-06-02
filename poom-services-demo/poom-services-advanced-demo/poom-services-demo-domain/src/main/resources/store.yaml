@@ -1,0 +1,7 @@
+store:
+  name: string
+  address:
+    street: string
+    town: string
+    postalCode: string
+    country: string
