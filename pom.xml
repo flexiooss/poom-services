@@ -214,7 +214,80 @@
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-paged-collection-processor</artifactId>
                 <version>1.38.0-SNAPSHOT</version>
-            </dependency>	    
+            </dependency>
+
+<!--            SIMPLE DEMO-->
+            <dependency>
+                <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
+                <artifactId>poom-services-simple-demo-api-spec</artifactId>
+                <version>1.38.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
+                <artifactId>poom-services-simple-demo-api-types</artifactId>
+                <version>1.38.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
+                <artifactId>poom-services-simple-demo-api-processor</artifactId>
+                <version>1.38.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
+                <artifactId>poom-services-simple-demo-api-client</artifactId>
+                <version>1.38.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.services.simple.demo</groupId>
+                <artifactId>poom-services-simple-demo-service-client-side-usage</artifactId>
+                <version>1.38.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.services.simple.demo</groupId>
+                <artifactId>poom-services-simple-demo-service-server-side-usage</artifactId>
+                <version>1.38.0-SNAPSHOT</version>
+            </dependency>
+<!--            //SIMPLE DEMO-->
+
+
+<!--            ADVANCED DEMO-->
+            <dependency>
+                <groupId>org.codingmatters.poom.apis.demo</groupId>
+                <artifactId>poom-services-demo-api-spec</artifactId>
+                <version>1.38.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.apis.demo</groupId>
+                <artifactId>poom-services-demo-api-types</artifactId>
+                <version>1.38.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.apis.demo</groupId>
+                <artifactId>poom-services-demo-api-processor</artifactId>
+                <version>1.38.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.apis.demo</groupId>
+                <artifactId>poom-services-demo-api-client</artifactId>
+                <version>1.38.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.demo</groupId>
+                <artifactId>poom-services-demo-domain</artifactId>
+                <version>1.38.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.demo</groupId>
+                <artifactId>poom-services-demo-processor</artifactId>
+                <version>1.38.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.demo</groupId>
+                <artifactId>poom-services-demo-service</artifactId>
+                <version>1.38.0-SNAPSHOT</version>
+            </dependency>
+<!--            // ADVANCED DEMO-->
+
 
             <!--// BOM-->
         </dependencies>
