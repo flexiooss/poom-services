@@ -81,7 +81,7 @@ mediaType: application/json
       post:
         description: |
           create a movie belonging to this category
-        is: [entityCreation: {entityType: Movie, entityCreationType: object, error: Error}]
+        is: [entityCreation: {entityType: Movie, entityCreationType: MovieCreationData, error: Error}]
 
     /customers/{customer}/rentals:
       displayName: customer rentals
