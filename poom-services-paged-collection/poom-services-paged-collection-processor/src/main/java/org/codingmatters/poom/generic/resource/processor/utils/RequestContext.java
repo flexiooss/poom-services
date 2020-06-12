@@ -1,5 +1,6 @@
 package org.codingmatters.poom.generic.resource.processor.utils;
 
+import org.codingmatters.rest.api.Processor;
 import org.codingmatters.rest.api.RequestDelegate;
 import org.codingmatters.rest.api.ResponseDelegate;
 
@@ -35,5 +36,9 @@ public class RequestContext {
 
     public ResponseDelegate responseDelegate() {
         return this.responseDelegateHolder.get().get();
+    }
+
+    public Processor preprocessor() {
+        return this::setup;
     }
 }
