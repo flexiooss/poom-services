@@ -106,5 +106,6 @@ public class GetOrCreateSongTest {
         this.retrieveHandler.nextResponse(request -> ERROR_LIST);
 
         thrown.expect(IOException.class);
+        new GetOrCreateSong(this.client).get("a title", "an author");
     }
 }

@@ -127,7 +127,7 @@ public class StoreManager {
                         store,
                         repository.get(),
                         movie.value(),
-                        new CategoryBillingProcessor()
+                        new CategoryBillingProcessor(movie.value())
                 ))
                 .pager(new RentalPager(repository.get(), movie.value()))
                 .build();

@@ -73,7 +73,7 @@ public class DemoData {
 
 
             this.createRental(Rental.builder()
-                    .movie(psycho.value())
+                    .movieId(psycho.id())
                     .start(UTC.now().minusDays(100L))
                     .dueDate(UTC.now().minusDays(100L).plusDays(3L))
                     .status(Rental.Status.OUT)
@@ -81,7 +81,7 @@ public class DemoData {
                     .build());
 
             this.createRental(Rental.builder()
-                    .movie(toyStory.value())
+                    .movieId(toyStory.id())
                     .start(UTC.now().minusDays(1L))
                     .dueDate(UTC.now().minusDays(1L).plusDays(3L))
                     .status(Rental.Status.OUT)
@@ -89,7 +89,7 @@ public class DemoData {
                     .build());
 
             this.createRental(Rental.builder()
-                    .movie(myNeighborTotoro.value())
+                    .movieId(myNeighborTotoro.id())
                     .start(UTC.now().minusDays(3L))
                     .dueDate(UTC.now().minusDays(3L).plusDays(6L))
                     .status(Rental.Status.OUT)

@@ -85,7 +85,7 @@ public class RentalCRUD implements PagedCollectionAdapter.CRUD<Rental, RentalReq
             Entity<Rental> result = this.repository.create(Rental.builder()
                     .status(Rental.Status.OUT)
                     .start(UTC.now())
-                    .movie(this.movie)
+                    .movieId(this.movie.id())
                     .customer(request.customer())
                     .start(UTC.now())
                     .dueDate(UTC.now().plusDays(3L))
@@ -102,7 +102,7 @@ public class RentalCRUD implements PagedCollectionAdapter.CRUD<Rental, RentalReq
 
     private boolean movieFreeForRent() throws RepositoryException {
         return this.repository.search(PropertyQuery.builder()
-                .filter(String.format("movie.id == '%s' && status == '%s'", this.movie.id(), Rental.Status.OUT.name()))
+                .filter(String.format("movieId == '%s' && status == '%s'", this.movie.id(), Rental.Status.OUT.name()))
                 .build(),
                 0, 0).total() == 0;
     }

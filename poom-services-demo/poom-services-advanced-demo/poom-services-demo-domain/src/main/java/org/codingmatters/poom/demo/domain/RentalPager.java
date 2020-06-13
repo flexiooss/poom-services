@@ -52,6 +52,6 @@ public class RentalPager implements PagedCollectionAdapter.Pager<Rental>, Entity
     }
 
     private String movieFilter() {
-        return String.format("movie.id == '%s'", this.movie.id());
+        return String.format("movieId == '%s'", this.movie.id());
     }
 }
