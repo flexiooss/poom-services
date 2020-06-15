@@ -39,7 +39,7 @@ public class DemoProcessorBuilder {
     private void interceptMovies() {
         RequestContext requestContext = new RequestContext();
         this.processorBuilder.collectionAt("/{store}/movies",
-                requestContext.preprocessor(),
+                requestContext::setup,
                 () -> new BridgedAdapterBuilder()
                                 .entityType(Movie.class)
                                 .creationType(MovieCreationData.class)
@@ -51,7 +51,7 @@ public class DemoProcessorBuilder {
                                 )
         );
         this.processorBuilder.collectionAt("/{store}/movies/{movie-id}/rentals",
-                requestContext.preprocessor(),
+                requestContext::setup,
                 () -> new BridgedAdapterBuilder()
                                 .entityType(Rental.class)
                                 .creationType(RentalRequest.class)
@@ -62,7 +62,7 @@ public class DemoProcessorBuilder {
                                 ))
         );
         this.processorBuilder.collectionAt("/{store}/category/{category}",
-                requestContext.preprocessor(),
+                requestContext::setup,
                 () -> new BridgedAdapterBuilder()
                                 .entityType(Movie.class)
                                 .creationType(MovieCreationData.class)
@@ -73,7 +73,7 @@ public class DemoProcessorBuilder {
                                 ))
         );
         this.processorBuilder.collectionAt("/{store}/customers/{customer}/rentals",
-                requestContext.preprocessor(),
+                requestContext::setup,
                 () -> new BridgedAdapterBuilder()
                                 .entityType(Rental.class)
                                 .creationType(RentalRequest.class)

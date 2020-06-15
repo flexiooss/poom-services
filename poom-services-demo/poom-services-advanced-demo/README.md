@@ -1,6 +1,6 @@
 # Demo application : a digital video club !
 
-
+ curl -kv http://localhost:8889/demo/ | json_pp
 
  curl -kv http://localhost:8889/demo/late-rental-tasks | json_pp
  curl -XPOST -kv http://localhost:8889/demo/late-rental-tasks | json_pp
