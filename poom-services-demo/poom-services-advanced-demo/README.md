@@ -6,6 +6,7 @@
  curl -XPOST -kv http://localhost:8889/demo/late-rental-tasks | json_pp
  curl -kv http://localhost:8889/demo/late-rental-tasks | json_pp
  curl -kv http://localhost:8889/demo/NETFLIX/movies/4438180b-09fa-4d86-a9f9-623e92b45dca/rentals | json_pp
+ curl -kv http://localhost:8889/demo/NETFLIX/rentals | json_pp
  curl -kv http://localhost:8889/demo/NETFLIX/movies | json_pp
  curl -kv http://localhost:8889/demo/NETFLIX/movies?filter=title%20%3D%3D%20%27Psycho%27 | json_pp
  curl -kv http://localhost:8889/demo/NETFLIX/movies/60549690-680d-4c12-8663-14e35282701a | json_pp

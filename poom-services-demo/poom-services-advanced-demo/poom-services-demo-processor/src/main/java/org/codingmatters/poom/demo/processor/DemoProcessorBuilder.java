@@ -61,6 +61,14 @@ public class DemoProcessorBuilder {
                                         requestContext.requestDelegate().uriParameters("/{store}/movies/{movie-id}/rentals.*").get("movie-id").get(0)
                                 ))
         );
+        this.processorBuilder.collectionAt("/{store}/rentals",
+                requestContext::setup,
+                () -> new BridgedAdapterBuilder()
+                                .entityType(Rental.class)
+                                .build(this.storeManager.rentalsAdapter(
+                                        requestContext.requestDelegate().uriParameters("/{store}/rentals.*").get("store").get(0)
+                                ))
+        );
         this.processorBuilder.collectionAt("/{store}/category/{category}",
                 requestContext::setup,
                 () -> new BridgedAdapterBuilder()

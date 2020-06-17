@@ -83,6 +83,20 @@ mediaType: application/json
           create a movie belonging to this category
         is: [entityCreation: {entityType: Movie, entityCreationType: MovieCreationData, error: Error}]
 
+    /rentals:
+      displayName: store rentals
+      description: |
+        Rentals for this store (read only)
+      get:
+        is: [rfc7233Browsing: {entityType: Rental, error: Error}]
+
+      /{rental-id}:
+        displayName: a rental
+        uriParameters:
+          rental-id: string
+        get:
+          is: [entityRetrieve: {entityType: Rental, error: Error}]
+
     /customers/{customer}/rentals:
       displayName: customer rentals
       uriParameters:
