@@ -118,14 +118,14 @@ public class DemoProcessorBuilderTest {
 
         this.rentalRepository(NETFLIX.name()).get().createWithId("r0001", Rental.builder().id("r0001")
                 .customer("john-doe")
-                .movie(A_MOVIE)
+                .movieId(A_MOVIE.id())
                 .start(UTC.now().minusDays(4))
                 .status(Rental.Status.OUT)
                 .dueDate(UTC.now().minusDays(1))
                 .build());
         this.rentalRepository(NETFLIX.name()).get().createWithId("r0002", Rental.builder().id("r0002")
                 .customer("john-doe")
-                .movie(ANOTHER_MOVIE)
+                .movieId(ANOTHER_MOVIE.id())
                 .start(UTC.now().minusDays(1))
                 .status(Rental.Status.OUT)
                 .dueDate(UTC.now().plusDays(2))

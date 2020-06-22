@@ -27,9 +27,9 @@ public class RentalPagerTest {
             .build();
 
     static public Rental[] MOVIE1_RENTALS = new Rental[] {
-            Rental.builder().id("M1.1").movie(MOVIE1).customer("cust1").build(),
-            Rental.builder().id("M1.2").movie(MOVIE1).customer("cust1").build(),
-            Rental.builder().id("M1.3").movie(MOVIE1).customer("cust2").build()
+            Rental.builder().id("M1.1").movieId(MOVIE1.id()).customer("cust1").build(),
+            Rental.builder().id("M1.2").movieId(MOVIE1.id()).customer("cust1").build(),
+            Rental.builder().id("M1.3").movieId(MOVIE1.id()).customer("cust2").build()
     };
 
     static public Movie MOVIE2 = Movie.builder()
@@ -40,7 +40,7 @@ public class RentalPagerTest {
             .build();
 
     static public Rental[] MOVIE2_RENTALS = new Rental[] {
-            Rental.builder().id("M2.1").movie(MOVIE2).customer("cust1").build()
+            Rental.builder().id("M2.1").movieId(MOVIE2.id()).customer("cust1").build()
     };
 
     private final Repository<Rental, PropertyQuery> repository = InMemoryRepositoryWithPropertyQuery.validating(Rental.class);

@@ -52,7 +52,7 @@ public class RentalCRUDTest {
         Entity<Rental> existing = this.repository.createWithId("a-rental", Rental.builder()
                 .id("a-rental")
                 .customer("custo")
-                .movie(MOVIE)
+                .movieId(MOVIE.id())
                 .start(UTC.now())
                 .build()
         );
@@ -69,7 +69,7 @@ public class RentalCRUDTest {
                 .build());
 
         assertThat(actual.value().customer(), is("a-customer"));
-        assertThat(actual.value().movie(), is(MOVIE));
+        assertThat(actual.value().movieId(), is(MOVIE.id()));
         assertThat(actual.value().status(), is(Rental.Status.OUT));
         assertThat(actual.value().start(), is(around(UTC.now())));
         assertThat(actual.value().dueDate(), is(around(UTC.now().plusDays(3L))));
@@ -80,7 +80,7 @@ public class RentalCRUDTest {
 
     @Test
     public void givenMovieIsNotFreeForRent__whenIssuingRentalRequest__thenBadRequestException() throws Exception {
-        this.repository.create(Rental.builder().movie(MOVIE).status(Rental.Status.OUT).build());
+        this.repository.create(Rental.builder().movieId(MOVIE.id()).status(Rental.Status.OUT).build());
 
         thrown.expect(BadRequestException.class);
         this.crud.createEntityFrom(RentalRequest.builder()
@@ -98,7 +98,7 @@ public class RentalCRUDTest {
 
     @Test
     public void givenRentalExists__whenReplacingRental__thenNotImplementedUnexpectedException() throws Exception {
-        this.repository.createWithId("a-rental", Rental.builder().movie(MOVIE).status(Rental.Status.OUT).build());
+        this.repository.createWithId("a-rental", Rental.builder().movieId(MOVIE.id()).status(Rental.Status.OUT).build());
 
         thrown.expect(UnexpectedException.class);
         thrown.expectMessage("not implemented");
@@ -108,7 +108,7 @@ public class RentalCRUDTest {
 
     @Test
     public void givenRentalExists__whenDeletingRental__thenNotImplementedUnexpectedException() throws Exception {
-        this.repository.createWithId("a-rental", Rental.builder().movie(MOVIE).status(Rental.Status.OUT).build());
+        this.repository.createWithId("a-rental", Rental.builder().movieId(MOVIE.id()).status(Rental.Status.OUT).build());
 
         thrown.expect(UnexpectedException.class);
         thrown.expectMessage("not implemented");
@@ -118,7 +118,7 @@ public class RentalCRUDTest {
 
     @Test
     public void givenMovieIsOut__whenReturningMovie__thenMovieIsMarkedReturned_andBillingCalculated_andRepositoryValueUpdated() throws Exception {
-        this.repository.createWithId("a-rental", Rental.builder().movie(MOVIE).status(Rental.Status.OUT)
+        this.repository.createWithId("a-rental", Rental.builder().movieId(MOVIE.id()).status(Rental.Status.OUT)
                 .dueDate(UTC.now().plusDays(2L))
                 .build());
 
@@ -133,7 +133,7 @@ public class RentalCRUDTest {
 
     @Test
     public void givenMovieIsLate__whenReturningMovie__thenMovieIsMarkedReturned_andBillingCalculated_andRepositoryValueUpdated() throws Exception {
-        this.repository.createWithId("a-rental", Rental.builder().movie(MOVIE).status(Rental.Status.LATE)
+        this.repository.createWithId("a-rental", Rental.builder().movieId(MOVIE.id()).status(Rental.Status.LATE)
                 .dueDate(UTC.now().minusDays(2L))
                 .build());
 
@@ -148,7 +148,7 @@ public class RentalCRUDTest {
 
     @Test
     public void givenMovieIsOut__whenExtendingMovie__thenMovieIsMarkedOut_andDueDateIsExtended_andRepositoryValueUpdated() throws Exception {
-        this.repository.createWithId("a-rental", Rental.builder().movie(MOVIE).status(Rental.Status.OUT)
+        this.repository.createWithId("a-rental", Rental.builder().movieId(MOVIE.id()).status(Rental.Status.OUT)
                 .dueDate(UTC.now().plusDays(2L))
                 .build());
 
@@ -164,7 +164,7 @@ public class RentalCRUDTest {
 
     @Test
     public void givenMovieIsLate__whenExtendingMovie__thenMovieIsMarkedOut_andDueDateIsExtended_andRepositoryValueUpdated() throws Exception {
-        this.repository.createWithId("a-rental", Rental.builder().movie(MOVIE).status(Rental.Status.LATE)
+        this.repository.createWithId("a-rental", Rental.builder().movieId(MOVIE.id()).status(Rental.Status.LATE)
                 .dueDate(UTC.now().minusDays(2L))
                 .build());
 

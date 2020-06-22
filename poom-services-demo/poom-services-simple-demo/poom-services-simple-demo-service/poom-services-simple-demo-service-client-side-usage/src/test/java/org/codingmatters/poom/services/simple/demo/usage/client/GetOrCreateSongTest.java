@@ -106,11 +106,6 @@ public class GetOrCreateSongTest {
         this.retrieveHandler.nextResponse(request -> ERROR_LIST);
 
         thrown.expect(IOException.class);
-        Song actual = new GetOrCreateSong(this.client).get("a title", "an author");
-
-        assertThat(this.retrieveHandler.lastRequest(), is(SongListGetRequest.builder().filter("title == 'a title' && author == 'an author'").build()));
-        assertThat(this.createHandler.lastRequest(), is(nullValue()));
-
-        assertThat(actual, is(nullValue()));
+        new GetOrCreateSong(this.client).get("a title", "an author");
     }
 }

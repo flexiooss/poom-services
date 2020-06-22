@@ -5,6 +5,7 @@ import org.codingmatters.poom.demo.domain.billing.CategoryBillingProcessor;
 import org.codingmatters.poom.demo.domain.rentals.LateRentalProcessor;
 import org.codingmatters.poom.demo.domain.spec.Store;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
+import org.codingmatters.poom.generic.resource.domain.impl.DefaultPager;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
@@ -127,7 +128,7 @@ public class StoreManager {
                         store,
                         repository.get(),
                         movie.value(),
-                        new CategoryBillingProcessor()
+                        new CategoryBillingProcessor(movie.value())
                 ))
                 .pager(new RentalPager(repository.get(), movie.value()))
                 .build();
@@ -154,6 +155,27 @@ public class StoreManager {
         return PagedCollectionAdapter.<Rental, RentalRequest, Void, RentalAction>builder()
                 .crud(null)
                 .pager(new CustomerRentalPager(repository.get(), customer))
+                .build();
+    }
+
+    public PagedCollectionAdapter rentalsAdapter(String store) {
+        try {
+            if(! this.storeExists(store)) {
+                log.warn("request on an unexisting store {}", store);
+                return PagedCollectionAdapter.notFoundAdapter();
+            }
+        } catch (RepositoryException e) {
+            log.error("error accessing store repository", store);
+            return PagedCollectionAdapter.unexpectedExceptionAdapter();
+        }
+
+        Optional<Repository<Rental, PropertyQuery>> repository = this.rentalRepositoryForStoreProvider.apply(store);
+        if(! repository.isPresent()) {
+            log.error("error accessing rental repository for store {}", store);
+            return PagedCollectionAdapter.unexpectedExceptionAdapter();        }
+        return PagedCollectionAdapter.<Rental, RentalRequest, Void, RentalAction>builder()
+                .crud(new RentalCRUD(Action.actions(Action.RETRIEVE), store, repository.get(), null, null))
+                .pager(new DefaultPager("Rental", 10, repository.get()))
                 .build();
     }
 
