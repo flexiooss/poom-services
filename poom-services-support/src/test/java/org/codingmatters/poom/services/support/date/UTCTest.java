@@ -63,4 +63,22 @@ public class UTCTest {
 
         assertThat(UTC.from(zoned), is(LocalDateTime.of(2020, 2, 9, 7, 35)));
     }
+
+    @Test
+    public void givenConvertingFromUTC__whenTZAhaedFromUTC__thenConvertedIsUTCPlusZoneOffset() throws Exception {
+        LocalDateTime utc = UTC.now();
+
+        LocalDateTime at = UTC.at(utc, TimeZone.getTimeZone("GMT+00:18"));
+
+        assertThat(at, is(utc.plusMinutes(18)));
+    }
+
+    @Test
+    public void givenConvertingFromUTC__whenTZBackwardFromUTC__thenConvertedIsUTCMinusZoneOffset() throws Exception {
+        LocalDateTime utc = UTC.now();
+
+        LocalDateTime at = UTC.at(utc, TimeZone.getTimeZone("GMT-00:18"));
+
+        assertThat(at, is(utc.minusMinutes(18)));
+    }
 }
