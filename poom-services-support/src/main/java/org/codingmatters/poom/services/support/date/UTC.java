@@ -24,4 +24,8 @@ public class UTC {
         ZonedDateTime atZone = utc.atZone(ZoneOffset.UTC.normalized());
         return atZone.withZoneSameInstant(tz.toZoneId()).toLocalDateTime();
     }
+
+    static public LocalDateTime at(TimeZone tz) {
+        return at(now(), tz);
+    }
 }
