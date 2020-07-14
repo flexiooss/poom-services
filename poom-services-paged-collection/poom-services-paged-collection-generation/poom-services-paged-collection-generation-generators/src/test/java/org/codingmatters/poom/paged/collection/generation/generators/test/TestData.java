@@ -3,10 +3,7 @@ package org.codingmatters.poom.paged.collection.generation.generators.test;
 import org.codingmatters.poom.paged.collection.generation.spec.Action;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
 import org.codingmatters.poom.paged.collection.generation.spec.pagedcollectiondescriptor.Types;
-import org.generated.api.NoParamsGetRequest;
-import org.generated.api.NoParamsGetResponse;
-import org.generated.api.NoParamsPostRequest;
-import org.generated.api.NoParamsPostResponse;
+import org.generated.api.*;
 import org.generated.api.types.*;
 import org.generated.api.types.Error;
 
@@ -30,6 +27,11 @@ public interface TestData {
                         .name("ignored, collection name accounted instead")
                         .requestValueObject(NoParamsPostRequest.class.getName())
                         .responseValueObject(NoParamsPostResponse.class.getName())
+                        .build())
+                .retrieve(Action.builder()
+                        .name("ignored, collection name accounted instead")
+                        .requestValueObject(NoParamsElementGetRequest.class.getName())
+                        .responseValueObject(NoParamsElementGetResponse.class.getName())
                         .build())
                 .build();
 }

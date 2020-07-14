@@ -12,10 +12,6 @@ import org.codingmatters.tests.compile.CompiledCode;
 import org.codingmatters.tests.compile.FileHelper;
 import org.codingmatters.tests.compile.helpers.ClassLoaderHelper;
 import org.codingmatters.value.objects.generation.GenerationUtils;
-import org.codingmatters.value.objects.values.ObjectValue;
-import org.codingmatters.value.objects.values.PropertyValue;
-import org.generated.api.NoParamsGetRequest;
-import org.generated.api.NoParamsGetResponse;
 import org.generated.api.NoParamsPostRequest;
 import org.generated.api.NoParamsPostResponse;
 import org.generated.api.types.Create;
@@ -39,7 +35,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class CreateHandlerGeneratorTest {
-
 
     @Rule
     public TemporaryFolder dir = new TemporaryFolder();

@@ -87,4 +87,33 @@ public abstract class PagedCollectionHandlerGenerator {
                 .addStatement("return $T.fromMap(error.toMap()).build()", this.className(this.collectionDescriptor.types().error()))
                 .build();
     }
+
+    protected MethodSpec entityNotFoundResponseMethod() {
+        return MethodSpec.methodBuilder("entityNotFound").addModifiers(Modifier.PRIVATE)
+                .addParameter(String.class, "entityId")
+                .addParameter(String.class, "token")
+                .returns(this.className(this.handlerAction.responseValueObject()))
+                .addCode(CodeBlock.builder()
+                        .addStatement(
+                                "return $T.builder().status404($T.builder().payload($T.builder()" +
+                                        ".code($T.Code.RESOURCE_NOT_FOUND)" +
+                                        ".token(token)" +
+                                        ".messages(" +
+                                            "$T.builder().key($S).args(entityId).build()," +
+                                            "$T.builder().key($S).args(token).build()" +
+                                        ")" +
+                                        ".build()).build()).build()",
+                                this.className(this.handlerAction.responseValueObject()),
+                                this.relatedClassName("Status404", this.handlerAction.responseValueObject()),
+                                this.className(this.collectionDescriptor.types().error()),
+                                this.className(this.collectionDescriptor.types().error()),
+                                this.className(this.collectionDescriptor.types().message()),
+                                MessageKeys.ENTITY_NOT_FOUND,
+                                this.className(this.collectionDescriptor.types().message()),
+                                MessageKeys.SEE_LOGS_WITH_TOKEN
+                        )
+                        .build())
+                .build();
+    }
+
 }
