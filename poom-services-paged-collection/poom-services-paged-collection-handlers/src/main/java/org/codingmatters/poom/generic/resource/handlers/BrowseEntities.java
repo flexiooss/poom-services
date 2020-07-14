@@ -31,11 +31,7 @@ public class BrowseEntities implements Function<PagedCollectionGetRequest, Paged
             adapter = this.adapterProvider.adapter();
         } catch (Exception e) {
             String token = log.tokenized().error("failed getting adapter for " + request, e);
-            return PagedCollectionGetResponse.builder().status500(Status500.builder().payload(Error.builder()
-                    .code(Error.Code.UNEXPECTED_ERROR)
-                    .token(token)
-                    .messages(Message.builder().key(MessageKeys.SEE_LOGS_WITH_TOKEN).args(token).build())
-                    .build()).build()).build();
+            return error500(token);
         }
 
         PagedCollectionAdapter.Pager pager = adapter.pager();
@@ -53,31 +49,19 @@ public class BrowseEntities implements Function<PagedCollectionGetRequest, Paged
             String token = log.tokenized().error("adapter {} implementation breaks contract, pager unit cannot be null, request was : {}",
                     adapter.getClass(), request
             );
-            return PagedCollectionGetResponse.builder().status500(Status500.builder().payload(Error.builder()
-                    .code(Error.Code.UNEXPECTED_ERROR)
-                    .token(token)
-                    .messages(Message.builder().key(MessageKeys.SEE_LOGS_WITH_TOKEN).args(token).build())
-                    .build()).build()).build();
+            return error500(token);
         }
         if(pager.lister() == null) {
             String token = log.tokenized().error("adapter {} implementation breaks contract, pager lister cannot be null, request was : {}",
                     adapter.getClass(), request
             );
-            return PagedCollectionGetResponse.builder().status500(Status500.builder().payload(Error.builder()
-                    .code(Error.Code.UNEXPECTED_ERROR)
-                    .token(token)
-                    .messages(Message.builder().key(MessageKeys.SEE_LOGS_WITH_TOKEN).args(token).build())
-                    .build()).build()).build();
+            return error500(token);
         }
         if(pager.maxPageSize() <= 0) {
             String token = log.tokenized().error("adapter {} implementation breaks contract, pager max page size  cannot be lower or equal to 0, request was : {}",
                     adapter.getClass(), request
             );
-            return PagedCollectionGetResponse.builder().status500(Status500.builder().payload(Error.builder()
-                    .code(Error.Code.UNEXPECTED_ERROR)
-                    .token(token)
-                    .messages(Message.builder().key(MessageKeys.SEE_LOGS_WITH_TOKEN).args(token).build())
-                    .build()).build()).build();
+            return error500(token);
         }
 
 
@@ -89,11 +73,7 @@ public class BrowseEntities implements Function<PagedCollectionGetRequest, Paged
                     .pager(pager.lister()).page(this.parseQuery(request));
         } catch (RepositoryException e) {
             String token = log.tokenized().error("unexpected error listing entities " + request, e);
-            return PagedCollectionGetResponse.builder().status500(Status500.builder().payload(Error.builder()
-                    .code(Error.Code.UNEXPECTED_ERROR)
-                    .token(token)
-                    .messages(Message.builder().key(MessageKeys.SEE_LOGS_WITH_TOKEN).args(token).build())
-                    .build()).build()).build();
+            return error500(token);
         }
 
         if(! page.isValid()) {
@@ -132,5 +112,13 @@ public class BrowseEntities implements Function<PagedCollectionGetRequest, Paged
         } else {
             return Optional.empty();
         }
+    }
+
+    private PagedCollectionGetResponse error500(String token) {
+        return PagedCollectionGetResponse.builder().status500(Status500.builder().payload(Error.builder()
+                .code(Error.Code.UNEXPECTED_ERROR)
+                .token(token)
+                .messages(Message.builder().key(MessageKeys.SEE_LOGS_WITH_TOKEN).args(token).build())
+                .build()).build()).build();
     }
 }

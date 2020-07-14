@@ -1,0 +1,34 @@
+---
+PagedCollectionDescriptor:
+  name: string
+  urlPattern: string
+  entityIdParam: string
+
+  types:
+    entity: string
+    create: string
+    replace: string
+    update: string
+    error: string
+    message: string
+
+  browse: $Action
+  create: $Action
+  retrieve: $Action
+  update: $Action
+  replace: $Action
+  delete: $Action
+
+Action:
+  name: string
+  requestValueObject: string
+  responseValueObject: string
+  parameters: $Parameters
+
+Parameters:
+  uriParameters:
+    $list: string
+  queryParameters:
+    $list: string
+  headers:
+    $list: string
