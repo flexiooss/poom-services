@@ -5,6 +5,8 @@ import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDe
 import org.codingmatters.poom.paged.collection.generation.spec.pagedcollectiondescriptor.Types;
 import org.generated.api.NoParamsGetRequest;
 import org.generated.api.NoParamsGetResponse;
+import org.generated.api.NoParamsPostRequest;
+import org.generated.api.NoParamsPostResponse;
 import org.generated.api.types.*;
 import org.generated.api.types.Error;
 
@@ -23,6 +25,11 @@ public interface TestData {
                         .name("ignored, collection name accounted instead")
                         .requestValueObject(NoParamsGetRequest.class.getName())
                         .responseValueObject(NoParamsGetResponse.class.getName())
+                        .build())
+                .create(Action.builder()
+                        .name("ignored, collection name accounted instead")
+                        .requestValueObject(NoParamsPostRequest.class.getName())
+                        .responseValueObject(NoParamsPostResponse.class.getName())
                         .build())
                 .build();
 }

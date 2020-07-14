@@ -1,16 +1,20 @@
 package org.codingmatters.poom.paged.collection.generation.generators;
 
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.*;
+import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
+import org.codingmatters.poom.paged.collection.generation.spec.Action;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
+
+import javax.lang.model.element.Modifier;
 
 public abstract class PagedCollectionHandlerGenerator {
     protected final PagedCollectionDescriptor collectionDescriptor;
+    private final Action handlerAction;
 
-    public PagedCollectionHandlerGenerator(PagedCollectionDescriptor collectionDescriptor) {
+    public PagedCollectionHandlerGenerator(PagedCollectionDescriptor collectionDescriptor, Action handlerAction) {
         this.collectionDescriptor = collectionDescriptor;
+        this.handlerAction = handlerAction;
     }
 
     public abstract TypeSpec handler();
@@ -52,5 +56,35 @@ public abstract class PagedCollectionHandlerGenerator {
 
     protected String simpleNameOf(String fqClassName) {
         return fqClassName.substring(fqClassName.lastIndexOf('.') + 1);
+    }
+    protected MethodSpec errorResponseMethod(String methodName, String status, String errorCode) {
+        return MethodSpec.methodBuilder(methodName).addModifiers(Modifier.PRIVATE)
+                .addParameter(String.class, "token")
+                .returns(this.className(this.handlerAction.responseValueObject()))
+                .addCode(CodeBlock.builder()
+                        .addStatement(
+                                "return $T.builder().$L($T.builder().payload($T.builder()" +
+                                        ".code($T.Code.$L)" +
+                                        ".token(token)" +
+                                        ".messages($T.builder().key($S).args(token).build())" +
+                                        ".build()).build()).build()",
+                                this.className(this.handlerAction.responseValueObject()),
+                                status.substring(0, 1).toLowerCase() + status.substring(1),
+                                this.relatedClassName(status, this.handlerAction.responseValueObject()),
+                                this.className(this.collectionDescriptor.types().error()),
+                                this.className(this.collectionDescriptor.types().error()),
+                                errorCode,
+                                this.className(this.collectionDescriptor.types().message()),
+                                MessageKeys.SEE_LOGS_WITH_TOKEN
+                        )
+                        .build())
+                .build();
+    }
+
+    protected MethodSpec castedErrorMethod() {
+        return MethodSpec.methodBuilder("casted").addModifiers(Modifier.PRIVATE)
+                .addParameter(Error.class, "error").returns(this.className(this.collectionDescriptor.types().error()))
+                .addStatement("return $T.fromMap(error.toMap()).build()", this.className(this.collectionDescriptor.types().error()))
+                .build();
     }
 }

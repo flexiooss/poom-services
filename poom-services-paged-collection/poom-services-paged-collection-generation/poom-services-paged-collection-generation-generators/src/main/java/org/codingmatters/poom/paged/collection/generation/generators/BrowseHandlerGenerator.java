@@ -16,7 +16,7 @@ import java.util.function.Function;
 public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
 
     public BrowseHandlerGenerator(PagedCollectionDescriptor collectionDescriptor) {
-        super(collectionDescriptor);
+        super(collectionDescriptor, collectionDescriptor.browse());
     }
 
     @Override
@@ -178,30 +178,6 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
                 this.errorResponseMethod("unexpectedError", "Status500", "UNEXPECTED_ERROR"),
                 this.errorResponseMethod("browsingNotAllowed", "Status405", "COLLECTION_BROWSING_NOT_ALLOWED")
         );
-    }
-
-    protected MethodSpec errorResponseMethod(String methodName, String status, String errorCode) {
-        return MethodSpec.methodBuilder(methodName).addModifiers(Modifier.PRIVATE)
-                .addParameter(String.class, "token")
-                .returns(this.className(this.collectionDescriptor.browse().responseValueObject()))
-                .addCode(CodeBlock.builder()
-                        .addStatement(
-                                "return $T.builder().$L($T.builder().payload($T.builder()" +
-                                        ".code($T.Code.$L)" +
-                                        ".token(token)" +
-                                        ".messages($T.builder().key($S).args(token).build())" +
-                                        ".build()).build()).build()",
-                                this.className(this.collectionDescriptor.browse().responseValueObject()),
-                                status.substring(0, 1).toLowerCase() + status.substring(1),
-                                this.relatedClassName(status, this.collectionDescriptor.browse().responseValueObject()),
-                                this.className(this.collectionDescriptor.types().error()),
-                                this.className(this.collectionDescriptor.types().error()),
-                                errorCode,
-                                this.className(this.collectionDescriptor.types().message()),
-                                MessageKeys.SEE_LOGS_WITH_TOKEN
-                        )
-                        .build())
-                .build();
     }
 
     private ParameterizedTypeName pagerClass() {
