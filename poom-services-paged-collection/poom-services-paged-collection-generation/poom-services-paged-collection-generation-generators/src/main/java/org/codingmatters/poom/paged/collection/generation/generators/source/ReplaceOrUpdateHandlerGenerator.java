@@ -3,6 +3,7 @@ package org.codingmatters.poom.paged.collection.generation.generators.source;
 import com.squareup.javapoet.*;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
+import org.codingmatters.poom.paged.collection.generation.generators.source.exception.IncoherentDescriptorException;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.servives.domain.entities.Entity;
@@ -21,7 +22,7 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
 
             @Override
             public String type(PagedCollectionDescriptor pagedCollectionDescriptor) {
-                return pagedCollectionDescriptor.types().replace();
+                return pagedCollectionDescriptor.opt().types().replace().orElse(null);
             }
         },
         Update("updateEntityWith", "ENTITY_UPDATE_NOT_ALLOWED") {
@@ -32,7 +33,7 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
 
             @Override
             public String type(PagedCollectionDescriptor pagedCollectionDescriptor) {
-                return pagedCollectionDescriptor.types().update();
+                return pagedCollectionDescriptor.opt().types().update().orElse(null);
             }
         }
         ;
@@ -65,7 +66,16 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
     }
 
     @Override
-    public TypeSpec handler() {
+    public TypeSpec handler() throws IncoherentDescriptorException {
+        if(this.action == null) return null;
+        if(! collectionDescriptor.opt().types().entity().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without an entity type");
+        if(! collectionDescriptor.opt().types().error().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without an error type");
+        if(this.type == null) throw new IncoherentDescriptorException("cannot generate replace/update handler without an replace/update type");
+        if(! collectionDescriptor.opt().types().message().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without an message type");
+        if(! collectionDescriptor.opt().entityIdParam().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without an entityIdParam");
+        if(! this.action.opt().requestValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without a request class");
+        if(! this.action.opt().responseValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without a response class");
+
         return TypeSpec.classBuilder(this.handlerClassSimpleName)
                 .addModifiers(Modifier.PUBLIC)
                 .addSuperinterface(ParameterizedTypeName.get(

@@ -2,6 +2,7 @@ package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import com.squareup.javapoet.*;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
+import org.codingmatters.poom.paged.collection.generation.generators.source.exception.IncoherentDescriptorException;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.servives.domain.entities.Entity;
@@ -16,7 +17,15 @@ public class RetrieveHandlerGenerator extends PagedCollectionHandlerGenerator {
     }
 
     @Override
-    public TypeSpec handler() {
+    public TypeSpec handler() throws IncoherentDescriptorException {
+        if(! collectionDescriptor.opt().retrieve().isPresent()) return null;
+        if(! collectionDescriptor.opt().types().entity().isPresent()) throw new IncoherentDescriptorException("cannot generate retrieve handler without an entity type");
+        if(! collectionDescriptor.opt().types().error().isPresent()) throw new IncoherentDescriptorException("cannot generate retrieve handler without an error type");
+        if(! collectionDescriptor.opt().types().message().isPresent()) throw new IncoherentDescriptorException("cannot generate retrieve handler without an message type");
+        if(! collectionDescriptor.opt().entityIdParam().isPresent()) throw new IncoherentDescriptorException("cannot generate retrieve handler without an entityIdParam");
+        if(! collectionDescriptor.opt().retrieve().requestValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate retrieve handler without a request class");
+        if(! collectionDescriptor.opt().retrieve().responseValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate retrieve handler without a response class");
+
         String handlerClassSimpleName = this.collectionDescriptor.name() + "Retrieve";
         return TypeSpec.classBuilder(handlerClassSimpleName)
                 .addModifiers(Modifier.PUBLIC)

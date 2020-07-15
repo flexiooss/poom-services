@@ -2,6 +2,7 @@ package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import com.squareup.javapoet.*;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
+import org.codingmatters.poom.paged.collection.generation.generators.source.exception.IncoherentDescriptorException;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
@@ -20,7 +21,14 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
     }
 
     @Override
-    public TypeSpec handler() {
+    public TypeSpec handler() throws IncoherentDescriptorException {
+        if(! collectionDescriptor.opt().browse().isPresent()) return null;
+        if(! collectionDescriptor.opt().types().entity().isPresent()) throw new IncoherentDescriptorException("cannot generate browse handler without an entity type");
+        if(! collectionDescriptor.opt().types().error().isPresent()) throw new IncoherentDescriptorException("cannot generate browse handler without an error type");
+        if(! collectionDescriptor.opt().types().message().isPresent()) throw new IncoherentDescriptorException("cannot generate browse handler without an message type");
+        if(! collectionDescriptor.opt().browse().requestValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate browse handler without request class");
+        if(! collectionDescriptor.opt().browse().responseValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate browse handler without response class");
+
         String handlerClassSimpleName = this.collectionDescriptor.name() + "Browse";
         return TypeSpec.classBuilder(handlerClassSimpleName)
                 .addModifiers(Modifier.PUBLIC)

@@ -1,7 +1,6 @@
 ---
 PagedCollectionDescriptor:
   name: string
-  urlPattern: string
   entityIdParam: string
 
   types:
@@ -20,15 +19,5 @@ PagedCollectionDescriptor:
   delete: $Action
 
 Action:
-  name: string
   requestValueObject: string
   responseValueObject: string
-  parameters: $Parameters
-
-Parameters:
-  uriParameters:
-    $list: string
-  queryParameters:
-    $list: string
-  headers:
-    $list: string

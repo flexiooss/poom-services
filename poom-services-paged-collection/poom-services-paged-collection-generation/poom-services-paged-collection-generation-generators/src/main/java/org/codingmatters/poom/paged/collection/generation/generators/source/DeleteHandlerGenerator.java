@@ -3,6 +3,7 @@ package org.codingmatters.poom.paged.collection.generation.generators.source;
 import com.squareup.javapoet.*;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
+import org.codingmatters.poom.paged.collection.generation.generators.source.exception.IncoherentDescriptorException;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 
@@ -15,7 +16,14 @@ public class DeleteHandlerGenerator extends PagedCollectionHandlerGenerator {
     }
 
     @Override
-    public TypeSpec handler() {
+    public TypeSpec handler() throws IncoherentDescriptorException {
+        if(! collectionDescriptor.opt().delete().isPresent()) return null;
+        if(! collectionDescriptor.opt().entityIdParam().isPresent()) throw new IncoherentDescriptorException("cannot generate delete handler without an entityIdParam");
+        if(! collectionDescriptor.opt().types().error().isPresent()) throw new IncoherentDescriptorException("cannot generate delete handler without an error type");
+        if(! collectionDescriptor.opt().types().message().isPresent()) throw new IncoherentDescriptorException("cannot generate delete handler without an message type");
+        if(! collectionDescriptor.opt().delete().requestValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate delete handler without a request class");
+        if(! collectionDescriptor.opt().delete().responseValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate delete handler without a response class");
+
         String handlerClassSimpleName = this.collectionDescriptor.name() + "Delete";
         return TypeSpec.classBuilder(handlerClassSimpleName)
                 .addModifiers(Modifier.PUBLIC)

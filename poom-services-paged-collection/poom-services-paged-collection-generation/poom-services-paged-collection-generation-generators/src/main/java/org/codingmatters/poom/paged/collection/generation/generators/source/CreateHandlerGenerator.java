@@ -3,6 +3,7 @@ package org.codingmatters.poom.paged.collection.generation.generators.source;
 import com.squareup.javapoet.*;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
+import org.codingmatters.poom.paged.collection.generation.generators.source.exception.IncoherentDescriptorException;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.servives.domain.entities.Entity;
@@ -16,7 +17,15 @@ public class CreateHandlerGenerator extends PagedCollectionHandlerGenerator {
     }
 
     @Override
-    public TypeSpec handler() {
+    public TypeSpec handler() throws IncoherentDescriptorException {
+        if(! collectionDescriptor.opt().create().isPresent()) return null;
+        if(! collectionDescriptor.opt().types().entity().isPresent()) throw new IncoherentDescriptorException("cannot generate create handler without an entity type");
+        if(! collectionDescriptor.opt().types().create().isPresent()) throw new IncoherentDescriptorException("cannot generate create handler without an create type");
+        if(! collectionDescriptor.opt().types().error().isPresent()) throw new IncoherentDescriptorException("cannot generate create handler without an error type");
+        if(! collectionDescriptor.opt().types().message().isPresent()) throw new IncoherentDescriptorException("cannot generate create handler without an message type");
+        if(! collectionDescriptor.opt().create().requestValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate create handler without request class");
+        if(! collectionDescriptor.opt().create().responseValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate create handler without response class");
+
         String handlerClassSimpleName = this.collectionDescriptor.name() + "Create";
         return TypeSpec.classBuilder(handlerClassSimpleName)
                 .addModifiers(Modifier.PUBLIC)

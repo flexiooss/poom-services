@@ -3,6 +3,7 @@ package org.codingmatters.poom.paged.collection.generation.generators.source;
 import com.squareup.javapoet.*;
 import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
+import org.codingmatters.poom.paged.collection.generation.generators.source.exception.IncoherentDescriptorException;
 import org.codingmatters.poom.paged.collection.generation.spec.Action;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
 
@@ -17,29 +18,34 @@ public abstract class PagedCollectionHandlerGenerator {
         this.handlerAction = handlerAction;
     }
 
-    public abstract TypeSpec handler();
+    public abstract TypeSpec handler() throws IncoherentDescriptorException;
 
     protected ParameterizedTypeName adapterProviderClass() {
         return ParameterizedTypeName.get(
                 ClassName.get(PagedCollectionAdapter.Provider.class),
-                this.className(this.collectionDescriptor.types().entity()),
-                this.className(this.collectionDescriptor.types().create()),
-                this.className(this.collectionDescriptor.types().replace()),
-                this.className(this.collectionDescriptor.types().update())
+                this.orVoid(this.className(this.collectionDescriptor.types().entity())),
+                this.orVoid(this.className(this.collectionDescriptor.types().create())),
+                this.orVoid(this.className(this.collectionDescriptor.types().replace())),
+                this.orVoid(this.className(this.collectionDescriptor.types().update()))
         );
+    }
+
+    private TypeName orVoid(ClassName className) {
+        return className != null ? className : ClassName.get(Void.class);
     }
 
     protected ParameterizedTypeName adapterClass() {
         return ParameterizedTypeName.get(
                 ClassName.get(PagedCollectionAdapter.class),
-                this.className(this.collectionDescriptor.types().entity()),
-                this.className(this.collectionDescriptor.types().create()),
-                this.className(this.collectionDescriptor.types().replace()),
-                this.className(this.collectionDescriptor.types().update())
+                this.orVoid(this.className(this.collectionDescriptor.types().entity())),
+                this.orVoid(this.className(this.collectionDescriptor.types().create())),
+                this.orVoid(this.className(this.collectionDescriptor.types().replace())),
+                this.orVoid(this.className(this.collectionDescriptor.types().update()))
         );
     }
 
     protected ClassName className(String fqClassName) {
+        if(fqClassName == null) return null;
         return ClassName.get(this.packageOf(fqClassName), this.simpleNameOf(fqClassName));
     }
 
@@ -51,10 +57,12 @@ public abstract class PagedCollectionHandlerGenerator {
     }
 
     protected String packageOf(String fqClassName) {
+        if(fqClassName == null) return null;
         return fqClassName.substring(0, fqClassName.lastIndexOf('.'));
     }
 
     protected String simpleNameOf(String fqClassName) {
+        if(fqClassName == null) return null;
         return fqClassName.substring(fqClassName.lastIndexOf('.') + 1);
     }
     protected MethodSpec errorResponseMethod(String methodName, String status, String errorCode) {
