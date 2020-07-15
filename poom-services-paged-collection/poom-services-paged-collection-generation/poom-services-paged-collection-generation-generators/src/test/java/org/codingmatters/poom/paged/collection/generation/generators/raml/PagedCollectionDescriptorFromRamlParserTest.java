@@ -1,5 +1,6 @@
-package org.codingmatters.poom.paged.collection.generation.generators.source;
+package org.codingmatters.poom.paged.collection.generation.generators.raml;
 
+import org.codingmatters.poom.paged.collection.generation.generators.raml.PagedCollectionDescriptorFromRamlParser;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestData;
 import org.codingmatters.poom.paged.collection.generation.spec.Action;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
