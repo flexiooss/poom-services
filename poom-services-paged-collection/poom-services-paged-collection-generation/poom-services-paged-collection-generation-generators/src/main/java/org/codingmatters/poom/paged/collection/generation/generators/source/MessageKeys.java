@@ -1,4 +1,4 @@
-package org.codingmatters.poom.paged.collection.generation.generators;
+package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 public interface MessageKeys {
     String SEE_LOGS_WITH_TOKEN = "see.logs.with.token";

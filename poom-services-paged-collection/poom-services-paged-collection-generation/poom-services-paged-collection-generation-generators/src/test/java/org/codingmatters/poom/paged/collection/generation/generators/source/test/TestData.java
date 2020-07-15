@@ -1,4 +1,4 @@
-package org.codingmatters.poom.paged.collection.generation.generators.test;
+package org.codingmatters.poom.paged.collection.generation.generators.source.test;
 
 import org.codingmatters.poom.paged.collection.generation.spec.Action;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;

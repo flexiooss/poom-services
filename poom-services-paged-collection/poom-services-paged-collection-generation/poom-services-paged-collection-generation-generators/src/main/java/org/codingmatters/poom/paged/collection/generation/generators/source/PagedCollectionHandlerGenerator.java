@@ -1,4 +1,4 @@
-package org.codingmatters.poom.paged.collection.generation.generators;
+package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import com.squareup.javapoet.*;
 import org.codingmatters.poom.api.paged.collection.api.types.Error;

@@ -1,10 +1,9 @@
-package org.codingmatters.poom.paged.collection.generation.generators.test;
+package org.codingmatters.poom.paged.collection.generation.generators.source.test;
 
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.servives.domain.entities.Entity;
-import org.codingmatters.value.objects.values.ObjectValue;
 import org.generated.api.types.Create;
 import org.generated.api.types.Replace;
 import org.generated.api.types.Update;

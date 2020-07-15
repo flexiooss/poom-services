@@ -1,10 +1,10 @@
-package org.codingmatters.poom.paged.collection.generation.generators;
+package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
-import org.codingmatters.poom.paged.collection.generation.generators.test.TestAdapter;
-import org.codingmatters.poom.paged.collection.generation.generators.test.TestCRUD;
-import org.codingmatters.poom.paged.collection.generation.generators.test.TestData;
+import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestAdapter;
+import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestCRUD;
+import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestData;
 import org.codingmatters.tests.compile.CompiledCode;
 import org.codingmatters.tests.compile.FileHelper;
 import org.codingmatters.tests.compile.helpers.ClassLoaderHelper;

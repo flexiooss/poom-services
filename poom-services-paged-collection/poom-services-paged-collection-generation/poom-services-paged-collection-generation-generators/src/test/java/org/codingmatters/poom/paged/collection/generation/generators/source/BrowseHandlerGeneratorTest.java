@@ -1,9 +1,9 @@
-package org.codingmatters.poom.paged.collection.generation.generators;
+package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
-import org.codingmatters.poom.paged.collection.generation.generators.test.TestAdapter;
-import org.codingmatters.poom.paged.collection.generation.generators.test.TestData;
-import org.codingmatters.poom.paged.collection.generation.generators.test.TestPager;
+import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestAdapter;
+import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestData;
+import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestPager;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.EntityLister;

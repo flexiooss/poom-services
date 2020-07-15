@@ -1,6 +1,5 @@
-package org.codingmatters.poom.paged.collection.generation.generators;
+package org.codingmatters.poom.paged.collection.generation.generators.source;
 
-import com.google.common.util.concurrent.AbstractCheckedFuture;
 import com.squareup.javapoet.*;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;

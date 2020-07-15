@@ -1,10 +1,10 @@
-package org.codingmatters.poom.paged.collection.generation.generators;
+package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
-import org.codingmatters.poom.paged.collection.generation.generators.test.TestAdapter;
-import org.codingmatters.poom.paged.collection.generation.generators.test.TestCRUD;
-import org.codingmatters.poom.paged.collection.generation.generators.test.TestData;
+import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestAdapter;
+import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestCRUD;
+import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestData;
 import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
 import org.codingmatters.tests.compile.CompiledCode;
 import org.codingmatters.tests.compile.FileHelper;
@@ -12,8 +12,6 @@ import org.codingmatters.tests.compile.helpers.ClassLoaderHelper;
 import org.codingmatters.value.objects.generation.GenerationUtils;
 import org.generated.api.NoParamsElementGetRequest;
 import org.generated.api.NoParamsElementGetResponse;
-import org.generated.api.NoParamsPostRequest;
-import org.generated.api.NoParamsPostResponse;
 import org.generated.api.types.*;
 import org.generated.api.types.Error;
 import org.junit.Before;
@@ -29,7 +27,6 @@ import java.util.function.Function;
 import static org.codingmatters.tests.reflect.ReflectMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
 
 public class RetrieveHandlerGeneratorTest {
 
