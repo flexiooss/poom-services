@@ -38,5 +38,10 @@ public interface TestData {
                         .requestValueObject(NoParamsElementDeleteRequest.class.getName())
                         .responseValueObject(NoParamsElementDeleteResponse.class.getName())
                         .build())
+                .replace(Action.builder()
+                        .name("ignored, collection name accounted instead")
+                        .requestValueObject(NoParamsElementPutRequest.class.getName())
+                        .responseValueObject(NoParamsElementPutResponse.class.getName())
+                        .build())
                 .build();
 }
