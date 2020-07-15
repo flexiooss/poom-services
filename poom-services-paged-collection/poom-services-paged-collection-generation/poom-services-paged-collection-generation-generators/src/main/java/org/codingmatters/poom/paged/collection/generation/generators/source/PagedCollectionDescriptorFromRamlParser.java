@@ -55,13 +55,13 @@ public class PagedCollectionDescriptorFromRamlParser {
     }
 
     private PagedCollectionDescriptor descriptor(Resource collection) throws RamlSpecException {
-        Resource entity = this.entityResource(collection);
+        Optional<Resource> entity = this.entityResource(collection);
         PagedCollectionDescriptor.Builder builder = PagedCollectionDescriptor.builder()
                 .name(this.naming.type(collection.displayName().value()))
                 .entityIdParam(this.entityIdParam(collection))
                 .types(this.types(collection))
-                .browse(this.resourceAction(collection, "get"))
-                .create(this.resourceAction(collection, "post"))
+                .browse(this.resourceAction(Optional.of(collection), "get"))
+                .create(this.resourceAction(Optional.of(collection), "post"))
                 .retrieve(this.resourceAction(entity, "get"))
                 .replace(this.resourceAction(entity, "put"))
                 .update(this.resourceAction(entity, "patch"))
@@ -71,57 +71,94 @@ public class PagedCollectionDescriptorFromRamlParser {
         return builder.build();
     }
 
-    private Action resourceAction(Resource collection, String method) {
-        return Action.builder()
-                .requestValueObject(this.handlersHelper.handlerFunctionType(collection.displayName().value(), method).typeArguments.get(0).toString())
-                .responseValueObject(this.handlersHelper.handlerFunctionType(collection.displayName().value(), method).typeArguments.get(1).toString())
-                .build();
+    private Action resourceAction(Optional<Resource> resource, String method) {
+        if(! resource.isPresent()) return null;
+        if(resource.get().methods().stream().anyMatch(m -> m.method().equals(method))) {
+            return Action.builder()
+                    .requestValueObject(this.handlersHelper.handlerFunctionType(resource.get().displayName().value(), method).typeArguments.get(0).toString())
+                    .responseValueObject(this.handlersHelper.handlerFunctionType(resource.get().displayName().value(), method).typeArguments.get(1).toString())
+                    .build();
+        } else {
+            return null;
+        }
     }
 
     private String entityIdParam(Resource collection) throws RamlSpecException {
-        Resource entityResource = this.entityResource(collection);
-        return entityResource.uriParameters().get(entityResource.uriParameters().size() - 1).name();
+        Optional<Resource> entityResource = this.entityResource(collection);
+        if(entityResource.isPresent()) {
+            return entityResource.get().uriParameters().get(entityResource.get().uriParameters().size() - 1).name();
+        } else {
+            return null;
+        }
     }
 
-    private Resource entityResource(Resource collection) throws RamlSpecException {
-        Optional<Resource> entityResource = collection.resources().stream().filter(resource -> this.isPagedCollectionEntity(resource)).findFirst();
-        if(entityResource.isPresent()) {
-            return entityResource.get();
-        } else {
-            throw new RamlSpecException("must have resource annotated with paged-collection-entity under " + collection.resourcePath());
-        }
+    private Optional<Resource> entityResource(Resource collection) {
+        return collection.resources().stream().filter(resource -> this.isPagedCollectionEntity(resource)).findFirst();
     }
 
     private Types types(Resource collection) throws RamlSpecException {
-        Types.Builder builder = Types.builder();
+        Types.Builder builder = Types.builder()
+                .error(this.typesPackage + ".Error")
+                .message(this.typesPackage + ".Message");
 
-        Optional<Method> method = collection.methods().stream().filter(m -> m.method().equals("get")).findFirst();
-        if(method.isPresent()) {
-            builder.entity(new BodyTypeResolver(this.status200Response(method.get()).body().get(0), this.typesPackage).resolve().build().typeRef());
-            builder.error(this.typesPackage + ".Error");
-            builder.message(this.typesPackage + ".Message");
-        }
-
-        method = collection.methods().stream().filter(m -> m.method().equals("post")).findFirst();
+        Optional<Method> method = this.method(collection, "post");
         if(method.isPresent()) {
             builder.create(new BodyTypeResolver(method.get().body().get(0), this.typesPackage).resolve().build().typeRef());
         }
 
-        Resource entityResource = this.entityResource(collection);
-        method = entityResource.methods().stream().filter(m -> m.method().equals("put")).findFirst();
-        if(method.isPresent()) {
-            builder.replace(new BodyTypeResolver(method.get().body().get(0), this.typesPackage).resolve().build().typeRef());
+        Optional<Resource> entityResource = this.entityResource(collection);
+        if(entityResource.isPresent()) {
+            method = this.method(entityResource.get(), "put");
+            if (method.isPresent()) {
+                builder.replace(new BodyTypeResolver(method.get().body().get(0), this.typesPackage).resolve().build().typeRef());
+            }
+            method = this.method(entityResource.get(), "patch");
+            if (method.isPresent()) {
+                builder.update(new BodyTypeResolver(method.get().body().get(0), this.typesPackage).resolve().build().typeRef());
+            }
         }
-        method = entityResource.methods().stream().filter(m -> m.method().equals("patch")).findFirst();
-        if(method.isPresent()) {
-            builder.update(new BodyTypeResolver(method.get().body().get(0), this.typesPackage).resolve().build().typeRef());
-        }
+
+        builder.entity(this.resolveEntity(collection));
 
         return builder.build();
     }
 
+    private Optional<Method> method(Resource collection, String methodeName) {
+        return collection.methods().stream().filter(m -> m.method().equals(methodeName)).findFirst();
+    }
+
+    private String resolveEntity(Resource collection) throws RamlSpecException {
+        Optional<Method> method = this.method(collection, "get");
+        if(! method.isPresent()) {
+            method = this.method(collection, "post");
+        }
+        if(! method.isPresent()) {
+            Optional<Resource> entityResource = this.entityResource(collection);
+            if(entityResource.isPresent()) {
+                method = this.method(entityResource.get(), "get");
+                if(! method.isPresent()) {
+                    method = this.method(entityResource.get(), "put");
+                }
+                if(! method.isPresent()) {
+                    method = this.method(entityResource.get(), "patch");
+                }
+            }
+        }
+
+        if(method.isPresent()) {
+            return new BodyTypeResolver(this.status200Response(method.get()).body().get(0), this.typesPackage).resolve().build().typeRef();
+        } else {
+            return null;
+        }
+    }
+
     private Response status200Response(Method method) {
-        return method.responses().stream().filter(response -> response.code().value().equals("200")).findAny().get();
+        for (Response response : method.responses()) {
+            if(response.code().value().matches("20\\d+")) {
+                return response;
+            }
+        }
+        return null;
     }
 
     private boolean isPagedCollectionEntity(Resource resource) {

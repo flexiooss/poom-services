@@ -53,7 +53,280 @@ annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-s
     delete:
       is: [entityDelete: {error: Error}]
 
+/root:
+  displayName: root
+  description: complete collection with no params
+  (paged-collection):
 
+  get:
+    is: [rfc7233Browsing: {entityType: Entity, error: Error}]
+  post:
+    is: [entityCreation: {entityType: Entity, entityCreationType: Create, error: Error}]
+  /{entity-id}:
+    displayName: root entity
+    (paged-collection-entity):
+    uriParameters:
+      entity-id: string
+    get:
+      is: [entityRetrieve: {entityType: Entity, error: Error}]
+    put:
+      is: [entityReplace: {entityType: Entity, entityReplaceType: Replace, error: Error}]
+    patch:
+      is: [entityUpdate: {entityType: Entity, entityUpdateType: Update, error: Error}]
+    delete:
+      is: [entityDelete: {error: Error}]
+
+  /node:
+    displayName: node
+    description: complete collection with no params
+    (paged-collection):
+
+    get:
+      is: [rfc7233Browsing: {entityType: Entity, error: Error}]
+    post:
+      is: [entityCreation: {entityType: Entity, entityCreationType: Create, error: Error}]
+    /{entity-id}:
+      displayName: node entity
+      (paged-collection-entity):
+      uriParameters:
+        entity-id: string
+      get:
+        is: [entityRetrieve: {entityType: Entity, error: Error}]
+      put:
+        is: [entityReplace: {entityType: Entity, entityReplaceType: Replace, error: Error}]
+      patch:
+        is: [entityUpdate: {entityType: Entity, entityUpdateType: Update, error: Error}]
+      delete:
+        is: [entityDelete: {error: Error}]
+
+    /leaf:
+      displayName: leaf
+      description: complete collection with no params
+      (paged-collection):
+
+      get:
+        is: [rfc7233Browsing: {entityType: Entity, error: Error}]
+      post:
+        is: [entityCreation: {entityType: Entity, entityCreationType: Create, error: Error}]
+      /{entity-id}:
+        displayName: leaf entity
+        (paged-collection-entity):
+        uriParameters:
+          entity-id: string
+        get:
+          is: [entityRetrieve: {entityType: Entity, error: Error}]
+        put:
+          is: [entityReplace: {entityType: Entity, entityReplaceType: Replace, error: Error}]
+        patch:
+          is: [entityUpdate: {entityType: Entity, entityUpdateType: Update, error: Error}]
+        delete:
+          is: [entityDelete: {error: Error}]
+
+/not-a-collection:
+  displayName: not a collection
+
+  get:
+    is: [rfc7233Browsing: {entityType: Entity, error: Error}]
+  post:
+    is: [entityCreation: {entityType: Entity, entityCreationType: Create, error: Error}]
+  /{entity-id}:
+    displayName: not a collection entity
+    uriParameters:
+      entity-id: string
+    get:
+      is: [entityRetrieve: {entityType: Entity, error: Error}]
+    put:
+      is: [entityReplace: {entityType: Entity, entityReplaceType: Replace, error: Error}]
+    patch:
+      is: [entityUpdate: {entityType: Entity, entityUpdateType: Update, error: Error}]
+    delete:
+      is: [entityDelete: {error: Error}]
+
+/no-create:
+  displayName: no create
+  description: complete collection with no params
+  (paged-collection):
+
+  get:
+    is: [rfc7233Browsing: {entityType: Entity, error: Error}]
+  /{entity-id}:
+    displayName: no create entity
+    (paged-collection-entity):
+    uriParameters:
+      entity-id: string
+    get:
+      is: [entityRetrieve: {entityType: Entity, error: Error}]
+    put:
+      is: [entityReplace: {entityType: Entity, entityReplaceType: Replace, error: Error}]
+    patch:
+      is: [entityUpdate: {entityType: Entity, entityUpdateType: Update, error: Error}]
+    delete:
+      is: [entityDelete: {error: Error}]
+
+/no-retrieve:
+  displayName: no retrieve
+  description: complete collection with no params
+  (paged-collection):
+
+  get:
+    is: [rfc7233Browsing: {entityType: Entity, error: Error}]
+  post:
+    is: [entityCreation: {entityType: Entity, entityCreationType: Create, error: Error}]
+  /{entity-id}:
+    displayName: no retrieve entity
+    (paged-collection-entity):
+    uriParameters:
+      entity-id: string
+    put:
+      is: [entityReplace: {entityType: Entity, entityReplaceType: Replace, error: Error}]
+    patch:
+      is: [entityUpdate: {entityType: Entity, entityUpdateType: Update, error: Error}]
+    delete:
+      is: [entityDelete: {error: Error}]
+
+/no-replace:
+  displayName: no replace
+  description: complete collection with no params
+  (paged-collection):
+
+  get:
+    is: [rfc7233Browsing: {entityType: Entity, error: Error}]
+  post:
+    is: [entityCreation: {entityType: Entity, entityCreationType: Create, error: Error}]
+  /{entity-id}:
+    displayName: no replace entity
+    (paged-collection-entity):
+    uriParameters:
+      entity-id: string
+    get:
+      is: [entityRetrieve: {entityType: Entity, error: Error}]
+    patch:
+      is: [entityUpdate: {entityType: Entity, entityUpdateType: Update, error: Error}]
+    delete:
+      is: [entityDelete: {error: Error}]
+
+
+/no-update:
+  displayName: no update
+  description: complete collection with no params
+  (paged-collection):
+
+  get:
+    is: [rfc7233Browsing: {entityType: Entity, error: Error}]
+  post:
+    is: [entityCreation: {entityType: Entity, entityCreationType: Create, error: Error}]
+  /{entity-id}:
+    displayName: no update entity
+    (paged-collection-entity):
+    uriParameters:
+      entity-id: string
+    get:
+      is: [entityRetrieve: {entityType: Entity, error: Error}]
+    put:
+      is: [entityReplace: {entityType: Entity, entityReplaceType: Replace, error: Error}]
+    delete:
+      is: [entityDelete: {error: Error}]
+
+
+/no-delete:
+  displayName: no delete
+  description: complete collection with no params
+  (paged-collection):
+
+  get:
+    is: [rfc7233Browsing: {entityType: Entity, error: Error}]
+  post:
+    is: [entityCreation: {entityType: Entity, entityCreationType: Create, error: Error}]
+  /{entity-id}:
+    displayName: no delete entity
+    (paged-collection-entity):
+    uriParameters:
+      entity-id: string
+    get:
+      is: [entityRetrieve: {entityType: Entity, error: Error}]
+    put:
+      is: [entityReplace: {entityType: Entity, entityReplaceType: Replace, error: Error}]
+    patch:
+      is: [entityUpdate: {entityType: Entity, entityUpdateType: Update, error: Error}]
+
+/no-browse:
+  displayName: no browse
+  description: complete collection with no params
+  (paged-collection):
+
+  post:
+    is: [entityCreation: {entityType: Entity, entityCreationType: Create, error: Error}]
+  /{entity-id}:
+    displayName: no browse entity
+    (paged-collection-entity):
+    uriParameters:
+      entity-id: string
+    get:
+      is: [entityRetrieve: {entityType: Entity, error: Error}]
+    put:
+      is: [entityReplace: {entityType: Entity, entityReplaceType: Replace, error: Error}]
+    patch:
+      is: [entityUpdate: {entityType: Entity, entityUpdateType: Update, error: Error}]
+    delete:
+      is: [entityDelete: {error: Error}]
+
+
+/only-create:
+  displayName: only create
+  (paged-collection):
+  post:
+    is: [entityCreation: {entityType: Entity, entityCreationType: Create, error: Error}]
+
+/only-browse:
+  displayName: only browse
+  (paged-collection):
+  get:
+      is: [rfc7233Browsing: {entityType: Entity, error: Error}]
+
+
+/only-retrieve:
+  displayName: only retrieve
+  (paged-collection):
+  /{entity-id}:
+    displayName: only retrieve entity
+    (paged-collection-entity):
+    uriParameters:
+      entity-id: string
+    get:
+      is: [entityRetrieve: {entityType: Entity, error: Error}]
+
+/only-replace:
+  displayName: only replace
+  (paged-collection):
+  /{entity-id}:
+    displayName: only replace entity
+    (paged-collection-entity):
+    uriParameters:
+      entity-id: string
+    put:
+      is: [entityReplace: {entityType: Entity, entityReplaceType: Replace, error: Error}]
+
+/only-update:
+  displayName: only update
+  (paged-collection):
+  /{entity-id}:
+    displayName: only update entity
+    (paged-collection-entity):
+    uriParameters:
+      entity-id: string
+    patch:
+      is: [entityUpdate: {entityType: Entity, entityUpdateType: Update, error: Error}]
+
+/only-delete:
+  displayName: only delete
+  (paged-collection):
+  /{entity-id}:
+    displayName: only delete entity
+    (paged-collection-entity):
+    uriParameters:
+      entity-id: string
+    delete:
+      is: [entityDelete: {error: Error}]
 
 types:
   Message: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/develop/apis/core/types/message.raml
