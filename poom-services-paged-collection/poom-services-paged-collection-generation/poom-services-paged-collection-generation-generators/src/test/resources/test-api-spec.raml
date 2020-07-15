@@ -18,6 +18,7 @@ annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-s
     is: [entityCreation: {entityType: Entity, entityCreationType: Create, error: Error}]
   /{entity-id}:
     displayName: no params element
+    (paged-collection-entity):
     uriParameters:
       entity-id: string
     get:
@@ -28,6 +29,30 @@ annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-s
       is: [entityUpdate: {entityType: Entity, entityUpdateType: Update, error: Error}]
     delete:
       is: [entityDelete: {error: Error}]
+
+/with/{param}/in/path:
+  displayName: with param
+  description: complete collection with params
+  (paged-collection):
+
+  get:
+    is: [rfc7233Browsing: {entityType: Entity, error: Error}]
+  post:
+    is: [entityCreation: {entityType: Entity, entityCreationType: Create, error: Error}]
+  /{entity-id}:
+    displayName: with params element
+    (paged-collection-entity):
+    uriParameters:
+      entity-id: string
+    get:
+      is: [entityRetrieve: {entityType: Entity, error: Error}]
+    put:
+      is: [entityReplace: {entityType: Entity, entityReplaceType: Replace, error: Error}]
+    patch:
+      is: [entityUpdate: {entityType: Entity, entityUpdateType: Update, error: Error}]
+    delete:
+      is: [entityDelete: {error: Error}]
+
 
 
 types:
