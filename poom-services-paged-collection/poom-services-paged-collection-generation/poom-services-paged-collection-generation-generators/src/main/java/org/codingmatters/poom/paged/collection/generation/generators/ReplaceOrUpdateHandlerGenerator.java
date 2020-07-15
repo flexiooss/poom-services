@@ -10,24 +10,72 @@ import org.codingmatters.poom.servives.domain.entities.Entity;
 import javax.lang.model.element.Modifier;
 import java.util.function.Function;
 
-public class ReplaceHandlerGenerator extends PagedCollectionHandlerGenerator {
-    public ReplaceHandlerGenerator(PagedCollectionDescriptor collectionDescriptor) {
-        super(collectionDescriptor, collectionDescriptor.replace());
+public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGenerator {
+
+    public enum HandlerConfig {
+        Replace("replaceEntityWith", "ENTITY_REPLACEMENT_NOT_ALLOWED") {
+            @Override
+            public org.codingmatters.poom.paged.collection.generation.spec.Action action(PagedCollectionDescriptor pagedCollectionDescriptor) {
+                return pagedCollectionDescriptor.replace();
+            }
+
+            @Override
+            public String type(PagedCollectionDescriptor pagedCollectionDescriptor) {
+                return pagedCollectionDescriptor.types().replace();
+            }
+        },
+        Update("updateEntityWith", "ENTITY_UPDATE_NOT_ALLOWED") {
+            @Override
+            public org.codingmatters.poom.paged.collection.generation.spec.Action action(PagedCollectionDescriptor pagedCollectionDescriptor) {
+                return pagedCollectionDescriptor.update();
+            }
+
+            @Override
+            public String type(PagedCollectionDescriptor pagedCollectionDescriptor) {
+                return pagedCollectionDescriptor.types().update();
+            }
+        }
+        ;
+
+        public final String crudMethod;
+        public final String notAllowedCode;
+
+        HandlerConfig(String crudMethod, String notAllowedCode) {
+            this.crudMethod = crudMethod;
+            this.notAllowedCode = notAllowedCode;
+        }
+
+        public abstract org.codingmatters.poom.paged.collection.generation.spec.Action action(PagedCollectionDescriptor pagedCollectionDescriptor);
+        public abstract String type(PagedCollectionDescriptor pagedCollectionDescriptor);
+    }
+
+    private final org.codingmatters.poom.paged.collection.generation.spec.Action action;
+    private final String type;
+    private final String crudMethod;
+    private final String handlerClassSimpleName;
+    private final String notAllowedCode;
+
+    public ReplaceOrUpdateHandlerGenerator(PagedCollectionDescriptor collectionDescriptor, HandlerConfig handlerConfig) {
+        super(collectionDescriptor, handlerConfig.action(collectionDescriptor));
+        this.action = handlerConfig.action(collectionDescriptor);
+        this.type = handlerConfig.type(collectionDescriptor);
+        this.crudMethod = handlerConfig.crudMethod;
+        this.handlerClassSimpleName = this.collectionDescriptor.name() + handlerConfig.name();
+        this.notAllowedCode = handlerConfig.notAllowedCode;
     }
 
     @Override
     public TypeSpec handler() {
-        String handlerClassSimpleName = this.collectionDescriptor.name() + "Replace";
-        return TypeSpec.classBuilder(handlerClassSimpleName)
+        return TypeSpec.classBuilder(this.handlerClassSimpleName)
                 .addModifiers(Modifier.PUBLIC)
                 .addSuperinterface(ParameterizedTypeName.get(
                         ClassName.get(Function.class),
-                        this.className(this.collectionDescriptor.replace().requestValueObject()),
-                        this.className(this.collectionDescriptor.replace().responseValueObject())
+                        this.className(this.action.requestValueObject()),
+                        this.className(this.action.responseValueObject())
                 ))
 
                 .addField(FieldSpec.builder(ClassName.get(CategorizedLogger.class), "log", Modifier.STATIC, Modifier.PRIVATE, Modifier.FINAL)
-                        .initializer("$T.getLogger($L.class)", CategorizedLogger.class, handlerClassSimpleName)
+                        .initializer("$T.getLogger($L.class)", CategorizedLogger.class, this.handlerClassSimpleName)
                         .build())
                 .addField(this.adapterProviderClass(), "adapterProvider", Modifier.PRIVATE, Modifier.FINAL)
 
@@ -39,13 +87,13 @@ public class ReplaceHandlerGenerator extends PagedCollectionHandlerGenerator {
                         .addCode(this.constructorBody())
                         .build())
                 .addMethod(MethodSpec.methodBuilder("apply").addModifiers(Modifier.PUBLIC)
-                        .addParameter(this.className(this.collectionDescriptor.replace().requestValueObject()), "request")
-                        .returns(this.className(this.collectionDescriptor.replace().responseValueObject()))
+                        .addParameter(this.className(this.action.requestValueObject()), "request")
+                        .returns(this.className(this.action.responseValueObject()))
                         .addCode(this.applyBody())
                         .build())
 
                 .addMethod(this.errorResponseMethod("unexpectedError", "Status500", "UNEXPECTED_ERROR"))
-                .addMethod(this.errorResponseMethod("notAllowedError", "Status405", "ENTITY_REPLACEMENT_NOT_ALLOWED"))
+                .addMethod(this.errorResponseMethod("notAllowedError", "Status405", this.notAllowedCode))
                 .addMethod(this.errorResponseMethod("badRequestError", "Status400", "BAD_REQUEST"))
                 .addMethod(this.castedErrorMethod())
 
@@ -95,38 +143,38 @@ public class ReplaceHandlerGenerator extends PagedCollectionHandlerGenerator {
 
                 //default value
                 .addStatement("$T value = request.opt().payload().orElseGet(() -> $T.builder().build())",
-                        this.className(this.collectionDescriptor.types().replace()),
-                        this.className(this.collectionDescriptor.types().replace())
+                        this.className(this.type),
+                        this.className(this.type)
                 )
 
-                //replacement
+                //replace or update
                 .addStatement("$T<$T> entity", Entity.class, this.className(this.collectionDescriptor.types().entity()))
                 .beginControlFlow("try")
-                    .addStatement("entity = adapter.crud().replaceEntityWith(request.entityId(), value)")
+                    .addStatement("entity = adapter.crud().$L(request.entityId(), value)", this.crudMethod)
                 .nextControlFlow("catch($T e)", BadRequestException.class)
                     .addStatement("return $T.builder().status400($T.builder().payload(this.casted(e.error())).build()).build()",
-                            this.className(this.collectionDescriptor.replace().responseValueObject()),
-                            this.relatedClassName("Status400", this.collectionDescriptor.replace().responseValueObject())
+                            this.className(this.action.responseValueObject()),
+                            this.relatedClassName("Status400", this.action.responseValueObject())
                     )
                 .nextControlFlow("catch($T e)", ForbiddenException.class)
                     .addStatement("return $T.builder().status403($T.builder().payload(this.casted(e.error())).build()).build()",
-                            this.className(this.collectionDescriptor.replace().responseValueObject()),
-                            this.relatedClassName("Status403", this.collectionDescriptor.replace().responseValueObject())
+                            this.className(this.action.responseValueObject()),
+                            this.relatedClassName("Status403", this.action.responseValueObject())
                     )
                 .nextControlFlow("catch($T e)", NotFoundException.class)
                     .addStatement("return $T.builder().status404($T.builder().payload(this.casted(e.error())).build()).build()",
-                            this.className(this.collectionDescriptor.replace().responseValueObject()),
-                            this.relatedClassName("Status404", this.collectionDescriptor.replace().responseValueObject())
+                            this.className(this.action.responseValueObject()),
+                            this.relatedClassName("Status404", this.action.responseValueObject())
                     )
                 .nextControlFlow("catch($T e)", UnauthorizedException.class)
                     .addStatement("return $T.builder().status401($T.builder().payload(this.casted(e.error())).build()).build()",
-                            this.className(this.collectionDescriptor.replace().responseValueObject()),
-                            this.relatedClassName("Status401", this.collectionDescriptor.replace().responseValueObject())
+                            this.className(this.action.responseValueObject()),
+                            this.relatedClassName("Status401", this.action.responseValueObject())
                     )
                 .nextControlFlow("catch($T e)", UnexpectedException.class)
                     .addStatement("return $T.builder().status500($T.builder().payload(this.casted(e.error())).build()).build()",
-                            this.className(this.collectionDescriptor.replace().responseValueObject()),
-                            this.relatedClassName("Status500", this.collectionDescriptor.replace().responseValueObject())
+                            this.className(this.action.responseValueObject()),
+                            this.relatedClassName("Status500", this.action.responseValueObject())
                     )
                 .endControlFlow()
 
@@ -144,8 +192,8 @@ public class ReplaceHandlerGenerator extends PagedCollectionHandlerGenerator {
                                 ".location(String.format($S, adapter.crud().entityRepositoryUrl(), entity.id()))" +
                                 ".payload(entity.value())" +
                                 ".build()).build()",
-                        this.className(this.collectionDescriptor.replace().responseValueObject()),
-                        this.relatedClassName("Status200", this.collectionDescriptor.replace().responseValueObject()),
+                        this.className(this.action.responseValueObject()),
+                        this.relatedClassName("Status200", this.action.responseValueObject()),
                         "%s/%s"
                 )
                 .build();

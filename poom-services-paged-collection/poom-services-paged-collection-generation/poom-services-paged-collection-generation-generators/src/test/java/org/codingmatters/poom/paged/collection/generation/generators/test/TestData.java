@@ -43,5 +43,10 @@ public interface TestData {
                         .requestValueObject(NoParamsElementPutRequest.class.getName())
                         .responseValueObject(NoParamsElementPutResponse.class.getName())
                         .build())
+                .update(Action.builder()
+                        .name("ignored, collection name accounted instead")
+                        .requestValueObject(NoParamsElementPatchRequest.class.getName())
+                        .responseValueObject(NoParamsElementPatchResponse.class.getName())
+                        .build())
                 .build();
 }
