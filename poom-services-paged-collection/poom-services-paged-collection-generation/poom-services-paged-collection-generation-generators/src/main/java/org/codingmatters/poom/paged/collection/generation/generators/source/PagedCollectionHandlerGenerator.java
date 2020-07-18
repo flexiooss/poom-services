@@ -6,12 +6,14 @@ import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.paged.collection.generation.generators.source.exception.IncoherentDescriptorException;
 import org.codingmatters.poom.paged.collection.generation.spec.Action;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
+import org.codingmatters.value.objects.generation.Naming;
 
 import javax.lang.model.element.Modifier;
 
 public abstract class PagedCollectionHandlerGenerator {
     protected final PagedCollectionDescriptor collectionDescriptor;
     private final Action handlerAction;
+    private final Naming naming = new Naming();
 
     public PagedCollectionHandlerGenerator(PagedCollectionDescriptor collectionDescriptor, Action handlerAction) {
         this.collectionDescriptor = collectionDescriptor;
@@ -124,4 +126,7 @@ public abstract class PagedCollectionHandlerGenerator {
                 .build();
     }
 
+    protected String entityProperty() {
+        return this.naming.property(this.collectionDescriptor.entityIdParam().split("[-\\s+]"));
+    }
 }

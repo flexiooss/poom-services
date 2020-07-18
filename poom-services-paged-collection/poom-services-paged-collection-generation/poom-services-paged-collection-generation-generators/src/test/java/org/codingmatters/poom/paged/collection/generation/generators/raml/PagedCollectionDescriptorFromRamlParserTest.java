@@ -48,7 +48,7 @@ public class PagedCollectionDescriptorFromRamlParserTest {
 
         assertThat(
                 collectionDescriptor.entityIdParam(),
-                is("entity-id")
+                is("entity-identifier")
         );
     }
 
@@ -118,7 +118,7 @@ public class PagedCollectionDescriptorFromRamlParserTest {
 
         assertThat(
                 collectionDescriptor,
-                is(TestData.FULL_COLLECTION)
+                is(TestData.FULL_COLLECTION.withEntityIdParam("entity-identifier"))
         );
     }
 
@@ -129,7 +129,7 @@ public class PagedCollectionDescriptorFromRamlParserTest {
         assertThat(
                 collectionDescriptor,
                 is(PagedCollectionDescriptor.builder()
-                            .name("WithParam").entityIdParam("entity-id")
+                            .name("WithParam").entityIdParam("entity-identifier")
                             .types(Types.builder()
                                     .entity(org.generated.api.types.Entity.class.getName())
                                     .create(Create.class.getName())
@@ -173,7 +173,7 @@ public class PagedCollectionDescriptorFromRamlParserTest {
         assertThat(
                 collectionDescriptor,
                 is(PagedCollectionDescriptor.builder()
-                        .name("Root").entityIdParam("entity-id")
+                        .name("Root").entityIdParam("entity-identifier")
                         .types(Types.builder()
                                 .entity(org.generated.api.types.Entity.class.getName())
                                 .create(Create.class.getName())
@@ -217,7 +217,7 @@ public class PagedCollectionDescriptorFromRamlParserTest {
         assertThat(
                 collectionDescriptor,
                 is(PagedCollectionDescriptor.builder()
-                        .name("Node").entityIdParam("entity-id")
+                        .name("Node").entityIdParam("entity-identifier")
                         .types(Types.builder()
                                 .entity(org.generated.api.types.Entity.class.getName())
                                 .create(Create.class.getName())
@@ -261,7 +261,7 @@ public class PagedCollectionDescriptorFromRamlParserTest {
         assertThat(
                 collectionDescriptor,
                 is(PagedCollectionDescriptor.builder()
-                        .name("Leaf").entityIdParam("entity-id")
+                        .name("Leaf").entityIdParam("entity-identifier")
                         .types(Types.builder()
                                 .entity(org.generated.api.types.Entity.class.getName())
                                 .create(Create.class.getName())
@@ -401,7 +401,7 @@ public class PagedCollectionDescriptorFromRamlParserTest {
         PagedCollectionDescriptor collectionDescriptor = this.parseCollection("OnlyRetrieve");
 
         assertThat(collectionDescriptor.types().entity(), is(Entity.class.getName()));
-        assertThat(collectionDescriptor.entityIdParam(), is("entity-id"));
+        assertThat(collectionDescriptor.entityIdParam(), is("entity-identifier"));
     }
 
     @Test
@@ -409,7 +409,7 @@ public class PagedCollectionDescriptorFromRamlParserTest {
         PagedCollectionDescriptor collectionDescriptor = this.parseCollection("OnlyReplace");
 
         assertThat(collectionDescriptor.types().entity(), is(Entity.class.getName()));
-        assertThat(collectionDescriptor.entityIdParam(), is("entity-id"));
+        assertThat(collectionDescriptor.entityIdParam(), is("entity-identifier"));
     }
 
     @Test
@@ -417,7 +417,7 @@ public class PagedCollectionDescriptorFromRamlParserTest {
         PagedCollectionDescriptor collectionDescriptor = this.parseCollection("OnlyUpdate");
 
         assertThat(collectionDescriptor.types().entity(), is(Entity.class.getName()));
-        assertThat(collectionDescriptor.entityIdParam(), is("entity-id"));
+        assertThat(collectionDescriptor.entityIdParam(), is("entity-identifier"));
     }
 
     @Test
@@ -425,7 +425,14 @@ public class PagedCollectionDescriptorFromRamlParserTest {
         PagedCollectionDescriptor collectionDescriptor = this.parseCollection("OnlyDelete");
 
         assertThat(collectionDescriptor.types().entity(), is(nullValue()));
-        assertThat(collectionDescriptor.entityIdParam(), is("entity-id"));
+        assertThat(collectionDescriptor.entityIdParam(), is("entity-identifier"));
+    }
+
+    @Test
+    public void givenParsingTestApi__whenGettingNonDefaultEntityIdParam__thenEntityTypeIsNotSet_andEntityIdIsNotNull() throws Exception {
+        PagedCollectionDescriptor collectionDescriptor = this.parseCollection("NonDefaultEntityIdParam");
+
+        assertThat(collectionDescriptor.entityIdParam(), is("custom-id"));
     }
 
 

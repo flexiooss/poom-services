@@ -146,7 +146,7 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
                 .endControlFlow()
 
                 //request validation
-                .beginControlFlow("if(! request.opt().entityId().isPresent())")
+                .beginControlFlow("if(! request.opt().$L().isPresent())", this.entityProperty())
                 .addStatement("$T token = log.tokenized().info($S, request)", String.class, "no entity id provided to update entity : {}")
                 .addStatement("return this.badRequestError(token)")
                 .endControlFlow()
@@ -160,7 +160,7 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
                 //replace or update
                 .addStatement("$T<$T> entity", Entity.class, this.className(this.collectionDescriptor.types().entity()))
                 .beginControlFlow("try")
-                    .addStatement("entity = adapter.crud().$L(request.entityId(), value)", this.crudMethod)
+                    .addStatement("entity = adapter.crud().$L(request.$L(), value)", this.crudMethod, this.entityProperty())
                 .nextControlFlow("catch($T e)", BadRequestException.class)
                     .addStatement("return $T.builder().status400($T.builder().payload(this.casted(e.error())).build()).build()",
                             this.className(this.action.responseValueObject()),

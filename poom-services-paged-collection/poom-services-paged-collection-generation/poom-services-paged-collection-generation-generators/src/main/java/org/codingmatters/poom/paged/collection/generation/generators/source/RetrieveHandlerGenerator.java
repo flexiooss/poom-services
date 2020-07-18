@@ -88,7 +88,7 @@ public class RetrieveHandlerGenerator extends PagedCollectionHandlerGenerator {
                 .endControlFlow()
 
                 //request validation
-                .beginControlFlow("if(! request.opt().entityId().isPresent())")
+                .beginControlFlow("if(! request.opt().$L().isPresent())", this.entityProperty())
                     .addStatement("$T token = log.tokenized().info($S, request)",
                             String.class, "no entity id provided to update entity : {}"
                     )
@@ -98,7 +98,7 @@ public class RetrieveHandlerGenerator extends PagedCollectionHandlerGenerator {
                 //retrieve
                 .addStatement("$T<$T<$T>> entity", Optional.class, Entity.class, this.className(this.collectionDescriptor.types().entity()))
                 .beginControlFlow("try")
-                .addStatement("entity = adapter.crud().retrieveEntity(request.entityId())")
+                .addStatement("entity = adapter.crud().retrieveEntity(request.$L())", this.entityProperty())
                 .nextControlFlow("catch($T e)", BadRequestException.class)
                 .addStatement("return $T.builder().status400($T.builder().payload(this.casted(e.error())).build()).build()",
                         this.className(this.collectionDescriptor.retrieve().responseValueObject()),
@@ -141,7 +141,7 @@ public class RetrieveHandlerGenerator extends PagedCollectionHandlerGenerator {
                     .addStatement("$T token = log.tokenized().info($S, adapter.crud().entityRepositoryUrl(), request)",
                             String.class, "no entity found in repository {} for request {}"
                     )
-                .addStatement("return this.entityNotFound(request.entityId(), token)")
+                .addStatement("return this.entityNotFound(request.$L(), token)", this.entityProperty())
                 .endControlFlow()
                 .build();
     }

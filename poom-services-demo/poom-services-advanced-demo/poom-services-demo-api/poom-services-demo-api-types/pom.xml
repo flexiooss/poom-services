@@ -22,6 +22,14 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.codingmatters.poom</groupId>
+            <artifactId>poom-services-paged-collection-domain</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codingmatters.poom</groupId>
+            <artifactId>poom-services-support</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -51,6 +59,31 @@
                     </execution>
                 </executions>
             </plugin>
+
+<!--            <plugin>-->
+<!--                <groupId>org.codingmatters.poom</groupId>-->
+<!--                <artifactId>poom-services-paged-collection-generation-maven-plugin</artifactId>-->
+<!--                <dependencies>-->
+<!--                    <dependency>-->
+<!--                        <groupId>org.codingmatters.poom.apis.demo</groupId>-->
+<!--                        <artifactId>poom-services-demo-api-spec</artifactId>-->
+<!--                        <version>${project.version}</version>-->
+<!--                    </dependency>-->
+<!--                </dependencies>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>api-collections-gen</id>-->
+<!--                        <phase>generate-sources</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>paged-collection-handlers</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <api-package>org.codingmatters.poom.apis.demo.api</api-package>-->
+<!--                            <api-spec-resource>demo-api.raml</api-spec-resource>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

@@ -16,6 +16,7 @@
     <modules>
         <module>poom-services-paged-collection-generation-spec</module>
         <module>poom-services-paged-collection-generation-generators</module>
+        <module>poom-services-paged-collection-generation-maven-plugin</module>
     </modules>
     
 </project>

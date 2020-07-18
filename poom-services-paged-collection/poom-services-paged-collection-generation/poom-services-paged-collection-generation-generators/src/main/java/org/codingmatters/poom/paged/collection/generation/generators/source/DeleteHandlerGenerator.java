@@ -95,14 +95,14 @@ public class DeleteHandlerGenerator extends PagedCollectionHandlerGenerator {
                 .endControlFlow()
 
                 //request validation
-                .beginControlFlow("if(! request.opt().entityId().isPresent())")
+                .beginControlFlow("if(! request.opt().$L().isPresent())", this.entityProperty())
                     .addStatement("$T token = log.tokenized().info($S, request)", String.class, "no entity id provided to update entity : {}")
                     .addStatement("return this.badRequestError(token)")
                 .endControlFlow()
                 
                 //deletion
                 .beginControlFlow("try")
-                    .addStatement("adapter.crud().deleteEntity(request.entityId())")
+                    .addStatement("adapter.crud().deleteEntity(request.$L())", this.entityProperty())
                 .nextControlFlow("catch($T e)", BadRequestException.class)
                     .addStatement("return $T.builder().status400($T.builder().payload(this.casted(e.error())).build()).build()",
                             this.className(this.collectionDescriptor.delete().responseValueObject()),
