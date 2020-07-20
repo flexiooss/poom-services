@@ -111,9 +111,9 @@ public class BrowseHandlerGeneratorTest {
         this.classes = CompiledCode.builder().source(this.dir.getRoot()).compile().classLoader();
     }
 
-    private Function<NoParamsGetRequest, NoParamsGetResponse> handler(PagedCollectionAdapter.Provider<org.generated.api.types.Entity, Create, Replace, Update> provider) {
+    private Function<NoParamsGetRequest, NoParamsGetResponse> handler(PagedCollectionAdapter.FromRequestProvider<NoParamsGetRequest, org.generated.api.types.Entity, Create, Replace, Update> provider) {
         return (Function<NoParamsGetRequest, NoParamsGetResponse>) classes.get("org.generated.handlers.NoParamsBrowse")
-                .newInstance(PagedCollectionAdapter.Provider.class)
+                .newInstance(PagedCollectionAdapter.FromRequestProvider.class)
                 .with(provider)
                 .get();
     }
@@ -129,15 +129,16 @@ public class BrowseHandlerGeneratorTest {
                         .implementing(genericType().baseClass(Function.class))
                         .with(aPublic().constructor()
                                 .withParameters(genericType()
-                                        .baseClass(PagedCollectionAdapter.Provider.class)
+                                        .baseClass(PagedCollectionAdapter.FromRequestProvider.class)
                                         .withParameters(
+                                                classTypeParameter(NoParamsGetRequest.class),
                                                 classTypeParameter(org.generated.api.types.Entity.class),
                                                 classTypeParameter(Create.class),
                                                 classTypeParameter(Replace.class),
                                                 classTypeParameter(Update.class)
                                         )
                                 )
-                                .withParameters(PagedCollectionAdapter.Provider.class)
+                                .withParameters(PagedCollectionAdapter.FromRequestProvider.class)
                         )
                         .with(aPublic().method().named("apply")
                                 .withParameters(NoParamsGetRequest.class)
@@ -149,7 +150,7 @@ public class BrowseHandlerGeneratorTest {
 
     @Test
     public void whenExceptionGettingAdapter__then500_andErrorKeepsTrackOfLogToken() throws Exception {
-        NoParamsGetResponse response = this.handler(() -> {
+        NoParamsGetResponse response = this.handler((request) -> {
             throw new Exception("");
         }).apply(NoParamsGetRequest.builder().build());
 
@@ -164,7 +165,7 @@ public class BrowseHandlerGeneratorTest {
 
     @Test
     public void givenAdapterOk__whenPagerIsNull__then405_andErrorKeepsTrackOfLogToken() throws Exception {
-        NoParamsGetResponse response = this.handler(() -> new TestAdapter(null, null)).apply(NoParamsGetRequest.builder().build());
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(null, null)).apply(NoParamsGetRequest.builder().build());
 
         response.opt().status405().orElseThrow(() -> new AssertionError("expected 405, got " + response));
 
@@ -177,7 +178,7 @@ public class BrowseHandlerGeneratorTest {
 
     @Test
     public void givenAdapterOk_andPagerIsNotNull__whenUnitIsNull__then500_andErrorKeepsTrackOfLogToken() throws Exception {
-        NoParamsGetResponse response = this.handler(() -> new TestAdapter(new TestPager(null, ENTITY_LISTER, 100))).apply(NoParamsGetRequest.builder().build());
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager(null, ENTITY_LISTER, 100))).apply(NoParamsGetRequest.builder().build());
 
         response.opt().status500().orElseThrow(() -> new AssertionError("expected 500, got " + response));
 
@@ -190,7 +191,7 @@ public class BrowseHandlerGeneratorTest {
 
     @Test
     public void givenAdapterOk_andPagerIsNotNull__whenListerIsNull__then500_andErrorKeepsTrackOfLogToken() throws Exception {
-        NoParamsGetResponse response = this.handler(() -> new TestAdapter(new TestPager("Unit", null, 100))).apply(NoParamsGetRequest.builder().build());
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", null, 100))).apply(NoParamsGetRequest.builder().build());
 
         response.opt().status500().orElseThrow(() -> new AssertionError("expected 500, got " + response));
 
@@ -203,7 +204,7 @@ public class BrowseHandlerGeneratorTest {
 
     @Test
     public void givenAdapterOk_andPagerIsNotNull__whenMaxPageSizeIsNotGreaterThanZero__then500_andErrorKeepsTrackOfLogToken() throws Exception {
-        NoParamsGetResponse response = this.handler(() -> new TestAdapter(new TestPager("Unit", null, 0))).apply(NoParamsGetRequest.builder().build());
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", null, 0))).apply(NoParamsGetRequest.builder().build());
 
         response.opt().status500().orElseThrow(() -> new AssertionError("expected 500, got " + response));
 
@@ -216,7 +217,7 @@ public class BrowseHandlerGeneratorTest {
 
     @Test
     public void givenAdapterOk_andPagerOk__whenNoParameters__thenRequestDelegatedToLister_andRangeIs0ToMaxPageSizeMinus1() throws Exception {
-        NoParamsGetResponse response = this.handler(() -> new TestAdapter(new TestPager("Unit", ENTITY_LISTER, 100)))
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", ENTITY_LISTER, 100)))
                 .apply(NoParamsGetRequest.builder().build());
 
         assertThat(lastRequest.get(), is(new ListerRequest(0L, 99L, null)));
@@ -224,7 +225,7 @@ public class BrowseHandlerGeneratorTest {
 
     @Test
     public void givenAdapterOk_andPagerOk__whenRangeParameterBelowMaxSize__thenRequestDelegatedToLister_andRangeIsPassedUnchanged() throws Exception {
-        NoParamsGetResponse response = this.handler(() -> new TestAdapter(new TestPager("Unit", ENTITY_LISTER, 100)))
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", ENTITY_LISTER, 100)))
                 .apply(NoParamsGetRequest.builder().range("12-42").build());
 
         assertThat(lastRequest.get(), is(new ListerRequest(12L, 42L, null)));
@@ -232,7 +233,7 @@ public class BrowseHandlerGeneratorTest {
 
     @Test
     public void givenAdapterOk_andPagerOk__whenRangeParameterOverMaxSize__thenRequestDelegatedToLister_andRangeIsPassedConstrainedToMaxPageSize() throws Exception {
-        NoParamsGetResponse response = this.handler(() -> new TestAdapter(new TestPager("Unit", ENTITY_LISTER, 100)))
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", ENTITY_LISTER, 100)))
                 .apply(NoParamsGetRequest.builder().range("12-142").build());
 
         assertThat(lastRequest.get(), is(new ListerRequest(12L, 111L, null)));
@@ -242,7 +243,7 @@ public class BrowseHandlerGeneratorTest {
 
     @Test
     public void givenAdapterOk_andPagerOk__whenFilterAndSortByParameter__thenRequestDelegatedToLister_andQueryIsParsed() throws Exception {
-        NoParamsGetResponse response = this.handler(() -> new TestAdapter(new TestPager("Unit", ENTITY_LISTER, 100)))
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", ENTITY_LISTER, 100)))
                 .apply(NoParamsGetRequest.builder().filter("a > 12").orderBy("b").build());
 
         assertThat(lastRequest.get(), is(new ListerRequest(0L, 99L, PropertyQuery.builder().filter("a > 12").sort("b").build())));
@@ -250,7 +251,7 @@ public class BrowseHandlerGeneratorTest {
 
     @Test
     public void givenAdapterOk_andPagerOk__whenCompleteList__then200() throws Exception {
-        NoParamsGetResponse response = this.handler(() -> new TestAdapter(new TestPager("Unit", new EntityLister<>() {
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", new EntityLister<>() {
             @Override
             public PagedEntityList<org.generated.api.types.Entity> all(long start, long end) throws RepositoryException {
                 return new PagedEntityList.DefaultPagedEntityList<>(0, 44, 45, entities(45));
@@ -268,7 +269,7 @@ public class BrowseHandlerGeneratorTest {
 
     @Test
     public void givenAdapterOk_andPagerOk__whenPartialList__then206() throws Exception {
-        NoParamsGetResponse response = this.handler(() -> new TestAdapter(new TestPager("Unit", new EntityLister<>() {
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", new EntityLister<>() {
             @Override
             public PagedEntityList<org.generated.api.types.Entity> all(long start, long end) throws RepositoryException {
                 return new PagedEntityList.DefaultPagedEntityList<>(0, 99, 200, entities(100));

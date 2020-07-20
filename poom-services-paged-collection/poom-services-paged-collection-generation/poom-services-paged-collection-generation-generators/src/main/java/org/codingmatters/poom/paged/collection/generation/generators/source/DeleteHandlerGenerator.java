@@ -1,6 +1,8 @@
 package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import com.squareup.javapoet.*;
+import org.codingmatters.poom.generic.resource.domain.EntityCreator;
+import org.codingmatters.poom.generic.resource.domain.EntityDeleter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.paged.collection.generation.generators.source.exception.IncoherentDescriptorException;
@@ -36,15 +38,14 @@ public class DeleteHandlerGenerator extends PagedCollectionHandlerGenerator {
                 .addField(FieldSpec.builder(ClassName.get(CategorizedLogger.class), "log", Modifier.STATIC, Modifier.PRIVATE, Modifier.FINAL)
                         .initializer("$T.getLogger($L.class)", CategorizedLogger.class, handlerClassSimpleName)
                         .build())
-                .addField(this.adapterProviderClass(), "adapterProvider", Modifier.PRIVATE, Modifier.FINAL)
+
+                .addField(this.checkedEntityActionProviver(EntityDeleter.class), "provider", Modifier.PRIVATE, Modifier.FINAL)
 
                 .addMethod(MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
-                        .addParameter(
-                                this.adapterProviderClass(),
-                                "adapterProvider"
-                        )
-                        .addCode(this.constructorBody())
+                        .addParameter(this.checkedEntityActionProviver(EntityDeleter.class), "provider")
+                        .addStatement("this.provider = provider")
                         .build())
+
                 .addMethod(MethodSpec.methodBuilder("apply").addModifiers(Modifier.PUBLIC)
                         .addParameter(this.className(this.collectionDescriptor.delete().requestValueObject()), "request")
                         .returns(this.className(this.collectionDescriptor.delete().responseValueObject()))
@@ -68,30 +69,12 @@ public class DeleteHandlerGenerator extends PagedCollectionHandlerGenerator {
     private CodeBlock applyBody() {
         return CodeBlock.builder()
                 //adapter
-                .addStatement("$T adapter", this.adapterClass())
+                .addStatement("$T action", EntityDeleter.class)
                 .beginControlFlow("try")
-                    .addStatement("adapter = this.adapterProvider.adapter()")
+                    .addStatement("action = this.provider.action(request)")
                 .nextControlFlow("catch($T e)", Exception.class)
                     .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "failed getting adapter for ")
                     .addStatement("return this.unexpectedError(token)")
-                .endControlFlow()
-
-                //crud
-                .beginControlFlow("if(adapter.crud() == null)")
-                    .addStatement("$T token = log.tokenized().error($S, adapter.getClass(), request)",
-                            String.class, "adapter {} implementation breaks contract, crud should not ne null for {}"
-                    )
-                    .addStatement("return this.unexpectedError(token)")
-                .endControlFlow()
-
-                //action validation
-                .beginControlFlow("if(! adapter.crud().supportedActions().contains($T.DELETE))",
-                        Action.class
-                )
-                    .addStatement("$T token = log.tokenized().info($S, $T.DELETE, adapter.crud().supportedActions(), request)",
-                            String.class, "{} action not supported, adapter only supports {}, request was {}", Action.class
-                    )
-                    .addStatement("return this.notAllowedError(token)")
                 .endControlFlow()
 
                 //request validation
@@ -102,7 +85,7 @@ public class DeleteHandlerGenerator extends PagedCollectionHandlerGenerator {
                 
                 //deletion
                 .beginControlFlow("try")
-                    .addStatement("adapter.crud().deleteEntity(request.$L())", this.entityProperty())
+                    .addStatement("action.deleteEntity(request.$L())", this.entityProperty())
                 .nextControlFlow("catch($T e)", BadRequestException.class)
                     .addStatement("return $T.builder().status400($T.builder().payload(this.casted(e.error())).build()).build()",
                             this.className(this.collectionDescriptor.delete().responseValueObject()),

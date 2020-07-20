@@ -2,6 +2,7 @@ package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import com.squareup.javapoet.*;
 import org.codingmatters.poom.api.paged.collection.api.types.Error;
+import org.codingmatters.poom.generic.resource.domain.CheckedEntityActionProvider;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.paged.collection.generation.generators.source.exception.IncoherentDescriptorException;
 import org.codingmatters.poom.paged.collection.generation.spec.Action;
@@ -24,11 +25,32 @@ public abstract class PagedCollectionHandlerGenerator {
 
     protected ParameterizedTypeName adapterProviderClass() {
         return ParameterizedTypeName.get(
-                ClassName.get(PagedCollectionAdapter.Provider.class),
+                ClassName.get(PagedCollectionAdapter.FromRequestProvider.class),
+                this.orVoid(this.className(this.handlerAction.requestValueObject())),
                 this.orVoid(this.className(this.collectionDescriptor.types().entity())),
                 this.orVoid(this.className(this.collectionDescriptor.types().create())),
                 this.orVoid(this.className(this.collectionDescriptor.types().replace())),
                 this.orVoid(this.className(this.collectionDescriptor.types().update()))
+        );
+    }
+
+    protected ParameterizedTypeName checkedEntityActionProviver(Class actionClass) {
+        return this.checkedEntityActionProviver(ClassName.get(actionClass));
+    }
+    protected ParameterizedTypeName checkedEntityActionProviver(Class actionClass, String entityType, String actionParamClass) {
+        TypeName actionType = ParameterizedTypeName.get(
+                ClassName.get(actionClass),
+                this.className(entityType),
+                this.className(actionParamClass)
+        );
+        return this.checkedEntityActionProviver(actionType);
+    }
+
+    private ParameterizedTypeName checkedEntityActionProviver(TypeName actionType) {
+        return ParameterizedTypeName.get(
+                ClassName.get(CheckedEntityActionProvider.class),
+                this.className(this.handlerAction.requestValueObject()),
+                actionType
         );
     }
 

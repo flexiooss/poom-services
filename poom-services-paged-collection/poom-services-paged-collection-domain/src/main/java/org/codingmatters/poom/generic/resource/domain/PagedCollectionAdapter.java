@@ -19,6 +19,11 @@ public interface PagedCollectionAdapter<EntityType, CreationType, ReplaceType, U
         PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> adapter() throws Exception;
     }
 
+    @FunctionalInterface
+    interface FromRequestProvider<Request, EntityTpe, CreationType, ReplaceType, UpdateType> {
+        PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> adapter(Request request) throws Exception;
+    }
+
     CRUD<EntityType, CreationType, ReplaceType, UpdateType> crud();
     Pager<EntityType> pager();
 
@@ -28,15 +33,14 @@ public interface PagedCollectionAdapter<EntityType, CreationType, ReplaceType, U
         EntityLister<EntityType, PropertyQuery> lister();
     }
 
-    interface CRUD<EntityType, CreationType, ReplaceType, UpdateType> {
-        String entityRepositoryUrl();
+    interface CRUD<EntityType, CreationType, ReplaceType, UpdateType> extends
+            EntityCreator<EntityType, CreationType>,
+            EntityRetriever<EntityType>,
+            EntityReplacer<EntityType, ReplaceType>,
+            EntityUpdater<EntityType, UpdateType>,
+            EntityDeleter
+        {
         Set<Action> supportedActions();
-
-        Optional<Entity<EntityType>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
-        Entity<EntityType> createEntityFrom(CreationType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
-        Entity<EntityType> replaceEntityWith(String id, ReplaceType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
-        Entity<EntityType> updateEntityWith(String id, UpdateType value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
-        void deleteEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException;
     }
 
     static <EntityType, CreationType, ReplaceType, UpdateType> DefaultAdapterBuilder<EntityType, CreationType, ReplaceType, UpdateType> builder() {

@@ -1,6 +1,9 @@
 package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import com.squareup.javapoet.*;
+import org.codingmatters.poom.generic.resource.domain.EntityCreator;
+import org.codingmatters.poom.generic.resource.domain.EntityReplacer;
+import org.codingmatters.poom.generic.resource.domain.EntityUpdater;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.paged.collection.generation.generators.source.exception.IncoherentDescriptorException;
@@ -13,8 +16,9 @@ import java.util.function.Function;
 
 public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGenerator {
 
+
     public enum HandlerConfig {
-        Replace("replaceEntityWith", "ENTITY_REPLACEMENT_NOT_ALLOWED") {
+        Replace("replaceEntityWith", "ENTITY_REPLACEMENT_NOT_ALLOWED", EntityReplacer.class) {
             @Override
             public org.codingmatters.poom.paged.collection.generation.spec.Action action(PagedCollectionDescriptor pagedCollectionDescriptor) {
                 return pagedCollectionDescriptor.replace();
@@ -25,7 +29,7 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
                 return pagedCollectionDescriptor.opt().types().replace().orElse(null);
             }
         },
-        Update("updateEntityWith", "ENTITY_UPDATE_NOT_ALLOWED") {
+        Update("updateEntityWith", "ENTITY_UPDATE_NOT_ALLOWED", EntityUpdater.class) {
             @Override
             public org.codingmatters.poom.paged.collection.generation.spec.Action action(PagedCollectionDescriptor pagedCollectionDescriptor) {
                 return pagedCollectionDescriptor.update();
@@ -40,10 +44,12 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
 
         public final String crudMethod;
         public final String notAllowedCode;
+        public final Class actionClass;
 
-        HandlerConfig(String crudMethod, String notAllowedCode) {
+        HandlerConfig(String crudMethod, String notAllowedCode, Class actionClass) {
             this.crudMethod = crudMethod;
             this.notAllowedCode = notAllowedCode;
+            this.actionClass = actionClass;
         }
 
         public abstract org.codingmatters.poom.paged.collection.generation.spec.Action action(PagedCollectionDescriptor pagedCollectionDescriptor);
@@ -55,6 +61,7 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
     private final String crudMethod;
     private final String handlerClassSimpleName;
     private final String notAllowedCode;
+    private final Class actionClass;
 
     public ReplaceOrUpdateHandlerGenerator(PagedCollectionDescriptor collectionDescriptor, HandlerConfig handlerConfig) {
         super(collectionDescriptor, handlerConfig.action(collectionDescriptor));
@@ -63,6 +70,7 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
         this.crudMethod = handlerConfig.crudMethod;
         this.handlerClassSimpleName = this.collectionDescriptor.name() + handlerConfig.name();
         this.notAllowedCode = handlerConfig.notAllowedCode;
+        this.actionClass = handlerConfig.actionClass;
     }
 
     @Override
@@ -87,15 +95,14 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
                 .addField(FieldSpec.builder(ClassName.get(CategorizedLogger.class), "log", Modifier.STATIC, Modifier.PRIVATE, Modifier.FINAL)
                         .initializer("$T.getLogger($L.class)", CategorizedLogger.class, this.handlerClassSimpleName)
                         .build())
-                .addField(this.adapterProviderClass(), "adapterProvider", Modifier.PRIVATE, Modifier.FINAL)
+
+                .addField(this.checkedEntityActionProviver(this.actionClass, this.collectionDescriptor.types().entity(), this.type), "provider", Modifier.PRIVATE, Modifier.FINAL)
 
                 .addMethod(MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
-                        .addParameter(
-                                this.adapterProviderClass(),
-                                "adapterProvider"
-                        )
-                        .addCode(this.constructorBody())
+                        .addParameter(this.checkedEntityActionProviver(this.actionClass, this.collectionDescriptor.types().entity(), this.type), "provider")
+                        .addStatement("this.provider = provider")
                         .build())
+
                 .addMethod(MethodSpec.methodBuilder("apply").addModifiers(Modifier.PUBLIC)
                         .addParameter(this.className(this.action.requestValueObject()), "request")
                         .returns(this.className(this.action.responseValueObject()))
@@ -119,30 +126,16 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
     private CodeBlock applyBody() {
         return CodeBlock.builder()
                 //adapter
-                .addStatement("$T adapter", this.adapterClass())
+                .addStatement("$T<$T, $T> action",
+                        this.actionClass,
+                        this.className(this.collectionDescriptor.types().entity()),
+                        this.className(this.type)
+                )
                 .beginControlFlow("try")
-                .addStatement("adapter = this.adapterProvider.adapter()")
+                    .addStatement("action = this.provider.action(request)")
                 .nextControlFlow("catch($T e)", Exception.class)
-                .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "failed getting adapter for ")
-                .addStatement("return this.unexpectedError(token)")
-                .endControlFlow()
-
-                //crud
-                .beginControlFlow("if(adapter.crud() == null)")
-                .addStatement("$T token = log.tokenized().error($S, adapter.getClass(), request)",
-                        String.class, "adapter {} implementation breaks contract, crud should not ne null for {}"
-                )
-                .addStatement("return this.unexpectedError(token)")
-                .endControlFlow()
-
-                //action validation
-                .beginControlFlow("if(! adapter.crud().supportedActions().contains($T.DELETE))",
-                        Action.class
-                )
-                .addStatement("$T token = log.tokenized().info($S, $T.DELETE, adapter.crud().supportedActions(), request)",
-                        String.class, "{} action not supported, adapter only supports {}, request was {}", Action.class
-                )
-                .addStatement("return this.notAllowedError(token)")
+                    .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "failed getting adapter for ")
+                    .addStatement("return this.unexpectedError(token)")
                 .endControlFlow()
 
                 //request validation
@@ -160,7 +153,7 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
                 //replace or update
                 .addStatement("$T<$T> entity", Entity.class, this.className(this.collectionDescriptor.types().entity()))
                 .beginControlFlow("try")
-                    .addStatement("entity = adapter.crud().$L(request.$L(), value)", this.crudMethod, this.entityProperty())
+                    .addStatement("entity = action.$L(request.$L(), value)", this.crudMethod, this.entityProperty())
                 .nextControlFlow("catch($T e)", BadRequestException.class)
                     .addStatement("return $T.builder().status400($T.builder().payload(this.casted(e.error())).build()).build()",
                             this.className(this.action.responseValueObject()),
@@ -190,8 +183,8 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
 
                 //replacement error
                 .beginControlFlow("if(entity == null)")
-                    .addStatement("$T token = log.tokenized().error($S, adapter.getClass(), request)",
-                            String.class, "adapter {} implementation breaks contract, created entity is null for {}"
+                    .addStatement("$T token = log.tokenized().error($S, provider.getClass(), request)",
+                            String.class, "provider {} implementation breaks contract, created entity is null for {}"
                     )
                     .addStatement("return this.unexpectedError(token)")
                 .endControlFlow()
@@ -199,7 +192,7 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
                 //nominal result
                 .addStatement("return $T.builder().status200($T.builder()" +
                                 ".xEntityId(entity.id())" +
-                                ".location(String.format($S, adapter.crud().entityRepositoryUrl(), entity.id()))" +
+                                ".location(String.format($S, action.entityRepositoryUrl(), entity.id()))" +
                                 ".payload(entity.value())" +
                                 ".build()).build()",
                         this.className(this.action.responseValueObject()),

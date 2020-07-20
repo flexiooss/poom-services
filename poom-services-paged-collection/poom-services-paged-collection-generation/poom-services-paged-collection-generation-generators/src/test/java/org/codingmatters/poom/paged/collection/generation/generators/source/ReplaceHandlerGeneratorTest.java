@@ -1,5 +1,8 @@
 package org.codingmatters.poom.paged.collection.generation.generators.source;
 
+import org.codingmatters.poom.generic.resource.domain.CheckedEntityActionProvider;
+import org.codingmatters.poom.generic.resource.domain.EntityCreator;
+import org.codingmatters.poom.generic.resource.domain.EntityReplacer;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.spec.Action;
@@ -14,6 +17,7 @@ import org.codingmatters.tests.compile.helpers.ClassLoaderHelper;
 import org.codingmatters.value.objects.generation.GenerationUtils;
 import org.generated.api.NoParamsElementPutRequest;
 import org.generated.api.NoParamsElementPutResponse;
+import org.generated.api.NoParamsPostRequest;
 import org.generated.api.types.Create;
 import org.generated.api.types.Error;
 import org.generated.api.types.Replace;
@@ -52,10 +56,12 @@ public class ReplaceHandlerGeneratorTest {
         this.classes = CompiledCode.builder().source(this.dir.getRoot()).compile().classLoader();
     }
 
-    private Function<NoParamsElementPutRequest, NoParamsElementPutResponse> handler(PagedCollectionAdapter.Provider<org.generated.api.types.Entity, Create, Replace, Update> provider) {
+    private Function<NoParamsElementPutRequest, NoParamsElementPutResponse> handler(PagedCollectionAdapter.FromRequestProvider<NoParamsElementPutRequest, org.generated.api.types.Entity, Create, Replace, Update> provider) {
         return (Function<NoParamsElementPutRequest, NoParamsElementPutResponse>) classes.get("org.generated.handlers.NoParamsReplace")
-                .newInstance(PagedCollectionAdapter.Provider.class)
-                .with(provider)
+                .newInstance(CheckedEntityActionProvider.class)
+                .with(
+                        (CheckedEntityActionProvider<NoParamsElementPutRequest, EntityReplacer<org.generated.api.types.Entity, Replace>>) request -> provider.adapter(request).crud()
+                )
                 .get();
     }
 
@@ -69,15 +75,18 @@ public class ReplaceHandlerGeneratorTest {
                         .implementing(genericType().baseClass(Function.class))
                         .with(aPublic().constructor()
                                 .withParameters(genericType()
-                                        .baseClass(PagedCollectionAdapter.Provider.class)
+                                        .baseClass(CheckedEntityActionProvider.class)
                                         .withParameters(
-                                                classTypeParameter(org.generated.api.types.Entity.class),
-                                                classTypeParameter(Create.class),
-                                                classTypeParameter(Replace.class),
-                                                classTypeParameter(Update.class)
+                                                classTypeParameter(NoParamsElementPutRequest.class),
+                                                typeParameter().aType(genericType()
+                                                        .baseClass(EntityReplacer.class)
+                                                        .withParameters(
+                                                                classTypeParameter(org.generated.api.types.Entity.class),
+                                                                classTypeParameter(Replace.class)
+                                                        )
+                                                )
                                         )
                                 )
-                                .withParameters(PagedCollectionAdapter.Provider.class)
                         )
                         .with(aPublic().method().named("apply")
                                 .withParameters(NoParamsElementPutRequest.class)
@@ -90,22 +99,9 @@ public class ReplaceHandlerGeneratorTest {
 
     @Test
     public void whenExceptionGettingAdapter__then500_andErrorKeepsTrackOfLogToken() throws Exception {
-        NoParamsElementPutResponse response = this.handler(() -> {
+        NoParamsElementPutResponse response = this.handler((request) -> {
             throw new Exception("");
         }).apply(NoParamsElementPutRequest.builder().build());
-
-        response.opt().status500().orElseThrow(() -> new AssertionError("expected 500, got " + response));
-
-        Error error = response.status500().payload();
-        assertThat(error.code(), is(Error.Code.UNEXPECTED_ERROR));
-        assertThat(error.token(), is(notNullValue()));
-        assertThat(error.messages().get(0).key(), is(MessageKeys.SEE_LOGS_WITH_TOKEN));
-        assertThat(error.messages().get(0).args().toArray(), is(arrayContaining(error.token())));
-    }
-
-    @Test
-    public void givenAdapterOk__whenCRUDIsNull__then500_andErrorKeepsTrackOfLogToken() throws Exception {
-        NoParamsElementPutResponse response = this.handler(() -> new TestAdapter()).apply(NoParamsElementPutRequest.builder().build());
 
         response.opt().status500().orElseThrow(() -> new AssertionError("expected 500, got " + response));
 
@@ -119,7 +115,7 @@ public class ReplaceHandlerGeneratorTest {
 
     @Test
     public void givenAdapterGetted_andEntityIdProvided__whenReplacedEntityIsNull__then500() throws Exception {
-        NoParamsElementPutResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
+        NoParamsElementPutResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public Entity<org.generated.api.types.Entity> replaceEntityWith(String id, Replace value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 return null;
@@ -136,33 +132,8 @@ public class ReplaceHandlerGeneratorTest {
     }
 
     @Test
-    public void givenAdapterOK__whenREPLACEActionNotSupportedValueCreated__then405() throws Exception {
-        org.generated.api.types.Entity aValue = org.generated.api.types.Entity.builder().p("v").build();
-
-        NoParamsElementPutResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
-            @Override
-            public Set<Action> supportedActions() {
-                return Action.actions(Action.CREATE, Action.UPDATE);
-            }
-
-            @Override
-            public Entity<org.generated.api.types.Entity> replaceEntityWith(String id, Replace value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
-                return new ImmutableEntity<>("12", BigInteger.ONE, aValue);
-            }
-        })).apply(NoParamsElementPutRequest.builder().build());
-
-        response.opt().status405().orElseThrow(() -> new AssertionError("expected 405, got " + response));
-
-        Error error = response.status405().payload();
-        assertThat(error.code(), is(Error.Code.ENTITY_REPLACEMENT_NOT_ALLOWED));
-        assertThat(error.token(), is(notNullValue()));
-        assertThat(error.messages().get(0).key(), is(MessageKeys.SEE_LOGS_WITH_TOKEN));
-        assertThat(error.messages().get(0).args().toArray(), is(arrayContaining(error.token())));
-    }
-
-    @Test
     public void givenAdapterOk__whenNoEntityId__then400() throws Exception {
-        NoParamsElementPutResponse response = this.handler(() -> new TestAdapter(new TestCRUD()))
+        NoParamsElementPutResponse response = this.handler((request) -> new TestAdapter(new TestCRUD()))
                 .apply(NoParamsElementPutRequest.builder().build());
 
         response.opt().status400().orElseThrow(() -> new AssertionError("expected 400, got " + response));
@@ -178,7 +149,7 @@ public class ReplaceHandlerGeneratorTest {
     public void givenAdapterOK__whenEntityIdProvided__thenEntityIdIsPassedToAdapter() throws Exception {
         AtomicReference<String> requestedId = new AtomicReference<>();
 
-        this.handler(() -> new TestAdapter(new TestCRUD() {
+        this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public Entity<org.generated.api.types.Entity> replaceEntityWith(String id, Replace value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 requestedId.set(id);
@@ -193,7 +164,7 @@ public class ReplaceHandlerGeneratorTest {
     public void givenAdapterOK_andEntityIdProvided__whenNoValuePosted__thenEmptyObjectIsPassedToAdapter() throws Exception {
         AtomicReference<Replace> requestedPayload = new AtomicReference<>();
 
-        this.handler(() -> new TestAdapter(new TestCRUD() {
+        this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public Entity<org.generated.api.types.Entity> replaceEntityWith(String id, Replace value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 requestedPayload.set(value);
@@ -209,7 +180,7 @@ public class ReplaceHandlerGeneratorTest {
         Replace aValue = Replace.builder().p("v").build();
         AtomicReference<Replace> requestedPayload = new AtomicReference<>();
 
-        this.handler(() -> new TestAdapter(new TestCRUD() {
+        this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public Entity<org.generated.api.types.Entity> replaceEntityWith(String id, Replace value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 requestedPayload.set(value);
@@ -224,7 +195,7 @@ public class ReplaceHandlerGeneratorTest {
     public void givenAdapterOK_andEntityIdProvided__whenValueReplaced__then201_andXEntityIdSetted_andLocationSetted_andValueReturned() throws Exception {
         org.generated.api.types.Entity aValue = org.generated.api.types.Entity.builder().p("v").build();
 
-        NoParamsElementPutResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
+        NoParamsElementPutResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public Entity<org.generated.api.types.Entity> replaceEntityWith(String id, Replace value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 return new ImmutableEntity<>("12", BigInteger.TWO, aValue);
@@ -242,7 +213,7 @@ public class ReplaceHandlerGeneratorTest {
     public void givenAdapterOK_andEntityIdProvided__whenValidationThrowsBadRequestException__then400_andFunctionalErrorReturned() throws Exception {
         Error error = Error.builder().token("functional error message").build();
         String msg = "error";
-        NoParamsElementPutResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
+        NoParamsElementPutResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public Entity<org.generated.api.types.Entity> replaceEntityWith(String id, Replace value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new BadRequestException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);
@@ -258,7 +229,7 @@ public class ReplaceHandlerGeneratorTest {
     public void givenAdapterOK_andEntityIdProvided__whenValidationThrowsForbiddenException__then403_andFunctionalErrorReturned() throws Exception {
         Error error = Error.builder().token("functional error message").build();
         String msg = "error";
-        NoParamsElementPutResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
+        NoParamsElementPutResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public Entity<org.generated.api.types.Entity> replaceEntityWith(String id, Replace value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new ForbiddenException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);
@@ -274,7 +245,7 @@ public class ReplaceHandlerGeneratorTest {
     public void givenAdapterOK_andEntityIdProvided__whenValidationThrowsNotFoundException__then404_andFunctionalErrorReturned() throws Exception {
         Error error = Error.builder().token("functional error message").build();
         String msg = "error";
-        NoParamsElementPutResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
+        NoParamsElementPutResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public Entity<org.generated.api.types.Entity> replaceEntityWith(String id, Replace value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new NotFoundException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);
@@ -290,7 +261,7 @@ public class ReplaceHandlerGeneratorTest {
     public void givenAdapterOK_andEntityIdProvided__whenValidationThrowsUnauthorizedException__then401_andFunctionalErrorReturned() throws Exception {
         Error error = Error.builder().token("functional error message").build();
         String msg = "error";
-        NoParamsElementPutResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
+        NoParamsElementPutResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public Entity<org.generated.api.types.Entity> replaceEntityWith(String id, Replace value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new UnauthorizedException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);
@@ -306,7 +277,7 @@ public class ReplaceHandlerGeneratorTest {
     public void givenAdapterOK_andEntityIdProvided__whenValidationThrowsUnexpectedException__then500_andFunctionalErrorReturned() throws Exception {
         Error error = Error.builder().token("functional error message").build();
         String msg = "error";
-        NoParamsElementPutResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
+        NoParamsElementPutResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public Entity<org.generated.api.types.Entity> replaceEntityWith(String id, Replace value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new UnexpectedException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);

@@ -1,5 +1,8 @@
 package org.codingmatters.poom.paged.collection.generation.generators.source;
 
+import org.codingmatters.poom.generic.resource.domain.CheckedEntityActionProvider;
+import org.codingmatters.poom.generic.resource.domain.EntityCreator;
+import org.codingmatters.poom.generic.resource.domain.EntityDeleter;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestAdapter;
@@ -11,6 +14,7 @@ import org.codingmatters.tests.compile.helpers.ClassLoaderHelper;
 import org.codingmatters.value.objects.generation.GenerationUtils;
 import org.generated.api.NoParamsElementDeleteRequest;
 import org.generated.api.NoParamsElementDeleteResponse;
+import org.generated.api.NoParamsPostRequest;
 import org.generated.api.types.Create;
 import org.generated.api.types.Error;
 import org.generated.api.types.Replace;
@@ -47,10 +51,12 @@ public class DeleteHandlerGeneratorTest {
         this.classes = CompiledCode.builder().source(this.dir.getRoot()).compile().classLoader();
     }
 
-    private Function<NoParamsElementDeleteRequest, NoParamsElementDeleteResponse> handler(PagedCollectionAdapter.Provider<org.generated.api.types.Entity, Create, Replace, Update> provider) {
+    private Function<NoParamsElementDeleteRequest, NoParamsElementDeleteResponse> handler(PagedCollectionAdapter.FromRequestProvider<NoParamsElementDeleteRequest, org.generated.api.types.Entity, Create, Replace, Update> provider) {
         return (Function<NoParamsElementDeleteRequest, NoParamsElementDeleteResponse>) classes.get("org.generated.handlers.NoParamsDelete")
-                .newInstance(PagedCollectionAdapter.Provider.class)
-                .with(provider)
+                .newInstance(CheckedEntityActionProvider.class)
+                .with(
+                        (CheckedEntityActionProvider<NoParamsElementDeleteRequest, EntityDeleter>) request -> provider.adapter(request).crud()
+                )
                 .get();
     }
 
@@ -64,15 +70,12 @@ public class DeleteHandlerGeneratorTest {
                         .implementing(genericType().baseClass(Function.class))
                         .with(aPublic().constructor()
                                 .withParameters(genericType()
-                                        .baseClass(PagedCollectionAdapter.Provider.class)
+                                        .baseClass(CheckedEntityActionProvider.class)
                                         .withParameters(
-                                                classTypeParameter(org.generated.api.types.Entity.class),
-                                                classTypeParameter(Create.class),
-                                                classTypeParameter(Replace.class),
-                                                classTypeParameter(Update.class)
+                                                classTypeParameter(NoParamsElementDeleteRequest.class),
+                                                classTypeParameter(EntityDeleter.class)
                                         )
                                 )
-                                .withParameters(PagedCollectionAdapter.Provider.class)
                         )
                         .with(aPublic().method().named("apply")
                                 .withParameters(NoParamsElementDeleteRequest.class)
@@ -85,7 +88,7 @@ public class DeleteHandlerGeneratorTest {
     
     @Test
     public void whenExceptionGettingAdapter__then500_andErrorKeepsTrackOfLogToken() throws Exception {
-        NoParamsElementDeleteResponse response = this.handler(() -> {
+        NoParamsElementDeleteResponse response = this.handler((request) -> {
             throw new Exception("");
         }).apply(NoParamsElementDeleteRequest.builder().build());
 
@@ -99,21 +102,8 @@ public class DeleteHandlerGeneratorTest {
     }
 
     @Test
-    public void givenAdapterOk__whenCRUDIsNull__then500_andErrorKeepsTrackOfLogToken() throws Exception {
-        NoParamsElementDeleteResponse response = this.handler(() -> new TestAdapter()).apply(NoParamsElementDeleteRequest.builder().build());
-
-        response.opt().status500().orElseThrow(() -> new AssertionError("expected 500, got " + response));
-
-        Error error = response.status500().payload();
-        assertThat(error.code(), is(Error.Code.UNEXPECTED_ERROR));
-        assertThat(error.token(), is(notNullValue()));
-        assertThat(error.messages().get(0).key(), is(MessageKeys.SEE_LOGS_WITH_TOKEN));
-        assertThat(error.messages().get(0).args().toArray(), is(arrayContaining(error.token())));
-    }
-
-    @Test
     public void givenAdapterOK__whenNoEntityIdProvided__then400() throws Exception {
-        NoParamsElementDeleteResponse response = this.handler(() -> new TestAdapter(new TestCRUD())).apply(NoParamsElementDeleteRequest.builder().build());
+        NoParamsElementDeleteResponse response = this.handler((request) -> new TestAdapter(new TestCRUD())).apply(NoParamsElementDeleteRequest.builder().build());
 
         response.opt().status400().orElseThrow(() -> new AssertionError("expected 400, got " + response));
 
@@ -128,7 +118,7 @@ public class DeleteHandlerGeneratorTest {
     public void givenAdapterOK__whenEntityIdProvided__thenEntityIdPassedToAdapter() throws Exception {
         AtomicReference<String> requestedId = new AtomicReference<>();
 
-        this.handler(() -> new TestAdapter(new TestCRUD() {
+        this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public void deleteEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 requestedId.set(id);
@@ -140,7 +130,7 @@ public class DeleteHandlerGeneratorTest {
 
     @Test
     public void givenAdapterOK_andEntityIdProvided__whenEntityDeleted__then204() throws Exception {
-        NoParamsElementDeleteResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
+        NoParamsElementDeleteResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public void deleteEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
             }
@@ -153,7 +143,7 @@ public class DeleteHandlerGeneratorTest {
     public void givenAdapterOK__whenAdapterThrowsBadRequestException__then400_andFunctionalErrorReturned() throws Exception {
         Error error = Error.builder().token("functional error message").build();
         String msg = "error";
-        NoParamsElementDeleteResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
+        NoParamsElementDeleteResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public void deleteEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new BadRequestException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);
@@ -169,7 +159,7 @@ public class DeleteHandlerGeneratorTest {
     public void givenAdapterOK__whenAdapterThrowsForbiddenException__then403_andFunctionalErrorReturned() throws Exception {
         Error error = Error.builder().token("functional error message").build();
         String msg = "error";
-        NoParamsElementDeleteResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
+        NoParamsElementDeleteResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public void deleteEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new ForbiddenException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);
@@ -185,7 +175,7 @@ public class DeleteHandlerGeneratorTest {
     public void givenAdapterOK__whenAdapterThrowsNotFoundException__then404_andFunctionalErrorReturned() throws Exception {
         Error error = Error.builder().token("functional error message").build();
         String msg = "error";
-        NoParamsElementDeleteResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
+        NoParamsElementDeleteResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public void deleteEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new NotFoundException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);
@@ -201,7 +191,7 @@ public class DeleteHandlerGeneratorTest {
     public void givenAdapterOK__whenAdapterThrowsUnauthorizedException__then401_andFunctionalErrorReturned() throws Exception {
         Error error = Error.builder().token("functional error message").build();
         String msg = "error";
-        NoParamsElementDeleteResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
+        NoParamsElementDeleteResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public void deleteEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new UnauthorizedException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);
@@ -217,7 +207,7 @@ public class DeleteHandlerGeneratorTest {
     public void givenAdapterOK__whenAdapterThrowsUnexpectedException__then500_andFunctionalErrorReturned() throws Exception {
         Error error = Error.builder().token("functional error message").build();
         String msg = "error";
-        NoParamsElementDeleteResponse response = this.handler(() -> new TestAdapter(new TestCRUD() {
+        NoParamsElementDeleteResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
             public void deleteEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new UnexpectedException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);

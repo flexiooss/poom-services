@@ -72,7 +72,7 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
 
                 .addStatement("$T adapter", this.adapterClass())
                 .beginControlFlow("try")
-                    .addStatement("adapter = this.adapterProvider.adapter()")
+                    .addStatement("adapter = this.adapterProvider.adapter(request)")
                 .nextControlFlow("catch($T e)", Exception.class)
                     .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "failed getting adapter for ")
                     .addStatement("return this.unexpectedError(token)")
