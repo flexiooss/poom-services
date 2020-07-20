@@ -5,7 +5,6 @@ import io.undertow.Undertow;
 import org.codingmatters.poom.apis.demo.api.DemoHandlers;
 import org.codingmatters.poom.apis.demo.processor.DemoProcessor;
 import org.codingmatters.poom.demo.processor.DemoHandlersBuilder;
-import org.codingmatters.poom.demo.processor.DemoProcessorBuilder;
 import org.codingmatters.poom.demo.service.support.DemoData;
 import org.codingmatters.poom.demo.service.support.StoreManagerSupport;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
