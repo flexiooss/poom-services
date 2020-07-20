@@ -2,6 +2,7 @@ package org.codingmatters.poom.demo.processor;
 
 import org.codingmatters.poom.apis.demo.api.DemoHandlers;
 import org.codingmatters.poom.apis.demo.api.collection.handlers.StoreMoviesBrowse;
+import org.codingmatters.poom.apis.demo.api.collection.handlers.StoreMoviesRetrieve;
 import org.codingmatters.poom.apis.demo.api.collection.handlers.StoresBrowse;
 import org.codingmatters.poom.demo.domain.StoreManager;
 import org.codingmatters.poom.demo.processor.handlers.StoreBrowse;

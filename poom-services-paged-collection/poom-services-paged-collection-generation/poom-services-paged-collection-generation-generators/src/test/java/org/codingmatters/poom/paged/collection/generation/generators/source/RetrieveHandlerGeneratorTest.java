@@ -1,5 +1,8 @@
 package org.codingmatters.poom.paged.collection.generation.generators.source;
 
+import org.codingmatters.poom.generic.resource.domain.CheckedEntityActionProvider;
+import org.codingmatters.poom.generic.resource.domain.EntityCreator;
+import org.codingmatters.poom.generic.resource.domain.EntityRetriever;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestAdapter;
@@ -12,6 +15,7 @@ import org.codingmatters.tests.compile.helpers.ClassLoaderHelper;
 import org.codingmatters.value.objects.generation.GenerationUtils;
 import org.generated.api.NoParamsElementGetRequest;
 import org.generated.api.NoParamsElementGetResponse;
+import org.generated.api.NoParamsPostRequest;
 import org.generated.api.types.*;
 import org.generated.api.types.Error;
 import org.junit.Before;
@@ -50,8 +54,10 @@ public class RetrieveHandlerGeneratorTest {
 
     private Function<NoParamsElementGetRequest, NoParamsElementGetResponse> handler(PagedCollectionAdapter.FromRequestProvider<NoParamsElementGetRequest, org.generated.api.types.Entity, Create, Replace, Update> provider) {
         return (Function<NoParamsElementGetRequest, NoParamsElementGetResponse>) classes.get("org.generated.handlers.NoParamsRetrieve")
-                .newInstance(PagedCollectionAdapter.FromRequestProvider.class)
-                .with(provider)
+                .newInstance(CheckedEntityActionProvider.class)
+                .with(
+                        (CheckedEntityActionProvider<NoParamsElementGetRequest, EntityRetriever<Entity>>) request -> provider.adapter(request).crud()
+                )
                 .get();
     }
 
@@ -65,16 +71,17 @@ public class RetrieveHandlerGeneratorTest {
                         .implementing(genericType().baseClass(Function.class))
                         .with(aPublic().constructor()
                                 .withParameters(genericType()
-                                        .baseClass(PagedCollectionAdapter.FromRequestProvider.class)
+                                        .baseClass(CheckedEntityActionProvider.class)
                                         .withParameters(
                                                 classTypeParameter(NoParamsElementGetRequest.class),
-                                                classTypeParameter(org.generated.api.types.Entity.class),
-                                                classTypeParameter(Create.class),
-                                                classTypeParameter(Replace.class),
-                                                classTypeParameter(Update.class)
+                                                typeParameter().aType(genericType()
+                                                        .baseClass(EntityRetriever.class)
+                                                        .withParameters(
+                                                                classTypeParameter(org.generated.api.types.Entity.class)
+                                                        )
+                                                )
                                         )
                                 )
-                                .withParameters(PagedCollectionAdapter.FromRequestProvider.class)
                         )
                         .with(aPublic().method().named("apply")
                                 .withParameters(NoParamsElementGetRequest.class)
@@ -90,19 +97,6 @@ public class RetrieveHandlerGeneratorTest {
         NoParamsElementGetResponse response = this.handler((request) -> {
             throw new Exception("");
         }).apply(NoParamsElementGetRequest.builder().build());
-
-        response.opt().status500().orElseThrow(() -> new AssertionError("expected 500, got " + response));
-
-        Error error = response.status500().payload();
-        assertThat(error.code(), is(Error.Code.UNEXPECTED_ERROR));
-        assertThat(error.token(), is(notNullValue()));
-        assertThat(error.messages().get(0).key(), is(MessageKeys.SEE_LOGS_WITH_TOKEN));
-        assertThat(error.messages().get(0).args().toArray(), is(arrayContaining(error.token())));
-    }
-
-    @Test
-    public void givenAdapterOk__whenCRUDIsNull__then500_andErrorKeepsTrackOfLogToken() throws Exception {
-        NoParamsElementGetResponse response = this.handler((request) -> new TestAdapter()).apply(NoParamsElementGetRequest.builder().build());
 
         response.opt().status500().orElseThrow(() -> new AssertionError("expected 500, got " + response));
 

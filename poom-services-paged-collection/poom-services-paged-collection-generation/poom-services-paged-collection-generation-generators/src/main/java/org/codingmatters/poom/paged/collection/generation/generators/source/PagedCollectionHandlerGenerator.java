@@ -37,11 +37,20 @@ public abstract class PagedCollectionHandlerGenerator {
     protected ParameterizedTypeName checkedEntityActionProviver(Class actionClass) {
         return this.checkedEntityActionProviver(ClassName.get(actionClass));
     }
+
     protected ParameterizedTypeName checkedEntityActionProviver(Class actionClass, String entityType, String actionParamClass) {
         TypeName actionType = ParameterizedTypeName.get(
                 ClassName.get(actionClass),
                 this.className(entityType),
                 this.className(actionParamClass)
+        );
+        return this.checkedEntityActionProviver(actionType);
+    }
+
+    protected ParameterizedTypeName checkedEntityActionProviver(Class actionClass, String entityType) {
+        TypeName actionType = ParameterizedTypeName.get(
+                ClassName.get(actionClass),
+                this.className(entityType)
         );
         return this.checkedEntityActionProviver(actionType);
     }
