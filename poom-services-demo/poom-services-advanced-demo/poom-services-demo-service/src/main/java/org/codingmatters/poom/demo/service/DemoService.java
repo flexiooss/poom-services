@@ -2,6 +2,9 @@ package org.codingmatters.poom.demo.service;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import io.undertow.Undertow;
+import org.codingmatters.poom.apis.demo.api.DemoHandlers;
+import org.codingmatters.poom.apis.demo.processor.DemoProcessor;
+import org.codingmatters.poom.demo.processor.DemoHandlersBuilder;
 import org.codingmatters.poom.demo.processor.DemoProcessorBuilder;
 import org.codingmatters.poom.demo.service.support.DemoData;
 import org.codingmatters.poom.demo.service.support.StoreManagerSupport;
@@ -43,10 +46,12 @@ public class DemoService {
     private final String host;
     private final int port;
     private final String apiPath;
+    private JsonFactory jsonFactory = new JsonFactory();
+    private DemoHandlers handlers;
+
     private final StoreManagerSupport storeManagerSupport;
 
     private final ExecutorService pool;
-    private final DemoProcessorBuilder processorBuilder;
 
     private Undertow server;
 
@@ -56,19 +61,14 @@ public class DemoService {
         this.apiPath = apiPath;
         this.storeManagerSupport = storeManagerSupport;
         this.pool = Executors.newSingleThreadExecutor();
-
-        this.processorBuilder = new DemoProcessorBuilder(
-                apiPath,
-                new JsonFactory(),
-                this.storeManagerSupport.createStoreManager(this.pool)
-        );
+        this.handlers = new DemoHandlersBuilder(this.storeManagerSupport.createStoreManager(this.pool)).build();
     }
 
     public void start() {
         log.info("starting demo service (%s:%s with base path %s)...", this.host, this.port, this.apiPath);
         this.server = Undertow.builder()
                 .addHttpListener(this.port, this.host)
-                .setHandler(new CdmHttpUndertowHandler(this.processorBuilder.build()))
+                .setHandler(new CdmHttpUndertowHandler(new DemoProcessor(this.apiPath, this.jsonFactory, this.handlers)))
                 .build();
         this.server.start();
         log.info("demo service started.");

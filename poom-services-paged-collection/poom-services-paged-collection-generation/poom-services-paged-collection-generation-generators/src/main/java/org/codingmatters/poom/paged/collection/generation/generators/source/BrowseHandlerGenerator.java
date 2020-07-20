@@ -2,6 +2,7 @@ package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import com.squareup.javapoet.*;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
+import org.codingmatters.poom.generic.resource.domain.PagerProvider;
 import org.codingmatters.poom.paged.collection.generation.generators.source.exception.IncoherentDescriptorException;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
@@ -41,15 +42,16 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
                 .addField(FieldSpec.builder(ClassName.get(CategorizedLogger.class), "log", Modifier.STATIC, Modifier.PRIVATE, Modifier.FINAL)
                         .initializer("$T.getLogger($L.class)", CategorizedLogger.class, handlerClassSimpleName)
                         .build())
-                .addField(this.adapterProviderClass(), "adapterProvider", Modifier.PRIVATE, Modifier.FINAL)
+                .addField(this.providerClass(), "provider", Modifier.PRIVATE, Modifier.FINAL)
 
                 .addMethod(MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
                         .addParameter(
-                                this.adapterProviderClass(),
-                                "adapterProvider"
+                                this.providerClass(),
+                                "provider"
                         )
-                        .addCode(this.constructorBody())
+                        .addStatement("this.provider = provider")
                         .build())
+
                 .addMethod(MethodSpec.methodBuilder("apply").addModifiers(Modifier.PUBLIC)
                         .addParameter(this.className(this.collectionDescriptor.browse().requestValueObject()), "request")
                         .returns(this.className(this.collectionDescriptor.browse().responseValueObject()))
@@ -61,48 +63,49 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
                 .build();
     }
 
-    private CodeBlock constructorBody() {
-        return CodeBlock.builder()
-                .addStatement("this.adapterProvider = adapterProvider")
-                .build();
+    private ParameterizedTypeName providerClass() {
+        return ParameterizedTypeName.get(
+                ClassName.get(PagerProvider.class),
+                this.className(this.collectionDescriptor.browse().requestValueObject()),
+                this.className(this.collectionDescriptor.types().entity())
+        );
     }
 
     private CodeBlock applyBody() {
         return CodeBlock.builder()
 
-                .addStatement("$T adapter", this.adapterClass())
+                .addStatement("$T pager", this.pagerClass())
                 .beginControlFlow("try")
-                    .addStatement("adapter = this.adapterProvider.adapter(request)")
+                    .addStatement("pager = this.provider.pager(request)")
                 .nextControlFlow("catch($T e)", Exception.class)
-                    .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "failed getting adapter for ")
+                    .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "failed getting pager for ")
                     .addStatement("return this.unexpectedError(token)")
                 .endControlFlow()
 
-                .addStatement("$T pager = adapter.pager()", this.pagerClass())
                 .beginControlFlow("if(pager == null)")
-                    .addStatement("$T token = log.tokenized().info($S, adapter.getClass(), request)",
-                            String.class, "adapter {} has no pager, browsing method not allowed, request was : {}"
+                    .addStatement("$T token = log.tokenized().info($S, this.provider.getClass(), request)",
+                            String.class, "provider {} has no pager, browsing method not allowed, request was : {}"
                     )
                     .addStatement("return this.browsingNotAllowed(token)")
                 .endControlFlow()
 
                 .beginControlFlow("if(pager.unit() == null)")
-                    .addStatement("$T token = log.tokenized().error($S, adapter.getClass(), request)",
-                            String.class, "adapter {} implementation breaks contract, pager unit cannot be null, request was : {}"
+                    .addStatement("$T token = log.tokenized().error($S, this.provider.getClass(), request)",
+                            String.class, "provider {} implementation breaks contract, pager unit cannot be null, request was : {}"
                     )
                     .addStatement("return this.unexpectedError(token)")
                 .endControlFlow()
 
                 .beginControlFlow("if(pager.lister() == null)")
-                    .addStatement("$T token = log.tokenized().error($S, adapter.getClass(), request)",
-                            String.class, "adapter {} implementation breaks contract, pager lister cannot be null, request was : {}"
+                    .addStatement("$T token = log.tokenized().error($S, this.provider.getClass(), request)",
+                            String.class, "provider {} implementation breaks contract, pager lister cannot be null, request was : {}"
                     )
                     .addStatement("return this.unexpectedError(token)")
                 .endControlFlow()
 
                 .beginControlFlow("if(pager.maxPageSize() <= 0)")
-                    .addStatement("$T token = log.tokenized().error($S, adapter.getClass(), request)",
-                            String.class, "adapter {} implementation breaks contract, pager max page size  cannot be lower or equal to 0, request was : {}"
+                    .addStatement("$T token = log.tokenized().error($S, this.provider.getClass(), request)",
+                            String.class, "provider {} implementation breaks contract, pager max page size  cannot be lower or equal to 0, request was : {}"
                     )
                     .addStatement("return this.unexpectedError(token)")
                 .endControlFlow()

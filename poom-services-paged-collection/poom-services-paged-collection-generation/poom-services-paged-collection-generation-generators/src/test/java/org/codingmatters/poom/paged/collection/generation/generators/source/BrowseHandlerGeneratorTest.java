@@ -1,6 +1,7 @@
 package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
+import org.codingmatters.poom.generic.resource.domain.PagerProvider;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestAdapter;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestData;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestPager;
@@ -113,8 +114,10 @@ public class BrowseHandlerGeneratorTest {
 
     private Function<NoParamsGetRequest, NoParamsGetResponse> handler(PagedCollectionAdapter.FromRequestProvider<NoParamsGetRequest, org.generated.api.types.Entity, Create, Replace, Update> provider) {
         return (Function<NoParamsGetRequest, NoParamsGetResponse>) classes.get("org.generated.handlers.NoParamsBrowse")
-                .newInstance(PagedCollectionAdapter.FromRequestProvider.class)
-                .with(provider)
+                .newInstance(PagerProvider.class)
+                .with(
+                        (PagerProvider<NoParamsGetRequest, org.generated.api.types.Entity>)(request) -> provider.adapter(request).pager()
+                )
                 .get();
     }
 
@@ -129,16 +132,12 @@ public class BrowseHandlerGeneratorTest {
                         .implementing(genericType().baseClass(Function.class))
                         .with(aPublic().constructor()
                                 .withParameters(genericType()
-                                        .baseClass(PagedCollectionAdapter.FromRequestProvider.class)
+                                        .baseClass(PagerProvider.class)
                                         .withParameters(
                                                 classTypeParameter(NoParamsGetRequest.class),
-                                                classTypeParameter(org.generated.api.types.Entity.class),
-                                                classTypeParameter(Create.class),
-                                                classTypeParameter(Replace.class),
-                                                classTypeParameter(Update.class)
+                                                classTypeParameter(org.generated.api.types.Entity.class)
                                         )
                                 )
-                                .withParameters(PagedCollectionAdapter.FromRequestProvider.class)
                         )
                         .with(aPublic().method().named("apply")
                                 .withParameters(NoParamsGetRequest.class)
