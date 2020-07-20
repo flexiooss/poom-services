@@ -3,13 +3,36 @@ package org.codingmatters.poom.demo.processor;
 import org.codingmatters.poom.apis.demo.api.DemoHandlers;
 import org.codingmatters.poom.apis.demo.api.collection.handlers.*;
 import org.codingmatters.poom.demo.domain.StoreManager;
+import org.codingmatters.poom.demo.domain.spec.Store;
 import org.codingmatters.poom.demo.processor.handlers.StoreBrowse;
+import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
+import org.codingmatters.poom.generic.resource.handlers.bridge.BridgedLister;
+import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
+import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
+import org.codingmatters.poom.services.domain.repositories.EntityLister;
+import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.value.objects.values.ObjectValue;
 
 public class DemoHandlersBuilder extends DemoHandlers.Builder {
     public DemoHandlersBuilder(StoreManager storeManager) {
-        // not a collection -> should refactor
-        this.storesGetHandler(new StoreBrowse(storeManager));
-        
+
+        this.storesGetHandler(new StoresBrowse(request -> new PagedCollectionAdapter.Pager<>() {
+            @Override
+            public String unit() {
+                return "Store";
+            }
+
+            @Override
+            public int maxPageSize() {
+                return 10;
+            }
+
+            @Override
+            public EntityLister<ObjectValue, PropertyQuery> lister() {
+                return new BridgedLister<Store>(storeManager.storeLister(), store -> ObjectValue.fromMap(store.toMap()).build());
+            }
+        }));
+
         this.storeMoviesGetHandler(new StoreMoviesBrowse(request -> storeManager.storeMoviesAdpter(request.store()).pager()));
         this.movieGetHandler(new StoreMoviesRetrieve(request -> storeManager.storeMoviesAdpter(request.store()).crud()));
         this.moviePutHandler(new StoreMoviesReplace(request -> storeManager.storeMoviesAdpter(request.store()).crud()));
