@@ -9,7 +9,7 @@ public class DemoHandlersBuilder extends DemoHandlers.Builder {
     public DemoHandlersBuilder(StoreManager storeManager) {
         // not a collection -> should refactor
         this.storesGetHandler(new StoreBrowse(storeManager));
-
+        
         this.storeMoviesGetHandler(new StoreMoviesBrowse(request -> storeManager.storeMoviesAdpter(request.store()).pager()));
         this.movieGetHandler(new StoreMoviesRetrieve(request -> storeManager.storeMoviesAdpter(request.store()).crud()));
         this.moviePutHandler(new StoreMoviesReplace(request -> storeManager.storeMoviesAdpter(request.store()).crud()));
