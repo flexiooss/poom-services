@@ -319,6 +319,12 @@
                     <version>${codingmatters-rest.version}</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.codingmatters.poom</groupId>
+                    <artifactId>poom-services-paged-collection-generation-maven-plugin</artifactId>
+                    <version>${project.version}</version>
+                </plugin>
+
+                <plugin>
                     <groupId>io.reformanda.semper</groupId>
                     <artifactId>dependencyversion-maven-plugin</artifactId>
                     <version>1.0.1</version>
