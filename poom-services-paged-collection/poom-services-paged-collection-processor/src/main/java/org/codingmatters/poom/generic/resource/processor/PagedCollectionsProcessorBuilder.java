@@ -12,6 +12,10 @@ import org.codingmatters.value.objects.values.ObjectValue;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * WILL BE REMOVED VERY SOON
+ */
+@Deprecated
 public class PagedCollectionsProcessorBuilder {
 
     private final Map<String, Processor> resourceProcessors = new HashMap<>();

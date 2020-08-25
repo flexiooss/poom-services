@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.codingmatters.poom</groupId>
+        <artifactId>poom-services-paged-collection-generation</artifactId>
+        <version>1.40.0</version>
+    </parent>
+
+    <artifactId>poom-services-paged-collection-generation-spec</artifactId>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codingmatters.value.objects</groupId>
+                <artifactId>cdm-value-objects-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>paged-collection-spec</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <destination-package>org.codingmatters.poom.paged.collection.generation.spec</destination-package>
+                            <input-spec>src/main/resources/paged-collection-spec.yaml</input-spec>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-generated-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>target/generated-sources</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

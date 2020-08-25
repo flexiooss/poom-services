@@ -7,13 +7,12 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services</artifactId>
-        <version>1.39.1</version>
+        <version>1.40.0</version>
         <relativePath>../</relativePath>
     </parent>
 
     <groupId>org.codingmatters.poom</groupId>
     <artifactId>poom-services-paged-collection</artifactId>
-    <version>1.39.1</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -21,6 +20,7 @@
         <module>poom-services-paged-collection-domain</module>
         <module>poom-services-paged-collection-handlers</module>
         <module>poom-services-paged-collection-processor</module>
+        <module>poom-services-paged-collection-generation</module>
     </modules>
 
 </project>

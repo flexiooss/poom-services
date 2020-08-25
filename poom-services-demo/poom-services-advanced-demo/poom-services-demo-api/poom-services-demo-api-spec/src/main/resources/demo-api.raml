@@ -6,6 +6,7 @@ mediaType: application/json
 
 /:
   displayName: stores
+  (paged-collection):
   description: Stores
   get:
     description: |
@@ -14,9 +15,11 @@ mediaType: application/json
 
   /{store}:
     displayName: a store
+    (paged-collection-entity):
 
     /movies:
       displayName: store movies
+      (paged-collection):
       uriParameters:
         store: string
       description: |
@@ -29,6 +32,7 @@ mediaType: application/json
 
       /{movie-id}:
         displayName: movie
+        (paged-collection-entity):
         uriParameters:
           movie-id: string
 
@@ -46,6 +50,7 @@ mediaType: application/json
 
         /rentals:
           displayName: movie rentals
+          (paged-collection):
           description: |
             Rentals for this movie
           get:
@@ -59,6 +64,7 @@ mediaType: application/json
 
           /{rental-id}:
             displayName: rental
+            (paged-collection-entity):
             uriParameters:
               rental-id: string
 
@@ -73,6 +79,7 @@ mediaType: application/json
 
     /category/{category}:
       displayName: category movies
+      (paged-collection):
       uriParameters:
         category: string
 
@@ -85,6 +92,7 @@ mediaType: application/json
 
     /rentals:
       displayName: store rentals
+      (paged-collection):
       description: |
         Rentals for this store (read only)
       get:
@@ -92,6 +100,7 @@ mediaType: application/json
 
       /{rental-id}:
         displayName: a rental
+        (paged-collection-entity):
         uriParameters:
           rental-id: string
         get:
@@ -99,6 +108,7 @@ mediaType: application/json
 
     /customers/{customer}/rentals:
       displayName: customer rentals
+      (paged-collection):
       uriParameters:
         customer: string
       get:
@@ -108,6 +118,7 @@ mediaType: application/json
 
   /late-rental-tasks:
     displayName: late rental tasks
+    (paged-collection):
     description: |
       Late rental tasks mark rental tha have a passed due date as being late.
       When a task is created, the marking process starts for every stores and a 201 is immediatly returned.
@@ -124,13 +135,14 @@ mediaType: application/json
 
     /{task-id}:
       displayName: late rental task
+      (paged-collection-entity):
       uriParameters:
         task-id: string
 
       get:
         is: [entityRetrieve: {entityType: LateRentalTask, error: Error}]
 
-annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/annotation-types/codingmatters.raml
+annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.4.0/apis/core/annotation-types/codingmatters.raml
 
 types:
   Movie:
@@ -191,14 +203,14 @@ types:
           accountProcessed: integer
           lateRentalCount: integer
 
-  Message: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/types/message.raml
-  Error: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/types/error-with-messages.raml
+  Message: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.4.0/apis/core/types/message.raml
+  Error: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.4.0/apis/core/types/error-with-messages.raml
 
 traits:
-  rfc7233Browsing: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/traits/collection/rfc7233-browse-collection.raml
-  entityCreation: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/traits/collection/create.raml
-  entityRetrieve: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/traits/entity/retrieve.raml
-  entityReplace: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/traits/entity/replace.raml
-  entityUpdate: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/traits/entity/update.raml
-  entityDelete: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.2.0/apis/core/traits/entity/delete.raml
+  rfc7233Browsing: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.4.0/apis/core/traits/collection/rfc7233-browse-collection.raml
+  entityCreation: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.4.0/apis/core/traits/collection/create.raml
+  entityRetrieve: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.4.0/apis/core/traits/entity/retrieve.raml
+  entityReplace: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.4.0/apis/core/traits/entity/replace.raml
+  entityUpdate: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.4.0/apis/core/traits/entity/update.raml
+  entityDelete: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.4.0/apis/core/traits/entity/delete.raml
 
