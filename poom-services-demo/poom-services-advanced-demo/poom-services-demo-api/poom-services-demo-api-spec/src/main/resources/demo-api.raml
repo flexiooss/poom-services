@@ -153,6 +153,21 @@ types:
       film-maker: string
       category:
         enum: [REGULAR, HORROR, CHILDREN]
+      characters:
+        type: array
+        items: MovieCharacter
+      facts:
+        type: object
+        properties:
+          release-date: date-only
+          duration: integer
+          language: string
+
+  MovieCharacter:
+    type: object
+    properties:
+      name: string
+      played-by: string
 
   MovieCreationData:
     type: object

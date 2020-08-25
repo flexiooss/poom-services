@@ -1,8 +1,7 @@
 package org.codingmatters.poom.demo.service.support;
 
-import org.codingmatters.poom.apis.demo.api.types.Movie;
-import org.codingmatters.poom.apis.demo.api.types.MovieCreationData;
-import org.codingmatters.poom.apis.demo.api.types.Rental;
+import org.codingmatters.poom.apis.demo.api.types.*;
+import org.codingmatters.poom.apis.demo.api.types.movie.Facts;
 import org.codingmatters.poom.demo.domain.StoreManager;
 import org.codingmatters.poom.demo.domain.spec.Store;
 import org.codingmatters.poom.demo.domain.spec.store.Address;
@@ -12,6 +11,7 @@ import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.support.date.UTC;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 
@@ -49,7 +49,21 @@ public class DemoData {
             StoreManager manager = this.storeManagerSupport.createStoreManager(Executors.newSingleThreadExecutor());
 
             PagedCollectionAdapter.CRUD<Movie, MovieCreationData, Movie, Void> crud = manager.categoryMoviesAdpter(NETFLIX.name(), Movie.Category.REGULAR.name()).crud();
-            crud.createEntityFrom(MovieCreationData.builder().filmMaker("Alfred Hitchcock").title("The Great Day").build());
+            Repository<Movie, PropertyQuery> netflixMovyRepository = this.storeManagerSupport.movieRepositoryForStore(NETFLIX.name()).get();
+
+            Entity<Movie> movie = crud.createEntityFrom(MovieCreationData.builder().filmMaker("Alfred Hitchcock").title("The Great Day").build());
+            netflixMovyRepository.update(movie, movie.value()
+                    .withFacts(Facts.builder()
+                            .releaseDate(LocalDate.of(1930, 01, 01))
+                            .language("english")
+                            .build())
+                    .withCharacters(new ValueList.Builder<MovieCharacter>().with(
+                            MovieCharacter.builder().name("Captain John Ellis").playedBy("Eric Portman").build(),
+                            MovieCharacter.builder().name("Mrs Liz Ellis").playedBy("Flora Robertson").build(),
+                            MovieCharacter.builder().name("Margaret Ellis").playedBy("Sheila Sim").build()
+                    ).build())
+            );
+
             crud.createEntityFrom(MovieCreationData.builder().filmMaker("Alfred Hitchcock").title("The Call of Youth").build());
             crud.createEntityFrom(MovieCreationData.builder().filmMaker("Alfred Hitchcock").title("Dangerous Lies").build());
             crud.createEntityFrom(MovieCreationData.builder().filmMaker("Alfred Hitchcock").title("The White Shadow").build());
