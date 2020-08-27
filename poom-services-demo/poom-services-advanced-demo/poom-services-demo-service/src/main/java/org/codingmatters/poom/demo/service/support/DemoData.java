@@ -12,6 +12,7 @@ import org.codingmatters.poom.services.support.date.UTC;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 
@@ -56,6 +57,7 @@ public class DemoData {
                     .withFacts(Facts.builder()
                             .releaseDate(LocalDate.of(1930, 01, 01))
                             .language("english")
+                            .duration(LocalTime.of(1, 30))
                             .build())
                     .withCharacters(new ValueList.Builder<MovieCharacter>().with(
                             MovieCharacter.builder().name("Captain John Ellis").playedBy("Eric Portman").build(),
