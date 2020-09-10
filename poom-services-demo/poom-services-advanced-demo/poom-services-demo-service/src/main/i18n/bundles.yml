@@ -1,0 +1,9 @@
+---
+- name: advanced demo
+  defaultLocale: en
+  messages:
+    - key: greetings
+      message: Hello {user:s} !
+      args:
+        - name: user
+          type: STRING

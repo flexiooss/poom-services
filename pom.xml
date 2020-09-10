@@ -89,6 +89,7 @@
         <module>poom-services-demo</module>
 	    <module>poom-services-test-support</module>
 	    <module>poom-services-paged-collection</module>
+        <module>poom-services-i18n</module>
     </modules>
 
     <dependencies>
@@ -228,6 +229,18 @@
                 <version>1.42.0-SNAPSHOT</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.codingmatters.poom.i18n</groupId>
+                <artifactId>poom-services-i18n-bundle-spec</artifactId>
+                <version>1.42.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.i18n</groupId>
+                <artifactId>poom-services-i18n-bundle-spec-gen</artifactId>
+                <version>1.42.0-SNAPSHOT</version>
+            </dependency>
+
+
 
             <!--            SIMPLE DEMO-->
             <dependency>
@@ -323,6 +336,12 @@
                     <artifactId>poom-services-paged-collection-generation-maven-plugin</artifactId>
                     <version>1.42.0-SNAPSHOT</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.codingmatters.poom.i18n</groupId>
+                    <artifactId>poom-services-i18n-bundle-spec-plugin</artifactId>
+                    <version>1.42.0-SNAPSHOT</version>
+                </plugin>
+
 
                 <plugin>
                     <groupId>io.reformanda.semper</groupId>
@@ -433,6 +452,32 @@
                                 <ignoredUnusedDeclaredDependency>org.codingmatters.poom:poom-services-production-support</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>i18n-bundle-generation</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/src/main/i18n/bundles.yml</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codingmatters.poom.i18n</groupId>
+                        <artifactId>poom-services-i18n-bundle-spec-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>i18n-bundles</id>
+                                <goals>
+                                    <goal>bundles</goal>
+                                </goals>
+                                <phase>generate-sources</phase>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
