@@ -75,6 +75,8 @@ public class DeleteEntity implements Function<EntityDeleteRequest, EntityDeleteR
             return EntityDeleteResponse.builder().status401(Status401.builder().payload(e.error()).build()).build();
         } catch (UnexpectedException e) {
             return EntityDeleteResponse.builder().status500(Status500.builder().payload(e.error()).build()).build();
+        } catch (MethodNotAllowedException e) {
+            return EntityDeleteResponse.builder().status405(Status405.builder().payload(e.error()).build()).build();
         }
 
         return EntityDeleteResponse.builder().status204(Status204.builder().build()).build();

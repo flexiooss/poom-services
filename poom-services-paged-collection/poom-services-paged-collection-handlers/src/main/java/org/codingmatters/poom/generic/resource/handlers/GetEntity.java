@@ -1,6 +1,5 @@
 package org.codingmatters.poom.generic.resource.handlers;
 
-import org.codingmatters.poom.api.paged.collection.api.EntityDeleteResponse;
 import org.codingmatters.poom.api.paged.collection.api.EntityGetRequest;
 import org.codingmatters.poom.api.paged.collection.api.EntityGetResponse;
 import org.codingmatters.poom.api.paged.collection.api.entitygetresponse.*;
@@ -8,7 +7,6 @@ import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.api.paged.collection.api.types.Message;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
-import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.codingmatters.value.objects.values.ObjectValue;
@@ -70,6 +68,8 @@ public class GetEntity implements Function<EntityGetRequest, EntityGetResponse> 
             return EntityGetResponse.builder().status401(Status401.builder().payload(e.error()).build()).build();
         } catch (UnexpectedException e) {
             return EntityGetResponse.builder().status500(Status500.builder().payload(e.error()).build()).build();
+        } catch (MethodNotAllowedException e) {
+            return EntityGetResponse.builder().status405(Status405.builder().payload(e.error()).build()).build();
         }
 
         if(entity.isPresent()) {

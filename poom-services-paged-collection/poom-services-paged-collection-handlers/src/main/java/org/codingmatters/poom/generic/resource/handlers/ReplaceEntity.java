@@ -78,6 +78,8 @@ public class ReplaceEntity implements Function<EntityPutRequest, EntityPutRespon
             return EntityPutResponse.builder().status401(Status401.builder().payload(e.error()).build()).build();
         } catch (UnexpectedException e) {
             return EntityPutResponse.builder().status500(Status500.builder().payload(e.error()).build()).build();
+        } catch (MethodNotAllowedException e) {
+            return EntityPutResponse.builder().status405(Status405.builder().payload(e.error()).build()).build();
         }
 
         if(entity == null) {

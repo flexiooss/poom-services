@@ -78,6 +78,8 @@ public class UpdateEntity implements Function<EntityPatchRequest, EntityPatchRes
             return EntityPatchResponse.builder().status401(Status401.builder().payload(e.error()).build()).build();
         } catch (UnexpectedException e) {
             return EntityPatchResponse.builder().status500(Status500.builder().payload(e.error()).build()).build();
+        } catch (MethodNotAllowedException e) {
+            return EntityPatchResponse.builder().status405(Status405.builder().payload(e.error()).build()).build();
         }
 
         if(entity == null) {

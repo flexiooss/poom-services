@@ -45,7 +45,7 @@ public class BridgedCRUD<EntityTpe, CreationType, ReplaceType, UpdateType> imple
     }
 
     @Override
-    public Optional<Entity<ObjectValue>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+    public Optional<Entity<ObjectValue>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException, MethodNotAllowedException {
         Optional<Entity<EntityTpe>> entity = this.delegate.retrieveEntity(id);
         if(entity.isPresent()) {
             return Optional.of(this.fromEntity(entity.get()));
@@ -54,22 +54,22 @@ public class BridgedCRUD<EntityTpe, CreationType, ReplaceType, UpdateType> imple
     }
 
     @Override
-    public Entity<ObjectValue> createEntityFrom(ObjectValue value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+    public Entity<ObjectValue> createEntityFrom(ObjectValue value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException, MethodNotAllowedException {
         return this.fromEntity(this.delegate.createEntityFrom(this.toCreationType.apply(value)));
     }
 
     @Override
-    public Entity<ObjectValue> replaceEntityWith(String id, ObjectValue value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+    public Entity<ObjectValue> replaceEntityWith(String id, ObjectValue value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException, MethodNotAllowedException {
         return this.fromEntity(this.delegate.replaceEntityWith(id, this.toReplaceType.apply(value)));
     }
 
     @Override
-    public Entity<ObjectValue> updateEntityWith(String id, ObjectValue value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+    public Entity<ObjectValue> updateEntityWith(String id, ObjectValue value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException, MethodNotAllowedException {
         return this.fromEntity(this.delegate.updateEntityWith(id, this.toUpdateType.apply(value)));
     }
 
     @Override
-    public void deleteEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+    public void deleteEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException, MethodNotAllowedException {
         this.delegate.deleteEntity(id);
     }
 

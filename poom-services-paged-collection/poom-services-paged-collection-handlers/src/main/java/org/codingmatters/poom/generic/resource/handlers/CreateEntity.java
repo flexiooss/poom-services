@@ -71,6 +71,8 @@ public class CreateEntity implements Function<PagedCollectionPostRequest, PagedC
             return PagedCollectionPostResponse.builder().status401(Status401.builder().payload(e.error()).build()).build();
         } catch (UnexpectedException e) {
             return PagedCollectionPostResponse.builder().status500(Status500.builder().payload(e.error()).build()).build();
+        } catch (MethodNotAllowedException e) {
+            return PagedCollectionPostResponse.builder().status405(Status405.builder().payload(e.error()).build()).build();
         }
 
         if(entity == null) {
