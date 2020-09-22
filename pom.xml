@@ -207,16 +207,6 @@
                 <artifactId>poom-services-paged-collection-domain</artifactId>
                 <version>1.42.0-SNAPSHOT</version>
             </dependency>
-            <dependency>
-                <groupId>org.codingmatters.poom</groupId>
-                <artifactId>poom-services-paged-collection-handlers</artifactId>
-                <version>1.42.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codingmatters.poom</groupId>
-                <artifactId>poom-services-paged-collection-processor</artifactId>
-                <version>1.42.0-SNAPSHOT</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>

@@ -39,10 +39,7 @@ public interface PagedCollectionAdapter<EntityType, CreationType, ReplaceType, U
             EntityReplacer<EntityType, ReplaceType>,
             EntityUpdater<EntityType, UpdateType>,
             EntityDeleter
-        {
-            @Deprecated
-            Set<Action> supportedActions();
-    }
+        {}
 
     static <EntityType, CreationType, ReplaceType, UpdateType> DefaultAdapterBuilder<EntityType, CreationType, ReplaceType, UpdateType> builder() {
         return new DefaultAdapterBuilder<>();

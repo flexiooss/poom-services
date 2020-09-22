@@ -23,11 +23,6 @@ public class BadRequestAdapter<EntityType, CreationType, ReplaceType, UpdateType
         }
 
         @Override
-        public Set<Action> supportedActions() {
-            return Action.all;
-        }
-
-        @Override
         public Optional<Entity<EntityType>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
             throw new BadRequestException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
         }

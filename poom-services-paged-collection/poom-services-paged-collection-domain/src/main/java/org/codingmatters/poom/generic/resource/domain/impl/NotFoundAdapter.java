@@ -22,10 +22,6 @@ public class NotFoundAdapter<EntityType, CreationType, ReplaceType, UpdateType> 
             return null;
         }
 
-        @Override
-        public Set<Action> supportedActions() {
-            return Action.all;
-        }
 
         @Override
         public Optional<Entity<EntityType>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {

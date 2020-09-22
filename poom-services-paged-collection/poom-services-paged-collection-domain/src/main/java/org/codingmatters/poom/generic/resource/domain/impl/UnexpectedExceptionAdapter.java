@@ -23,11 +23,6 @@ public class UnexpectedExceptionAdapter<EntityTpe, CreationType, ReplaceType, Up
         }
 
         @Override
-        public Set<Action> supportedActions() {
-            return Action.all;
-        }
-
-        @Override
         public Optional<Entity<EntityTpe>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
             throw new UnexpectedException(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).build(), "");
         }

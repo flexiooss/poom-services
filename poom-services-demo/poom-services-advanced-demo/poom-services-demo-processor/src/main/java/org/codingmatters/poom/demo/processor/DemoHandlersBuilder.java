@@ -4,14 +4,15 @@ import org.codingmatters.poom.apis.demo.api.DemoHandlers;
 import org.codingmatters.poom.apis.demo.api.collection.handlers.*;
 import org.codingmatters.poom.demo.domain.StoreManager;
 import org.codingmatters.poom.demo.domain.spec.Store;
-import org.codingmatters.poom.demo.processor.handlers.StoreBrowse;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
-import org.codingmatters.poom.generic.resource.handlers.bridge.BridgedLister;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.EntityLister;
+import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
 import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 import org.codingmatters.value.objects.values.ObjectValue;
+
+import java.util.stream.Collectors;
 
 public class DemoHandlersBuilder extends DemoHandlers.Builder {
     public DemoHandlersBuilder(StoreManager storeManager) {
@@ -29,7 +30,23 @@ public class DemoHandlersBuilder extends DemoHandlers.Builder {
 
             @Override
             public EntityLister<ObjectValue, PropertyQuery> lister() {
-                return new BridgedLister<Store>(storeManager.storeLister(), store -> ObjectValue.fromMap(store.toMap()).build());
+                return new EntityLister<ObjectValue, PropertyQuery>() {
+                    @Override
+                    public PagedEntityList<ObjectValue> all(long startIndex, long endIndex) throws RepositoryException {
+                        return this.search(null, startIndex, endIndex);
+                    }
+
+                    @Override
+                    public PagedEntityList<ObjectValue> search(PropertyQuery query, long startIndex, long endIndex) throws RepositoryException {
+                        PagedEntityList<Store> result = storeManager.storeLister().search(query, startIndex, endIndex);
+
+                        return new PagedEntityList.DefaultPagedEntityList<ObjectValue>(
+                                result.startIndex(), result.endIndex(), result.total(),
+                                result.stream().map(e -> new ImmutableEntity<>(e.id(), e.version(),
+                                        ObjectValue.fromMap(e.value().toMap()).build())).collect(Collectors.toUnmodifiableList())
+                        );
+                    }
+                };
             }
         }));
 
