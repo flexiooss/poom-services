@@ -34,7 +34,7 @@ public class Range {
                 startIndex = Long.parseLong(rangeMatcher.group(1));
                 endIndex = Long.parseLong(rangeMatcher.group(2));
 
-                if(endIndex - startIndex > maxPageSize) {
+                if(endIndex - startIndex >= maxPageSize) {
                     endIndex = startIndex + maxPageSize - 1;
                 }
 
