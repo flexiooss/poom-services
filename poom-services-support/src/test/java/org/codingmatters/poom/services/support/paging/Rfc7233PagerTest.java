@@ -392,4 +392,21 @@ public class Rfc7233PagerTest {
 
         assertThat(page.list().size(), is(1));
     }
+
+    @Test
+    public void givenRepositoryIsEmpty__whenQueryingOneLengthPage_andStartsAt0__thenOneElementRetirned() throws Exception {
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("0-0").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.list().size(), is(0));
+    }
+
+    @Test
+    public void givenRepositoryAsOneElement__whenQueryingOneLengthPage_andStartsAtMoreThan0__thenOneElementRetirned() throws Exception {
+        this.repository.create("1");
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("0-0").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.list().size(), is(1));
+    }
 }
