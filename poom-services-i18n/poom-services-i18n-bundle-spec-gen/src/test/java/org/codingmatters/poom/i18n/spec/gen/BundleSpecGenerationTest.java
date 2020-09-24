@@ -47,6 +47,38 @@ public class BundleSpecGenerationTest {
                 is(aPublic().interface_())
         );
     }
+    @Test
+    public void givenGeneratingBundleSpecInterface__whenBundleAsName__thenABPublicStaticAccessorForBundleName() throws Exception {
+        new BundleSpecGeneration(
+                "org.generated",
+                BundleSpec.builder()
+                        .name("a test")
+                        .build(),
+                this.jsonFactory).to(this.dir.getRoot());
+
+        this.compile();
+
+        assertThat(
+                this.classes.get("org.generated.ATestBundle").get(),
+                is(aPublic().interface_().with(aPublic().static_().method().named("bundleName").returning(String.class)))
+        );
+    }
+
+    @Test
+    public void givenBundleSpecInterfaceGenerated__whenCallingAccessorForBundleName__thenReturnsBundleName() throws Exception {
+
+        new BundleSpecGeneration(
+                "org.generated",
+                BundleSpec.builder()
+                        .name("a test")
+                        .messages(MessageSpec.builder().key("a.key").build())
+                        .build(),
+                jsonFactory).to(this.dir.getRoot());
+
+        this.compile();
+
+        assertThat(this.classes.get("org.generated.ATestBundle").call("bundleName").get(), is("a test"));
+    }
 
     @Test
     public void givenGeneratingBundleSpecInterface__whenBundleHasAMessage__thenAPublicStaticAccessorIsNamedFromKey() throws Exception {

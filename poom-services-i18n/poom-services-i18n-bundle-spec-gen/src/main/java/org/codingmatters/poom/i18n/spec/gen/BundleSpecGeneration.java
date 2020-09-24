@@ -48,6 +48,7 @@ public class BundleSpecGeneration {
                 .addModifiers(Modifier.PUBLIC)
                 .addMethods(this.keyMethods())
                 .addMethod(this.defaultLocaleAccessor())
+                .addMethod(this.bundleNameAccessor())
                 .addMethod(this.specAccessor(specResource))
                 .addMethod(this.versionAccessor())
                 .build();
@@ -60,6 +61,14 @@ public class BundleSpecGeneration {
         ) {
             new BundleSpecWriter().write(generator, this.spec);
         }
+    }
+
+    private MethodSpec bundleNameAccessor() {
+        return MethodSpec.methodBuilder("bundleName")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(String.class)
+                .addStatement("return $S", this.spec.name())
+                .build();
     }
 
     private MethodSpec specAccessor(String specResource) {
