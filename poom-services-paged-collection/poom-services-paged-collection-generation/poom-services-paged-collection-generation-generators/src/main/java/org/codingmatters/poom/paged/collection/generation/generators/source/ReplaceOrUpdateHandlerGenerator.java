@@ -179,6 +179,11 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
                             this.className(this.action.responseValueObject()),
                             this.relatedClassName("Status500", this.action.responseValueObject())
                     )
+                .nextControlFlow("catch($T e)", MethodNotAllowedException.class)
+                    .addStatement("return $T.builder().status405($T.builder().payload(this.casted(e.error())).build()).build()",
+                            this.className(this.action.responseValueObject()),
+                            this.relatedClassName("Status405", this.action.responseValueObject())
+                    )
                 .endControlFlow()
 
                 //replacement error

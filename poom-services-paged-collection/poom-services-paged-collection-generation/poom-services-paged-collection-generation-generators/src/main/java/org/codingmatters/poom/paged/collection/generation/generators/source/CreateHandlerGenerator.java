@@ -117,6 +117,11 @@ public class CreateHandlerGenerator extends PagedCollectionHandlerGenerator {
                             this.className(this.collectionDescriptor.create().responseValueObject()),
                             this.relatedClassName("Status500", this.collectionDescriptor.create().responseValueObject())
                     )
+                .nextControlFlow("catch($T e)", MethodNotAllowedException.class)
+                    .addStatement("return $T.builder().status405($T.builder().payload(this.casted(e.error())).build()).build()",
+                            this.className(this.collectionDescriptor.create().responseValueObject()),
+                            this.relatedClassName("Status405", this.collectionDescriptor.create().responseValueObject())
+                    )
                 .endControlFlow()
 
                 //failure

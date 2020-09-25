@@ -5,7 +5,7 @@ import org.codingmatters.poom.services.test.utils.StringInMemoryRepository;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Created by nelt on 7/13/17.
@@ -303,5 +303,110 @@ public class Rfc7233PagerTest {
         for(int i = 0 ; i < 5 ; i++) {
             assertThat(page.list().get(i).value(), is("matches " + i));
         }
+    }
+
+    @Test
+    public void givenRepositoryAsMoreThanOnePage__whenQueryingExactlyMaxSize_andStartingAt0__thenMaxSizeReturned() throws Exception {
+        for (int i = 0; i < 200; i++) {
+            this.repository.create("" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("0-99").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.list().size(), is(100));
+    }
+
+    @Test
+    public void givenRepositoryAsMoreThanOnePage__whenQueryingExactlyMaxSize_andStartingAt10__thenMaxSizeReturned() throws Exception {
+        for (int i = 0; i < 200; i++) {
+            this.repository.create("" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("10-109").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.list().size(), is(100));
+    }
+
+    @Test
+    public void givenRepositoryAsMoreThanOnePage__whenQueryingOneOverMaxSize_andStartingAt0__thenMaxSizeReturned() throws Exception {
+        for (int i = 0; i < 200; i++) {
+            this.repository.create("" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("0-100").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.list().size(), is(100));
+    }
+
+    @Test
+    public void givenRepositoryAsMoreThanOnePage__whenQueryingOneOverMaxSize_andStartingAt10__thenMaxSizeReturned() throws Exception {
+        for (int i = 0; i < 200; i++) {
+            this.repository.create("" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("10-110").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.list().size(), is(100));
+    }
+
+    @Test
+    public void givenRepositoryAsMoreThanOnePage__whenQueryingTwoOverMaxSize_andStartingAt0__thenMaxSizeReturned() throws Exception {
+        for (int i = 0; i < 200; i++) {
+            this.repository.create("" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("0-101").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.list().size(), is(100));
+    }
+
+    @Test
+    public void givenRepositoryAsMoreThanOnePage__whenQueryingTwoOverMaxSize_andStartingAt10__thenMaxSizeReturned() throws Exception {
+        for (int i = 0; i < 200; i++) {
+            this.repository.create("" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("10-111").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.list().size(), is(100));
+    }
+
+    @Test
+    public void givenRepositoryAsElements__whenQueryingOneLengthPage_andStartsAt0__thenOneElementRetirned() throws Exception {
+        for (int i = 0; i < 200; i++) {
+            this.repository.create("" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("0-0").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.list().size(), is(1));
+    }
+
+    @Test
+    public void givenRepositoryAsElements__whenQueryingOneLengthPage_andStartsAtMoreThan0__thenOneElementRetirned() throws Exception {
+        for (int i = 0; i < 200; i++) {
+            this.repository.create("" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("12-12").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.list().size(), is(1));
+    }
+
+    @Test
+    public void givenRepositoryIsEmpty__whenQueryingOneLengthPage_andStartsAt0__thenOneElementRetirned() throws Exception {
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("0-0").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.list().size(), is(0));
+    }
+
+    @Test
+    public void givenRepositoryAsOneElement__whenQueryingOneLengthPage_andStartsAtMoreThan0__thenOneElementRetirned() throws Exception {
+        this.repository.create("1");
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("0-0").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.list().size(), is(1));
     }
 }

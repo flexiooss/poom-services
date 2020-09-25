@@ -1,0 +1,17 @@
+---
+bundleSpec:
+  name: string
+  defaultLocale: string
+  messages:
+    $list: $messageSpec
+
+messageSpec:
+  key: string
+  args:
+    $list: $argSpec
+  message: string
+
+argSpec:
+  name: string
+  type:
+    $enum: STRING, DATE, NUMBER

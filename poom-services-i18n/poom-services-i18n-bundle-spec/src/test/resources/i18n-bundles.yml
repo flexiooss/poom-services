@@ -1,0 +1,12 @@
+---
+- name: first bundle
+  defaultLocale: en-GB
+  messages:
+    - key: greetings
+      message: Hello {user:s} !
+
+- name: second bundle
+  defaultLocale: fr-FR
+  messages:
+    - key: say.i.to.user
+      message: Bonjour {user:s} !

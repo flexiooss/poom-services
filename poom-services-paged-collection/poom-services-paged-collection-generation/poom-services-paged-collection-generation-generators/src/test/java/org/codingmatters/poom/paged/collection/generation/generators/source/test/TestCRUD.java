@@ -14,11 +14,6 @@ import java.util.Set;
 public class TestCRUD implements PagedCollectionAdapter.CRUD<org.generated.api.types.Entity, Create, Replace, Update> {
 
     @Override
-    public Set<Action> supportedActions() {
-        return Action.all;
-    }
-
-    @Override
     public String entityRepositoryUrl() {
         return "flexio-api://api/collection";
     }

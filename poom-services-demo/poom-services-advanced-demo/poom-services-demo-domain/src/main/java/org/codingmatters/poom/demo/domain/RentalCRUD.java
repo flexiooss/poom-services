@@ -41,11 +41,6 @@ public class RentalCRUD implements PagedCollectionAdapter.CRUD<Rental, RentalReq
     }
 
     @Override
-    public Set<Action> supportedActions() {
-        return this.actions;
-    }
-
-    @Override
     public Optional<Entity<Rental>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
         try {
             return Optional.ofNullable(this.repository.retrieve(id));

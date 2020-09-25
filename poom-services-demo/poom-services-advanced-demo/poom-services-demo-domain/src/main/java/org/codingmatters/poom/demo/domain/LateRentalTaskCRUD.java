@@ -37,11 +37,6 @@ public class LateRentalTaskCRUD implements PagedCollectionAdapter.CRUD<LateRenta
     }
 
     @Override
-    public Set<Action> supportedActions() {
-        return Action.actions(Action.CREATE);
-    }
-
-    @Override
     public Optional<Entity<LateRentalTask>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
         try {
             return Optional.ofNullable(this.repository.retrieve(id));

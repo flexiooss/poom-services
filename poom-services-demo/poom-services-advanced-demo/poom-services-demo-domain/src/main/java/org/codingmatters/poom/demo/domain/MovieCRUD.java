@@ -39,11 +39,6 @@ public class MovieCRUD implements PagedCollectionAdapter.CRUD<Movie, MovieCreati
     }
 
     @Override
-    public Set<Action> supportedActions() {
-        return this.actions;
-    }
-
-    @Override
     public Optional<Entity<Movie>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
         try {
             return Optional.ofNullable(this.repository.retrieve(id));
