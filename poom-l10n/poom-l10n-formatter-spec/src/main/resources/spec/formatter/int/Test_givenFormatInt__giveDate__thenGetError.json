@@ -1,0 +1,18 @@
+{
+  "name": "Test_givenFormatInt__giveDate__thenGetError",
+  "template": "{a:d}",
+  "locale": "fr",
+  "offset": "0",
+  "values": [
+    {
+      "key": "a",
+      "value": {
+        "value": "2020-02-10"
+      }
+    }
+  ],
+  "expectedValue": {
+    "value": null,
+    "exception": true
+  }
+}

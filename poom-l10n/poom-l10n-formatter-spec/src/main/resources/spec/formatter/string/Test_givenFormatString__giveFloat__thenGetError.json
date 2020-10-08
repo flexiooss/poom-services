@@ -1,0 +1,18 @@
+{
+  "name": "Test_givenFormatString__giveFloat__thenGetError",
+  "template": "{a:s}",
+  "locale": "fr",
+  "offset": "0",
+  "values": [
+    {
+      "key": "a",
+      "value": {
+        "value": 5.0
+      }
+    }
+  ],
+  "expectedValue": {
+    "value": null,
+    "exception": true
+  }
+}

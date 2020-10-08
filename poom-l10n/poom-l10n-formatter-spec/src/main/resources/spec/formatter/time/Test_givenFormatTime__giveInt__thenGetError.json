@@ -1,0 +1,18 @@
+{
+  "name": "Test_givenFormatTime__giveInt__thenGetError",
+  "template": "{a:tt}",
+  "locale": "fr",
+  "offset": "0",
+  "values": [
+    {
+      "key": "a",
+      "value": {
+        "value": 42
+      }
+    }
+  ],
+  "expectedValue": {
+    "value": null,
+    "exception": true
+  }
+}

@@ -90,6 +90,7 @@
 	    <module>poom-services-test-support</module>
 	    <module>poom-services-paged-collection</module>
         <module>poom-services-i18n</module>
+        <module>poom-l10n</module>
     </modules>
 
     <dependencies>
@@ -219,6 +220,8 @@
                 <version>1.44.0-SNAPSHOT</version>
             </dependency>
 
+<!--            I18N / L10N-->
+
             <dependency>
                 <groupId>org.codingmatters.poom.i18n</groupId>
                 <artifactId>poom-services-i18n-bundle-spec</artifactId>
@@ -230,6 +233,26 @@
                 <version>1.44.0-SNAPSHOT</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.codingmatters.poom</groupId>
+                <artifactId>poom-l10n-formatter-spec</artifactId>
+                <version>1.44.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom</groupId>
+                <artifactId>poom-l10n-formatter-api</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom</groupId>
+                <artifactId>poom-l10n-formatter-json</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom</groupId>
+                <artifactId>poom-l10n-client</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+            </dependency>
 
 
             <!--            SIMPLE DEMO-->

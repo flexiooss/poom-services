@@ -1,0 +1,18 @@
+{
+  "name": "Test_givenFormatDate__giveFloat__thenGetError",
+  "template": "{a:td}",
+  "locale": "fr",
+  "offset": "0",
+  "values": [
+    {
+      "key": "a",
+      "value": {
+        "value": 5.0
+      }
+    }
+  ],
+  "expectedValue": {
+    "value": null,
+    "exception": true
+  }
+}

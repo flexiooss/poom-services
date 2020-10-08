@@ -1,0 +1,17 @@
+TestCaseExpectedValue:
+  value: string
+  exception: bool
+
+TestCaseFormatter:
+  name: string
+  template: string
+  locale: string
+  offset: string
+  values:
+    $list: $TestCaseValue
+  expectedValue: $TestCaseExpectedValue
+
+TestCaseValue:
+  key: string
+  value:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue

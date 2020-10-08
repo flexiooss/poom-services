@@ -1,0 +1,18 @@
+{
+  "name": "Test_givenFormatDateUS__giveDate__thenGetError",
+  "template": "{a:td}",
+  "locale": "en-US",
+  "offset": "0",
+  "values": [
+    {
+      "key": "a",
+      "value": {
+        "value": "2020-02-11"
+      }
+    }
+  ],
+  "expectedValue": {
+    "value": "02-11-2020",
+    "exception": false
+  }
+}
