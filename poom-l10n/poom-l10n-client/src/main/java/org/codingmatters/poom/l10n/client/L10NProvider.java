@@ -3,7 +3,7 @@ package org.codingmatters.poom.l10n.client;
 @FunctionalInterface
 public interface L10NProvider {
 
-    L10N l10n();
+    L10N l10n(String localeSpec);
 
     static L10NProvider registeredProvider() {
         return Registered.instance;
@@ -14,7 +14,7 @@ public interface L10NProvider {
     }
 
     class Registered {
-        static private L10NProvider instance = () -> L10N.NOOP;
+        static private L10NProvider instance = (localeSpec) -> new L10N.NOOP(localeSpec);
     }
 
 }
