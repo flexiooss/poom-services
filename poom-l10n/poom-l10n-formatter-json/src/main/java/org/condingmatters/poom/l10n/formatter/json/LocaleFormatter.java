@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 
 public class LocaleFormatter {
     private String sentence;
-//    private Map<String, Object> values;
     private Locale locale;
     private ZoneOffset offset;
 
@@ -26,7 +25,6 @@ public class LocaleFormatter {
     }
 
     public String format(Map<String, Object> values) throws FormatterException {
-//        this.values = values;
         final Matcher matcher = pattern.matcher(this.sentence);
         String formattedSentence = this.sentence;
         while (matcher.find()) {
@@ -100,7 +98,7 @@ public class LocaleFormatter {
                 .appendLocalized(FormatStyle.SHORT, FormatStyle.MEDIUM)
 //                        .appendFraction(ChronoField.MILLI_OF_SECOND, 3, 3, true)
                 .toFormatter(locale);
-        return dateTimeFormatter.format(offsetDateTime);
+      return dateTimeFormatter.format(offsetDateTime);
     }
 
     private String getDate(Object value) {
