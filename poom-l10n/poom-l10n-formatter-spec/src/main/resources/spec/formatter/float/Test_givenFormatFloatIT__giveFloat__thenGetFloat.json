@@ -1,0 +1,18 @@
+{
+  "name": "Test_givenFormatFloatFR__giveFloat__thenGetFloat",
+  "template": "{a:d}",
+  "locale": "it",
+  "offset": "0",
+  "values": [
+    {
+      "key": "a",
+      "value": {
+        "value": 5.5
+      }
+    }
+  ],
+  "expectedValue": {
+    "value": "5,5",
+    "exception": false
+  }
+}

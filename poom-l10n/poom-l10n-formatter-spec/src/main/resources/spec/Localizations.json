@@ -1,0 +1,14 @@
+{
+  "fr": {
+    "r1": "Bonjour {user:s}, nous sommes le {date:td} à {date:tt} ({date:t}) vous etes venus {count:d} fois pendant {minutes:f} minutes. Vous avez {msgs:d} messages !"
+  },
+  "fr-BE": {
+    "r1": "Bonjour {user:s}, nous sommes le {date:td} à {date:tt} ({date:t}) vous etes venus {count:d} fois pendant {minutes:f} minutes. Vous avez {msgs:d} messages une fois!"
+  },
+  "en-GB": {
+    "r1": "Hello {user:s}, we are on {date:td} at {date:tt} ({date:t}) you have come {count:d} times for {minutes:f} minutes. You have {msgs:d} messages!"
+  },
+  "en-US": {
+    "r1": "Hello {user:s}, we are on {date:td} at {date:tt} ({date:t}) you have come {count:d} times for {minutes:f} minutes. You have {msgs:d} messages!"
+  }
+}

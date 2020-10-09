@@ -69,10 +69,10 @@ public class PropertyQueryParser {
     }
 
     public void parse(PropertyQuery query) throws InvalidPropertyException, FilterEventException, SortEventException {
-        if(query.filter() != null) {
+        if(query != null && query.filter() != null) {
             this.parseFilter(query.filter());
         }
-        if(query.sort() != null) {
+        if(query != null && query.sort() != null) {
             this.parseSort(query.sort());
         }
     }
