@@ -241,17 +241,17 @@
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-l10n-formatter-api</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.44.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-l10n-formatter-json</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.44.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-l10n-client</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.44.0-SNAPSHOT</version>
             </dependency>
 
 
