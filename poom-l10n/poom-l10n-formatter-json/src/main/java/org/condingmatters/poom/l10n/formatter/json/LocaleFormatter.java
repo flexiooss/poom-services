@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 public class LocaleFormatter {
     private String sentence;
-    private Map<String, Object> values;
+//    private Map<String, Object> values;
     private Locale locale;
     private ZoneOffset offset;
 
@@ -26,21 +26,21 @@ public class LocaleFormatter {
     }
 
     public String format(Map<String, Object> values) throws FormatterException {
-        this.values = values;
+//        this.values = values;
         final Matcher matcher = pattern.matcher(this.sentence);
         String formattedSentence = this.sentence;
         while (matcher.find()) {
-            formattedSentence = this.replace(formattedSentence, matcher.group(0));
+            formattedSentence = this.replace(formattedSentence, matcher.group(0), values);
         }
         return formattedSentence;
     }
 
-    private String replace(String sentence, String group) throws FormatterException {
+    private String replace(String sentence, String group, Map<String, Object> values) throws FormatterException {
         String substring = group.substring(1, group.length() - 1);
         String[] split = substring.split(":");
         String key = split[0];
         String format = split[1];
-        Object value = this.getValue(key);
+        Object value = this.getValue(values, key);
         if (!this.checkValueFormat(value, format)) {
             throw new FormatterException("Value '" + value + "' cannot be formatted in this format '" + format + "'");
         }
@@ -48,11 +48,11 @@ public class LocaleFormatter {
         return sentence.replaceFirst("\\{" + key + ":" + format + "\\}", formatValue);
     }
 
-    private Object getValue(String key) throws FormatterException {
-        if (!this.values.containsKey(key)) {
+    private Object getValue(Map<String, Object> values, String key) throws FormatterException {
+        if (!values.containsKey(key)) {
             throw new FormatterException("Error " + key + " not exist in values");
         }
-        return this.values.get(key);
+        return values.get(key);
     }
 
     private boolean checkValueFormat(Object value, String format) throws FormatterException {
