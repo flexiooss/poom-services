@@ -1,9 +1,11 @@
 package org.codingmatters.poom.l10n.client;
 
+import java.time.ZoneOffset;
+
 @FunctionalInterface
 public interface L10NProvider {
 
-    L10N l10n(String localeSpec);
+    L10N l10n(String localeSpec, ZoneOffset atOffset);
 
     static L10NProvider registeredProvider() {
         return Registered.instance;
@@ -14,7 +16,7 @@ public interface L10NProvider {
     }
 
     class Registered {
-        static private L10NProvider instance = (localeSpec) -> new L10N.NOOP(localeSpec);
+        static private L10NProvider instance = (localeSpec, atOffset) -> new L10N.NOOP(localeSpec, atOffset);
     }
 
 }
