@@ -11,6 +11,10 @@ public interface L10N {
         return L10NProvider.registeredProvider().l10n(localeSpec, atOffset);
     }
 
+    static L10N l10n(String localeSpec) {
+        return l10n(localeSpec, ZoneOffsetProvider.at());
+    }
+
     class NOOP implements L10N {
         private final String localeSpec;
         private final ZoneOffset atOffset;
