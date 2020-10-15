@@ -203,7 +203,7 @@ public class Rfc7233PagerTest {
     }
 
     @Test
-    public void whenOffsettedRange_andRangeSizeOverMaxSize__ifLessElementsThanRangeSize__thenReturnCompleteList() throws Exception {
+    public void whenOffsettedRange_andRangeUpperSizeOverMaxSize_andLowerSideInRange__ifLessElementsThanRangeSize__thenReturnCompleteList() throws Exception {
         for(int i = 0 ; i < 15 ; i++) {
             this.repository.create("test-" + i);
         }
@@ -223,6 +223,29 @@ public class Rfc7233PagerTest {
         assertThat(page.isValid(), is(true));
         assertThat(page.validationMessage(), is(nullValue()));
     }
+
+    @Test
+    public void whenOffsettedRange_andRangeUpperAndLowerSizeOverMaxSize__ifLessElementsThanRangeSize__thenReturnCompleteList() throws Exception {
+        for(int i = 0 ; i < 15 ; i++) {
+            this.repository.create("test-" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("18-20")
+                .unit("String")
+                .maxPageSize(20)
+                .pager(this.repository)
+                .page();
+
+        assertThat(page.acceptRange(), is("String 20"));
+        assertThat(page.contentRange(), is("String 0-0/15")); //this should not be !!!
+        assertThat(page.requestedRange(), is("18-20"));
+
+        assertThat(page.isPartial(), is(false));
+        assertThat(page.list(), hasSize(0));
+        assertThat(page.isValid(), is(true));
+        assertThat(page.validationMessage(), is(nullValue()));
+    }
+
 
     @Test
     public void whenRange_andRangeSizeOverMaxSize__thenRangeIsOverloadedAccordingToMaxPageSize() throws Exception {
@@ -264,7 +287,7 @@ public class Rfc7233PagerTest {
 
         assertThat(page.isValid(), is(false));
         assertThat(page.validationMessage(), is("start must be before end of range"));
-        assertThat(page.isPartial(), is(true));
+        assertThat(page.isPartial(), is(false));
 
         assertThat(page.acceptRange(), is("String 10"));
         assertThat(page.contentRange(), is("String */15"));
