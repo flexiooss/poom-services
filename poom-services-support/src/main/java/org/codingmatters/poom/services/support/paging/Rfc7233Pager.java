@@ -151,7 +151,15 @@ public class Rfc7233Pager<V,Q> {
         }
 
         public boolean isPartial() {
-            return this.list.endIndex() < this.list.total() - 1;
+            if(this.isRequestOutOfRange()) {
+                return false;
+            } else {
+                return this.list.endIndex() < this.list.total() - 1;
+            }
+        }
+
+        private boolean isRequestOutOfRange() {
+            return this.list.startIndex() == 0 && this.list.endIndex() == 0;
         }
 
         public PagedEntityList<V> list() {
