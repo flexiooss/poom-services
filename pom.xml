@@ -91,6 +91,7 @@
 	    <module>poom-services-paged-collection</module>
         <module>poom-services-i18n</module>
         <module>poom-l10n</module>
+        <module>poom-caches</module>
     </modules>
 
     <dependencies>
@@ -326,6 +327,17 @@
                 <version>1.46.0-SNAPSHOT</version>
             </dependency>
 <!--            // ADVANCED DEMO-->
+
+            <dependency>
+                <groupId>org.codingmatters.poom.caches</groupId>
+                <artifactId>poom-caches-api</artifactId>
+                <version>1.46.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.caches</groupId>
+                <artifactId>poom-caches-in-memory</artifactId>
+                <version>1.46.0-SNAPSHOT</version>
+            </dependency>
 
             <!--// BOM-->
         </dependencies>
