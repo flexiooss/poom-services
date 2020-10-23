@@ -335,8 +335,8 @@
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.caches</groupId>
-                <artifactId>poom-caches-in-memory</artifactId>
-                <version>1.46.0-SNAPSHOT</version>
+                <artifactId>poom-caches-management</artifactId>
+                <version>1.46.0</version>
             </dependency>
 
             <!--// BOM-->
