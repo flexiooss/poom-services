@@ -1,4 +1,4 @@
-package org.codingmatters.poom.caches.in.memory.stores;
+package org.codingmatters.poom.caches.management.stores;
 
 import java.util.*;
 

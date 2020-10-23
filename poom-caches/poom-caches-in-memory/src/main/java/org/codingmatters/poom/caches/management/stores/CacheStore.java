@@ -1,8 +1,7 @@
-package org.codingmatters.poom.caches.in.memory.stores;
+package org.codingmatters.poom.caches.management.stores;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 
 public interface CacheStore<K, V> {
     Optional<V> get(K key);

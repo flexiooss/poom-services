@@ -1,4 +1,4 @@
-package org.codingmatters.poom.caches.in.memory.caches;
+package org.codingmatters.poom.caches.management.caches;
 
 import org.codingmatters.poom.caches.Cache;
 import org.codingmatters.poom.caches.invalidation.Invalidation;

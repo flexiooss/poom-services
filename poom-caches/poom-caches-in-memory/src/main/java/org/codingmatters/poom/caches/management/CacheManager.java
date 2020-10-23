@@ -1,9 +1,9 @@
-package org.codingmatters.poom.caches.in.memory;
+package org.codingmatters.poom.caches.management;
 
 import org.codingmatters.poom.caches.Cache;
-import org.codingmatters.poom.caches.in.memory.caches.CacheWithStore;
-import org.codingmatters.poom.caches.in.memory.lru.LRUManager;
-import org.codingmatters.poom.caches.in.memory.stores.MapCacheStore;
+import org.codingmatters.poom.caches.management.caches.CacheWithStore;
+import org.codingmatters.poom.caches.management.lru.LRUManager;
+import org.codingmatters.poom.caches.management.stores.MapCacheStore;
 
 import java.io.Closeable;
 import java.io.IOException;

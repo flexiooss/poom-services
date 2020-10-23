@@ -1,8 +1,6 @@
-package org.codingmatters.poom.caches.in.memory.lru;
+package org.codingmatters.poom.caches.management.lru;
 
 
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

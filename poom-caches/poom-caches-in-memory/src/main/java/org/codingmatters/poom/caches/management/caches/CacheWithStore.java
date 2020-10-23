@@ -1,7 +1,7 @@
-package org.codingmatters.poom.caches.in.memory.caches;
+package org.codingmatters.poom.caches.management.caches;
 
 import org.codingmatters.poom.caches.Cache;
-import org.codingmatters.poom.caches.in.memory.stores.CacheStore;
+import org.codingmatters.poom.caches.management.stores.CacheStore;
 import org.codingmatters.poom.caches.invalidation.Invalidation;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 

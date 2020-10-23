@@ -1,9 +1,7 @@
-package org.codingmatters.poom.caches.in.memory;
+package org.codingmatters.poom.caches.management;
 
 import org.codingmatters.poom.caches.Cache;
-import org.codingmatters.poom.caches.in.memory.caches.CacheWithStore;
-import org.codingmatters.poom.caches.in.memory.stores.MapCacheStore;
-import org.codingmatters.poom.caches.invalidation.Invalidation;
+import org.codingmatters.poom.caches.management.CacheManager;
 import org.codingmatters.poom.services.tests.Eventually;
 import org.junit.After;
 import org.junit.Test;

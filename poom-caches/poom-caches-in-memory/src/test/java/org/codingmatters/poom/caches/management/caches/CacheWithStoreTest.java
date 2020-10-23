@@ -1,10 +1,9 @@
-package org.codingmatters.poom.caches.in.memory.caches;
+package org.codingmatters.poom.caches.management.caches;
 
 
 import org.codingmatters.poom.caches.Cache;
-import org.codingmatters.poom.caches.in.memory.caches.CacheWithStore;
-import org.codingmatters.poom.caches.in.memory.stores.CacheStore;
-import org.codingmatters.poom.caches.in.memory.stores.MapCacheStore;
+import org.codingmatters.poom.caches.management.stores.CacheStore;
+import org.codingmatters.poom.caches.management.stores.MapCacheStore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

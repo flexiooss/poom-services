@@ -1,4 +1,4 @@
-package org.codingmatters.poom.caches.in.memory.lru;
+package org.codingmatters.poom.caches.management.lru;
 
 import java.util.Collections;
 import java.util.LinkedList;
