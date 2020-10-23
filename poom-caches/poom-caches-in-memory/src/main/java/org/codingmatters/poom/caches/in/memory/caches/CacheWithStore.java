@@ -1,4 +1,4 @@
-package org.codingmatters.poom.caches.in.memory;
+package org.codingmatters.poom.caches.in.memory.caches;
 
 import org.codingmatters.poom.caches.Cache;
 import org.codingmatters.poom.caches.in.memory.stores.CacheStore;

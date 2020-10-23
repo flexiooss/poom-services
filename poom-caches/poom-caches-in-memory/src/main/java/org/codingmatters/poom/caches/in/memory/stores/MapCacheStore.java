@@ -1,10 +1,17 @@
 package org.codingmatters.poom.caches.in.memory.stores;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class MapCacheStore<K, V> implements CacheStore<K, V> {
-    private final Map<K, Optional<V>> delegate = new HashMap<>();
+    private final Map<K, Optional<V>> delegate;
+
+    public MapCacheStore() {
+        this(new HashMap<>());
+    }
+
+    public MapCacheStore(Map<K, Optional<V>> deleguate) {
+        this.delegate = deleguate;
+    }
 
     public Optional<V> get(K key) {
         return this.delegate.get(key);
