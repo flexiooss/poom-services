@@ -3,12 +3,14 @@ package org.codingmatters.poom.caches.management;
 import org.codingmatters.poom.caches.Cache;
 import org.codingmatters.poom.caches.management.caches.CacheWithStore;
 import org.codingmatters.poom.caches.management.lru.LRUManager;
+import org.codingmatters.poom.caches.management.stores.CacheStore;
 import org.codingmatters.poom.caches.management.stores.MapCacheStore;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -20,12 +22,17 @@ public class CacheManager<K, V> implements Closeable {
             Cache.ValueRetriever<K, V> retriever, Cache.ValueInvalidator<K, V> invalidator,
             int capacity,
             ScheduledExecutorService scheduler, long delay, TimeUnit delayUnit) {
-        return createMapBackedCache(new HashMap<>(), retriever, invalidator, capacity, scheduler, delay, delayUnit);
+        return newMapBackedCache(new HashMap<>(), retriever, invalidator, capacity, scheduler, delay, delayUnit);
     }
 
-    static private <K, V> CacheManager<K, V> createMapBackedCache(HashMap<K, Optional<V>> map, Cache.ValueRetriever<K, V> retriever, Cache.ValueInvalidator<K, V> invalidator, int capacity, ScheduledExecutorService scheduler, long delay, TimeUnit delayUnit) {
+    static public <K, V> CacheManager<K, V> newMapBackedCache(Map<K, Optional<V>> map, Cache.ValueRetriever<K, V> retriever, Cache.ValueInvalidator<K, V> invalidator, int capacity, ScheduledExecutorService scheduler, long delay, TimeUnit delayUnit) {
+        CacheStore<K, V> cacheStore = new MapCacheStore<>(map);
+        return newCache(cacheStore, retriever, invalidator, capacity, scheduler, delay, delayUnit);
+    }
+
+    private static <K, V> CacheManager<K, V> newCache(CacheStore<K, V> cacheStore, Cache.ValueRetriever<K, V> retriever, Cache.ValueInvalidator<K, V> invalidator, int capacity, ScheduledExecutorService scheduler, long delay, TimeUnit delayUnit) {
         return new CacheManager<K, V>(
-                new CacheWithStore<>(retriever, new MapCacheStore<>(map), invalidator),
+                new CacheWithStore<>(retriever, cacheStore, invalidator),
                 capacity,
                 scheduler, delay, delayUnit
                 );
