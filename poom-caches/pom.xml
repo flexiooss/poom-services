@@ -17,7 +17,7 @@
 
     <modules>
         <module>poom-caches-api</module>
-        <module>poom-caches-in-memory</module>
+        <module>poom-caches-management</module>
     </modules>
     
 </project>
