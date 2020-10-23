@@ -1,5 +1,6 @@
 package org.codingmatters.poom.caches.in.memory;
 
+import org.codingmatters.poom.caches.Cache;
 import org.codingmatters.poom.caches.in.memory.caches.CacheWithStore;
 import org.codingmatters.poom.caches.in.memory.stores.MapCacheStore;
 import org.codingmatters.poom.caches.invalidation.Invalidation;
@@ -20,7 +21,7 @@ public class CacheManagerTest {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final CacheManager<String, String> manager = CacheManager.newHashMapBackedCache(
-            key -> key, (key, value) -> Invalidation.valid(),
+            key -> key, Cache.ValueInvalidator.alwaysValid(),
             5,
             this.scheduler, 1, TimeUnit.SECONDS
     );
