@@ -87,8 +87,8 @@
         <module>poom-services-logging-json-layout</module>
         <module>poom-services-logging</module>
         <module>poom-services-demo</module>
-	    <module>poom-services-test-support</module>
-	    <module>poom-services-paged-collection</module>
+	<module>poom-services-test-support</module>
+	<module>poom-services-paged-collection</module>
         <module>poom-services-i18n</module>
         <module>poom-l10n</module>
         <module>poom-caches</module>
