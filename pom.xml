@@ -74,7 +74,7 @@
         <poom.service.base.image.namespace>codingmatters</poom.service.base.image.namespace>
         <poom.service.base.image>poom-service-base</poom.service.base.image>
         <poom.service.base.image.version>2.2.1</poom.service.base.image.version>
-        <codingmatters-value-objects.version>1.33.0</codingmatters-value-objects.version>
+        <codingmatters-value-objects.version>1.34.0-SNAPSHOT</codingmatters-value-objects.version>
         <codingmatters-rest.version>1.40.0-SNAPSHOT</codingmatters-rest.version>
     </properties>
 
@@ -87,11 +87,12 @@
         <module>poom-services-logging-json-layout</module>
         <module>poom-services-logging</module>
         <module>poom-services-demo</module>
-	<module>poom-services-test-support</module>
-	<module>poom-services-paged-collection</module>
+	    <module>poom-services-test-support</module>
+	    <module>poom-services-paged-collection</module>
         <module>poom-services-i18n</module>
         <module>poom-l10n</module>
         <module>poom-caches</module>
+        <module>poom-etag-support</module>
     </modules>
 
     <dependencies>
@@ -328,6 +329,7 @@
             </dependency>
 <!--            // ADVANCED DEMO-->
 
+<!--            CACHES-->
             <dependency>
                 <groupId>org.codingmatters.poom.caches</groupId>
                 <artifactId>poom-caches-api</artifactId>
@@ -338,6 +340,25 @@
                 <artifactId>poom-caches-management</artifactId>
                 <version>1.47.0-SNAPSHOT</version>
             </dependency>
+<!--            //CACHES-->
+
+<!--            ETAG-->
+            <dependency>
+                <groupId>org.codingmatters.poom.etag</groupId>
+                <artifactId>poom-etag-support-api</artifactId>
+                <version>1.47.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.etag</groupId>
+                <artifactId>poom-etag-support-handlers</artifactId>
+                <version>1.47.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.etag</groupId>
+                <artifactId>poom-etag-test-support</artifactId>
+                <version>1.47.0-SNAPSHOT</version>
+            </dependency>
+<!--            //ETAG-->
 
             <!--// BOM-->
         </dependencies>
