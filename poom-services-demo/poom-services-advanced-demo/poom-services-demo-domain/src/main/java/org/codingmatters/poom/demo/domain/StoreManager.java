@@ -158,7 +158,7 @@ public class StoreManager {
                 .build();
     }
 
-    public PagedCollectionAdapter rentalsAdapter(String store) {
+    public PagedCollectionAdapter<Rental, RentalRequest, Void, RentalAction> rentalsAdapter(String store) {
         try {
             if(! this.storeExists(store)) {
                 log.warn("request on an unexisting store {}", store);

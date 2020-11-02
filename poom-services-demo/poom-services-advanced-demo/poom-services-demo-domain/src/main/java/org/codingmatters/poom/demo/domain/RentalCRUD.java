@@ -37,6 +37,9 @@ public class RentalCRUD implements PagedCollectionAdapter.CRUD<Rental, RentalReq
 
     @Override
     public String entityRepositoryUrl() {
+        if (this.movie == null) {
+            return String.format("/%s/rentals", this.store);
+        }
         return String.format("/%s/movies/%s/rentals", this.store, this.movie.id());
     }
 
