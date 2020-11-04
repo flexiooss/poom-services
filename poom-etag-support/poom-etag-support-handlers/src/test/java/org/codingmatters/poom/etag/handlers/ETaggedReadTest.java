@@ -6,23 +6,19 @@ import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.repositories.inmemory.InMemoryRepositoryWithPropertyQuery;
 import org.codingmatters.poom.services.support.date.UTC;
-import org.codingmatters.poom.services.tests.DateMatchers;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.generated.api.ResourceGetRequest;
 import org.generated.api.ResourceGetResponse;
 import org.generated.api.TestApiHandlers;
 import org.generated.api.resourcegetresponse.Status304;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.Optional;
 
 import static org.codingmatters.poom.services.tests.DateMatchers.around;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class ETaggedGetTest {
+public class ETaggedReadTest {
 
     public static final ResourceGetResponse COMPLETE_UNDERLYING_RESPONSE = ResourceGetResponse.builder().status200(status -> status
             .eTag("cryptic")
@@ -40,7 +36,7 @@ public class ETaggedGetTest {
     };
 
     private final TestApiHandlers handlers = new TestApiHandlers.Builder()
-            .resourceGetHandler(new ETaggedGet<>(this.etags, "test-cache-control", this.get, ResourceGetResponse.class))
+            .resourceGetHandler(new ETaggedRead<>(this.etags, "test-cache-control", this.get, ResourceGetResponse.class))
             .build();
 
     @Test

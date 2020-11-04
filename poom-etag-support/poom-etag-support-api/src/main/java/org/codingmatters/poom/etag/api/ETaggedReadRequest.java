@@ -1,6 +1,5 @@
 package org.codingmatters.poom.etag.api;
 
-public interface ETaggedRequest {
-    String ifMatch();
+public interface ETaggedReadRequest {
     String ifNoneMatch();
 }
