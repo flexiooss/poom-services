@@ -20,3 +20,22 @@ Example :
                 .resourcePutHandler(new ETaggedChange<>(this.etags, "must-revalidate", putHandler, ResourcePutResponse.class))
                 .build();
 ```
+
+The wrapped handler is responsible for calculating the etag and optionally set the cache-control.
+
+## Etag calculation hint
+
+Etags can typically be calculated with the org.codingmatters.poom.services.support.hash.HashProcessor class providing
+the hashed value as key/value pairs or map. 
+
+For a value object, the toMap method will get you the hash material :
+
+```java
+    String etag = new HashProcessor().hash(HashMaterial.create().with(value.toMap()))
+```
+
+or, even more consisely :
+
+```java
+    String etag = new HashProcessor().hash(value.toMap())
+```
