@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom.etag</groupId>
         <artifactId>poom-etag-support</artifactId>
-        <version>1.50.0-SNAPSHOT</version>
+        <version>1.50.0</version>
     </parent>
 
     <artifactId>poom-etag-support-handlers</artifactId>
