@@ -1,6 +1,0 @@
----
-etag:
-  id: string
-  etag: string
-  cacheControl: string
-  created: date-time
