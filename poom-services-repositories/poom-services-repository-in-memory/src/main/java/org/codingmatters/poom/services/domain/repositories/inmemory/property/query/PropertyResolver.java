@@ -5,7 +5,6 @@ import org.codingmatters.value.objects.values.PropertyValue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Objects;
 
 public class PropertyResolver {
     private final Class valueObjectCalss;
@@ -47,17 +46,23 @@ public class PropertyResolver {
         }
     }
 
-    private Object invokePropertyMethode(String property, Method method, Object on) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+    private Object invokePropertyMethod(String property, Method method, Object on) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
         if(this.valueObjectCalss == ObjectValue.class) {
             PropertyValue propertyValue = (PropertyValue) method.invoke(on, property);
-            if(propertyValue.cardinality().equals(PropertyValue.Cardinality.SINGLE)) {
+            if(propertyValue == null) {
+                return null;
+            } else if(propertyValue.cardinality().equals(PropertyValue.Cardinality.SINGLE)) {
                 return propertyValue.single().rawValue();
             } else {
                 return propertyValue.rawValue();
             }
         } else {
-            Object value = method.invoke(on);
-
+            Object value;
+            try {
+                value = method.invoke(on);
+            } catch (NullPointerException e) {
+                throw e;
+            }
             if(value != null && value.getClass().isEnum()) {
                 return value.getClass().getMethod("name").invoke(value);
             } else {
@@ -67,20 +72,23 @@ public class PropertyResolver {
     }
 
     public Object resolve(Object o, String property) {
+        if(o == null) return null;
+
         if(this.isNestedProperty(property)) {
             return this.resolveNestedProperty(o, this.head(property), this.tail(property));
         }
         try {
-            return this.invokePropertyMethode(property, this.methodForProperty(property), o);
+            return this.invokePropertyMethod(property, this.methodForProperty(property), o);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             return null;
         }
     }
 
     private Object resolveNestedProperty(Object o, String property, String subpath) {
+        if(o == null) return null;
         try {
             Method method = methodForProperty(property);
-            Object sub = this.invokePropertyMethode(property, method, o);
+            Object sub = this.invokePropertyMethod(property, method, o);
             return new PropertyResolver(method.getReturnType()).resolve(sub, subpath);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             return null;

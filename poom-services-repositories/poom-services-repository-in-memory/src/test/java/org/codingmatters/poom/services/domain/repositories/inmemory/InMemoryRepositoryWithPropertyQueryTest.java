@@ -6,6 +6,7 @@ import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 import org.codingmatters.test.Ref;
 import org.codingmatters.test.Simple;
 import org.codingmatters.test.simple.E;
+import org.codingmatters.value.objects.values.ObjectValue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,6 +44,28 @@ public class InMemoryRepositoryWithPropertyQueryTest {
     @Test
     public void searchNested() throws Exception {
         assertThat(this.repository.search(PropertyQuery.builder().filter("e.f starts with 50").build(), 0, 1000).total(), is(11L));
+    }
+
+    @Test
+    public void givenSearchingNested__whenAnEntityHasNullFirstLevel__thenNoException() throws Exception {
+        this.repository.create(Simple.builder().build());
+        this.repository.search(PropertyQuery.builder().filter("e.f starts with 50").build(), 0, 1000);
+    }
+    @Test
+    public void givenSearchingNested__whenAnEntityHasNullSecondLevel__thenNoException() throws Exception {
+        this.repository.create(Simple.builder().e(E.builder().build()).build());
+        this.repository.search(PropertyQuery.builder().filter("e.f starts with 50").build(), 0, 1000);
+    }
+
+    @Test
+    public void givenSearchingObjectProperty__whenAnEntityHasNullFirstLevel__thenNoException() throws Exception {
+        this.repository.search(PropertyQuery.builder().filter("o.nested == 12").build(), 0, 1000);
+    }
+
+    @Test
+    public void givenSearchingObjectProperty__whenAnEntityHasNullSecondLevel__thenNoException() throws Exception {
+        this.repository.create(Simple.builder().o(ObjectValue.builder().build()).build());
+        this.repository.search(PropertyQuery.builder().filter("o.nested == 12").build(), 0, 1000);
     }
 
     @Test
