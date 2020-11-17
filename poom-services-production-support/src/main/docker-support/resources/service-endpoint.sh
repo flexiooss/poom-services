@@ -108,8 +108,8 @@ proxy_sigint() {
     echo "interrupting service with pid ${SERVICE_PID}"
     kill -SIGINT $SERVICE_PID
 }
-trap 'proxy_sigterm' SIGTERM
-trap 'proxy_sigint' SIGINT
+trap 'proxy_sigterm' TERM
+trap 'proxy_sigint' INT
 
 ##
 #   Running the service in the background
