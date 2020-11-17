@@ -9,6 +9,8 @@ Simple:
     h: long
   aDate: date-time
   ref: $Ref
+  o:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
 
 WithObject:
   p:
