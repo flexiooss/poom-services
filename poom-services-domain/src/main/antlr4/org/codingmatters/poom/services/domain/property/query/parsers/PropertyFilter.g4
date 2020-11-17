@@ -33,6 +33,11 @@ DATE_LITERAL: [0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9];
 
 TIME_LITERAL: [0-9][0-9]':'[0-9][0-9]':'[0-9][0-9]'.'[0-9][0-9][0-9][0-9]?[0-9]?[0-9]?[0-9]?[0-9]?[0-9]?;
 
+ZONED_DATETIME_WITHOUT_SFRAC_LITERAL: [0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9]'T'[0-9][0-9]':'[0-9][0-9]':'[0-9][0-9][+\-][0-9][0-9]':'[0-9][0-9];
+UTC_DATETIME_WITHOUT_SFRAC_LITERAL: [0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9]'T'[0-9][0-9]':'[0-9][0-9]':'[0-9][0-9]'Z';
+DATETIME_WITHOUT_SFRAC_LITERAL: [0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9]'T'[0-9][0-9]':'[0-9][0-9]':'[0-9][0-9];
+TIME_WITHOUT_SFRAC_LITERAL: [0-9][0-9]':'[0-9][0-9]':'[0-9][0-9];
+
 DECIMAL : '-'?[0-9]+('.'[0-9]+)? ;
 IDENTIFIER : [a-zA-Z_\-.0-9]+ ;
 QUOTED_STRING: '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
@@ -61,11 +66,13 @@ operand
     | FALSE                         #falseOperand
     | NULL                          #nullOperand
     | TIME_LITERAL                  #timeOperand
-    | UTC_TIME_LITERAL                  #timeOperand
-    | ZONED_TIME_LITERAL                  #timeOperand
+    | TIME_WITHOUT_SFRAC_LITERAL                  #timeOperand
     | DATETIME_LITERAL              #datetimeOperand
+    | DATETIME_WITHOUT_SFRAC_LITERAL              #datetimeOperand
     | UTC_DATETIME_LITERAL          #utcDatetimeOperand
+    | UTC_DATETIME_WITHOUT_SFRAC_LITERAL          #utcDatetimeOperand
     | ZONED_DATETIME_LITERAL        #zonedDatetimeOperand
+    | ZONED_DATETIME_WITHOUT_SFRAC_LITERAL        #zonedDatetimeOperand
     | DATE_LITERAL                  #dateOperand
     ;
 

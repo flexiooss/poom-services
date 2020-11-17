@@ -75,25 +75,51 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
 
     @Override
     public Object visitTimeOperand(PropertyFilterParser.TimeOperandContext ctx) {
-        this.stack.push(LocalTime.parse(ctx.TIME_LITERAL().getText()));
+        if(ctx.TIME_LITERAL() != null) {
+            this.stack.push(LocalTime.parse(ctx.TIME_LITERAL().getText()));
+        } else if(ctx.TIME_WITHOUT_SFRAC_LITERAL() != null) {
+            this.stack.push(LocalTime.parse(ctx.TIME_WITHOUT_SFRAC_LITERAL().getText()));
+        } else {
+            throw new AssertionError("unimplemented time literal :" + ctx.getText());
+        }
+
         return this.stack.peek();
     }
 
     @Override
     public Object visitDatetimeOperand(PropertyFilterParser.DatetimeOperandContext ctx) {
-        this.stack.push(LocalDateTime.parse(ctx.DATETIME_LITERAL().getText()));
+        if(ctx.DATETIME_LITERAL() != null) {
+            this.stack.push(LocalDateTime.parse(ctx.DATETIME_LITERAL().getText()));
+        } else if(ctx.DATETIME_WITHOUT_SFRAC_LITERAL() != null) {
+            this.stack.push(LocalDateTime.parse(ctx.DATETIME_WITHOUT_SFRAC_LITERAL().getText()));
+        } else {
+            throw new AssertionError("unimplemented datetime literal :" + ctx.getText());
+        }
         return this.stack.peek();
     }
 
     @Override
     public Object visitUtcDatetimeOperand(PropertyFilterParser.UtcDatetimeOperandContext ctx) {
-        this.stack.push(ZonedDateTime.parse(ctx.UTC_DATETIME_LITERAL().getText()));
+        if(ctx.UTC_DATETIME_LITERAL() != null) {
+            this.stack.push(ZonedDateTime.parse(ctx.UTC_DATETIME_LITERAL().getText()));
+        } else if(ctx.UTC_DATETIME_WITHOUT_SFRAC_LITERAL() != null) {
+            this.stack.push(ZonedDateTime.parse(ctx.UTC_DATETIME_WITHOUT_SFRAC_LITERAL().getText()));
+        } else {
+            throw new AssertionError("unimplemented utc datetime literal :" + ctx.getText());
+        }
         return super.visitUtcDatetimeOperand(ctx);
     }
 
     @Override
     public Object visitZonedDatetimeOperand(PropertyFilterParser.ZonedDatetimeOperandContext ctx) {
-        this.stack.push(ZonedDateTime.parse(ctx.ZONED_DATETIME_LITERAL().getText()));
+        if(ctx.ZONED_DATETIME_LITERAL() != null) {
+            this.stack.push(ZonedDateTime.parse(ctx.ZONED_DATETIME_LITERAL().getText()));
+        } else if(ctx.ZONED_DATETIME_WITHOUT_SFRAC_LITERAL() != null) {
+            this.stack.push(ZonedDateTime.parse(ctx.ZONED_DATETIME_WITHOUT_SFRAC_LITERAL().getText()));
+        } else {
+            throw new AssertionError("unimplemented zoned datetime literal :" + ctx.getText());
+        }
+
         return super.visitZonedDatetimeOperand(ctx);
     }
 
