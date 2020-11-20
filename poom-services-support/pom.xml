@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services</artifactId>
-        <version>1.53.0</version>
+        <version>1.54.0</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -27,6 +27,10 @@
         <dependency>
             <groupId>org.codingmatters.rest</groupId>
             <artifactId>cdm-rest-client-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codingmatters.rest</groupId>
+            <artifactId>cdm-rest-client-okhttp</artifactId>
         </dependency>
 
         <dependency>
