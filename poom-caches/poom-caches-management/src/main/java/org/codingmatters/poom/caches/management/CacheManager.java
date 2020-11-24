@@ -62,7 +62,6 @@ public class CacheManager<K, V> implements Closeable {
 
     private void cleanup() {
         List<K> overload = this.lruManager.overload();
-        System.out.println("overload :: " + overload);
         for (K key : overload) {
             this.cache.prune(key);
         }
