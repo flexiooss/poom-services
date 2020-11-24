@@ -7,12 +7,21 @@ import java.util.Arrays;
 public interface L10N {
     String m(String bundle, String key, Object...args);
 
-    static L10N l10n(String localeSpec, ZoneOffset atOffset) {
-        return L10NProvider.registeredProvider().l10n(localeSpec, atOffset);
+
+    static L10N l10n() {
+        return L10N.l10n(null, null);
     }
 
     static L10N l10n(String localeSpec) {
-        return l10n(localeSpec, ZoneOffsetProvider.at());
+        return L10N.l10n(localeSpec, null);
+    }
+
+    static L10N l10n(ZoneOffset atOffset) {
+        return L10N.l10n(null, atOffset);
+    }
+
+    static L10N l10n(String localeSpec, ZoneOffset atOffset) {
+        return L10NProvider.registeredProvider().l10n(localeSpec, atOffset);
     }
 
     class NOOP implements L10N {
