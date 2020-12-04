@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom.api</groupId>
         <artifactId>poom-services-paged-collection-api</artifactId>
-        <version>1.62.0</version>
+        <version>1.63.0</version>
     </parent>
 
     <artifactId>poom-services-paged-collection-api-processor</artifactId>

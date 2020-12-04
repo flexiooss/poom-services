@@ -13,6 +13,10 @@ public class RepositoryWithDelegate<V, Q> implements Repository<V, Q> {
         this.delegate = delegate;
     }
 
+    protected Repository<V, Q> delegate() {
+        return delegate;
+    }
+
     @Override
     public PagedEntityList<V> all(long startIndex, long endIndex) throws RepositoryException {
         return delegate.all(startIndex, endIndex);
