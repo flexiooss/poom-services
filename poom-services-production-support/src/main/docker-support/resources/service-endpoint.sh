@@ -50,7 +50,18 @@ echo "CONTAINER_ID=$(hostname)" >> $REPORT_DIR/service.desc.temp
 ##
 #   Setting up JVM options 
 #
-JVM_VM=""
+if [ -n "${INITIAL_RAM_PERCENTAGE}" ]
+then
+    JVM_VM="${JVM_VM} -XX:InitialRAMPercentage=${INITIAL_RAM_PERCENTAGE} "
+fi
+if [ -n "${MIN_RAM_PERCENTAGE}" ]
+then
+    JVM_VM="${JVM_VM} -XX:MinRAMPercentage=${MIN_RAM_PERCENTAGE} "
+fi
+if [ -n "${MAX_RAM_PERCENTAGE}" ]
+then
+    JVM_VM="${JVM_VM} -XX:MaxRAMPercentage=${MAX_RAM_PERCENTAGE} "
+fi
 if [ -n "${JVM_MIN_HEAP}" ]
 then
     JVM_VM="${JVM_VM} -Xms${JVM_MIN_HEAP} "
