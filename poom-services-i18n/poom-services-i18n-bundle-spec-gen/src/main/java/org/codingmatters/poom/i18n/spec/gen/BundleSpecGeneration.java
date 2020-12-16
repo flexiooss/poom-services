@@ -29,12 +29,12 @@ public class BundleSpecGeneration {
         this.jsonFactory = jsonFactory;
     }
 
-    public void to(File sourceDirectory) throws IOException {
-        File packageDestination = GenerationUtils.packageDir(sourceDirectory, this.packageName);
+    public void to(File sourcesDirectory, File resourcesDirectory) throws IOException {
+        File packageDestination = GenerationUtils.packageDir(sourcesDirectory, this.packageName);
         String bundleSpecFileName = "bundle-" + UUID.randomUUID().toString() + ".json";
         String specResource = this.packageName.replaceAll("\\.", "/") + "/spec/" + bundleSpecFileName;
 
-        File specFile = new File(sourceDirectory, specResource);
+        File specFile = new File(resourcesDirectory, specResource);
 
         specFile.getParentFile().mkdirs();
         specFile.createNewFile();

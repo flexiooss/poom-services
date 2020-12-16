@@ -9,7 +9,6 @@ import org.codingmatters.poom.i18n.bundle.spec.descriptors.json.BundleSpecWriter
 import org.codingmatters.tests.compile.CompiledCode;
 import org.codingmatters.tests.compile.FileHelper;
 import org.codingmatters.tests.compile.helpers.ClassLoaderHelper;
-import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -24,7 +23,9 @@ import static org.hamcrest.Matchers.startsWith;
 public class BundleSpecGenerationTest {
 
     @Rule
-    public TemporaryFolder dir = new TemporaryFolder();
+    public TemporaryFolder sourcesDir = new TemporaryFolder();
+    @Rule
+    public TemporaryFolder resourcesDir = new TemporaryFolder();
 
     @Rule
     public FileHelper fileHelper = new FileHelper();
@@ -38,7 +39,7 @@ public class BundleSpecGenerationTest {
                 BundleSpec.builder()
                         .name("a test")
                         .build(),
-                this.jsonFactory).to(this.dir.getRoot());
+                this.jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
 
         this.compile();
 
@@ -54,7 +55,7 @@ public class BundleSpecGenerationTest {
                 BundleSpec.builder()
                         .name("a test")
                         .build(),
-                this.jsonFactory).to(this.dir.getRoot());
+                this.jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
 
         this.compile();
 
@@ -73,7 +74,7 @@ public class BundleSpecGenerationTest {
                         .name("a test")
                         .messages(MessageSpec.builder().key("a.key").build())
                         .build(),
-                jsonFactory).to(this.dir.getRoot());
+                jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
 
         this.compile();
 
@@ -88,7 +89,7 @@ public class BundleSpecGenerationTest {
                         .name("a test")
                         .messages(MessageSpec.builder().key("a.key").build())
                         .build(),
-                jsonFactory).to(this.dir.getRoot());
+                jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
 
         this.compile();
 
@@ -107,7 +108,7 @@ public class BundleSpecGenerationTest {
                         .name("a test")
                         .messages(MessageSpec.builder().key("a.key").build())
                         .build(),
-                jsonFactory).to(this.dir.getRoot());
+                jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
 
         this.compile();
 
@@ -122,7 +123,7 @@ public class BundleSpecGenerationTest {
                         .name("a test")
                         .messages(MessageSpec.builder().key("a.key").build())
                         .build(),
-                jsonFactory).to(this.dir.getRoot());
+                jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
 
         this.compile();
 
@@ -141,7 +142,7 @@ public class BundleSpecGenerationTest {
                         .defaultLocale("fr-FR")
                         .messages(MessageSpec.builder().key("a.key").build())
                         .build(),
-                jsonFactory).to(this.dir.getRoot());
+                jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
 
         this.compile();
 
@@ -157,13 +158,35 @@ public class BundleSpecGenerationTest {
                 BundleSpec.builder()
                         .name("a test")
                         .build(),
-                jsonFactory).to(this.dir.getRoot());
+                jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
 
         this.compile();
 
         assertThat(
                 this.classes.get("org.generated.ATestBundle").get(),
                 is(aPublic().interface_().with(aPublic().static_().method().named("spec").withoutParameters().returning(InputStream.class)))
+        );
+    }
+
+    @Test
+    public void givenBundleSpecInterfaceGenerated__whenDistinctResourceDir__thenSpecFileInResourceDirPath() throws Exception {
+        BundleSpec spec = BundleSpec.builder()
+                .name("a test")
+                .build();
+        new BundleSpecGeneration(
+                "org.generated",
+                spec,
+                jsonFactory).to(this.sourcesDir.getRoot(), this.resourcesDir.getRoot());
+
+        File specDir = new File(this.resourcesDir.getRoot(), "org/generated/spec");
+        assertThat(specDir.exists(), is(true));
+        assertThat(specDir.isDirectory(), is(true));
+
+        File specFile = specDir.listFiles(file -> file.getName().startsWith("bundle-") && file.getName().endsWith(".json"))[0];
+
+        assertThat(
+                this.readStream(new FileInputStream(specFile)),
+                is(this.jsonString(spec))
         );
     }
 
@@ -175,10 +198,10 @@ public class BundleSpecGenerationTest {
         new BundleSpecGeneration(
                 "org.generated",
                 spec,
-                jsonFactory).to(this.dir.getRoot());
+                jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
 
-        this.print(this.dir.getRoot(), "");
-        this.fileHelper.printFile(this.dir.getRoot(), "ATestBundle.java");
+        this.print(this.sourcesDir.getRoot(), "");
+        this.fileHelper.printFile(this.sourcesDir.getRoot(), "ATestBundle.java");
 
         this.compile();
 
@@ -198,7 +221,7 @@ public class BundleSpecGenerationTest {
                         .name("a test")
                         .messages(MessageSpec.builder().key("a.key").build())
                         .build(),
-                jsonFactory).to(this.dir.getRoot());
+                jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
 
         this.compile();
 
@@ -217,7 +240,7 @@ public class BundleSpecGenerationTest {
                         .defaultLocale("fr-FR")
                         .messages(MessageSpec.builder().key("a.key").build())
                         .build(),
-                jsonFactory).to(this.dir.getRoot());
+                jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
 
         this.compile();
 
@@ -259,6 +282,8 @@ public class BundleSpecGenerationTest {
 
 
     private void compile() throws Exception {
-        this.classes = CompiledCode.builder().source(this.dir.getRoot()).compile().classLoader();
+        this.classes = CompiledCode.builder()
+                .source(this.sourcesDir.getRoot())
+                .compile().classLoader();
     }
 }
