@@ -1,6 +1,6 @@
-level: stable
+level: dev
 schemes:
 - maven
 topics:
 - 81
-version: 1.66.0
+version: 1.67.0
