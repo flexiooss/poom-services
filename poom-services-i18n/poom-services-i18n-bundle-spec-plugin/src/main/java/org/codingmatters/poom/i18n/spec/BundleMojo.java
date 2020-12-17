@@ -19,17 +19,18 @@ import java.util.stream.Collectors;
 @Mojo(name = "bundles")
 public class BundleMojo extends AbstractMojo {
 
-
     @Parameter(alias = "bundle",defaultValue = "${basedir}/src/main/i18n/bundles.yml")
     private File bundleFile;
-
 
     @Parameter(alias = "bundle-package", defaultValue = "${project.groupId}.i18n.bundles")
     private String bundlePackage;
 
 
-    @Parameter(defaultValue = "${basedir}/target/generated-sources/", alias = "output-directory")
-    private File outputDirectory;
+    @Parameter(defaultValue = "${basedir}/target/generated-sources/", alias = "sources-directory")
+    private File sourcesDirectory;
+
+    @Parameter(defaultValue = "${basedir}/target/generated-resources/", alias = "resources-directory")
+    private File resourcesDirectory;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -61,7 +62,7 @@ public class BundleMojo extends AbstractMojo {
         int i = 1;
         for (BundleSpec bundleSpec : bundleSpecs) {
             try {
-                new BundleSpecGeneration(this.bundlePackage, bundleSpec, factory).to(this.outputDirectory);
+                new BundleSpecGeneration(this.bundlePackage, bundleSpec, factory).to(this.sourcesDirectory, this.resourcesDirectory);
                 this.getLog().info(String.format("generated i18n bundle : %s", bundleSpec.name()));
             } catch (IOException e) {
                 throw new MojoFailureException("error generating " + i + "th i18n bundle : " + bundleSpec.name() , e);
