@@ -28,7 +28,7 @@ public abstract class PropertyQueryAcceptanceTest {
     @Before
     public void setUp() throws Exception {
         this.repository = this.createRepository();
-        
+
         for (int i = 0; i < 100; i++) {
             Boolean bool;
             switch (i % 3) {
@@ -41,7 +41,7 @@ public abstract class PropertyQueryAcceptanceTest {
                 default:
                     bool = null;
             }
-            Entity<QAValue> e = this.repository.create(QAValue.builder()
+            QAValue value = QAValue.builder()
                     .stringProp("%03d", i)
                     .integerProp(i)
                     .longProp((long) i)
@@ -56,11 +56,18 @@ public abstract class PropertyQueryAcceptanceTest {
                             .nestedProp("%03d", 100 - i)
                             .deep(Deep.builder().deepProp("04").build())
                             .build())
-                    .build());
+                    .build();
+//            System.out.printf("VAL :: %s :: %s\n", value.stringProp(), DateTimeFormatter.ISO_ZONED_DATE_TIME.format(value.tzdatetimeProp()));
+            Entity<QAValue> e = this.repository.create(value);
+//            System.out.printf("INS :: %s :: %s\n", e.value().stringProp(), DateTimeFormatter.ISO_ZONED_DATE_TIME.format(e.value().tzdatetimeProp()));
         }
     }
 
     protected abstract Repository<QAValue, PropertyQuery> createRepository();
+
+    protected Repository<QAValue, PropertyQuery> repository() {
+        return this.repository;
+    }
 
     @Test
     public void whenNoFilter_andNoOrderBy__thenAllValuesReturned() throws Exception {
@@ -136,7 +143,7 @@ public abstract class PropertyQueryAcceptanceTest {
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(1L));
-        assertThat(actual.get(0).value().timeProp(), is(LocalTime.of(12, 47, 33, 123456789)));
+        assertThat(DateTimeFormatter.ISO_LOCAL_TIME.format(actual.get(0).value().timeProp()), is(ts("12:47:33.123456789")));
     }
 
     @Test
@@ -146,7 +153,7 @@ public abstract class PropertyQueryAcceptanceTest {
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(1L));
-        assertThat(actual.get(0).value().datetimeProp(), is(LocalDateTime.of(1985, 6, 17, 12, 42, 33, 123456789)));
+        assertThat(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(actual.get(0).value().datetimeProp()), is(ts("1985-06-17T12:42:33.123456789")));
     }
 
     @Test
@@ -156,7 +163,7 @@ public abstract class PropertyQueryAcceptanceTest {
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(1L));
-        assertThat(actual.get(0).value().tzdatetimeProp(), is(ZonedDateTime.of(1985, 6, 17, 12, 42, 33, 123456789, ZoneId.of("+05:00"))));
+        assertThat(DateTimeFormatter.ISO_ZONED_DATE_TIME.format(actual.get(0).value().tzdatetimeProp()), is(ts("1985-06-17T12:42:33.123456789+05:00")));
     }
 
     @Test
@@ -621,11 +628,10 @@ public abstract class PropertyQueryAcceptanceTest {
                 .filter("timeProp > 14:19:33.123456789")
                 .build(), 0, 1000);
 
-        System.out.println(actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_TIME.format(complexValue.timeProp())).toArray());
         assertThat(actual.total(), is(2L));
         assertThat(
                 actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_TIME.format(complexValue.timeProp())).toArray(),
-                is(arrayContainingInAnyOrder("14:20:33.123456789", "14:21:33.123456789"))
+                is(arrayContainingInAnyOrder(ts("14:20:33.123456789"), ts("14:21:33.123456789")))
         );
     }
 
@@ -638,8 +644,12 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(actual.total(), is(2L));
         assertThat(
                 actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(complexValue.datetimeProp())).toArray(),
-                is(arrayContainingInAnyOrder("1985-09-18T12:42:33.123456789", "1985-09-19T12:42:33.123456789"))
+                is(arrayContainingInAnyOrder(ts("1985-09-18T12:42:33.123456789"), ts("1985-09-19T12:42:33.123456789")))
         );
+    }
+
+    protected String ts(String full) {
+        return full;
     }
 
     @Test
@@ -652,7 +662,7 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(actual.total(), is(2L));
         assertThat(
                 actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(complexValue.tzdatetimeProp())).toArray(),
-                is(arrayContainingInAnyOrder("1985-09-18T12:42:33.123456789+05:00", "1985-09-19T12:42:33.123456789+05:00"))
+                is(arrayContainingInAnyOrder(ts("1985-09-18T12:42:33.123456789+05:00"), ts("1985-09-19T12:42:33.123456789+05:00")))
         );
     }
 
@@ -756,7 +766,7 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(actual.total(), is(3L));
         assertThat(
                 actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_TIME.format(complexValue.timeProp())).toArray(),
-                is(arrayContainingInAnyOrder("14:19:33.123456789", "14:20:33.123456789", "14:21:33.123456789"))
+                is(arrayContainingInAnyOrder(ts("14:19:33.123456789"), ts("14:20:33.123456789"), ts("14:21:33.123456789")))
         );
     }
 
@@ -769,7 +779,7 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(actual.total(), is(3L));
         assertThat(
                 actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(complexValue.datetimeProp())).toArray(),
-                is(arrayContainingInAnyOrder("1985-09-17T12:42:33.123456789", "1985-09-18T12:42:33.123456789", "1985-09-19T12:42:33.123456789"))
+                is(arrayContainingInAnyOrder(ts("1985-09-17T12:42:33.123456789"), ts("1985-09-18T12:42:33.123456789"), ts("1985-09-19T12:42:33.123456789")))
         );
     }
 
@@ -783,7 +793,7 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(actual.total(), is(3L));
         assertThat(
                 actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(complexValue.tzdatetimeProp())).toArray(),
-                is(arrayContainingInAnyOrder("1985-09-17T12:42:33.123456789+05:00", "1985-09-18T12:42:33.123456789+05:00", "1985-09-19T12:42:33.123456789+05:00"))
+                is(arrayContainingInAnyOrder(ts("1985-09-17T12:42:33.123456789+05:00"), ts("1985-09-18T12:42:33.123456789+05:00"), ts("1985-09-19T12:42:33.123456789+05:00")))
         );
     }
 
@@ -887,7 +897,7 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(actual.total(), is(2L));
         assertThat(
                 actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_TIME.format(complexValue.timeProp())).toArray(),
-                is(arrayContainingInAnyOrder("12:42:33.123456789", "12:43:33.123456789"))
+                is(arrayContainingInAnyOrder(ts("12:42:33.123456789"), ts("12:43:33.123456789")))
         );
     }
 
@@ -900,7 +910,7 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(actual.total(), is(2L));
         assertThat(
                 actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(complexValue.datetimeProp())).toArray(),
-                is(arrayContainingInAnyOrder("1985-06-12T12:42:33.123456789", "1985-06-13T12:42:33.123456789"))
+                is(arrayContainingInAnyOrder(ts("1985-06-12T12:42:33.123456789"), ts("1985-06-13T12:42:33.123456789")))
         );
     }
 
@@ -914,7 +924,7 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(actual.total(), is(2L));
         assertThat(
                 actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(complexValue.tzdatetimeProp())).toArray(),
-                is(arrayContainingInAnyOrder("1985-06-12T12:42:33.123456789+05:00", "1985-06-13T12:42:33.123456789+05:00"))
+                is(arrayContainingInAnyOrder(ts("1985-06-12T12:42:33.123456789+05:00"), ts("1985-06-13T12:42:33.123456789+05:00")))
         );
     }
 
@@ -1018,7 +1028,7 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(actual.total(), is(3L));
         assertThat(
                 actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_TIME.format(complexValue.timeProp())).toArray(),
-                is(arrayContainingInAnyOrder("12:42:33.123456789", "12:43:33.123456789", "12:44:33.123456789"))
+                is(arrayContainingInAnyOrder(ts("12:42:33.123456789"), ts("12:43:33.123456789"), ts("12:44:33.123456789")))
         );
     }
 
@@ -1031,7 +1041,7 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(actual.total(), is(3L));
         assertThat(
                 actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(complexValue.datetimeProp())).toArray(),
-                is(arrayContainingInAnyOrder("1985-06-12T12:42:33.123456789", "1985-06-13T12:42:33.123456789", "1985-06-14T12:42:33.123456789"))
+                is(arrayContainingInAnyOrder(ts("1985-06-12T12:42:33.123456789"), ts("1985-06-13T12:42:33.123456789"), ts("1985-06-14T12:42:33.123456789")))
         );
     }
 
@@ -1045,7 +1055,7 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(actual.total(), is(3L));
         assertThat(
                 actual.valueList().stream().map(complexValue -> DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(complexValue.tzdatetimeProp())).toArray(),
-                is(arrayContainingInAnyOrder("1985-06-12T12:42:33.123456789+05:00", "1985-06-13T12:42:33.123456789+05:00", "1985-06-14T12:42:33.123456789+05:00"))
+                is(arrayContainingInAnyOrder(ts("1985-06-12T12:42:33.123456789+05:00"), ts("1985-06-13T12:42:33.123456789+05:00"), ts("1985-06-14T12:42:33.123456789+05:00")))
         );
     }
 
