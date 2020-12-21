@@ -1242,6 +1242,17 @@ public abstract class PropertyQueryAcceptanceTest {
     }
 
     @Test
+    public void whenNoFilter_andOrderByOneNestedPropertyDefaultDirection__thenAllValuesReturnedIsAscending() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .sort("nested.nestedProp")
+                .build(), 0, 1000);
+
+        assertThat(actual.valueList(), hasSize(100));
+        assertThat(actual.valueList().get(0).nested().nestedProp(), is("001"));
+        assertThat(actual.valueList().get(1).nested().nestedProp(), is("002"));
+    }
+
+    @Test
     public void whenNoFilter_andOrderByOnePropertyAsc__thenAllValuesReturnedIsAscending() throws Exception {
         PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .sort("stringProp asc")

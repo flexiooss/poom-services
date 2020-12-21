@@ -18,6 +18,5 @@
 
     <modules>
         <module>poom-services-repository-in-memory</module>
-        <module>poom-services-repository-sql</module>
     </modules>
 </project>

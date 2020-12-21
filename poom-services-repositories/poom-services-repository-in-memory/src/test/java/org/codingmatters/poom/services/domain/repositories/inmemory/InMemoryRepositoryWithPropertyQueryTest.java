@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 public class InMemoryRepositoryWithPropertyQueryTest {
 
@@ -79,10 +78,11 @@ public class InMemoryRepositoryWithPropertyQueryTest {
 
     @Test
     public void givenPropertyIsNestedAndString__whenSortingOnNullWithDesc__thenResultsAreSortedNullFirst() throws Exception {
-        System.out.println(this.repository.search(PropertyQuery.builder().sort("e.g DESC").build(), 0, 2).stream().map(e -> e.value().e().g()).collect(Collectors.toList()));
+        List<String> actual = this.repository.search(PropertyQuery.builder().sort("e.g DESC").build(), 0, 2).stream().map(e -> e.value().e().g()).collect(Collectors.toList());
+        System.out.println(actual);
         assertThat(
-                this.repository.search(PropertyQuery.builder().sort("e.g DESC").build(), 0, 2).stream().map(e -> e.value().e().g()).collect(Collectors.toList()),
-                contains(null, null, null)
+                actual,
+                contains(nullValue(), nullValue(), nullValue())
         );
     }
 
