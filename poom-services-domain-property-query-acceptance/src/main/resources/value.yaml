@@ -1,0 +1,19 @@
+---
+QAValue:
+  stringProp: string
+  integerProp: int
+  longProp: long
+  floatProp: float
+  doubleProp: double
+  boolProp: bool
+  dateProp: date
+  timeProp: time
+  datetimeProp: date-time
+  tzdatetimeProp: tz-date-time
+
+  nested:
+    nestedProp: string
+    deep:
+      deepProp: string
+
+

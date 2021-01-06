@@ -1,5 +1,6 @@
 package org.codingmatters.poom.services.domain.repositories.inmemory.property.query;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -11,12 +12,15 @@ import java.util.Objects;
 public interface Operators {
 
     static boolean eq(Object left, Object right) {
-        return Objects.equals(normalized(left), normalized(right));
-    }
+        left = normalized(left);
+        right = normalized(right);
 
-    static Object normalized(Object o) {
-        if(o == null) return o;
-        return o;
+        if(left == null) {
+            return right == null;
+        }
+        if(right == null) return false;
+
+        return Objects.equals(normalized(left), normalized(right));
     }
 
     static boolean gt(Object left, Object right, boolean strict) {
@@ -26,6 +30,7 @@ public interface Operators {
         if(left == null) {
             return false;
         }
+
         if(right instanceof Comparable) {
             if(left instanceof Comparable) {
                 if(strict) {
@@ -88,7 +93,12 @@ public interface Operators {
         return left.toString().contains(right.toString());
     }
 
-    DateTimeFormatter DATEONLY_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    DateTimeFormatter TIMEONLY_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss[.SSS]['Z']");
-    DateTimeFormatter DATETIMEONLY_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[.SSS]['Z']");
+
+    static Object normalized(Object o) {
+        if(o == null) return null;
+        if(o instanceof Number) {
+            return new BigDecimal("" + o.toString());
+        }
+        return o;
+    }
 }
