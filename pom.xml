@@ -420,6 +420,23 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <docker.io.login.username>${docker.io.login.username}</docker.io.login.username>
+                        <docker.io.login.password>${docker.io.login.password}</docker.io.login.password>
+                        <docker.io.login.email>${docker.io.login.email}</docker.io.login.email>
+
+                        <harbor.ci.flexio.io.login.username>${harbor.ci.flexio.io.login.username}</harbor.ci.flexio.io.login.username>
+                        <harbor.ci.flexio.io.login.password>${harbor.ci.flexio.io.login.password}</harbor.ci.flexio.io.login.password>
+                        <harbor.ci.flexio.io.login.email>${harbor.ci.flexio.io.login.email}</harbor.ci.flexio.io.login.email>
+
+                        <buildDirectory>${project.build.directory}</buildDirectory>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
