@@ -142,14 +142,18 @@ public class ReflectFilterEvents extends StackedFilterEvents<Predicate> {
 
     @Override
     public Void and() throws FilterEventError {
-        Predicate result = this.pop().and(this.pop());
+        Predicate right = this.pop();
+        Predicate left = this.pop();
+        Predicate result = left.and(right);
         this.push(result);
         return null;
     }
 
     @Override
     public Void or() throws FilterEventError {
-        Predicate result = this.pop().or(this.pop());
+        Predicate right = this.pop();
+        Predicate left = this.pop();
+        Predicate result = left.or(right);
         this.push(result);
         return null;
     }
