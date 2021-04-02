@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -1303,5 +1304,20 @@ public abstract class PropertyQueryAcceptanceTest {
     @Test(expected = RepositoryException.class)
     public void givenSort__whenSortNotParsable__thenThrowsRepositoryException() throws Exception {
         this.repository.search(PropertyQuery.builder().sort("== = gruut gruut").build(), 0, 1000);
+    }
+
+    @Test
+    public void givenFilterWithParenthesis_thenReturnOr() throws RepositoryException {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder().filter(
+                "(integerProp >= 28 && integerProp <= 30) || (integerProp >= 42 && integerProp <= 44)").build(),
+                0, 1000
+        );
+
+        assertThat(actual.valueList(), hasSize(6));
+
+        assertThat(
+                actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()),
+                containsInAnyOrder("028", "029", "030", "042", "043", "044")
+        );
     }
 }
