@@ -142,22 +142,14 @@ public class ReflectFilterEvents extends StackedFilterEvents<Predicate> {
 
     @Override
     public Void and() throws FilterEventError {
-        List<Predicate> all = this.reversedPopAll();
-        Predicate result = all.get(0);
-        for (int i = 1; i < all.size(); i++) {
-            result = result.and(all.get(i));
-        }
+        Predicate result = this.pop().and(this.pop());
         this.push(result);
         return null;
     }
 
     @Override
     public Void or() throws FilterEventError {
-        List<Predicate> all = this.reversedPopAll();
-        Predicate result = all.get(0);
-        for (int i = 1; i < all.size(); i++) {
-            result = result.or(all.get(i));
-        }
+        Predicate result = this.pop().or(this.pop());
         this.push(result);
         return null;
     }

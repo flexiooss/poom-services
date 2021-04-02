@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -1307,14 +1308,16 @@ public abstract class PropertyQueryAcceptanceTest {
 
     @Test
     public void givenFilterWithParenthesis_thenReturnOr() throws RepositoryException {
-        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder().filter("(integerProp >= 28 && integerProp <= 30) || (integerProp >= 42 && integerProp <= 44)").build(), 0, 1000);
-        assertThat(actual.valueList(), hasSize(7));
-        assertThat(actual.valueList().get(0).stringProp(), is("028"));
-        assertThat(actual.valueList().get(1).stringProp(), is("029"));
-        assertThat(actual.valueList().get(2).stringProp(), is("030"));
-        assertThat(actual.valueList().get(3).stringProp(), is("031"));
-        assertThat(actual.valueList().get(4).stringProp(), is("042"));
-        assertThat(actual.valueList().get(5).stringProp(), is("043"));
-        assertThat(actual.valueList().get(6).stringProp(), is("044"));
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder().filter(
+                "(integerProp >= 28 && integerProp <= 30) || (integerProp >= 42 && integerProp <= 44)").build(),
+                0, 1000
+        );
+
+        assertThat(actual.valueList(), hasSize(6));
+
+        assertThat(
+                actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()),
+                containsInAnyOrder("028", "029", "030", "042", "043", "044")
+        );
     }
 }
