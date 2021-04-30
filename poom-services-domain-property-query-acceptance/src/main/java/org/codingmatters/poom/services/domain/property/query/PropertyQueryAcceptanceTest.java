@@ -88,6 +88,28 @@ public abstract class PropertyQueryAcceptanceTest {
     }
 
     @Test
+    public void givenFilterOnStringProperty__whenIsIn__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp in ('042', '006', '012')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder("006", "012", "042"));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenIsIn_orIsEquals__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp in ('042', '012') || stringProp == '006'")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder("006", "012", "042"));
+    }
+
+    @Test
     public void givenFilterOnIntegerProperty__whenIsEqual__thenSelectedValueReturned() throws Exception {
         PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("integerProp == 6")

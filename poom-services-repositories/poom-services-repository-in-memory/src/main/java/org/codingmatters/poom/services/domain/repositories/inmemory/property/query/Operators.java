@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
+import java.util.List;
 import java.util.Objects;
 
 public interface Operators {
@@ -93,6 +94,9 @@ public interface Operators {
         return left.toString().contains(right.toString());
     }
 
+    static boolean in(Object left, List<Object> right) {
+        return right == null ? false : right.contains(left);
+    }
 
     static Object normalized(Object o) {
         if(o == null) return null;
