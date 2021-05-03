@@ -135,6 +135,12 @@ public class ReflectFilterEvents extends StackedFilterEvents<Predicate> {
     }
 
     @Override
+    public Void in(String left, List<Object> right) throws FilterEventError {
+        this.push(o -> Operators.in(this.propertyResolver.resolve(o, left), right));
+        return null;
+    }
+
+    @Override
     public Void not() throws FilterEventError {
         this.push(this.pop().negate());
         return null;

@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
@@ -199,6 +201,18 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     public Object visitNegation(PropertyFilterParser.NegationContext ctx) {
         super.visitNegation(ctx);
         return this.events.not();
+    }
+
+    @Override
+    public Object visitIn(PropertyFilterParser.InContext ctx) {
+        super.visitIn(ctx);
+        List<Object> list = new LinkedList<>();
+        for (Object o : this.stack) {
+            list.add(o);
+        }
+        this.stack.clear();
+
+        return this.events.in(ctx.IDENTIFIER().getText(), list);
     }
 
     @Override

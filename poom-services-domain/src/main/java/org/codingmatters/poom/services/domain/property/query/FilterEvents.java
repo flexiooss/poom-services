@@ -2,6 +2,8 @@ package org.codingmatters.poom.services.domain.property.query;
 
 import org.codingmatters.poom.services.domain.property.query.events.FilterEventError;
 
+import java.util.List;
+
 public interface FilterEvents<T> {
 
     default T graterThan(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
@@ -24,6 +26,7 @@ public interface FilterEvents<T> {
     default T endsWithProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T contains(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T containsProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
+    default T in(String left, List<Object> right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
 
     default T not() throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T and() throws FilterEventError {throw new FilterEventError("feature not implemented");}
@@ -113,6 +116,11 @@ public interface FilterEvents<T> {
 
             @Override
             public T not() throws FilterEventError {
+                return null;
+            }
+
+            @Override
+            public T in(String left, List<Object> right) throws FilterEventError {
                 return null;
             }
 

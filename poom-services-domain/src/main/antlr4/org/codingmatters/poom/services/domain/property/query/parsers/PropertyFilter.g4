@@ -10,6 +10,8 @@ OR : '||' ;
 LPAR : '(';
 RPAR : ')';
 
+COMMA : ',';
+
 TRUE  : T R U E ;
 FALSE : F A L S E ;
 NULL : N U L L ;
@@ -23,6 +25,7 @@ NEQ : '!=' ;
 STARTS_WITH : S T A R T S ' ' W I T H;
 ENDS_WITH : E N D S ' ' W I T H;
 CONTAINS : C O N T A I N S;
+IN : I N;
 
 /* Dates and times : watchout, order matters */
 ZONED_DATETIME_LITERAL: [0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9]'T'[0-9][0-9]':'[0-9][0-9]':'[0-9][0-9]'.'[0-9][0-9][0-9][0-9]?[0-9]?[0-9]?[0-9]?[0-9]?[0-9]?[+\-][0-9][0-9]':'[0-9][0-9];
@@ -56,6 +59,7 @@ expression
     | left=expression AND right=expression      #and
     | left=expression OR right=expression       #or
     | IDENTIFIER operator operand               #comparison
+    | IDENTIFIER IN LPAR operand_list RPAR                  #in
     ;
 
 operand
@@ -74,6 +78,11 @@ operand
     | ZONED_DATETIME_LITERAL        #zonedDatetimeOperand
     | ZONED_DATETIME_WITHOUT_SFRAC_LITERAL        #zonedDatetimeOperand
     | DATE_LITERAL                  #dateOperand
+    ;
+
+operand_list
+    : operand
+    | operand_list COMMA operand
     ;
 
 operator
