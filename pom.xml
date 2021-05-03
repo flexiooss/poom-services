@@ -74,8 +74,8 @@
         <poom.service.base.image.namespace>codingmatters</poom.service.base.image.namespace>
         <poom.service.base.image>poom-service-base</poom.service.base.image>
         <poom.service.base.image.version>2.2.1</poom.service.base.image.version>
-        <codingmatters-value-objects.version>1.56.0</codingmatters-value-objects.version>
-        <codingmatters-rest.version>1.61.0</codingmatters-rest.version>
+        <codingmatters-value-objects.version>1.58.0</codingmatters-value-objects.version>
+        <codingmatters-rest.version>1.62.0</codingmatters-rest.version>
     </properties>
 
     <modules>
