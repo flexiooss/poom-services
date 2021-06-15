@@ -125,7 +125,7 @@ public class ReflectFilterEvents extends StackedFilterEvents<Predicate> {
 
     @Override
     public Void contains(String left, Object right) throws FilterEventError {
-        this.push(o -> Operators.contains(
+        this.push(o -> Operators.containsOne(
                 this.propertyResolver.resolve(o, left),
                 Collections.singletonList(right)
         ));
@@ -134,7 +134,7 @@ public class ReflectFilterEvents extends StackedFilterEvents<Predicate> {
 
     @Override
     public Void containsProperty(String left, String right) throws FilterEventError {
-        this.push(o -> Operators.contains(
+        this.push(o -> Operators.containsOne(
                 this.propertyResolver.resolve(o, left),
                 Collections.singletonList(this.propertyResolver.resolve(o, right)))
         );
@@ -148,8 +148,14 @@ public class ReflectFilterEvents extends StackedFilterEvents<Predicate> {
     }
 
     @Override
-    public Void contains(String left, List<Object> right) throws FilterEventError {
-        this.push(o -> Operators.contains(this.propertyResolver.resolve(o, left), right));
+    public Void containsAny(String left, List<Object> right) throws FilterEventError {
+        this.push(o -> Operators.containsOne(this.propertyResolver.resolve(o, left), right));
+        return null;
+    }
+
+    @Override
+    public Void containsAll(String left, List<Object> right) throws FilterEventError {
+        this.push(o -> Operators.containsAll(this.propertyResolver.resolve(o, left), right));
         return null;
     }
 
