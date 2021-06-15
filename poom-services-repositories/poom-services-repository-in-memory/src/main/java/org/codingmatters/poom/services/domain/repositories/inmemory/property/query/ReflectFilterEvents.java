@@ -3,6 +3,7 @@ package org.codingmatters.poom.services.domain.repositories.inmemory.property.qu
 import org.codingmatters.poom.services.domain.property.query.StackedFilterEvents;
 import org.codingmatters.poom.services.domain.property.query.events.FilterEventError;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -124,19 +125,31 @@ public class ReflectFilterEvents extends StackedFilterEvents<Predicate> {
 
     @Override
     public Void contains(String left, Object right) throws FilterEventError {
-        this.push(o -> Operators.contains(this.propertyResolver.resolve(o, left), right));
+        this.push(o -> Operators.contains(
+                this.propertyResolver.resolve(o, left),
+                Collections.singletonList(right)
+        ));
         return null;
     }
 
     @Override
     public Void containsProperty(String left, String right) throws FilterEventError {
-        this.push(o -> Operators.contains(this.propertyResolver.resolve(o, left), this.propertyResolver.resolve(o, right)));
+        this.push(o -> Operators.contains(
+                this.propertyResolver.resolve(o, left),
+                Collections.singletonList(this.propertyResolver.resolve(o, right)))
+        );
         return null;
     }
 
     @Override
     public Void in(String left, List<Object> right) throws FilterEventError {
         this.push(o -> Operators.in(this.propertyResolver.resolve(o, left), right));
+        return null;
+    }
+
+    @Override
+    public Void contains(String left, List<Object> right) throws FilterEventError {
+        this.push(o -> Operators.contains(this.propertyResolver.resolve(o, left), right));
         return null;
     }
 

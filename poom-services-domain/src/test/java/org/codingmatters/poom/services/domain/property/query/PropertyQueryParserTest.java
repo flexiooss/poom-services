@@ -232,6 +232,33 @@ public class PropertyQueryParserTest {
     }
 
     @Test
+    public void given__whenContainsWithInts__thenContains() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 contains (1, 2, 3)").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<String>() {
+            @Override
+            public String contains(String left, List<Object> right) throws FilterEventError {
+                List classes = new LinkedList();
+                for (Object o : right) {
+                    classes.add(o.getClass().getSimpleName());
+                }
+
+                parsed.add(String.format("%s contains %s (%s)", left, right, classes));
+                return parsed.get(parsed.size() - 1);
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        System.out.println(parsed);
+        assertThat(parsed, contains("l1 contains [1, 2, 3] ([Long, Long, Long])"));
+    }
+
+    @Test
     public void given__whenInWithStrings__thenIN() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("l1 in ('1', '2', '3')").build();
 
@@ -258,8 +285,47 @@ public class PropertyQueryParserTest {
     }
 
     @Test
+    public void given__whenContainsWithStrings__thenCONTAINS() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 contains ('1', '2', '3')").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<String>() {
+            @Override
+            public String contains(String left, List<Object> right) throws FilterEventError {
+                List classes = new LinkedList();
+                for (Object o : right) {
+                    classes.add(o.getClass().getSimpleName());
+                }
+
+                parsed.add(String.format("%s contains %s (%s)", left, right, classes));
+                return parsed.get(parsed.size() - 1);
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed, contains("l1 contains [1, 2, 3] ([String, String, String])"));
+    }
+
+    @Test
     public void given__whenInWithEmptyList__thenFilterEventException() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("l1 in ()").build();
+
+        FilterEvents<String> events = new FilterEvents<String>() {
+        };
+
+        thrown.expect(FilterEventException.class);
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+    }
+
+    @Test
+    public void given__whenContainsWithEmptyList__thenFilterEventException() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 contains ()").build();
 
         FilterEvents<String> events = new FilterEvents<String>() {
         };

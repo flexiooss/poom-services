@@ -59,7 +59,8 @@ expression
     | left=expression AND right=expression      #and
     | left=expression OR right=expression       #or
     | IDENTIFIER operator operand               #comparison
-    | IDENTIFIER IN LPAR operand_list RPAR                  #in
+    | IDENTIFIER IN LPAR operand_list RPAR      #in
+    | IDENTIFIER CONTAINS LPAR operand_list RPAR      #multivaluedContains
     ;
 
 operand
