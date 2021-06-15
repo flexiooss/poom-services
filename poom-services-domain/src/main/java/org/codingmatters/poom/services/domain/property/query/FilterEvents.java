@@ -27,6 +27,7 @@ public interface FilterEvents<T> {
     default T contains(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T containsProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T in(String left, List<Object> right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
+    default T contains(String left, List<Object> right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
 
     default T not() throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T and() throws FilterEventError {throw new FilterEventError("feature not implemented");}
@@ -121,6 +122,11 @@ public interface FilterEvents<T> {
 
             @Override
             public T in(String left, List<Object> right) throws FilterEventError {
+                return null;
+            }
+
+            @Override
+            public T contains(String left, List<Object> right) throws FilterEventError {
                 return null;
             }
 

@@ -7,6 +7,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -86,12 +87,25 @@ public interface Operators {
         return left.toString().endsWith(right.toString());
     }
 
-    static boolean contains(Object left, Object right) {
+    static boolean contains(Object left, List<Object> right) {
         left = normalized(left);
-        right = normalized(right);
+        for (Object o : right) {
+            Object value = normalized(o);
+            if(left == null) {
+                if(value == null) return true;
+            } else {
+                if(left.toString().contains(value.toString())) return true;
+            }
+        }
+        return false;
 
-        if(left == null) return right == null;
-        return left.toString().contains(right.toString());
+
+
+
+//        right = normalized(right);
+//
+//        if(left == null) return right == null;
+//        return left.toString().contains(right.toString());
     }
 
     static boolean in(Object left, List<Object> right) {

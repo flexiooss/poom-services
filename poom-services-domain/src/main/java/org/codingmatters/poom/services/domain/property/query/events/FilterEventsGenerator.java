@@ -216,6 +216,18 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     }
 
     @Override
+    public Object visitMultivaluedContains(PropertyFilterParser.MultivaluedContainsContext ctx) {
+        super.visitMultivaluedContains(ctx);
+        List<Object> list = new LinkedList<>();
+        for (Object o : this.stack) {
+            list.add(o);
+        }
+        this.stack.clear();
+
+        return this.events.contains(ctx.IDENTIFIER().getText(), list);
+    }
+
+    @Override
     public Object visitOr(PropertyFilterParser.OrContext ctx) {
         super.visitOr(ctx);
         return this.events.or();

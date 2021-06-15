@@ -24,6 +24,11 @@ public interface PagedCollectionAdapter<EntityType, CreationType, ReplaceType, U
         PagedCollectionAdapter<EntityTpe, CreationType, ReplaceType, UpdateType> adapter(Request request) throws Exception;
     }
 
+    @FunctionalInterface
+    interface PagerProvider<EntityType> {
+        Pager<EntityType> pager() throws Exception;
+    }
+
     CRUD<EntityType, CreationType, ReplaceType, UpdateType> crud();
     Pager<EntityType> pager();
 
