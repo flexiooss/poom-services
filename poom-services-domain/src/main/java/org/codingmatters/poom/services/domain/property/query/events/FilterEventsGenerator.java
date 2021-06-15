@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -216,15 +215,27 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     }
 
     @Override
-    public Object visitMultivaluedContains(PropertyFilterParser.MultivaluedContainsContext ctx) {
-        super.visitMultivaluedContains(ctx);
+    public Object visitContainsAny(PropertyFilterParser.ContainsAnyContext ctx) {
+        super.visitContainsAny(ctx);
         List<Object> list = new LinkedList<>();
         for (Object o : this.stack) {
             list.add(o);
         }
         this.stack.clear();
 
-        return this.events.contains(ctx.IDENTIFIER().getText(), list);
+        return this.events.containsAny(ctx.IDENTIFIER().getText(), list);
+    }
+
+    @Override
+    public Object visitContainsAll(PropertyFilterParser.ContainsAllContext ctx) {
+        super.visitContainsAll(ctx);
+        List<Object> list = new LinkedList<>();
+        for (Object o : this.stack) {
+            list.add(o);
+        }
+        this.stack.clear();
+
+        return this.events.containsAll(ctx.IDENTIFIER().getText(), list);
     }
 
     @Override

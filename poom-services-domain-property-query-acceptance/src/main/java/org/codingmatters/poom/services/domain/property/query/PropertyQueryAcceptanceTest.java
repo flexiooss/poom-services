@@ -99,15 +99,28 @@ public abstract class PropertyQueryAcceptanceTest {
     }
 
     @Test
-    public void givenFilterOnStringProperty__whenMultivaluedContains__thenSelectedValueReturned() throws Exception {
+    public void givenFilterOnStringProperty__whenContainsAny__thenSelectedValueReturned() throws Exception {
         PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
-                .filter("stringProp contains ('40', '006', '01')")
+                .filter("stringProp contains any ('40', '006', '01')")
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(13L));
 
         assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
                 "006", "040", "001", "010", "011", "012", "013", "014", "015", "016", "017", "018", "019"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenContainsAll__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp contains all ('01', '12')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "012"
         ));
     }
 

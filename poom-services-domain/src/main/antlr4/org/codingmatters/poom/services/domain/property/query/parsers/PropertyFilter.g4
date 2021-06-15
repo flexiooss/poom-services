@@ -26,6 +26,10 @@ STARTS_WITH : S T A R T S ' ' W I T H;
 ENDS_WITH : E N D S ' ' W I T H;
 CONTAINS : C O N T A I N S;
 IN : I N;
+CONTAINS_ANY : C O N T A I N S ' ' A N Y;
+CONTAINS_ALL : C O N T A I N S ' ' A L L;
+//MATCHES_ANY : M A T C H E S ' ' A N Y;
+//MATCHES_ALL : M A T C H E S ' ' A L L;
 
 /* Dates and times : watchout, order matters */
 ZONED_DATETIME_LITERAL: [0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9]'T'[0-9][0-9]':'[0-9][0-9]':'[0-9][0-9]'.'[0-9][0-9][0-9][0-9]?[0-9]?[0-9]?[0-9]?[0-9]?[0-9]?[+\-][0-9][0-9]':'[0-9][0-9];
@@ -60,7 +64,8 @@ expression
     | left=expression OR right=expression       #or
     | IDENTIFIER operator operand               #comparison
     | IDENTIFIER IN LPAR operand_list RPAR      #in
-    | IDENTIFIER CONTAINS LPAR operand_list RPAR      #multivaluedContains
+    | IDENTIFIER CONTAINS_ANY LPAR operand_list RPAR      #containsAny
+    | IDENTIFIER CONTAINS_ALL LPAR operand_list RPAR      #containsAll
     ;
 
 operand

@@ -87,7 +87,7 @@ public interface Operators {
         return left.toString().endsWith(right.toString());
     }
 
-    static boolean contains(Object left, List<Object> right) {
+    static boolean containsOne(Object left, List<Object> right) {
         left = normalized(left);
         for (Object o : right) {
             Object value = normalized(o);
@@ -98,14 +98,19 @@ public interface Operators {
             }
         }
         return false;
+    }
 
-
-
-
-//        right = normalized(right);
-//
-//        if(left == null) return right == null;
-//        return left.toString().contains(right.toString());
+    static boolean containsAll(Object left, List<Object> right) {
+        left = normalized(left);
+        for (Object o : right) {
+            Object value = normalized(o);
+            if(left == null) {
+                if(value != null) return false;
+            } else {
+                if(! left.toString().contains(value.toString())) return false;
+            }
+        }
+        return true;
     }
 
     static boolean in(Object left, List<Object> right) {
