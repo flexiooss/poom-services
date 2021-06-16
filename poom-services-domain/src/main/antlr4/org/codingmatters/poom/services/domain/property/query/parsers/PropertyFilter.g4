@@ -16,6 +16,9 @@ TRUE  : T R U E ;
 FALSE : F A L S E ;
 NULL : N U L L ;
 
+IS_EMPTY : I S ' ' E M P T Y;
+IS_NOT_EMPTY : I S ' ' N O T ' ' E M P T Y;
+
 GT : '>' ;
 GTE : '>=' ;
 LT : '<' ;
@@ -28,8 +31,6 @@ CONTAINS : C O N T A I N S;
 IN : I N;
 CONTAINS_ANY : C O N T A I N S ' ' A N Y;
 CONTAINS_ALL : C O N T A I N S ' ' A L L;
-//MATCHES_ANY : M A T C H E S ' ' A N Y;
-//MATCHES_ALL : M A T C H E S ' ' A L L;
 
 /* Dates and times : watchout, order matters */
 ZONED_DATETIME_LITERAL: [0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9]'T'[0-9][0-9]':'[0-9][0-9]':'[0-9][0-9]'.'[0-9][0-9][0-9][0-9]?[0-9]?[0-9]?[0-9]?[0-9]?[0-9]?[+\-][0-9][0-9]':'[0-9][0-9];
@@ -58,14 +59,16 @@ criterion
     ;
 
 expression
-    : LPAR expression RPAR                      #parenthesized
-    | NOT expression                            #negation
-    | left=expression AND right=expression      #and
-    | left=expression OR right=expression       #or
-    | IDENTIFIER operator operand               #comparison
-    | IDENTIFIER IN LPAR operand_list RPAR      #in
-    | IDENTIFIER CONTAINS_ANY LPAR operand_list RPAR      #containsAny
-    | IDENTIFIER CONTAINS_ALL LPAR operand_list RPAR      #containsAll
+    : LPAR expression RPAR                                  #parenthesized
+    | NOT expression                                        #negation
+    | left=expression AND right=expression                  #and
+    | left=expression OR right=expression                   #or
+    | IDENTIFIER IS_EMPTY                                   #isEmpty
+    | IDENTIFIER IS_NOT_EMPTY                               #isNotEmpty
+    | IDENTIFIER operator operand                           #comparison
+    | IDENTIFIER IN LPAR operand_list RPAR                  #in
+    | IDENTIFIER CONTAINS_ANY LPAR operand_list RPAR        #containsAny
+    | IDENTIFIER CONTAINS_ALL LPAR operand_list RPAR        #containsAll
     ;
 
 operand

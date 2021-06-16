@@ -16,6 +16,8 @@ public interface FilterEvents<T> {
     default T lowerThanOrEqualsProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T isNull(String property) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T isNotNull(String property) throws FilterEventError {throw new FilterEventError("feature not implemented");}
+    default T isEmpty(String property) throws FilterEventError {throw new FilterEventError("feature not implemented");}
+    default T isNotEmpty(String property) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T isEquals(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T isEqualsProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T isNotEquals(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
@@ -157,6 +159,16 @@ public interface FilterEvents<T> {
             }
 
             @Override
+            public T isEmpty(String property) throws FilterEventError {
+                return null;
+            }
+
+            @Override
+            public T isNotEmpty(String property) throws FilterEventError {
+                return null;
+            }
+
+            @Override
             public T isNotEquals(String left, Object right) throws FilterEventError {
                 return null;
             }
@@ -167,5 +179,4 @@ public interface FilterEvents<T> {
             }
         };
     }
-
 }

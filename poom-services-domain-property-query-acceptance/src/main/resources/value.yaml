@@ -11,6 +11,8 @@ QAValue:
   datetimeProp: date-time
   tzdatetimeProp: tz-date-time
 
+  emptyProp: string
+
   nested:
     nestedProp: string
     deep:

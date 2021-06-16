@@ -100,6 +100,18 @@ public class ReflectFilterEvents extends StackedFilterEvents<Predicate> {
     }
 
     @Override
+    public Void isEmpty(String property) throws FilterEventError {
+        this.push(o -> this.propertyResolver.resolve(o, property) == null || this.propertyResolver.resolve(o, property).toString().isEmpty());
+        return null;
+    }
+
+    @Override
+    public Void isNotEmpty(String property) throws FilterEventError {
+        this.push(o -> this.propertyResolver.resolve(o, property) != null && ! this.propertyResolver.resolve(o, property).toString().isEmpty());
+        return null;
+    }
+
+    @Override
     public Void startsWith(String left, Object right) throws FilterEventError {
         this.push(o -> Operators.startsWith(this.propertyResolver.resolve(o, left), right));
         return null;
