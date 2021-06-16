@@ -203,6 +203,18 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     }
 
     @Override
+    public Object visitIsEmpty(PropertyFilterParser.IsEmptyContext ctx) {
+        super.visitIsEmpty(ctx);
+        return this.events.isEmpty(ctx.IDENTIFIER().getText());
+    }
+
+    @Override
+    public Object visitIsNotEmpty(PropertyFilterParser.IsNotEmptyContext ctx) {
+        super.visitIsNotEmpty(ctx);
+        return this.events.isNotEmpty(ctx.IDENTIFIER().getText());
+    }
+
+    @Override
     public Object visitIn(PropertyFilterParser.InContext ctx) {
         super.visitIn(ctx);
         List<Object> list = new LinkedList<>();

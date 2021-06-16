@@ -53,6 +53,7 @@ public abstract class PropertyQueryAcceptanceTest {
                     .tzdatetimeProp(BASE_ZONED_DATETIME.plusDays(i))
                     .timeProp(BASE_TIME.plusMinutes(i))
                     .boolProp(bool)
+                    .emptyProp(i % 4 == 0 ? "" : i % 2 == 0 ? null : "not empty")
                     .nested(Nested.builder()
                             .nestedProp("%03d", 100 - i)
                             .deep(Deep.builder().deepProp("04").build())
@@ -1287,6 +1288,28 @@ public abstract class PropertyQueryAcceptanceTest {
                 actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
                 is(arrayContainingInAnyOrder("098", "099"))
         );
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenIsEmpty__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("emptyProp is empty")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(50L));
+
+        assertThat(actual.valueList().stream().map(v -> v.emptyProp()).collect(Collectors.toSet()), containsInAnyOrder("", null));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenIsNotEmpty__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("emptyProp is not empty")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(50L));
+
+        assertThat(actual.valueList().stream().map(v -> v.emptyProp()).collect(Collectors.toSet()), containsInAnyOrder("not empty"));
     }
 
     @Test

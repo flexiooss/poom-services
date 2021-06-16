@@ -162,6 +162,48 @@ public class PropertyQueryParserTest {
     }
 
     @Test
+    public void given__when__thenIsEmpty() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 is empty").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<String>() {
+            @Override
+            public String isEmpty(String property) throws FilterEventError {
+                parsed.add(property + " is empty property");
+                return parsed.get(parsed.size() - 1);
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed, contains("l1 is empty property"));
+    }
+
+    @Test
+    public void given__when__thenIsNotEmpty() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 is not empty").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<String>() {
+            @Override
+            public String isNotEmpty(String property) throws FilterEventError {
+                parsed.add(property + " is not empty property");
+                return parsed.get(parsed.size() - 1);
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed, contains("l1 is not empty property"));
+    }
+
+    @Test
     public void given__when__thenIsNotEqualTo() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("l1 != 12").build();
 
