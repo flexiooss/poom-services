@@ -1,0 +1,5 @@
+---
+Certificate:
+  fqdn: string
+  status:
+    $enum: RENEWING, READY, ERRORED
