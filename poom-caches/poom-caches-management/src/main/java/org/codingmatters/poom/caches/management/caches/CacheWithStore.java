@@ -61,6 +61,11 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
         return value.orElse(null);
     }
 
+    @Override
+    public void insert(K key, V value) {
+        this.delegate.store(key, value);
+    }
+
     private Optional<V> retrieve(K key) {
         try {
             V newValue = this.retriever.retrieve(key);

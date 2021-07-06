@@ -24,7 +24,7 @@ public class CacheWithStoreTest {
     @Parameterized.Parameters
     public static Object[] cacheStores() {
         return new Object[]{
-                (Supplier<Object>) () -> new MapCacheStore<String, String>()
+                (Supplier<Object>) MapCacheStore::new
         };
     };
 
@@ -35,6 +35,14 @@ public class CacheWithStoreTest {
     public void givenNoKeyRetrieved__whenGetting__thenRetrieverCalled() throws Exception {
         Cache<String, String> actual = this.createCache(key -> key);
         assertThat(actual.get("test"), is("test"));
+    }
+
+    @Test
+    public void whenInsert_thenRetrieveInserted() {
+        Cache<String, String> actual = this.createCache(key -> null);
+        assertThat(actual.get("test"), nullValue());
+        actual.insert("test", "ok");
+        assertThat(actual.get("test"), is("ok"));
     }
 
     @Test
