@@ -6,6 +6,7 @@ public interface Cache<K, V> {
     V get(K key);
     void prune(K key);
     void pruneAll();
+    void insert(K key, V value);
 
     void addPruneListener(PruneListener<K> listener);
     void addAccessListener(AccessListener<K> listener);
