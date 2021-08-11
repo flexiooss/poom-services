@@ -134,7 +134,36 @@ public class CacheWithStoreTest {
         assertThat(accessed, contains("test"));
     }
 
+    @Test
+    public void givenRetrieverThrowsError__whenGetting__thenReturnsNull_andThrownErrorIsRecoverable() throws Exception {
+        Cache<String, String> actual = this.createCache(key -> {
+            throw new AssertionError("error while retrieving " + key);
+        });
+
+        assertThat(actual.get("test"), is(nullValue()));
+        assertThat(actual.lastRetrievalError().isPresent(), is(true));
+        assertThat(actual.lastRetrievalError().get(), isA(AssertionError.class));
+        assertThat(actual.lastRetrievalError().get().getMessage(), is("error while retrieving test"));
+    }
+
+    @Test
+    public void givenInvalidatorThrowsError__whenGetting__thenReturnsPreviousValue_andThrownErrorIsRecoverable() throws Exception {
+        Cache<String, String> actual = this.createCache(key -> "new value", (key, value) -> {
+            throw new AssertionError("error while invalidating " + key);
+        });
+        actual.insert("test", "previous value");
+
+        assertThat(actual.get("test"), is("previous value"));
+        assertThat(actual.lastValidationError().isPresent(), is(true));
+        assertThat(actual.lastValidationError().get(), isA(AssertionError.class));
+        assertThat(actual.lastValidationError().get().getMessage(), is("error while invalidating test"));
+    }
+
     private Cache<String, String> createCache(Cache.ValueRetriever<String, String> retriever) {
         return new CacheWithStore<>(retriever, this.storeSupplier.get(), Cache.ValueInvalidator.alwaysValid());
+    }
+
+    private Cache<String, String> createCache(Cache.ValueRetriever<String, String> retriever, Cache.ValueInvalidator<String, String> invalidator) {
+        return new CacheWithStore<>(retriever, this.storeSupplier.get(), invalidator);
     }
 }
