@@ -18,6 +18,8 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
     private final ValueInvalidator<K, V> invalidator;
     private final List<PruneListener<K>> pruneListeners = new LinkedList<>();
     private final List<AccessListener<K>> accessListeners = new LinkedList<>();
+    private final ThreadLocal<Throwable> lastRetrievalError = new ThreadLocal<>();
+    private final ThreadLocal<Throwable> lastValidationError = new ThreadLocal<>();
 
     public CacheWithStore(
             ValueRetriever<K, V> retriever,
@@ -34,6 +36,7 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
         Optional<V> value;
         if(this.delegate.has(key)) {
             value = this.delegate.get(key);
+            this.lastValidationError.remove();
             try {
                 Invalidation<V> invalidation = this.invalidator.check(key, value.get());
                 if(invalidation.isInvalid()) {
@@ -48,8 +51,9 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
                         }
                     }
                 }
-            } catch (Exception e) {
-                log.error("error checking validation, keeping curent value", e);
+            } catch (Throwable e) {
+                log.error("error checking validation, keeping curent value, use lastValidationError() to handle it", e);
+                this.lastValidationError.set(e);
             }
         } else {
             value = this.retrieve(key);
@@ -67,11 +71,13 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
     }
 
     private Optional<V> retrieve(K key) {
+        this.lastRetrievalError.remove();
         try {
             V newValue = this.retriever.retrieve(key);
             return newValue != null ? Optional.of(newValue) : Optional.empty();
-        } catch (Exception e) {
-            log.error("error retrieving value for key " + key, e);
+        } catch (Throwable e) {
+            log.error("error retrieving value for key " + key + " use lastRetrievalError() to handle it.", e);
+            this.lastRetrievalError.set(e);
             return Optional.empty();
         }
     }
@@ -103,5 +109,15 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
         if(listener != null) {
             this.accessListeners.add(listener);
         }
+    }
+
+    @Override
+    public Optional<Throwable> lastRetrievalError() {
+        return Optional.ofNullable(this.lastRetrievalError.get());
+    }
+
+    @Override
+    public Optional<Throwable> lastValidationError() {
+        return Optional.ofNullable(this.lastValidationError.get());
     }
 }

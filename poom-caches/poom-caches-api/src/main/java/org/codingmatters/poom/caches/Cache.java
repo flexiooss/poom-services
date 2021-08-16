@@ -2,6 +2,8 @@ package org.codingmatters.poom.caches;
 
 import org.codingmatters.poom.caches.invalidation.Invalidation;
 
+import java.util.Optional;
+
 public interface Cache<K, V> {
     V get(K key);
     void prune(K key);
@@ -10,6 +12,9 @@ public interface Cache<K, V> {
 
     void addPruneListener(PruneListener<K> listener);
     void addAccessListener(AccessListener<K> listener);
+
+    Optional<Throwable> lastRetrievalError();
+    Optional<Throwable> lastValidationError();
 
     @FunctionalInterface
     interface ValueRetriever<K, V> {
