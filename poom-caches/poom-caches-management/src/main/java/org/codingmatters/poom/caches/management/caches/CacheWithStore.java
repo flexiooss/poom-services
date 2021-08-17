@@ -33,10 +33,11 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
 
     @Override
     public synchronized V get(K key) {
+        this.lastValidationError.remove();
+        this.lastRetrievalError.remove();
         Optional<V> value;
         if(this.delegate.has(key)) {
             value = this.delegate.get(key);
-            this.lastValidationError.remove();
             try {
                 Invalidation<V> invalidation = this.invalidator.check(key, value.get());
                 if(invalidation.isInvalid()) {
@@ -71,7 +72,6 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
     }
 
     private Optional<V> retrieve(K key) {
-        this.lastRetrievalError.remove();
         try {
             V newValue = this.retriever.retrieve(key);
             return newValue != null ? Optional.of(newValue) : Optional.empty();
