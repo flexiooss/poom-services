@@ -18,8 +18,6 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
     private final ValueInvalidator<K, V> invalidator;
     private final List<PruneListener<K>> pruneListeners = new LinkedList<>();
     private final List<AccessListener<K>> accessListeners = new LinkedList<>();
-    private final ThreadLocal<Throwable> lastRetrievalError = new ThreadLocal<>();
-    private final ThreadLocal<Throwable> lastValidationError = new ThreadLocal<>();
 
     public CacheWithStore(
             ValueRetriever<K, V> retriever,
@@ -32,28 +30,23 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
     }
 
     @Override
-    public synchronized V get(K key) {
+    public synchronized V get(K key) throws Exception {
         Optional<V> value;
         if(this.delegate.has(key)) {
             value = this.delegate.get(key);
-            this.lastValidationError.remove();
-            try {
-                Invalidation<V> invalidation = this.invalidator.check(key, value.get());
-                if(invalidation.isInvalid()) {
-                    this.prune(key);
-                    if(invalidation.newValue().isPresent()) {
-                        value = invalidation.newValue();
+
+            Invalidation<V> invalidation = this.invalidator.check(key, value.get());
+            if(invalidation.isInvalid()) {
+                this.prune(key);
+                if(invalidation.newValue().isPresent()) {
+                    value = invalidation.newValue();
+                    this.delegate.store(key, value.get());
+                } else {
+                    value = this.retrieve(key);
+                    if(value.isPresent()) {
                         this.delegate.store(key, value.get());
-                    } else {
-                        value = this.retrieve(key);
-                        if(value.isPresent()) {
-                            this.delegate.store(key, value.get());
-                        }
                     }
                 }
-            } catch (Throwable e) {
-                log.error("error checking validation, keeping curent value, use lastValidationError() to handle it", e);
-                this.lastValidationError.set(e);
             }
         } else {
             value = this.retrieve(key);
@@ -70,16 +63,9 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
         this.delegate.store(key, value);
     }
 
-    private Optional<V> retrieve(K key) {
-        this.lastRetrievalError.remove();
-        try {
-            V newValue = this.retriever.retrieve(key);
-            return newValue != null ? Optional.of(newValue) : Optional.empty();
-        } catch (Throwable e) {
-            log.error("error retrieving value for key " + key + " use lastRetrievalError() to handle it.", e);
-            this.lastRetrievalError.set(e);
-            return Optional.empty();
-        }
+    private Optional<V> retrieve(K key) throws Exception {
+        V newValue = this.retriever.retrieve(key);
+        return newValue != null ? Optional.of(newValue) : Optional.empty();
     }
 
     @Override
@@ -109,15 +95,5 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
         if(listener != null) {
             this.accessListeners.add(listener);
         }
-    }
-
-    @Override
-    public Optional<Throwable> lastRetrievalError() {
-        return Optional.ofNullable(this.lastRetrievalError.get());
-    }
-
-    @Override
-    public Optional<Throwable> lastValidationError() {
-        return Optional.ofNullable(this.lastValidationError.get());
     }
 }

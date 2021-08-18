@@ -38,7 +38,7 @@ public class CacheWithStoreTest {
     }
 
     @Test
-    public void whenInsert_thenRetrieveInserted() {
+    public void whenInsert_thenRetrieveInserted() throws Exception{
         Cache<String, String> actual = this.createCache(key -> null);
         assertThat(actual.get("test"), nullValue());
         actual.insert("test", "ok");
@@ -65,12 +65,6 @@ public class CacheWithStoreTest {
         nextVal.set("new");
 
         assertThat(actual.get("other"), is("new"));
-    }
-
-    @Test
-    public void givenNoKeyRetrieved__whenRetrieverRaisesAnException__thenReturnsNull() throws Exception {
-        Cache<String, String> actual = this.createCache(key -> {throw new IOException("failed retrieving value");});
-        assertThat(actual.get("test"), is(nullValue()));
     }
 
     @Test
@@ -140,10 +134,13 @@ public class CacheWithStoreTest {
             throw new AssertionError("error while retrieving " + key);
         });
 
-        assertThat(actual.get("test"), is(nullValue()));
-        assertThat(actual.lastRetrievalError().isPresent(), is(true));
-        assertThat(actual.lastRetrievalError().get(), isA(AssertionError.class));
-        assertThat(actual.lastRetrievalError().get().getMessage(), is("error while retrieving test"));
+        try {
+            actual.get("test");
+        } catch (Throwable e) {
+            assertThat(e, is(notNullValue()));
+            assertThat(e, isA(AssertionError.class));
+            assertThat(e.getMessage(), is("error while retrieving test"));
+        }
     }
 
     @Test
@@ -153,10 +150,13 @@ public class CacheWithStoreTest {
         });
         actual.insert("test", "previous value");
 
-        assertThat(actual.get("test"), is("previous value"));
-        assertThat(actual.lastValidationError().isPresent(), is(true));
-        assertThat(actual.lastValidationError().get(), isA(AssertionError.class));
-        assertThat(actual.lastValidationError().get().getMessage(), is("error while invalidating test"));
+        try {
+            actual.get("test");
+        } catch (Throwable e) {
+            assertThat(e, is(notNullValue()));
+            assertThat(e, isA(AssertionError.class));
+            assertThat(e.getMessage(), is("error while invalidating test"));
+        }
     }
 
     private Cache<String, String> createCache(Cache.ValueRetriever<String, String> retriever) {
