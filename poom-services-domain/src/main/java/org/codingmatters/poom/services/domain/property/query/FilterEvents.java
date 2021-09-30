@@ -30,6 +30,8 @@ public interface FilterEvents<T> {
     default T containsProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T in(String left, List<Object> right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T containsAny(String left, List<Object> right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
+    default T startsWithAny(String left, List<Object> right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
+    default T endsWithAny(String left, List<Object> right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T containsAll(String left, List<Object> right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
 
     default T not() throws FilterEventError {throw new FilterEventError("feature not implemented");}
@@ -130,6 +132,16 @@ public interface FilterEvents<T> {
 
             @Override
             public T containsAny(String left, List<Object> right) throws FilterEventError {
+                return null;
+            }
+
+            @Override
+            public T startsWithAny(String left, List<Object> right) throws FilterEventError {
+                return null;
+            }
+
+            @Override
+            public T endsWithAny(String left, List<Object> right) throws FilterEventError {
                 return null;
             }
 

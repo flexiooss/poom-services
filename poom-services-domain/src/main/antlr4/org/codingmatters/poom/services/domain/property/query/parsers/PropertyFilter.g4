@@ -29,6 +29,8 @@ STARTS_WITH : S T A R T S ' ' W I T H;
 ENDS_WITH : E N D S ' ' W I T H;
 CONTAINS : C O N T A I N S;
 IN : I N;
+STARTS_WITH_ANY : S T A R T S ' ' W I T H' ' A N Y;
+ENDS_WITH_ANY : E N D S ' ' W I T H ' ' A N Y;
 CONTAINS_ANY : C O N T A I N S ' ' A N Y;
 CONTAINS_ALL : C O N T A I N S ' ' A L L;
 
@@ -67,6 +69,8 @@ expression
     | IDENTIFIER IS_NOT_EMPTY                               #isNotEmpty
     | IDENTIFIER operator operand                           #comparison
     | IDENTIFIER IN LPAR operand_list RPAR                  #in
+    | IDENTIFIER STARTS_WITH_ANY LPAR operand_list RPAR     #startsWithAny
+    | IDENTIFIER ENDS_WITH_ANY LPAR operand_list RPAR       #endsWithAny
     | IDENTIFIER CONTAINS_ANY LPAR operand_list RPAR        #containsAny
     | IDENTIFIER CONTAINS_ALL LPAR operand_list RPAR        #containsAll
     ;

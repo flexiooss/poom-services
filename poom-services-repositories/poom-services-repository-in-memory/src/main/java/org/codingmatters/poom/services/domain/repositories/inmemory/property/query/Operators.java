@@ -100,6 +100,32 @@ public interface Operators {
         return false;
     }
 
+    static boolean startsWithOne(Object left, List<Object> right) {
+        left = normalized(left);
+        for (Object o : right) {
+            Object value = normalized(o);
+            if(left == null) {
+                if(value == null) return true;
+            } else {
+                if(left.toString().startsWith(value.toString())) return true;
+            }
+        }
+        return false;
+    }
+
+    static boolean endsWithOne(Object left, List<Object> right) {
+        left = normalized(left);
+        for (Object o : right) {
+            Object value = normalized(o);
+            if(left == null) {
+                if(value == null) return true;
+            } else {
+                if(left.toString().endsWith(value.toString())) return true;
+            }
+        }
+        return false;
+    }
+
     static boolean containsAll(Object left, List<Object> right) {
         left = normalized(left);
         for (Object o : right) {
