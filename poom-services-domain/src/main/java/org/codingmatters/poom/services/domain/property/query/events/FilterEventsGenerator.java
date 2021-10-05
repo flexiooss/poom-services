@@ -239,6 +239,30 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     }
 
     @Override
+    public Object visitStartsWithAny(PropertyFilterParser.StartsWithAnyContext ctx) {
+        super.visitStartsWithAny(ctx);
+        List<Object> list = new LinkedList<>();
+        for (Object o : this.stack) {
+            list.add(o);
+        }
+        this.stack.clear();
+
+        return this.events.startsWithAny(ctx.IDENTIFIER().getText(), list);
+    }
+
+    @Override
+    public Object visitEndsWithAny(PropertyFilterParser.EndsWithAnyContext ctx) {
+        super.visitEndsWithAny(ctx);
+        List<Object> list = new LinkedList<>();
+        for (Object o : this.stack) {
+            list.add(o);
+        }
+        this.stack.clear();
+
+        return this.events.endsWithAny(ctx.IDENTIFIER().getText(), list);
+    }
+
+    @Override
     public Object visitContainsAll(PropertyFilterParser.ContainsAllContext ctx) {
         super.visitContainsAll(ctx);
         List<Object> list = new LinkedList<>();

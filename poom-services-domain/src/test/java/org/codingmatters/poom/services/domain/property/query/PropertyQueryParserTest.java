@@ -326,6 +326,58 @@ public class PropertyQueryParserTest {
     }
 
     @Test
+    public void whenStartsWithAnyWithStrings() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 starts with any ('1', '2', '3')").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<String>() {
+            @Override
+            public String startsWithAny(String left, List<Object> right) throws FilterEventError {
+                List classes = new LinkedList();
+                for (Object o : right) {
+                    classes.add(o.getClass().getSimpleName());
+                }
+
+                parsed.add(String.format("%s starts with any %s (%s)", left, right, classes));
+                return parsed.get(parsed.size() - 1);
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed, contains("l1 starts with any [1, 2, 3] ([String, String, String])"));
+    }
+
+    @Test
+    public void whenEndsWithAnyWithStrings() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 ends with any ('1', '2', '3')").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<String>() {
+            @Override
+            public String endsWithAny(String left, List<Object> right) throws FilterEventError {
+                List classes = new LinkedList();
+                for (Object o : right) {
+                    classes.add(o.getClass().getSimpleName());
+                }
+
+                parsed.add(String.format("%s ends with any %s (%s)", left, right, classes));
+                return parsed.get(parsed.size() - 1);
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed, contains("l1 ends with any [1, 2, 3] ([String, String, String])"));
+    }
+
+    @Test
     public void given__whenInWithEmptyList__thenFilterEventException() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("l1 in ()").build();
 

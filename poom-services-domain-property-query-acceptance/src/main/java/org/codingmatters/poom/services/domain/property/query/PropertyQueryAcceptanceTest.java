@@ -59,9 +59,7 @@ public abstract class PropertyQueryAcceptanceTest {
                             .deep(Deep.builder().deepProp("04").build())
                             .build())
                     .build();
-//            System.out.printf("VAL :: %s :: %s\n", value.stringProp(), DateTimeFormatter.ISO_ZONED_DATE_TIME.format(value.tzdatetimeProp()));
             Entity<QAValue> e = this.repository.create(value);
-//            System.out.printf("INS :: %s :: %s\n", e.value().stringProp(), DateTimeFormatter.ISO_ZONED_DATE_TIME.format(e.value().tzdatetimeProp()));
         }
     }
 
@@ -109,6 +107,34 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
                 "006", "040", "001", "010", "011", "012", "013", "014", "015", "016", "017", "018", "019"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenStartsWithAny__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp starts with any ('00', '03')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(20L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "000", "001", "002", "003", "004", "005", "006", "007", "008", "009",
+                "030", "031", "032", "033", "034", "035", "036", "037", "038", "039"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenEndsWithAny__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp ends with any ('0', '3')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(20L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "000" ,"010", "020" ,"030", "040" ,"050", "060" ,"070", "080" ,"090",
+                "003" ,"013", "023" ,"033", "043" ,"053", "063" ,"073", "083" ,"093"
         ));
     }
 
