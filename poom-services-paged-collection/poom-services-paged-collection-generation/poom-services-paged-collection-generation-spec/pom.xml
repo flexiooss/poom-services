@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services-paged-collection-generation</artifactId>
-        <version>1.93.0-SNAPSHOT</version>
+        <version>1.93.0</version>
     </parent>
 
     <artifactId>poom-services-paged-collection-generation-spec</artifactId>
