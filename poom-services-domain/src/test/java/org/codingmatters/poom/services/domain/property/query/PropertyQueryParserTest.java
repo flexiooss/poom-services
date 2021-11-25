@@ -707,4 +707,295 @@ public class PropertyQueryParserTest {
                 .leftHandSidePropertyValidator(property -> true)
                 .build(new FilterEvents() {}).parse(query);
     }
+
+    @Test
+    public void givenDateTimeLiteral__whenNoMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 2021-11-24T10:00:03").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(LocalDateTime.class));
+    }
+
+    @Test
+    public void givenDateTimeLiteral__whenOneDigitMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 2021-11-24T10:00:03.5").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(LocalDateTime.class));
+    }
+
+    @Test
+    public void givenDateTimeLiteral__whenTwoDigitMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 2021-11-24T10:00:03.52").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(LocalDateTime.class));
+    }
+
+    @Test
+    public void givenDateTimeLiteral__whenThreeDigitMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 2021-11-24T10:00:03.521").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(LocalDateTime.class));
+    }
+
+    @Test
+    public void givenUTCDateTimeLiteral__whenNoMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 2021-11-24T10:00:03Z").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(ZonedDateTime.class));
+    }
+
+    @Test
+    public void givenUTCDateTimeLiteral__whenOneDigitMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 2021-11-24T10:00:03.5Z").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(ZonedDateTime.class));
+    }
+
+    @Test
+    public void givenUTCDateTimeLiteral__whenTwoDigitMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 2021-11-24T10:00:03.52Z").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(ZonedDateTime.class));
+    }
+
+    @Test
+    public void givenUTCDateTimeLiteral__whenThreeDigitMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 2021-11-24T10:00:03.521Z").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(ZonedDateTime.class));
+    }
+
+    @Test
+    public void givenZonedDateTimeLiteral__whenNoMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 2021-11-24T10:00:03+03:30").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(ZonedDateTime.class));
+    }
+
+    @Test
+    public void givenZonedDateTimeLiteral__whenOneDigitMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 2021-11-24T10:00:03.5+03:30").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(ZonedDateTime.class));
+    }
+
+    @Test
+    public void givenZonedDateTimeLiteral__whenTwoDigitMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 2021-11-24T10:00:03.52+03:30").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(ZonedDateTime.class));
+    }
+
+    @Test
+    public void givenZonedDateTimeLiteral__whenThreeDigitMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 2021-11-24T10:00:03.521+03:30").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(ZonedDateTime.class));
+    }
+
+
+
+    @Test
+    public void givenTimeLiteral__whenNoMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 10:00:03").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(LocalTime.class));
+    }
+
+    @Test
+    public void givenTimeLiteral__whenOneDigitMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 10:00:03.5").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(LocalTime.class));
+    }
+
+    @Test
+    public void givenTimeLiteral__whenTwoDigitMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 10:00:03.52").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(LocalTime.class));
+    }
+
+    @Test
+    public void givenTimeLiteral__whenThreeDigitMillis__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 10:00:03.521").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+        PropertyQueryParser.builder()
+                .leftHandSidePropertyValidator(property -> true)
+                .build(new FilterEvents() {
+                    @Override
+                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+                        value.set(right);
+                        return null;
+                    }
+                }).parse(query);
+
+        assertThat(value.get(), isA(LocalTime.class));
+    }
+
 }
