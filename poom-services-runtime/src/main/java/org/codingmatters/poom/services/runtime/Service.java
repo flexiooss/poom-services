@@ -2,6 +2,7 @@ package org.codingmatters.poom.services.runtime;
 
 import io.undertow.Undertow;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
+import org.codingmatters.poom.services.runtime.handlers.RequestLoggingHandler;
 import org.codingmatters.poom.services.support.Env;
 import org.codingmatters.rest.api.Processor;
 import org.codingmatters.rest.undertow.CdmHttpUndertowHandler;
@@ -42,8 +43,8 @@ public class Service {
                 }
             }
             log.info("stopping service {} as requested", this.serviceName);
-            System.exit( 0 );
             this.stop();
+            System.exit( 0 );
         } catch( Exception e ) {
             log.error("error while executing service " + this.serviceName, e);
             this.stop();
@@ -54,7 +55,7 @@ public class Service {
     public void start() {
         this.server = Undertow.builder()
                 .addHttpListener(this.port, this.host)
-                .setHandler(new CdmHttpUndertowHandler(this.processor))
+                .setHandler(new RequestLoggingHandler(new CdmHttpUndertowHandler(this.processor)))
                 .build();
         this.server.start();
     }
