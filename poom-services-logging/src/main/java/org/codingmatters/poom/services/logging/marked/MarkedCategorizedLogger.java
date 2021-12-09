@@ -13,12 +13,14 @@ public class MarkedCategorizedLogger implements CategorizedLogger {
     static private Marker MESSAGE = MarkerFactory.getMarker("MESSAGE");
     static private Marker AUDIT = MarkerFactory.getMarker("AUDIT");
     static private Marker PERF = MarkerFactory.getMarker("PERF");
+    static private Marker REQUEST = MarkerFactory.getMarker("REQUEST");
 
     private final Log personalDataLog;
     private final Log confidentialLog;
     private final Log messageLog;
     private final Log auditLog;
     private final Log perfLog;
+    private final Log requestLog;
 
     public MarkedCategorizedLogger(Logger logger) {
         this.personalDataLog = new MarkedLog(PERSONAL_DATA, logger);
@@ -26,6 +28,7 @@ public class MarkedCategorizedLogger implements CategorizedLogger {
         this.messageLog = new MarkedLog(MESSAGE, logger);
         this.auditLog = new MarkedLog(AUDIT, logger);
         this.perfLog = new MarkedLog(PERF, logger);
+        this.requestLog = new MarkedLog(REQUEST, logger);
     }
 
     @Override
@@ -40,12 +43,17 @@ public class MarkedCategorizedLogger implements CategorizedLogger {
 
     @Override
     public Log audit() {
-        return auditLog;
+        return this.auditLog;
     }
 
     @Override
     public Log performanceAlert() {
         return this.perfLog;
+    }
+
+    @Override
+    public Log request() {
+        return this.requestLog;
     }
 
 
