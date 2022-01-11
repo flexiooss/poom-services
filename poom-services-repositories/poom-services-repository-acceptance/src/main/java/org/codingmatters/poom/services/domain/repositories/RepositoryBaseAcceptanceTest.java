@@ -13,7 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThrows;
 
-public abstract class RepositoryBaseAcceptance {
+public abstract class RepositoryBaseAcceptanceTest {
 
     private Repository<QAValue, Void> repository;
     protected abstract Repository<QAValue, Void> createRepository() throws Exception;
