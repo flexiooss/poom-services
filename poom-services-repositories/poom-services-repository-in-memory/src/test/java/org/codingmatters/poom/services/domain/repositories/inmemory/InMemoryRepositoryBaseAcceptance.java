@@ -8,7 +8,7 @@ import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
 
 public class InMemoryRepositoryBaseAcceptance extends RepositoryBaseAcceptance {
     @Override
-    protected Repository<QAValue, Void> createRepository() {
+    protected Repository<QAValue, Void> createRepository() throws Exception {
         return new InMemoryRepository<>() {
             @Override
             public PagedEntityList<QAValue> search(Void query, long startIndex, long endIndex) throws RepositoryException {
