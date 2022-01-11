@@ -21,7 +21,15 @@ import java.util.stream.Stream;
 public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
     static private final Logger log = LoggerFactory.getLogger(InMemoryRepository.class);
 
-    private final Store<V> store = new Store<>();
+    private final Store<V> store;
+
+    public InMemoryRepository() {
+        this(false);
+    }
+
+    public InMemoryRepository(boolean withOptimisticLocking) {
+        this.store = new Store<>(withOptimisticLocking);
+    }
 
     @Override
     public Entity<V> create(V withValue) throws RepositoryException {
