@@ -19,5 +19,6 @@
     <modules>
         <module>poom-services-repository-in-memory</module>
         <module>poom-services-repository-extensions</module>
+        <module>poom-services-repository-acceptance</module>
     </modules>
 </project>

@@ -80,7 +80,6 @@
 
     <modules>
         <module>poom-services-domain</module>
-        <module>poom-services-domain-property-query-acceptance</module>
         <module>poom-services-repositories</module>
         <module>poom-services-support</module>
         <module>poom-services-production-support</module>
@@ -139,7 +138,12 @@
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
-                <artifactId>poom-services-domain-property-query-acceptance</artifactId>
+                <artifactId>poom-services-repository-acceptance</artifactId>
+                <version>1.98.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom</groupId>
+                <artifactId>poom-services-repository-extensions</artifactId>
                 <version>1.98.0-SNAPSHOT</version>
             </dependency>
             <dependency>
