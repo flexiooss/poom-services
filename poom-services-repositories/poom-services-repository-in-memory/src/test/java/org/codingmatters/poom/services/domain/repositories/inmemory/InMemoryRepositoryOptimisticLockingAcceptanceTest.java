@@ -9,7 +9,7 @@ import org.junit.Test;
 
 public class InMemoryRepositoryOptimisticLockingAcceptanceTest extends RepositoryOptimisticLockingAcceptanceTest {
     @Override
-    protected Repository<QAValue, Void> createRepositoryWithOptimisticLocking() throws Exception {
+    protected Repository<QAValue, Void> createRepository() throws Exception {
         return new InMemoryRepository<>(true) {
             @Override
             public PagedEntityList<QAValue> search(Void query, long startIndex, long endIndex) throws RepositoryException {

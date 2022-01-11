@@ -3,10 +3,7 @@ package org.codingmatters.poom.services.domain.repositories;
 import org.codingmatters.generated.QAValue;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -14,19 +11,28 @@ import java.math.BigInteger;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public abstract class RepositoryOptimisticLockingAcceptanceTest {
+public abstract class RepositoryOptimisticLockingAcceptanceTest extends RepositoryBaseAcceptanceTest {
 
-    private Repository<QAValue, Void> repository;
-    protected abstract Repository<QAValue, Void> createRepositoryWithOptimisticLocking() throws Exception;
+    /**
+     * Fails when optimistics locking activated
+     * @throws Exception
+     */
+    @Override
+    public void givenEntityStored__whenEntityUpdatedFromId__thenIdKept_andVersionIncremented_andValueChanged() throws Exception {}
 
-    protected Repository<QAValue, Void> repository() {
-        return this.repository;
-    }
+    /**
+     * Fails when optimistics locking activated
+     * @throws Exception
+     */
+    @Override
+    public void givenEntityStoredWithVersion_andEntityUpdatedFromId__whenFromGratherVersion__thenIdKept_andVersionIncremented_andValueChanged() throws Exception {}
 
-    @Before
-    public void setUp() throws Exception {
-        this.repository = this.createRepositoryWithOptimisticLocking();
-    }
+    /**
+     * Fails when optimistics locking activated
+     * @throws Exception
+     */
+    @Override
+    public void givenEntityStoredWithVersion_andEntityUpdatedFromId__whenFromLowerVersion__thenIdKept_andVersionIncremented_andValueChanged() throws Exception {}
 
     @Test
     public void whenUpdatingFromSameVersion__thenUpdated() throws Exception {
