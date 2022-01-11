@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services</artifactId>
-        <version>1.97.0</version>
+        <version>1.98.0</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -19,5 +19,6 @@
     <modules>
         <module>poom-services-repository-in-memory</module>
         <module>poom-services-repository-extensions</module>
+        <module>poom-services-repository-acceptance</module>
     </modules>
 </project>

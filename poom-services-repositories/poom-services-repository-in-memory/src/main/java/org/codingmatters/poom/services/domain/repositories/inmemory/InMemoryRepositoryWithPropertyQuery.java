@@ -19,11 +19,17 @@ import java.util.function.Predicate;
 public class InMemoryRepositoryWithPropertyQuery<V> extends InMemoryRepository<V, PropertyQuery> {
 
     static public <V> Repository<V, PropertyQuery> validating(Class<? extends V> valueClass) {
-        return new InMemoryRepositoryWithPropertyQuery<>(valueClass, true);
+        return validating(valueClass, false);
+    }
+    static public <V> Repository<V, PropertyQuery> validating(Class<? extends V> valueClass, boolean withOptimisticLocking) {
+        return new InMemoryRepositoryWithPropertyQuery<>(valueClass, true, withOptimisticLocking);
     }
 
     static public <V> Repository<V, PropertyQuery> notValidating(Class<? extends V> valueClass) {
-        return new InMemoryRepositoryWithPropertyQuery<>(valueClass, false);
+        return notValidating(valueClass, false);
+    }
+    static public <V> Repository<V, PropertyQuery> notValidating(Class<? extends V> valueClass, boolean withOptimisticLocking) {
+        return new InMemoryRepositoryWithPropertyQuery<>(valueClass, false, withOptimisticLocking);
     }
 
     private final Class<? extends V> valueClass;
@@ -31,10 +37,11 @@ public class InMemoryRepositoryWithPropertyQuery<V> extends InMemoryRepository<V
 
     @Deprecated(forRemoval = true)
     public InMemoryRepositoryWithPropertyQuery(Class<? extends V> valueClass) {
-        this(valueClass, true);
+        this(valueClass, true, false);
     }
 
-    private InMemoryRepositoryWithPropertyQuery(Class<? extends V> valueClass, boolean validating) {
+    private InMemoryRepositoryWithPropertyQuery(Class<? extends V> valueClass, boolean validating, boolean withOptimisticLocking) {
+        super(withOptimisticLocking);
         this.valueClass = valueClass;
         PropertyResolver resolver = new PropertyResolver(valueClass);
         if(validating) {

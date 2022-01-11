@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services-repositories</artifactId>
-        <version>1.97.0</version>
+        <version>1.98.0</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -26,7 +26,7 @@
         </dependency>
         <dependency>
             <groupId>org.codingmatters.poom</groupId>
-            <artifactId>poom-services-domain-property-query-acceptance</artifactId>
+            <artifactId>poom-services-repository-acceptance</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

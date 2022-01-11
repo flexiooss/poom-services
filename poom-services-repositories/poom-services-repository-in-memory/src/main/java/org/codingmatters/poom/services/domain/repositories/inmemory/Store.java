@@ -1,5 +1,6 @@
 package org.codingmatters.poom.services.domain.repositories.inmemory;
 
+import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.servives.domain.entities.Entity;
 import org.codingmatters.poom.servives.domain.entities.MutableEntity;
 
@@ -10,6 +11,11 @@ import java.util.stream.Stream;
 public class Store<V> {
 
     private final LinkedHashMap<String, MutableEntity<V>> store = new LinkedHashMap<>();
+    private final boolean withOptimisticLocking;
+
+    public Store(boolean withOptimisticLocking) {
+        this.withOptimisticLocking = withOptimisticLocking;
+    }
 
     public synchronized void store(MutableEntity<V> entity) {
         this.store.put(entity.id(), entity);
@@ -43,12 +49,25 @@ public class Store<V> {
         return this.store.values().toArray(new Entity[this.store.size()]);
     }
 
-    public synchronized MutableEntity<V> update(Entity<V> entity, V withValue) {
+    public synchronized MutableEntity<V> update(Entity<V> entity, V withValue) throws RepositoryException {
         if(this.isStored(entity)) {
             MutableEntity<V> mutableEntity = this.get(entity.id());
+            if(this.withOptimisticLocking) {
+                this.ensureLockGranted(entity, mutableEntity);
+            }
             mutableEntity.changeValue(withValue);
             return mutableEntity;
         }
         return null;
+    }
+
+    private void ensureLockGranted(Entity<V> entity, MutableEntity<V> mutableEntity) throws RepositoryException {
+        if(entity.version() == null) {
+            throw new RepositoryException("cannot update entity : since optimistic locking activated, must provide a version");
+        } else {
+            if(! mutableEntity.version().equals(entity.version())) {
+                throw new RepositoryException(String.format("cannot update entity : optimistic locking error, version %s does not match", entity.version()));
+            }
+        }
     }
 }

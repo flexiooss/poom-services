@@ -6,11 +6,11 @@
 
     <parent>
         <groupId>org.codingmatters.poom</groupId>
-        <artifactId>poom-services</artifactId>
-        <version>1.97.0</version>
+        <artifactId>poom-services-repositories</artifactId>
+        <version>1.98.0</version>
     </parent>
 
-    <artifactId>poom-services-domain-property-query-acceptance</artifactId>
+    <artifactId>poom-services-repository-acceptance</artifactId>
 
     <dependencies>
         <dependency>
@@ -80,4 +80,5 @@
             </plugin>
         </plugins>
     </build>
+    
 </project>
