@@ -147,6 +147,10 @@ public interface Operators {
         if(o == null) return null;
         if(o instanceof Number) {
             return new BigDecimal("" + o.toString());
+        } if(o instanceof LocalDate) {
+            return ((LocalDate)o).atStartOfDay();
+        } if(o instanceof LocalTime) {
+            return ((LocalTime)o).atDate(LocalDate.EPOCH);
         }
         return o;
     }
