@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 
+@Deprecated
 public class ObjectValueMatchers {
     static public Matcher<Optional<PropertyValue>> property(String [] expected) {
         PropertyValue.Value[] values = new PropertyValue.Value[expected.length];
