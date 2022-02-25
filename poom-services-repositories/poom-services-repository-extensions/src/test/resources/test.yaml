@@ -3,3 +3,9 @@ Certificate:
   fqdn: string
   status:
     $enum: RENEWING, READY, ERRORED
+
+Dummy1:
+  p: string
+
+Dummy2:
+  p: string
