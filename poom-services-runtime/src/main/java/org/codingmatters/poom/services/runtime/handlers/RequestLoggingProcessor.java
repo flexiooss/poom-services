@@ -60,6 +60,8 @@ public class RequestLoggingProcessor implements Processor {
 
     private Map<String, Object> requestData(RequestDelegate requestDelegate) {
         Map<String, Object> result = new LinkedHashMap<>();
+        result.put("method", requestDelegate.method().name());
+        result.put("content-type", requestDelegate.contentType());
         result.put("path", requestDelegate.path());
         result.put("headers", this.filtered(requestDelegate.headers()));
         result.put("query-parameters", requestDelegate.queryParameters());
