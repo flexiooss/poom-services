@@ -25,6 +25,26 @@ public class Rfc7233HelperTest {
     }
 
     @Test
+    public void givenManyPages_andMaxPageSize__whenFistRequested_andMaxUnderServicePageSize__thenNextRangeIsNextPage_andPageSizeIsMaxPageSize() throws Exception {
+        Rfc7233Helper actual = new Rfc7233Helper("Something 0-9/100", "Something 10", 5);
+        assertThat(actual.first(), is(0L));
+        assertThat(actual.last(), is(9L));
+        assertThat(actual.total(), is(100L));
+        assertThat(actual.pageSize(), is(5L));
+        assertThat(actual.nextRange(), is("10-14"));
+    }
+
+    @Test
+    public void givenManyPages_andMaxPageSize__whenFistRequested_andMaxUnderServicePageSize__thenNextRangeIsNextPage_andPageSizeIsServicePageSize() throws Exception {
+        Rfc7233Helper actual = new Rfc7233Helper("Something 0-9/100", "Something 10", 12);
+        assertThat(actual.first(), is(0L));
+        assertThat(actual.last(), is(9L));
+        assertThat(actual.total(), is(100L));
+        assertThat(actual.pageSize(), is(10L));
+        assertThat(actual.nextRange(), is("10-19"));
+    }
+
+    @Test
     public void givenOnePage__whenRequested__thenNextRangeIsStillCalculated() throws Exception {
         Rfc7233Helper actual = new Rfc7233Helper("Something 0-9/10", "Something 10");
         assertThat(actual.first(), is(0L));
