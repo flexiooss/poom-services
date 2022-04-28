@@ -39,12 +39,12 @@ public interface ResourceGetProtocol<V, Q, Req, Resp> extends RepositoryRequestP
             try {
                 Entity<V> entity = this.resolveEntity(entityId, request);
                 if (entity != null) {
-                    log().info("request for entity {} returns version {}", entity.id(), entity.version());
+                    log().debug("request for entity {} returns version {}", entity.id(), entity.version());
                     return this.entityFound(request, entity);
                 } else {
                     String errorToken = UUID.randomUUID().toString();
                     MDC.put("error-token", errorToken);
-                    log().info("no entity found with id: {}", entityId);
+                    log().debug("no entity found with id: {}", entityId);
 
                     return this.entityNotFound(errorToken);
                 }

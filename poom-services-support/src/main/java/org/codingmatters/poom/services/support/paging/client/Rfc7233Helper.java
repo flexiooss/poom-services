@@ -12,6 +12,10 @@ public class Rfc7233Helper {
     private final long pageSize;
 
     public Rfc7233Helper(String contentRange, String acceptRange) throws UnparseableRfc7233Query {
+        this(contentRange, acceptRange, 0);
+    }
+
+    public Rfc7233Helper(String contentRange, String acceptRange, long maxPageSize) throws UnparseableRfc7233Query {
         // content-range: FlexioEvent 0-0/3014846
         Matcher contentRangeMatcher = Pattern.compile("(\\w+) (\\d+)-(\\d+)/(\\d+)").matcher(contentRange);
         if(! contentRangeMatcher.matches()) {
@@ -28,7 +32,8 @@ public class Rfc7233Helper {
             throw new UnparseableRfc7233Query("cannot parse accept range from : " + acceptRange);
         }
 
-        this.pageSize = Long.parseLong(acceptRangeMatcher.group(2));
+        long servicePageSize = Long.parseLong(acceptRangeMatcher.group(2));
+        this.pageSize = maxPageSize > 0 ? Math.min(maxPageSize, servicePageSize) : servicePageSize;
     }
 
     public String nextRange() {
