@@ -67,6 +67,11 @@ public class TestClientResponseDelegate implements ResponseDelegate {
     }
 
     @Override
+    public String[] rawHeaderNames() {
+        return headerNames();
+    }
+
+    @Override
     public String contentType() {
         return this.contentType;
     }
