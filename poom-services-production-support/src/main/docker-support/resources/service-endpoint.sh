@@ -105,7 +105,7 @@ fi
 
 JVM_VM="${JVM_VM} $JVM_MEMORY_TUNING $JVM_OPTS"
 #JVM_VM="${JVM_VM} -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${REPORT_DIR}/heap.hprof"
-JVM_VM="${JVM_VM} -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${REPORT_DIR}/heap.hprof"
+JVM_VM="${JVM_VM} -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${REPORT_DIR}/heap.hprof -XX:-OmitStackTraceInFastThrow"
 
 ##
 #   Trapping SIGINT and SIGTERM to pass them to the service
