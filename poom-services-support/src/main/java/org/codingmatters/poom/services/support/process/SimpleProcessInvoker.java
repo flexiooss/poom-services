@@ -1,20 +1,21 @@
 package org.codingmatters.poom.services.support.process;
 
-public class SimpleProcessInvoker {
-    private final ProcessInvoker invoker;
-    private final ProcessBuilder defaults;
+import org.codingmatters.poom.services.support.process.simple.SimpleProcessInvokerImpl;
 
-    public SimpleProcessInvoker(ProcessInvoker invoker, ProcessBuilder defaults) {
-        this.invoker = invoker;
-        this.defaults = defaults;
+public interface SimpleProcessInvoker {
+
+    static SimpleProcessInvokerImpl invoker(ProcessInvoker invoker, ProcessBuilder defaults) {
+        return new SimpleProcessInvokerImpl(invoker, defaults);
     }
 
-    static public class Response {
+    ProcessResponse invoke(String ... cmd) throws ProcessException;
+
+    class ProcessResponse {
         private final int status;
         private final String out;
         private final String err;
 
-        public Response(int status, String out, String err) {
+        public ProcessResponse(int status, String out, String err) {
             this.status = status;
             this.out = out;
             this.err = err;
@@ -31,6 +32,28 @@ public class SimpleProcessInvoker {
         public String err() {
             return err;
         }
+
+        public boolean isError() {
+            return this.status != 0;
+        }
+
+        @Override
+        public String toString() {
+            return "ProcessResponse{" +
+                    "status=" + status +
+                    ", out='" + out + '\'' +
+                    ", err='" + err + '\'' +
+                    '}';
+        }
     }
 
+    class ProcessException extends Exception {
+        public ProcessException(String message) {
+            super(message);
+        }
+
+        public ProcessException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
 }
