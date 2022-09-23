@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom.caches</groupId>
         <artifactId>poom-caches</artifactId>
-        <version>1.116.0</version>
+        <version>1.117.0</version>
     </parent>
 
     <artifactId>poom-caches-management</artifactId>
