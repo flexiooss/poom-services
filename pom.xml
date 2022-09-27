@@ -74,8 +74,8 @@
         <poom.service.base.image.namespace>codingmatters</poom.service.base.image.namespace>
         <poom.service.base.image>poom-service-base-17-alpine</poom.service.base.image>
         <poom.service.base.image.version>2.5.0</poom.service.base.image.version>
-        <codingmatters-value-objects.version>1.80.0</codingmatters-value-objects.version>
-        <codingmatters-rest.version>1.86.0</codingmatters-rest.version>
+        <codingmatters-value-objects.version>1.81.0-SNAPSHOT</codingmatters-value-objects.version>
+        <codingmatters-rest.version>1.87.0-SNAPSHOT</codingmatters-rest.version>
     </properties>
 
     <modules>
