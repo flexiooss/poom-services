@@ -25,6 +25,14 @@ then
     echo "SCAN_DELAY not set, defaulting to $SCAN_DELAY"
 fi
 
+if [ -z ${KEEP_DUMP_WHEN_FAILS} ]
+then
+    KEEP_DUMP_WHEN_FAILS=false
+    echo "KEEP_DUMP_WHEN_FAILS not set, defaulting to $KEEP_DUMP_WHEN_FAILS"
+else
+    echo "KEEP_DUMP_WHEN_FAILS set to $KEEP_DUMP_WHEN_FAILS"
+fi
+
 echo "starting reporter  [SCANNED_DIR=${SCANNED_DIR} ; REPORT_API_URL=${REPORT_API_URL} ; SCAN_DELAY=${SCAN_DELAY}]"
 
 while true
@@ -46,6 +54,7 @@ do
             CURL_OPTS=" --data-binary @${DUMP}"
         fi
 
+        HEADERS=$(mktemp)
         curl -v -XPOST \
             --header "x-name: ${SERVICE_NAME}" \
             --header "x-version: ${SERVICE_VERSION}" \
@@ -56,9 +65,23 @@ do
             --header "x-exit-status: ${SERVICE_EXIT_STATUS}" \
             --header "expect:" \
             --header "Content-Type: application/octet-stream" \
-            $URL/reports ${CURL_OPTS}
+            $URL/reports ${CURL_OPTS} \
+            -v -D $HEADERS
 
-        rm -rf $(dirname $DESCRIPTOR)
+
+        RESPONSE201=$(cat $HEADERS | grep -i 'HTTP/1.1 201')
+        if [[ ${RESPONSE201} =~ "Created" ]] || [[ ${RESPONSE201} =~ "created" ]] || [[ ${RESPONSE201} =~ "CREATED" ]]; then
+            echo "Sucessfully posted to service, will delete $(dirname $DESCRIPTOR)"
+            rm -rf $(dirname $DESCRIPTOR)
+        elif [[ ${KEEP_DUMP_WHEN_FAILS} = false ]]; then
+            echo "Error posting dump to reporter, deleting $(dirname $DESCRIPTOR) anyway. In order to keep directory, set KEEP_DUMP_WHEN_FAILS env to 'true'"
+            rm -rf $(dirname $DESCRIPTOR)
+        else
+            echo "Error posting report, keeping in place and renaming to failure to avoid retry"
+            mv ${DESCRIPTOR} ${DESCRIPTOR}.failed
+            mv $(dirname $DESCRIPTOR) $(dirname $DESCRIPTOR)___$(date +%FT%H-%M-%S)
+        fi
+
 
         echo "done."
     done
