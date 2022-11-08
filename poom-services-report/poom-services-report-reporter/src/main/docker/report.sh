@@ -79,6 +79,7 @@ do
         else
             echo "Error posting report, keeping in place and renaming to failure to avoid retry"
             mv ${DESCRIPTOR} ${DESCRIPTOR}.failed
+            mv $(dirname $DESCRIPTOR) $(dirname $DESCRIPTOR)___$(date +%FT%H-%M-%S)
         fi
 
 
