@@ -9,6 +9,7 @@ import org.apache.commons.lang.text.StrBuilder;
 import org.codingmatters.poom.i18n.bundle.spec.descriptors.BundleSpec;
 import org.codingmatters.poom.i18n.bundle.spec.descriptors.MessageSpec;
 import org.codingmatters.poom.i18n.bundle.spec.descriptors.json.BundleSpecWriter;
+import org.codingmatters.poom.l10n.client.L10N;
 import org.codingmatters.value.objects.generation.GenerationUtils;
 
 import javax.lang.model.element.Modifier;
@@ -92,6 +93,7 @@ public class BundleSpecGeneration {
         if(this.spec.opt().messages().isPresent()) {
             for (MessageSpec message : this.spec.messages()) {
                 result.add(this.keyMethod(message));
+                result.add(this.keyMessageBuilderMethod(message));
             }
         }
         return result;
@@ -102,6 +104,15 @@ public class BundleSpecGeneration {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .returns(ClassName.get(String.class))
                 .addStatement("return $S", from.key())
+                .build();
+    }
+
+    private MethodSpec keyMessageBuilderMethod(MessageSpec from) {
+        return MethodSpec.methodBuilder(this.uncapitalizedFirst(this.camelCased(from.key())))
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(ClassName.get(L10N.class), "l10n")
+                .returns(ClassName.get(L10N.Message.class))
+                .addStatement("return l10n.message(bundleName(), $L())", this.uncapitalizedFirst(this.camelCased(from.key())))
                 .build();
     }
 
