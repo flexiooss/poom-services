@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import org.codingmatters.poom.i18n.bundle.spec.descriptors.BundleSpec;
 import org.codingmatters.poom.i18n.bundle.spec.descriptors.MessageSpec;
 import org.codingmatters.poom.i18n.bundle.spec.descriptors.json.BundleSpecWriter;
+import org.codingmatters.poom.l10n.client.L10N;
 import org.codingmatters.tests.compile.CompiledCode;
 import org.codingmatters.tests.compile.FileHelper;
 import org.codingmatters.tests.compile.helpers.ClassLoaderHelper;
@@ -15,6 +16,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.*;
 
+import static org.codingmatters.tests.reflect.ReflectMatchers.aClass;
 import static org.codingmatters.tests.reflect.ReflectMatchers.aPublic;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -96,6 +98,31 @@ public class BundleSpecGenerationTest {
         assertThat(
                 this.classes.get("org.generated.ATestBundle").get(),
                 is(aPublic().interface_().with(aPublic().static_().method().named("aKey").withoutParameters().returning(String.class)))
+        );
+    }
+
+    @Test
+    public void givenGeneratingBundleSpecInterface__whenBundleHasAMessage__thenAPublicStaticMessageBuilderIsNamedFromKey() throws Exception {
+        /*
+          static L10N.Message greetings(L10N l10N) {
+            return l10N.message(bundleName(), greetings());
+          }
+         */
+        new BundleSpecGeneration(
+                "org.generated",
+                BundleSpec.builder()
+                        .name("a test")
+                        .messages(MessageSpec.builder().key("a.key").build())
+                        .build(),
+                jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
+
+        this.compile();
+
+        assertThat(
+                this.classes.get("org.generated.ATestBundle").get(),
+                is(aPublic().interface_().with(aPublic().static_().method().named("aKey").withParameters(
+                        L10N.class
+                ).returning(L10N.Message.class)))
         );
     }
 

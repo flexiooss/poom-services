@@ -6,6 +6,9 @@ import java.util.Arrays;
 @FunctionalInterface
 public interface L10N {
     String m(String bundle, String key, Object...args);
+    default Message message(String bundle, String key) {
+        return new Message(this, bundle, key);
+    }
 
 
     static L10N l10n() {
@@ -40,6 +43,22 @@ public interface L10N {
             } else {
                 return String.format("%s/%s(%s|%s):%s", bundle, key, this.localeSpec, this.atOffset, Arrays.asList(args));
             }
+        }
+    }
+
+    class Message {
+        private final L10N l10N;
+        private final String bundle;
+        private final String key;
+
+        public Message(L10N l10N, String bundle, String key) {
+            this.l10N = l10N;
+            this.bundle = bundle;
+            this.key = key;
+        }
+
+        public String m(Object... args) {
+            return this.l10N.m(this.bundle, this.key, args);
         }
     }
 }

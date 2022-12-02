@@ -54,7 +54,7 @@ public class ProcessInvoker {
                 return -1;
             } else {
                 int exitValue = process.exitValue();
-                log.info("process normally finished with status {}", exitValue);
+                log.debug("process normally finished with status {}", exitValue);
                 return exitValue;
             }
         } finally {

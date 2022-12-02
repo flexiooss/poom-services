@@ -31,6 +31,10 @@
             <artifactId>codingmatters-reflect-unit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.codingmatters.poom</groupId>
+            <artifactId>poom-l10n-client</artifactId>
+        </dependency>
     </dependencies>
     
 </project>
