@@ -294,8 +294,8 @@ public class BundleSpecGenerationTest {
         this.compile();
 
         assertThat(
-                this.classes.get("org.generated.ATestBundle").get(),
-                is(aPublic().interface_().with(aPublic().static_().method().named("version").withoutParameters().returning(String.class)))
+                this.classes.get("org.generated.ATestBundle$Bundle").get(),
+                is(aStatic().public_().class_().with(aPublic().static_().method().named("version").withoutParameters().returning(String.class)))
         );
     }
 
@@ -312,7 +312,7 @@ public class BundleSpecGenerationTest {
 
         this.compile();
 
-        assertThat((String) this.classes.get("org.generated.ATestBundle").call("version").get(), startsWith("dev-"));
+        assertThat((String) this.classes.get("org.generated.ATestBundle$Bundle").call("version").get(), startsWith("dev-"));
     }
 
 

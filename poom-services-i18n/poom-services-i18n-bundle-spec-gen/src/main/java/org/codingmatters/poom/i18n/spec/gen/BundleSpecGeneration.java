@@ -48,7 +48,6 @@ public class BundleSpecGeneration {
         return TypeSpec.interfaceBuilder(this.bundleInterface())
                 .addModifiers(Modifier.PUBLIC)
                 .addMethods(this.keyMessageMethods())
-                .addMethod(this.versionAccessor())
                 .addType(TypeSpec.classBuilder("Keys")
                         .addModifiers(Modifier.STATIC, Modifier.PUBLIC)
                         .addMethods(this.keyMethods())
@@ -58,6 +57,7 @@ public class BundleSpecGeneration {
                         .addMethod(this.defaultLocaleAccessor())
                         .addMethod(this.bundleNameAccessor())
                         .addMethod(this.specAccessor(specResource))
+                        .addMethod(this.versionAccessor())
                         .build())
                 .build();
     }
