@@ -3,6 +3,7 @@ package org.codingmatters.poom.i18n.spec.gen;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import org.codingmatters.poom.i18n.bundle.spec.descriptors.ArgSpec;
 import org.codingmatters.poom.i18n.bundle.spec.descriptors.BundleSpec;
 import org.codingmatters.poom.i18n.bundle.spec.descriptors.MessageSpec;
 import org.codingmatters.poom.i18n.bundle.spec.descriptors.json.BundleSpecWriter;
@@ -15,6 +16,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.*;
+import java.time.LocalDateTime;
 
 import static org.codingmatters.tests.reflect.ReflectMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -128,14 +130,6 @@ public class BundleSpecGenerationTest {
                 jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
 
         this.compile();
-/*
-
-  class Keys {
-    static public String greetings() {
-      return "greetings";
-    }
-  }
- */
         assertThat(
                 this.classes.get("org.generated.ATestBundle$Keys").get(),
                 is(aStatic().public_().class_().with(aPublic().static_().method().named("aKey").withoutParameters().returning(String.class)))
@@ -160,8 +154,8 @@ public class BundleSpecGenerationTest {
         this.compile();
 
         assertThat(
-                this.classes.get("org.generated.ATestBundle").get(),
-                is(aPublic().interface_().with(aPublic().static_().method().named("aKey").withParameters(
+                this.classes.get("org.generated.ATestBundle$Messages").get(),
+                is(aStatic().public_().class_().with(aPublic().static_().method().named("aKey").withParameters(
                         L10N.class
                 ).returning(L10N.Message.class)))
         );
@@ -185,8 +179,75 @@ public class BundleSpecGenerationTest {
         this.compile();
 
         assertThat(
+                this.classes.get("org.generated.ATestBundle$Messages").get(),
+                is(aStatic().public_().class_().with(aPublic().static_().method().named("aKey").withoutParameters().returning(L10N.Message.class)))
+        );
+    }
+
+    @Test
+    public void givenGeneratingBundleSpecInterface__whenBundleHasAMessageWithArgs__thenAPublicStaticMessageFormatterWithL10NNamedFromKey() throws Exception {
+        /*
+
+          static String greetings(L10N l10n, String user) {
+            return greetings(l10n).m(user);
+          }
+         */
+        new BundleSpecGeneration(
+                "org.generated",
+                BundleSpec.builder()
+                        .name("a test")
+                        .messages(MessageSpec.builder().key("a.key").args(
+                                a -> a.name("a1").type(ArgSpec.Type.STRING),
+                                a -> a.name("a2").type(ArgSpec.Type.NUMBER),
+                                a -> a.name("a3").type(ArgSpec.Type.DATE)
+                        ).build())
+                        .build(),
+                jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
+
+        this.compile();
+
+        assertThat(
                 this.classes.get("org.generated.ATestBundle").get(),
-                is(aPublic().interface_().with(aPublic().static_().method().named("aKey").withoutParameters().returning(L10N.Message.class)))
+                is(aPublic().interface_().with(aPublic().static_().method().named("aKey").withParameters(
+                        L10N.class,
+                        String.class,
+                        Number.class,
+                        LocalDateTime.class
+                ).returning(String.class)))
+        );
+    }
+
+    @Test
+    public void givenGeneratingBundleSpecInterface__whenBundleHasAMessageWithArgs__thenAPublicStaticMessageFormatterNamedFromKey() throws Exception {
+        /*
+          static String greetings(String user) {
+            return greetings(L10N.l10n()).m(user);
+          }
+         */
+        new BundleSpecGeneration(
+                "org.generated",
+                BundleSpec.builder()
+                        .name("a test")
+                        .messages(MessageSpec.builder().key("a.key").args(
+                                a -> a.name("a1").type(ArgSpec.Type.STRING),
+                                a -> a.name("a2").type(ArgSpec.Type.NUMBER),
+                                a -> a.name("a3").type(ArgSpec.Type.DATE)
+                        ).build())
+                        .build(),
+                jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
+
+        this.print(this.sourcesDir.getRoot(), "");
+        this.fileHelper.printFile(this.sourcesDir.getRoot(), "ATestBundle.java");
+
+        this.compile();
+
+        assertThat(
+                this.classes.get("org.generated.ATestBundle").get(),
+                is(aPublic().interface_().with(aPublic().static_().method().named("aKey").withParameters(
+                        String.class,
+                        Number.class,
+                        LocalDateTime.class
+                ).returning(String.class)))
         );
     }
 
@@ -290,9 +351,6 @@ public class BundleSpecGenerationTest {
                 "org.generated",
                 spec,
                 jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
-
-        this.print(this.sourcesDir.getRoot(), "");
-        this.fileHelper.printFile(this.sourcesDir.getRoot(), "ATestBundle.java");
 
         this.compile();
 
