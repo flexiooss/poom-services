@@ -46,7 +46,7 @@ public interface L10N {
         }
     }
 
-    class Message {
+    class Message implements MessageSec {
         private final L10N l10N;
         private final String bundle;
         private final String key;
@@ -60,5 +60,17 @@ public interface L10N {
         public String m(Object... args) {
             return this.l10N.m(this.bundle, this.key, args);
         }
+
+        public String bundle() {
+            return this.bundle;
+        }
+        public String key() {
+            return key;
+        }
+    }
+
+    interface MessageSec {
+        String bundle();
+        String key();
     }
 }
