@@ -16,8 +16,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.*;
 
-import static org.codingmatters.tests.reflect.ReflectMatchers.aClass;
-import static org.codingmatters.tests.reflect.ReflectMatchers.aPublic;
+import static org.codingmatters.tests.reflect.ReflectMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
@@ -94,10 +93,17 @@ public class BundleSpecGenerationTest {
                 jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
 
         this.compile();
+/*
 
+  class Keys {
+    static public String greetings() {
+      return "greetings";
+    }
+  }
+ */
         assertThat(
-                this.classes.get("org.generated.ATestBundle").get(),
-                is(aPublic().interface_().with(aPublic().static_().method().named("aKey").withoutParameters().returning(String.class)))
+                this.classes.get("org.generated.ATestBundle$Keys").get(),
+                is(aStatic().public_().class_().with(aPublic().static_().method().named("aKey").withoutParameters().returning(String.class)))
         );
     }
 
@@ -139,7 +145,7 @@ public class BundleSpecGenerationTest {
 
         this.compile();
 
-        assertThat(this.classes.get("org.generated.ATestBundle").call("aKey").get(), is("a.key"));
+        assertThat(this.classes.get("org.generated.ATestBundle$Keys").call("aKey").get(), is("a.key"));
     }
 
     @Test

@@ -60,5 +60,12 @@ public interface L10N {
         public String m(Object... args) {
             return this.l10N.m(this.bundle, this.key, args);
         }
+
+        public String bundle() {
+            return this.bundle;
+        }
+        public String key() {
+            return key;
+        }
     }
 }

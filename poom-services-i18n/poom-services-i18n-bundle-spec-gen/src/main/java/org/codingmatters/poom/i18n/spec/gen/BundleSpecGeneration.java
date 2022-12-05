@@ -47,11 +47,15 @@ public class BundleSpecGeneration {
     private TypeSpec bundleType(String specResource) {
         return TypeSpec.interfaceBuilder(this.bundleInterface())
                 .addModifiers(Modifier.PUBLIC)
-                .addMethods(this.keyMethods())
+                .addMethods(this.keyMessageMethods())
                 .addMethod(this.defaultLocaleAccessor())
                 .addMethod(this.bundleNameAccessor())
                 .addMethod(this.specAccessor(specResource))
                 .addMethod(this.versionAccessor())
+                .addType(TypeSpec.classBuilder("Keys")
+                        .addModifiers(Modifier.STATIC, Modifier.PUBLIC)
+                        .addMethods(this.keyMethods())
+                        .build())
                 .build();
     }
 
@@ -88,12 +92,21 @@ public class BundleSpecGeneration {
                 .build();
     }
 
+    private List<MethodSpec> keyMessageMethods() {
+        List<MethodSpec> result = new LinkedList<>();
+        if(this.spec.opt().messages().isPresent()) {
+            for (MessageSpec message : this.spec.messages()) {
+                result.add(this.keyMessageBuilderMethod(message));
+            }
+        }
+        return result;
+    }
+
     private List<MethodSpec> keyMethods() {
         List<MethodSpec> result = new LinkedList<>();
         if(this.spec.opt().messages().isPresent()) {
             for (MessageSpec message : this.spec.messages()) {
                 result.add(this.keyMethod(message));
-                result.add(this.keyMessageBuilderMethod(message));
             }
         }
         return result;
@@ -112,7 +125,7 @@ public class BundleSpecGeneration {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(ClassName.get(L10N.class), "l10n")
                 .returns(ClassName.get(L10N.Message.class))
-                .addStatement("return l10n.message(bundleName(), $L())", this.uncapitalizedFirst(this.camelCased(from.key())))
+                .addStatement("return l10n.message(bundleName(), Keys.$L())", this.uncapitalizedFirst(this.camelCased(from.key())))
                 .build();
     }
 
