@@ -49,6 +49,41 @@ public class BundleSpecGenerationTest {
                 is(aPublic().interface_())
         );
     }
+
+    @Test
+    public void givenGeneratingBundleSpecInterface__whenBundleAsName__thenStaticClassBundle() throws Exception {
+        new BundleSpecGeneration(
+                "org.generated",
+                BundleSpec.builder()
+                        .name("a test")
+                        .build(),
+                this.jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
+
+        this.compile();
+
+        assertThat(
+                this.classes.get("org.generated.ATestBundle$Bundle").get(),
+                is(aStatic().public_().class_())
+        );
+    }
+
+    @Test
+    public void givenGeneratingBundleSpecInterface__whenBundleAsName__thenStaticClassKeys() throws Exception {
+        new BundleSpecGeneration(
+                "org.generated",
+                BundleSpec.builder()
+                        .name("a test")
+                        .build(),
+                this.jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
+
+        this.compile();
+
+        assertThat(
+                this.classes.get("org.generated.ATestBundle$Keys").get(),
+                is(aStatic().public_().class_())
+        );
+    }
+
     @Test
     public void givenGeneratingBundleSpecInterface__whenBundleAsName__thenABPublicStaticAccessorForBundleName() throws Exception {
         new BundleSpecGeneration(
@@ -61,8 +96,8 @@ public class BundleSpecGenerationTest {
         this.compile();
 
         assertThat(
-                this.classes.get("org.generated.ATestBundle").get(),
-                is(aPublic().interface_().with(aPublic().static_().method().named("bundleName").returning(String.class)))
+                this.classes.get("org.generated.ATestBundle$Bundle").get(),
+                is(aStatic().public_().class_().with(aPublic().static_().method().named("name").returning(String.class)))
         );
     }
 
@@ -79,7 +114,7 @@ public class BundleSpecGenerationTest {
 
         this.compile();
 
-        assertThat(this.classes.get("org.generated.ATestBundle").call("bundleName").get(), is("a test"));
+        assertThat(this.classes.get("org.generated.ATestBundle$Bundle").call("name").get(), is("a test"));
     }
 
     @Test
@@ -161,8 +196,8 @@ public class BundleSpecGenerationTest {
         this.compile();
 
         assertThat(
-                this.classes.get("org.generated.ATestBundle").get(),
-                is(aPublic().interface_().with(aPublic().static_().method().named("defaultLocale").withoutParameters().returning(String.class)))
+                this.classes.get("org.generated.ATestBundle$Bundle").get(),
+                is(aStatic().public_().class_().with(aPublic().static_().method().named("defaultLocale").withoutParameters().returning(String.class)))
         );
     }
 
@@ -179,7 +214,7 @@ public class BundleSpecGenerationTest {
 
         this.compile();
 
-        assertThat(this.classes.get("org.generated.ATestBundle").call("defaultLocale").get(), is("fr-FR"));
+        assertThat(this.classes.get("org.generated.ATestBundle$Bundle").call("defaultLocale").get(), is("fr-FR"));
     }
 
 
@@ -196,8 +231,8 @@ public class BundleSpecGenerationTest {
         this.compile();
 
         assertThat(
-                this.classes.get("org.generated.ATestBundle").get(),
-                is(aPublic().interface_().with(aPublic().static_().method().named("spec").withoutParameters().returning(InputStream.class)))
+                this.classes.get("org.generated.ATestBundle$Bundle").get(),
+                is(aStatic().public_().class_().with(aPublic().static_().method().named("spec").withoutParameters().returning(InputStream.class)))
         );
     }
 
@@ -239,7 +274,7 @@ public class BundleSpecGenerationTest {
         this.compile();
 
         assertThat(
-                this.readStream((InputStream) this.classes.get("org.generated.ATestBundle").call("spec").get()),
+                this.readStream((InputStream) this.classes.get("org.generated.ATestBundle$Bundle").call("spec").get()),
                 is(this.jsonString(spec))
         );
     }

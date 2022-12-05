@@ -48,13 +48,16 @@ public class BundleSpecGeneration {
         return TypeSpec.interfaceBuilder(this.bundleInterface())
                 .addModifiers(Modifier.PUBLIC)
                 .addMethods(this.keyMessageMethods())
-                .addMethod(this.defaultLocaleAccessor())
-                .addMethod(this.bundleNameAccessor())
-                .addMethod(this.specAccessor(specResource))
                 .addMethod(this.versionAccessor())
                 .addType(TypeSpec.classBuilder("Keys")
                         .addModifiers(Modifier.STATIC, Modifier.PUBLIC)
                         .addMethods(this.keyMethods())
+                        .build())
+                .addType(TypeSpec.classBuilder("Bundle")
+                        .addModifiers(Modifier.STATIC, Modifier.PUBLIC)
+                        .addMethod(this.defaultLocaleAccessor())
+                        .addMethod(this.bundleNameAccessor())
+                        .addMethod(this.specAccessor(specResource))
                         .build())
                 .build();
     }
@@ -69,7 +72,7 @@ public class BundleSpecGeneration {
     }
 
     private MethodSpec bundleNameAccessor() {
-        return MethodSpec.methodBuilder("bundleName")
+        return MethodSpec.methodBuilder("name")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .returns(String.class)
                 .addStatement("return $S", this.spec.name())
@@ -125,7 +128,7 @@ public class BundleSpecGeneration {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(ClassName.get(L10N.class), "l10n")
                 .returns(ClassName.get(L10N.Message.class))
-                .addStatement("return l10n.message(bundleName(), Keys.$L())", this.uncapitalizedFirst(this.camelCased(from.key())))
+                .addStatement("return l10n.message(Bundle.name(), Keys.$L())", this.uncapitalizedFirst(this.camelCased(from.key())))
                 .build();
     }
 
