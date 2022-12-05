@@ -168,6 +168,29 @@ public class BundleSpecGenerationTest {
     }
 
     @Test
+    public void givenGeneratingBundleSpecInterface__whenBundleHasAMessage__thenAPublicStaticMessageBuilderWithDefaultL10NIsNamedFromKey() throws Exception {
+        /*
+          static L10N.Message greetings(L10N l10N) {
+            return l10N.message(bundleName(), greetings());
+          }
+         */
+        new BundleSpecGeneration(
+                "org.generated",
+                BundleSpec.builder()
+                        .name("a test")
+                        .messages(MessageSpec.builder().key("a.key").build())
+                        .build(),
+                jsonFactory).to(this.sourcesDir.getRoot(), this.sourcesDir.getRoot());
+
+        this.compile();
+
+        assertThat(
+                this.classes.get("org.generated.ATestBundle").get(),
+                is(aPublic().interface_().with(aPublic().static_().method().named("aKey").withoutParameters().returning(L10N.Message.class)))
+        );
+    }
+
+    @Test
     public void givenBundleSpecInterfaceGenerated__whenCallingKeyAccessor__thenReturnsKey() throws Exception {
 
         new BundleSpecGeneration(

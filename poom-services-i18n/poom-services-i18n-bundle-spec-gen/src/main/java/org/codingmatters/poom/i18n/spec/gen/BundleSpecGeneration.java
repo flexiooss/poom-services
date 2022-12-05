@@ -95,16 +95,6 @@ public class BundleSpecGeneration {
                 .build();
     }
 
-    private List<MethodSpec> keyMessageMethods() {
-        List<MethodSpec> result = new LinkedList<>();
-        if(this.spec.opt().messages().isPresent()) {
-            for (MessageSpec message : this.spec.messages()) {
-                result.add(this.keyMessageBuilderMethod(message));
-            }
-        }
-        return result;
-    }
-
     private List<MethodSpec> keyMethods() {
         List<MethodSpec> result = new LinkedList<>();
         if(this.spec.opt().messages().isPresent()) {
@@ -123,12 +113,31 @@ public class BundleSpecGeneration {
                 .build();
     }
 
+    private List<MethodSpec> keyMessageMethods() {
+        List<MethodSpec> result = new LinkedList<>();
+        if(this.spec.opt().messages().isPresent()) {
+            for (MessageSpec message : this.spec.messages()) {
+                result.add(this.keyMessageBuilderMethod(message));
+                result.add(this.noArgKeyMessageBuilderMethod(message));
+            }
+        }
+        return result;
+    }
+
     private MethodSpec keyMessageBuilderMethod(MessageSpec from) {
         return MethodSpec.methodBuilder(this.uncapitalizedFirst(this.camelCased(from.key())))
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(ClassName.get(L10N.class), "l10n")
                 .returns(ClassName.get(L10N.Message.class))
                 .addStatement("return l10n.message(Bundle.name(), Keys.$L())", this.uncapitalizedFirst(this.camelCased(from.key())))
+                .build();
+    }
+
+    private MethodSpec noArgKeyMessageBuilderMethod(MessageSpec from) {
+        return MethodSpec.methodBuilder(this.uncapitalizedFirst(this.camelCased(from.key())))
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(ClassName.get(L10N.Message.class))
+                .addStatement("return L10N.l10n().message(Bundle.name(), Keys.$L())", this.uncapitalizedFirst(this.camelCased(from.key())))
                 .build();
     }
 
