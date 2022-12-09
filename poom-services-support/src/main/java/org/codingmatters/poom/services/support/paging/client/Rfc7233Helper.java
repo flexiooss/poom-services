@@ -18,21 +18,31 @@ public class Rfc7233Helper {
     public Rfc7233Helper(String contentRange, String acceptRange, long maxPageSize) throws UnparseableRfc7233Query {
         // content-range: FlexioEvent 0-0/3014846
         Matcher contentRangeMatcher = Pattern.compile("(\\w+) (\\d+)-(\\d+)/(\\d+)").matcher(contentRange);
+        int contentRangeMatcherGroupOffset = 0;
         if(! contentRangeMatcher.matches()) {
-            throw new UnparseableRfc7233Query("cannot parse content range from : " + contentRange);
+            contentRangeMatcherGroupOffset = 1;
+            contentRangeMatcher = Pattern.compile("(\\d+)-(\\d+)/(\\d+)").matcher(contentRange);
+            if(! contentRangeMatcher.matches()) {
+                throw new Rfc7233Helper.UnparseableRfc7233Query("cannot parse content range from : " + contentRange);
+            }
         }
 
-        this.first = Long.parseLong(contentRangeMatcher.group(2));
-        this.last = Long.parseLong(contentRangeMatcher.group(3));
-        this.total = Long.parseLong(contentRangeMatcher.group(4));
+        this.first = Long.parseLong(contentRangeMatcher.group(2 - contentRangeMatcherGroupOffset));
+        this.last = Long.parseLong(contentRangeMatcher.group(3 - contentRangeMatcherGroupOffset));
+        this.total = Long.parseLong(contentRangeMatcher.group(4 - contentRangeMatcherGroupOffset));
 
         // accept-range: FlexioEvent 1000
         Matcher acceptRangeMatcher = Pattern.compile("(\\w+) (\\d+)").matcher(acceptRange);
+        int acceptRangeMatcherGroupOffset = 0;
         if(! acceptRangeMatcher.matches()) {
-            throw new UnparseableRfc7233Query("cannot parse accept range from : " + acceptRange);
+            acceptRangeMatcher = Pattern.compile("(\\d+)").matcher(acceptRange);
+            acceptRangeMatcherGroupOffset = 1;
+            if (!acceptRangeMatcher.matches()) {
+                throw new Rfc7233Helper.UnparseableRfc7233Query("cannot parse accept range from : " + acceptRange);
+            }
         }
 
-        long servicePageSize = Long.parseLong(acceptRangeMatcher.group(2));
+        long servicePageSize = Long.parseLong(acceptRangeMatcher.group(2 - acceptRangeMatcherGroupOffset));
         this.pageSize = maxPageSize > 0 ? Math.min(maxPageSize, servicePageSize) : servicePageSize;
     }
 

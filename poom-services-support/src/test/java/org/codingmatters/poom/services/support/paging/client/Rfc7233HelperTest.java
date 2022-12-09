@@ -5,9 +5,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.*;
 
 public class Rfc7233HelperTest {
 
@@ -17,6 +17,15 @@ public class Rfc7233HelperTest {
     @Test
     public void givenManyPages__whenFistRequested__thenNextRangeIsNextPage() throws Exception {
         Rfc7233Helper actual = new Rfc7233Helper("Something 0-9/100", "Something 10");
+        assertThat(actual.first(), is(0L));
+        assertThat(actual.last(), is(9L));
+        assertThat(actual.total(), is(100L));
+        assertThat(actual.pageSize(), is(10L));
+        assertThat(actual.nextRange(), is("10-19"));
+    }
+    @Test
+    public void givenManyPages_andNoUnit__whenFistRequested__thenNextRangeIsNextPage() throws Exception {
+        Rfc7233Helper actual = new Rfc7233Helper("0-9/100", "10");
         assertThat(actual.first(), is(0L));
         assertThat(actual.last(), is(9L));
         assertThat(actual.total(), is(100L));
