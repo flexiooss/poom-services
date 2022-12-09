@@ -14,25 +14,16 @@ public class Rfc7233ResponseMatcher {
     private final long pageSize;
 
     public Rfc7233ResponseMatcher(ResponseDelegate response) throws IOException {
-        // content-range: FlexioEvent 0-0/3014846
-        String contentRange = response.header("content-range")[0];
-        Matcher contentRangeMatcher = Pattern.compile("(\\w+) (\\d+)-(\\d+)/(\\d+)").matcher(contentRange);
-        if(! contentRangeMatcher.matches()) {
-            throw new IOException("cannont parse content range from : " + contentRange);
+        Rfc7233Helper helper = null;
+        try {
+            helper = new Rfc7233Helper(response.header("content-range")[0], response.header("accept-range")[0]);
+        } catch (Exception e) {
+            throw new IOException("failed parsing range query response", e);
         }
-
-        this.first = Long.parseLong(contentRangeMatcher.group(2));
-        this.last = Long.parseLong(contentRangeMatcher.group(3));
-        this.total = Long.parseLong(contentRangeMatcher.group(4));
-
-        // accept-range: FlexioEvent 1000
-        String acceptRange = response.header("accept-range")[0];
-        Matcher acceptRangeMatcher = Pattern.compile("(\\w+) (\\d+)").matcher(acceptRange);
-        if(! acceptRangeMatcher.matches()) {
-            throw new IOException("cannont parse content range from : " + acceptRange);
-        }
-
-        this.pageSize = Long.parseLong(acceptRangeMatcher.group(2));
+        this.first = helper.first();
+        this.last = helper.last();
+        this.total = helper.total();
+        this.pageSize = helper.pageSize();
     }
 
     public long first() {
