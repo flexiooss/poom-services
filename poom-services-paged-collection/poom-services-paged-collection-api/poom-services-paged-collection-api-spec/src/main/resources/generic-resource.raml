@@ -9,6 +9,12 @@ mediaType: application/json
   displayName: paged collection
   get:
     is: [rfc7233Browsing: {entityType: object, error: Error}]
+    responses:
+      200:
+        (conforms-to): [org.codingmatters.poom.api.Rfc7233Paging]
+      206:
+        (conforms-to): [org.codingmatters.poom.api.Rfc7233Paging]
+
   post:
     is: [entityCreation: {entityType: object, entityCreationType: object, error: Error}]
   /{entity-id}:
