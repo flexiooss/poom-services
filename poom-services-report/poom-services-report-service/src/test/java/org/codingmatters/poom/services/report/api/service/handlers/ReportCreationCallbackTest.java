@@ -111,7 +111,7 @@ public class ReportCreationCallbackTest extends AbstractReportCreationTest {
         assertThat(this.lastQueryParameters.get().get("end"), contains(END.format(Processor.Formatters.DATETIMEONLY.formatter)));
         assertThat(this.lastQueryParameters.get().get("exit-status"), contains("12"));
         assertThat(this.lastQueryParameters.get().get("has-dump"), contains("false"));
-        assertThat(this.lastQueryParameters.get().get("reported-at"), contains("2012-12-12T12:12:12.000Z"));
+        assertThat(this.lastQueryParameters.get().get("reported-at"), contains("2012-12-12T12:12:12Z"));
     }
 
     @Ignore
