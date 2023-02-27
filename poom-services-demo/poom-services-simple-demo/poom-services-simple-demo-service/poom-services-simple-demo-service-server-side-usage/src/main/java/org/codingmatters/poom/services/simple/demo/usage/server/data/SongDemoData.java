@@ -4,7 +4,7 @@ import org.codingmatters.poom.apis.simple.demo.api.types.Song;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
-import org.codingmatters.poom.servives.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.Entity;
 
 public class SongDemoData {
     public void fill(Repository<Song, PropertyQuery> repository) {

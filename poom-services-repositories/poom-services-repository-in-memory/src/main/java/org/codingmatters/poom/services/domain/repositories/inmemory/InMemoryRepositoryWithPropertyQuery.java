@@ -10,8 +10,8 @@ import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.repositories.inmemory.property.query.PropertyResolver;
 import org.codingmatters.poom.services.domain.repositories.inmemory.property.query.ReflectFilterEvents;
 import org.codingmatters.poom.services.domain.repositories.inmemory.property.query.ReflectSortEvents;
-import org.codingmatters.poom.servives.domain.entities.Entity;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 
 import java.util.Comparator;
 import java.util.function.Predicate;

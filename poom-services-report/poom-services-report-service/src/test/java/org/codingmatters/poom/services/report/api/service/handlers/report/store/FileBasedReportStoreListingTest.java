@@ -5,7 +5,7 @@ import org.codingmatters.poom.services.report.api.service.handlers.ReportStore;
 import org.codingmatters.poom.services.report.api.types.Report;
 import org.codingmatters.poom.services.report.api.types.ReportQuery;
 import org.codingmatters.poom.services.support.date.UTC;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 import org.codingmatters.rest.api.types.optional.OptionalFile;
 import org.junit.Before;
 import org.junit.Rule;

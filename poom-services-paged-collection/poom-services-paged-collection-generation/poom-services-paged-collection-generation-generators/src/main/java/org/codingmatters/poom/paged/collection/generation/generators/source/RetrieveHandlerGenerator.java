@@ -1,13 +1,12 @@
 package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import com.squareup.javapoet.*;
-import org.codingmatters.poom.generic.resource.domain.EntityCreator;
 import org.codingmatters.poom.generic.resource.domain.EntityRetriever;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.paged.collection.generation.generators.source.exception.IncoherentDescriptorException;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
-import org.codingmatters.poom.servives.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.Entity;
 
 import javax.lang.model.element.Modifier;
 import java.util.Optional;

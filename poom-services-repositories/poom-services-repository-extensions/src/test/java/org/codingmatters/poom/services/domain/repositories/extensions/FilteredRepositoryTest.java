@@ -4,12 +4,14 @@ import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.repositories.inmemory.InMemoryRepositoryWithPropertyQuery;
-import org.codingmatters.poom.servives.domain.entities.Entity;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 import org.codingmatters.poom.tests.Dummy3;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.math.BigInteger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -107,6 +109,11 @@ public class FilteredRepositoryTest {
         assertThat(search.get(1).value().integerProp(), is(30));
     }
 
+    @Test
+    public void givenBadFilter_whenSearch_thenError() throws RepositoryException {
+        Assert.assertThrows("unparseable query : (propBool == true) && (cpt)", RepositoryException.class, ()-> this.repository.search(PropertyQuery.builder().filter("cpt").sort("integerProp escalier").build(), 0, 1000));
+    }
+
     /*RETRIEVE*/
 
     @Test
@@ -140,6 +147,33 @@ public class FilteredRepositoryTest {
                 .boolProp(false)
                 .integerProp(42)
                 .build());
+        assertThat(createdEntity.value(), is(Dummy3.builder()
+                .boolProp(true)
+                .integerProp(42)
+                .build()));
+    }
+
+    @Test
+    public void givenEntityInitializer_whenCreateWithId_thenUseInitializedValues() throws RepositoryException {
+        Entity<Dummy3> createdEntity = this.repository.createWithId("some-id", Dummy3.builder()
+                .boolProp(false)
+                .integerProp(42)
+                .build());
+        assertThat(createdEntity.id(), is("some-id"));
+        assertThat(createdEntity.value(), is(Dummy3.builder()
+                .boolProp(true)
+                .integerProp(42)
+                .build()));
+    }
+
+    @Test
+    public void givenEntityInitializer_whenCreateWithIdAndVersion_thenUseInitializedValues() throws RepositoryException {
+        Entity<Dummy3> createdEntity = this.repository.createWithIdAndVersion("some-id", BigInteger.TEN, Dummy3.builder()
+                .boolProp(false)
+                .integerProp(42)
+                .build());
+        assertThat(createdEntity.id(), is("some-id"));
+        assertThat(createdEntity.version(), is(BigInteger.TEN));
         assertThat(createdEntity.value(), is(Dummy3.builder()
                 .boolProp(true)
                 .integerProp(42)

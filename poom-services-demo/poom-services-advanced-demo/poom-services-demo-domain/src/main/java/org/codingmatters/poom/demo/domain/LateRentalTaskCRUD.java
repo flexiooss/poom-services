@@ -5,17 +5,15 @@ import org.codingmatters.poom.apis.demo.api.types.LateRentalTask;
 import org.codingmatters.poom.demo.domain.rentals.LateRentalProcessor;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
-import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.services.support.date.UTC;
-import org.codingmatters.poom.servives.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.value.objects.values.ObjectValue;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 public class LateRentalTaskCRUD implements PagedCollectionAdapter.CRUD<LateRentalTask, ObjectValue, Void, Void> {

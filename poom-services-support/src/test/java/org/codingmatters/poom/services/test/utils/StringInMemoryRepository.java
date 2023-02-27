@@ -2,7 +2,7 @@ package org.codingmatters.poom.services.test.utils;
 
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.repositories.inmemory.InMemoryRepository;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 
 /**
  * Created by nelt on 7/17/17.

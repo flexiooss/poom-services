@@ -1,24 +1,25 @@
-package org.codingmatters.poom.servives.domain.entities;
+package org.codingmatters.poom.services.domain.entities;
 
 import java.math.BigInteger;
 import java.util.Objects;
 
 /**
- * Created by nelt on 6/20/17.
+ * Created by nelt on 6/5/17.
  */
-public class ImmutableEntity<V> implements Entity<V> {
-
-    static public <V> ImmutableEntity<V> from(Entity<V> entity) {
-        return entity != null ? new ImmutableEntity<>(entity.id(), entity.version(), entity.value()) : null;
-    }
-
+public class MutableEntity<V> implements Entity<V> {
     private final String id;
-    private final BigInteger version;
-    private final V value;
+    private BigInteger version;
+    private V value;
 
-    public ImmutableEntity(String id, BigInteger version, V value) {
+    public MutableEntity(String id, BigInteger version, V value) {
         this.id = id;
         this.version = version;
+        this.value = value;
+    }
+
+    public MutableEntity(String id, V value) {
+        this.id = id;
+        this.version = BigInteger.ONE;
         this.value = value;
     }
 
@@ -37,9 +38,14 @@ public class ImmutableEntity<V> implements Entity<V> {
         return this.value;
     }
 
+    public synchronized void changeValue(V newValue) {
+        this.version = this.version.add(BigInteger.ONE);
+        this.value = newValue;
+    }
+
     @Override
     public String toString() {
-        return "ImmutableEntity{" +
+        return "MutableEntity{" +
                 "id='" + id + '\'' +
                 ", version=" + version +
                 ", value=" + value +

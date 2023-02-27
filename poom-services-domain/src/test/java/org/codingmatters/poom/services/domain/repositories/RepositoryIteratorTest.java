@@ -1,9 +1,9 @@
 package org.codingmatters.poom.services.domain.repositories;
 
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
-import org.codingmatters.poom.servives.domain.entities.Entity;
-import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 import org.junit.Test;
 
 import java.math.BigInteger;

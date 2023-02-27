@@ -9,8 +9,8 @@ import org.codingmatters.poom.services.domain.property.query.validation.InvalidP
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.repositories.inmemory.property.query.PropertyResolver;
 import org.codingmatters.poom.services.domain.repositories.inmemory.property.query.ReflectFilterEvents;
-import org.codingmatters.poom.servives.domain.entities.Entity;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 
 import java.math.BigInteger;
 import java.util.function.Function;

@@ -2,7 +2,7 @@ package org.codingmatters.poom.services.domain.repositories;
 
 import org.codingmatters.generated.QAValue;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
-import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
+import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -1,17 +1,11 @@
 package org.codingmatters.poom.generic.resource.domain;
 
-import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.generic.resource.domain.impl.BadRequestAdapter;
 import org.codingmatters.poom.generic.resource.domain.impl.DefaultAdapterBuilder;
 import org.codingmatters.poom.generic.resource.domain.impl.NotFoundAdapter;
 import org.codingmatters.poom.generic.resource.domain.impl.UnexpectedExceptionAdapter;
-import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.EntityLister;
-import org.codingmatters.poom.servives.domain.entities.Entity;
-
-import java.util.Optional;
-import java.util.Set;
 
 public interface PagedCollectionAdapter<EntityType, CreationType, ReplaceType, UpdateType> {
     @FunctionalInterface

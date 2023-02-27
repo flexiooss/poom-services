@@ -8,8 +8,8 @@ import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.EntityLister;
-import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 import org.codingmatters.value.objects.values.ObjectValue;
 
 import java.util.stream.Collectors;

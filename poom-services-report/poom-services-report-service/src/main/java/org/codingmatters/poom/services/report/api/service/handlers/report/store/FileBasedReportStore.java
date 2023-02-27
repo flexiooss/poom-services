@@ -10,9 +10,9 @@ import org.codingmatters.poom.services.report.api.types.Report;
 import org.codingmatters.poom.services.report.api.types.ReportQuery;
 import org.codingmatters.poom.services.report.api.types.json.ReportReader;
 import org.codingmatters.poom.services.report.api.types.json.ReportWriter;
-import org.codingmatters.poom.servives.domain.entities.Entity;
-import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 import org.codingmatters.rest.api.types.optional.OptionalFile;
 import org.codingmatters.rest.io.Content;
 

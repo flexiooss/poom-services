@@ -1,4 +1,4 @@
-package org.codingmatters.poom.servives.domain.entities;
+package org.codingmatters.poom.services.domain.entities;
 
 
 import java.util.Collection;

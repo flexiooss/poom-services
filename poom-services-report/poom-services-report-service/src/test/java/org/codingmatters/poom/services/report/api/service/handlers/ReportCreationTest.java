@@ -4,7 +4,7 @@ import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.report.api.reportspostresponse.Status201;
 import org.codingmatters.poom.services.report.api.types.Report;
 import org.codingmatters.poom.services.report.api.types.ReportQuery;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 import org.codingmatters.rest.api.types.File;
 import org.codingmatters.rest.api.types.optional.OptionalFile;
 import org.codingmatters.rest.io.Content;

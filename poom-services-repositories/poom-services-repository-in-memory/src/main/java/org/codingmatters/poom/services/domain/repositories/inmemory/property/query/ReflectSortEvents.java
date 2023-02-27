@@ -2,7 +2,7 @@ package org.codingmatters.poom.services.domain.repositories.inmemory.property.qu
 
 import org.codingmatters.poom.services.domain.property.query.StackedSortEvents;
 import org.codingmatters.poom.services.domain.property.query.events.SortEventError;
-import org.codingmatters.poom.servives.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.Entity;
 
 import java.util.Comparator;
 import java.util.Objects;
