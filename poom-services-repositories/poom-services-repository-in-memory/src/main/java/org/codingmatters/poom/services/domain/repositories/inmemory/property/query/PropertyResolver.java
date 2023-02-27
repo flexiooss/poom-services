@@ -7,10 +7,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class PropertyResolver {
-    private final Class valueObjectCalss;
+    private final Class valueObjectClass;
 
-    public PropertyResolver(Class valueObjectCalss) {
-        this.valueObjectCalss = valueObjectCalss;
+    public PropertyResolver(Class valueObjectClass) {
+        this.valueObjectClass = valueObjectClass;
     }
 
     public boolean hasProperty(String property) {
@@ -18,7 +18,9 @@ public class PropertyResolver {
             return this.hasNestedProperty(this.head(property), this.tail(property));
         }
         try {
-            if(this.valueObjectCalss == ObjectValue.class) return true;
+            if(this.valueObjectClass == ObjectValue.class) {
+                return true;
+            }
             return methodForProperty(property) != null;
         } catch (NoSuchMethodException e) {
             return false;
@@ -39,15 +41,15 @@ public class PropertyResolver {
     }
 
     private Method methodForProperty(String property) throws NoSuchMethodException {
-        if(this.valueObjectCalss == ObjectValue.class) {
-            return this.valueObjectCalss.getMethod("property", String.class);
+        if(this.valueObjectClass == ObjectValue.class) {
+            return this.valueObjectClass.getMethod("property", String.class);
         } else {
-            return this.valueObjectCalss.getMethod(property);
+            return this.valueObjectClass.getMethod(property);
         }
     }
 
     private Object invokePropertyMethod(String property, Method method, Object on) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-        if(this.valueObjectCalss == ObjectValue.class) {
+        if(this.valueObjectClass == ObjectValue.class) {
             PropertyValue propertyValue = (PropertyValue) method.invoke(on, property);
             if(propertyValue == null) {
                 return null;

@@ -33,7 +33,7 @@ public class InMemoryRepositoryWithPropertyQuery<V> extends InMemoryRepository<V
     }
 
     private final Class<? extends V> valueClass;
-    private PropertyQueryParser.Builder parserBuilder;
+    private final PropertyQueryParser.Builder parserBuilder;
 
     @Deprecated(forRemoval = true)
     public InMemoryRepositoryWithPropertyQuery(Class<? extends V> valueClass) {
@@ -47,8 +47,8 @@ public class InMemoryRepositoryWithPropertyQuery<V> extends InMemoryRepository<V
         if(validating) {
             this.parserBuilder = PropertyQueryParser
                     .builder()
-                    .leftHandSidePropertyValidator(s -> resolver.hasProperty(s))
-                    .rightHandSidePropertyValidator(s -> resolver.hasProperty(s))
+                    .leftHandSidePropertyValidator(resolver::hasProperty)
+                    .rightHandSidePropertyValidator(resolver::hasProperty)
             ;
         } else {
             this.parserBuilder = PropertyQueryParser
@@ -59,22 +59,22 @@ public class InMemoryRepositoryWithPropertyQuery<V> extends InMemoryRepository<V
 
     @Override
     public PagedEntityList<V> search(PropertyQuery query, long startIndex, long endIndex) throws RepositoryException {
-        Predicate queryPredicate = this.queryPredicate(query);
-        Comparator queryComparator = this.queryComparator(query);
+        Predicate<V> queryPredicate = this.queryPredicate(query);
+        Comparator<Entity<V>> queryComparator = this.queryComparator(query);
         return this.paged(this.stream().filter(vEntity -> queryPredicate.test(vEntity.value())).sorted(queryComparator), startIndex, endIndex);
     }
 
     @Override
     public void deleteFrom(PropertyQuery query) throws RepositoryException {
-        Predicate queryPredicate = this.queryPredicate(query);
-        Entity[] toDelete = this.stream().filter(vEntity -> queryPredicate.test(vEntity.value())).toArray(i -> new Entity[i]);
-        for (Entity entity : toDelete) {
+        Predicate<V> queryPredicate = this.queryPredicate(query);
+        Entity<V>[] toDelete = this.stream().filter(vEntity -> queryPredicate.test(vEntity.value())).toArray(i -> new Entity[i]);
+        for (Entity<V> entity : toDelete) {
             this.delete(entity);
         }
     }
 
-    public Predicate queryPredicate(PropertyQuery query) throws RepositoryException {
-        ReflectFilterEvents events = new ReflectFilterEvents(this.valueClass);
+    public Predicate<V> queryPredicate(PropertyQuery query) throws RepositoryException {
+        ReflectFilterEvents<V> events = new ReflectFilterEvents<>(this.valueClass);
         try {
             this.parserBuilder.build(events).parse(query);
         } catch (InvalidPropertyException | FilterEventException | SortEventException e) {
@@ -84,8 +84,8 @@ public class InMemoryRepositoryWithPropertyQuery<V> extends InMemoryRepository<V
     }
 
 
-    private Comparator<Entity> queryComparator(PropertyQuery query) throws RepositoryException {
-        ReflectSortEvents events = new ReflectSortEvents(this.valueClass);
+    private Comparator<Entity<V>> queryComparator(PropertyQuery query) throws RepositoryException {
+        ReflectSortEvents<V> events = new ReflectSortEvents<>(this.valueClass);
         try {
             this.parserBuilder.build(events).parse(query);
         } catch (InvalidPropertyException | FilterEventException | SortEventException e) {

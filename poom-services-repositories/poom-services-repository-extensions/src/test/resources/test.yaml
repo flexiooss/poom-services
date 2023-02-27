@@ -9,3 +9,8 @@ Dummy1:
 
 Dummy2:
   p: string
+
+Dummy3:
+  stringProp: string
+  integerProp: int
+  boolProp: bool

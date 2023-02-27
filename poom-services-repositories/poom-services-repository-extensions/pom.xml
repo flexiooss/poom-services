@@ -20,7 +20,6 @@
         <dependency>
             <groupId>org.codingmatters.poom</groupId>
             <artifactId>poom-services-repository-in-memory</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

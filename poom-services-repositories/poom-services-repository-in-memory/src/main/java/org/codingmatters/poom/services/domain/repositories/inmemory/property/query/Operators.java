@@ -2,12 +2,7 @@ package org.codingmatters.poom.services.domain.repositories.inmemory.property.qu
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalAccessor;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,10 +12,10 @@ public interface Operators {
         left = normalized(left);
         right = normalized(right);
 
-        if(left == null) {
+        if (left == null) {
             return right == null;
         }
-        if(right == null) return false;
+        if (right == null) return false;
 
         return Objects.equals(normalized(left), normalized(right));
     }
@@ -29,16 +24,16 @@ public interface Operators {
         left = normalized(left);
         right = normalized(right);
 
-        if(left == null) {
+        if (left == null) {
             return false;
         }
 
-        if(right instanceof Comparable) {
-            if(left instanceof Comparable) {
-                if(strict) {
-                    return ((Comparable)left).compareTo(right) > 0;
+        if (right instanceof Comparable) {
+            if (left instanceof Comparable) {
+                if (strict) {
+                    return ((Comparable) left).compareTo(right) > 0;
                 } else {
-                    return ((Comparable)left).compareTo(right) >= 0;
+                    return ((Comparable) left).compareTo(right) >= 0;
                 }
             } else {
                 return false;
@@ -52,16 +47,16 @@ public interface Operators {
         left = normalized(left);
         right = normalized(right);
 
-        if(left == null) {
+        if (left == null) {
             return false;
         }
 
-        if(right instanceof Comparable) {
-            if(left instanceof Comparable) {
-                if(strict) {
-                    return ((Comparable)left).compareTo(right) < 0;
+        if (right instanceof Comparable) {
+            if (left instanceof Comparable) {
+                if (strict) {
+                    return ((Comparable) left).compareTo(right) < 0;
                 } else {
-                    return ((Comparable)left).compareTo(right) <= 0;
+                    return ((Comparable) left).compareTo(right) <= 0;
                 }
             } else {
                 return false;
@@ -75,7 +70,7 @@ public interface Operators {
         left = normalized(left);
         right = normalized(right);
 
-        if(left == null) return right == null;
+        if (left == null) return right == null;
         return left.toString().startsWith(right.toString());
     }
 
@@ -83,7 +78,7 @@ public interface Operators {
         left = normalized(left);
         right = normalized(right);
 
-        if(left == null) return right == null;
+        if (left == null) return right == null;
         return left.toString().endsWith(right.toString());
     }
 
@@ -91,10 +86,10 @@ public interface Operators {
         left = normalized(left);
         for (Object o : right) {
             Object value = normalized(o);
-            if(left == null) {
-                if(value == null) return true;
+            if (left == null) {
+                if (value == null) return true;
             } else {
-                if(left.toString().contains(value.toString())) return true;
+                if (left.toString().contains(value.toString())) return true;
             }
         }
         return false;
@@ -104,10 +99,10 @@ public interface Operators {
         left = normalized(left);
         for (Object o : right) {
             Object value = normalized(o);
-            if(left == null) {
-                if(value == null) return true;
+            if (left == null) {
+                if (value == null) return true;
             } else {
-                if(left.toString().startsWith(value.toString())) return true;
+                if (left.toString().startsWith(value.toString())) return true;
             }
         }
         return false;
@@ -117,10 +112,10 @@ public interface Operators {
         left = normalized(left);
         for (Object o : right) {
             Object value = normalized(o);
-            if(left == null) {
-                if(value == null) return true;
+            if (left == null) {
+                if (value == null) return true;
             } else {
-                if(left.toString().endsWith(value.toString())) return true;
+                if (left.toString().endsWith(value.toString())) return true;
             }
         }
         return false;
@@ -130,10 +125,10 @@ public interface Operators {
         left = normalized(left);
         for (Object o : right) {
             Object value = normalized(o);
-            if(left == null) {
-                if(value != null) return false;
+            if (left == null) {
+                if (value != null) return false;
             } else {
-                if(! left.toString().contains(value.toString())) return false;
+                if (!left.toString().contains(value.toString())) return false;
             }
         }
         return true;
@@ -144,13 +139,15 @@ public interface Operators {
     }
 
     static Object normalized(Object o) {
-        if(o == null) return null;
-        if(o instanceof Number) {
+        if (o == null) return null;
+        if (o instanceof Number) {
             return new BigDecimal("" + o.toString());
-        } if(o instanceof LocalDate) {
-            return ((LocalDate)o).atStartOfDay();
-        } if(o instanceof LocalTime) {
-            return ((LocalTime)o).atDate(LocalDate.EPOCH);
+        }
+        if (o instanceof LocalDate) {
+            return ((LocalDate) o).atStartOfDay();
+        }
+        if (o instanceof LocalTime) {
+            return ((LocalTime) o).atDate(LocalDate.EPOCH);
         }
         return o;
     }

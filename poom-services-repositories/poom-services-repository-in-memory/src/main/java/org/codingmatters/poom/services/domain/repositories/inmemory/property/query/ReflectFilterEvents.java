@@ -7,12 +7,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class ReflectFilterEvents extends StackedFilterEvents<Predicate> {
+public class ReflectFilterEvents<V> extends StackedFilterEvents<Predicate<V>> {
     private final PropertyResolver propertyResolver;
 
-    public ReflectFilterEvents(Class valueObjectCalss) {
+    public ReflectFilterEvents(Class valueObjectClass) {
         super(o -> true);
-        this.propertyResolver = new PropertyResolver(valueObjectCalss);
+        this.propertyResolver = new PropertyResolver(valueObjectClass);
     }
 
     @Override
@@ -191,18 +191,18 @@ public class ReflectFilterEvents extends StackedFilterEvents<Predicate> {
 
     @Override
     public Void and() throws FilterEventError {
-        Predicate right = this.pop();
-        Predicate left = this.pop();
-        Predicate result = left.and(right);
+        Predicate<V> right = this.pop();
+        Predicate<V> left = this.pop();
+        Predicate<V> result = left.and(right);
         this.push(result);
         return null;
     }
 
     @Override
     public Void or() throws FilterEventError {
-        Predicate right = this.pop();
-        Predicate left = this.pop();
-        Predicate result = left.or(right);
+        Predicate<V> right = this.pop();
+        Predicate<V> left = this.pop();
+        Predicate<V> result = left.or(right);
         this.push(result);
         return null;
     }

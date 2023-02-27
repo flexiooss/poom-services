@@ -1,6 +1,5 @@
 package org.codingmatters.poom.services.domain.repositories.inmemory.property.query;
 
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.time.LocalDate;
