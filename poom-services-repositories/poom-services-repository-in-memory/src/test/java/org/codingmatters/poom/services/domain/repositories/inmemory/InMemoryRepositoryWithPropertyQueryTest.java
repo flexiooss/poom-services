@@ -2,7 +2,7 @@ package org.codingmatters.poom.services.domain.repositories.inmemory;
 
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 import org.codingmatters.test.Ref;
 import org.codingmatters.test.Simple;
 import org.codingmatters.test.simple.E;

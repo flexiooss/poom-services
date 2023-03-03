@@ -3,7 +3,7 @@ package org.codingmatters.poom.services.rest.protocol;
 import org.codingmatters.poom.services.domain.change.Change;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.support.logging.LoggingContext;
-import org.codingmatters.poom.servives.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.Entity;
 import org.slf4j.MDC;
 
 import java.util.Optional;

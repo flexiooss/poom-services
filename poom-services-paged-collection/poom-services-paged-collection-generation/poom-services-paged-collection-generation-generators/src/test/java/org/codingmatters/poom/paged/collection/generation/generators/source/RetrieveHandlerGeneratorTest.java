@@ -1,21 +1,19 @@
 package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import org.codingmatters.poom.generic.resource.domain.CheckedEntityActionProvider;
-import org.codingmatters.poom.generic.resource.domain.EntityCreator;
 import org.codingmatters.poom.generic.resource.domain.EntityRetriever;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestAdapter;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestCRUD;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestData;
-import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
+import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
 import org.codingmatters.tests.compile.CompiledCode;
 import org.codingmatters.tests.compile.FileHelper;
 import org.codingmatters.tests.compile.helpers.ClassLoaderHelper;
 import org.codingmatters.value.objects.generation.GenerationUtils;
 import org.generated.api.NoParamsElementGetRequest;
 import org.generated.api.NoParamsElementGetResponse;
-import org.generated.api.NoParamsPostRequest;
 import org.generated.api.types.*;
 import org.generated.api.types.Error;
 import org.junit.Before;
@@ -126,7 +124,7 @@ public class RetrieveHandlerGeneratorTest {
 
         this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
-            public Optional<org.codingmatters.poom.servives.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Optional<org.codingmatters.poom.services.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 requestedEntityId.set(id);
                 return Optional.empty();
             }
@@ -139,7 +137,7 @@ public class RetrieveHandlerGeneratorTest {
     public void givenAdapterOK_andEntityIdProvided__whenEntityNotFound__then404_andErrorKeepsTrackOfLogToken() throws Exception {
         NoParamsElementGetResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
-            public Optional<org.codingmatters.poom.servives.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Optional<org.codingmatters.poom.services.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 return Optional.empty();
             }
         })).apply(NoParamsElementGetRequest.builder().entityId("12").build());
@@ -160,7 +158,7 @@ public class RetrieveHandlerGeneratorTest {
         Entity aValue = Entity.builder().p("v").build();
         NoParamsElementGetResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
-            public Optional<org.codingmatters.poom.servives.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Optional<org.codingmatters.poom.services.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 return Optional.of(new ImmutableEntity<>("12", BigInteger.ONE, aValue));
             }
         })).apply(NoParamsElementGetRequest.builder().entityId("12").build());
@@ -178,7 +176,7 @@ public class RetrieveHandlerGeneratorTest {
         String msg = "error";
         NoParamsElementGetResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
-            public Optional<org.codingmatters.poom.servives.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Optional<org.codingmatters.poom.services.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new BadRequestException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);
             }
         })).apply(NoParamsElementGetRequest.builder().entityId("12").build());
@@ -194,7 +192,7 @@ public class RetrieveHandlerGeneratorTest {
         String msg = "error";
         NoParamsElementGetResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
-            public Optional<org.codingmatters.poom.servives.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Optional<org.codingmatters.poom.services.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new ForbiddenException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);
             }
         })).apply(NoParamsElementGetRequest.builder().entityId("12").build());
@@ -210,7 +208,7 @@ public class RetrieveHandlerGeneratorTest {
         String msg = "error";
         NoParamsElementGetResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
-            public Optional<org.codingmatters.poom.servives.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Optional<org.codingmatters.poom.services.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new NotFoundException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);
             }
         })).apply(NoParamsElementGetRequest.builder().entityId("12").build());
@@ -226,7 +224,7 @@ public class RetrieveHandlerGeneratorTest {
         String msg = "error";
         NoParamsElementGetResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
-            public Optional<org.codingmatters.poom.servives.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Optional<org.codingmatters.poom.services.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new UnauthorizedException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);
             }
         })).apply(NoParamsElementGetRequest.builder().entityId("12").build());
@@ -242,7 +240,7 @@ public class RetrieveHandlerGeneratorTest {
         String msg = "error";
         NoParamsElementGetResponse response = this.handler((request) -> new TestAdapter(new TestCRUD() {
             @Override
-            public Optional<org.codingmatters.poom.servives.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+            public Optional<org.codingmatters.poom.services.domain.entities.Entity<Entity>> retrieveEntity(String id) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
                 throw new UnexpectedException(org.codingmatters.poom.api.paged.collection.api.types.Error.fromMap(error.toMap()).build(), msg);
             }
         })).apply(NoParamsElementGetRequest.builder().entityId("12").build());

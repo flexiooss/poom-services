@@ -5,7 +5,7 @@ import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.support.paging.Rfc7233Pager;
 import org.codingmatters.poom.services.test.utils.MockedStringRepository;
 import org.codingmatters.poom.services.test.utils.StringInMemoryRepository;
-import org.codingmatters.poom.servives.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.Entity;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;

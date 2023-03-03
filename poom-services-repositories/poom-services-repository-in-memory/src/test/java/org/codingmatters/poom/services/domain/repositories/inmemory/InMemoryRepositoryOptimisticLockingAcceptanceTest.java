@@ -4,8 +4,7 @@ import org.codingmatters.generated.QAValue;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.repositories.RepositoryOptimisticLockingAcceptanceTest;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
-import org.junit.Test;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 
 public class InMemoryRepositoryOptimisticLockingAcceptanceTest extends RepositoryOptimisticLockingAcceptanceTest {
     @Override

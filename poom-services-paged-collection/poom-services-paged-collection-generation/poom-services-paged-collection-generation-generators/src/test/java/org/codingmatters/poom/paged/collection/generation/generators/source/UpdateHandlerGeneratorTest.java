@@ -1,23 +1,20 @@
 package org.codingmatters.poom.paged.collection.generation.generators.source;
 
 import org.codingmatters.poom.generic.resource.domain.CheckedEntityActionProvider;
-import org.codingmatters.poom.generic.resource.domain.EntityReplacer;
 import org.codingmatters.poom.generic.resource.domain.EntityUpdater;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
-import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestAdapter;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestCRUD;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestData;
-import org.codingmatters.poom.servives.domain.entities.Entity;
-import org.codingmatters.poom.servives.domain.entities.ImmutableEntity;
+import org.codingmatters.poom.services.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
 import org.codingmatters.tests.compile.CompiledCode;
 import org.codingmatters.tests.compile.FileHelper;
 import org.codingmatters.tests.compile.helpers.ClassLoaderHelper;
 import org.codingmatters.value.objects.generation.GenerationUtils;
 import org.generated.api.NoParamsElementPatchRequest;
 import org.generated.api.NoParamsElementPatchResponse;
-import org.generated.api.NoParamsElementPutRequest;
 import org.generated.api.types.Create;
 import org.generated.api.types.Error;
 import org.generated.api.types.Replace;
@@ -28,9 +25,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 

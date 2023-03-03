@@ -2,14 +2,12 @@ package org.codingmatters.poom.paged.collection.generation.generators.source.tes
 
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
-import org.codingmatters.poom.generic.resource.domain.spec.Action;
-import org.codingmatters.poom.servives.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.Entity;
 import org.generated.api.types.Create;
 import org.generated.api.types.Replace;
 import org.generated.api.types.Update;
 
 import java.util.Optional;
-import java.util.Set;
 
 public class TestCRUD implements PagedCollectionAdapter.CRUD<org.generated.api.types.Entity, Create, Replace, Update> {
 

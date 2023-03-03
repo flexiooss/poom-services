@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services-repositories</artifactId>
-        <version>1.132.0</version>
+        <version>1.133.0</version>
     </parent>
 
     <artifactId>poom-services-repository-extensions</artifactId>
@@ -20,7 +20,6 @@
         <dependency>
             <groupId>org.codingmatters.poom</groupId>
             <artifactId>poom-services-repository-in-memory</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

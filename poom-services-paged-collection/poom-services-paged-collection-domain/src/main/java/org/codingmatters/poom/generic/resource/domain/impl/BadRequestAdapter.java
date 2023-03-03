@@ -3,16 +3,14 @@ package org.codingmatters.poom.generic.resource.domain.impl;
 import org.codingmatters.poom.api.paged.collection.api.types.Error;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
-import org.codingmatters.poom.generic.resource.domain.spec.Action;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.EntityLister;
-import org.codingmatters.poom.servives.domain.entities.Entity;
-import org.codingmatters.poom.servives.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 
 import java.util.Collections;
 import java.util.Optional;
-import java.util.Set;
 
 public class BadRequestAdapter<EntityType, CreationType, ReplaceType, UpdateType> implements PagedCollectionAdapter<EntityType, CreationType, ReplaceType, UpdateType> {
 
