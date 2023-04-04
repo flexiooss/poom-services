@@ -6,6 +6,7 @@ import org.codingmatters.poom.paged.collection.generation.generators.source.test
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestData;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestPager;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
+import org.codingmatters.poom.services.domain.exceptions.RepositoryQueryParsingException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.EntityLister;
 import org.codingmatters.poom.services.domain.entities.Entity;
@@ -263,6 +264,40 @@ public class BrowseHandlerGeneratorTest {
         }, 100))).apply(NoParamsGetRequest.builder().build());
 
         response.opt().status200().orElseThrow(() -> new AssertionError("expected 200, got " + response));
+    }
+
+    @Test
+    public void givenAdapterOk_andPagerOk__whenRepositoryThrowsRepositoryException__then500() throws Exception {
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", new EntityLister<>() {
+            @Override
+            public PagedEntityList<org.generated.api.types.Entity> all(long start, long end) throws RepositoryException {
+                throw new RepositoryException("repo failed");
+            }
+
+            @Override
+            public PagedEntityList<org.generated.api.types.Entity> search(PropertyQuery propertyQuery, long start, long end) throws RepositoryException {
+                throw new RepositoryException("repo failed");
+            }
+        }, 100))).apply(NoParamsGetRequest.builder().build());
+
+        response.opt().status500().orElseThrow(() -> new AssertionError("expected 500, got " + response));
+    }
+
+    @Test
+    public void givenAdapterOk_andPagerOk__whenRepositoryThrowsRepositoryQueryParsingException__then500() throws Exception {
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", new EntityLister<>() {
+            @Override
+            public PagedEntityList<org.generated.api.types.Entity> all(long start, long end) throws RepositoryException {
+                throw new RepositoryQueryParsingException("query parsing failed");
+            }
+
+            @Override
+            public PagedEntityList<org.generated.api.types.Entity> search(PropertyQuery propertyQuery, long start, long end) throws RepositoryException {
+                throw new RepositoryQueryParsingException("query parsing failed");
+            }
+        }, 100))).apply(NoParamsGetRequest.builder().build());
+
+        response.opt().status400().orElseThrow(() -> new AssertionError("expected 400, got " + response));
     }
 
 

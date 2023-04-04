@@ -6,6 +6,7 @@ import org.codingmatters.poom.generic.resource.domain.PagerProvider;
 import org.codingmatters.poom.paged.collection.generation.generators.source.exception.IncoherentDescriptorException;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
+import org.codingmatters.poom.services.domain.exceptions.RepositoryQueryParsingException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.services.support.paging.Rfc7233Pager;
@@ -119,6 +120,9 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
                                     ".page(this.parseQuery(request))",
                             Rfc7233Pager.class
                     )
+                .nextControlFlow("catch($T e)", RepositoryQueryParsingException.class)
+                    .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "query parsing failed while listing entities ")
+                    .addStatement("return this.queryParsingError(token)")
                 .nextControlFlow("catch($T e)", RepositoryException.class)
                     .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "unexpected error listing entities ")
                     .addStatement("return this.unexpectedError(token)")
@@ -187,6 +191,7 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
                                 .build())
                         .build(),
                 this.errorResponseMethod("unexpectedError", "Status500", "UNEXPECTED_ERROR"),
+                this.errorResponseMethod("queryParsingError", "Status400", "UNEXPECTED_ERROR"),
                 this.errorResponseMethod("browsingNotAllowed", "Status405", "COLLECTION_BROWSING_NOT_ALLOWED")
         );
     }
