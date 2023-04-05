@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom.demo</groupId>
         <artifactId>poom-services-advanced-demo</artifactId>
-        <version>1.137.0-SNAPSHOT</version>
+        <version>1.137.0</version>
     </parent>
 
     <artifactId>poom-services-demo-domain</artifactId>
