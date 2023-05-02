@@ -3,8 +3,10 @@ package org.codingmatters.poom.services.domain.repositories.inmemory.property.qu
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Scanner;
 
 public interface Operators {
 
@@ -82,19 +84,6 @@ public interface Operators {
         return left.toString().endsWith(right.toString());
     }
 
-    static boolean containsOne(Object left, List<Object> right) {
-        left = normalized(left);
-        for (Object o : right) {
-            Object value = normalized(o);
-            if (left == null) {
-                if (value == null) return true;
-            } else {
-                if (left.toString().contains(value.toString())) return true;
-            }
-        }
-        return false;
-    }
-
     static boolean startsWithOne(Object left, List<Object> right) {
         left = normalized(left);
         for (Object o : right) {
@@ -121,14 +110,54 @@ public interface Operators {
         return false;
     }
 
-    static boolean containsAll(Object left, List<Object> right) {
+    static boolean containsOne(Object left, Collection<Object> right) {
         left = normalized(left);
-        for (Object o : right) {
-            Object value = normalized(o);
-            if (left == null) {
-                if (value != null) return false;
-            } else {
-                if (!left.toString().contains(value.toString())) return false;
+        if(left instanceof Collection) {
+            for (Object leftValue : ((Collection) left)) {
+                if(containsOne(leftValue, right)) {
+                    return true;
+                }
+            }
+        } else {
+            for (Object o : right) {
+                Object value = normalized(o);
+                if (left == null) {
+                    if (value == null) {
+                        return true;
+                    }
+                } else {
+                    if(left instanceof String) {
+                        if (left.toString().contains(value.toString())) {
+                            return true;
+                        }
+                    } else {
+                        if(left.equals(value)) return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    static boolean containsAll(Object left, Collection<Object> right) {
+        left = normalized(left);
+        if(left instanceof Collection) {
+            for (Object o : right) {
+                o = normalized(o);
+                if(! containsOne(o, ((Collection<Object>) left))) return false;
+            }
+        } else {
+            for (Object o : right) {
+                Object value = normalized(o);
+                if (left == null) {
+                    if (value != null) return false;
+                } else {
+                    if (left instanceof String) {
+                        if (!left.toString().contains(value.toString())) return false;
+                    } else {
+                        if (!left.equals(value)) return false;
+                    }
+                }
             }
         }
         return true;

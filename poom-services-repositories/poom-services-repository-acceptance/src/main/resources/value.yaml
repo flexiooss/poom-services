@@ -1,15 +1,35 @@
 ---
 QAValue:
   stringProp: string
+  manyStringProp:
+    $list: string
   integerProp: int
+  manyIntegerProp:
+    $list: int
   longProp: long
+  manyLongProp:
+    $list: long
   floatProp: float
+  manyFloatProp:
+    $list: float
   doubleProp: double
+  manyDoubleProp:
+    $list: double
   boolProp: bool
+  manyBoolProp:
+    $list: bool
   dateProp: date
+  manyDateProp:
+    $list: date
   timeProp: time
+  manyTimeProp:
+    $list: time
   datetimeProp: date-time
+  manyDatetimeProp:
+    $list: date-time
   tzdatetimeProp: tz-date-time
+  manyTzdatetimeProp:
+    $list: tz-date-time
 
   emptyProp: string
 
