@@ -3,10 +3,10 @@ package org.codingmatters.poom.services.domain.property.query;
 import org.codingmatters.generated.QAValue;
 import org.codingmatters.generated.qavalue.Nested;
 import org.codingmatters.generated.qavalue.nested.Deep;
-import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
-import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.poom.services.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
+import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,27 +32,41 @@ public abstract class PropertyQueryAcceptanceTest {
 
         for (int i = 0; i < 100; i++) {
             Boolean bool;
+            Boolean [] manyBool;
             switch (i % 3) {
                 case 0:
                     bool = true;
+                    manyBool = new Boolean[]{true, true};
                     break;
                 case 1:
                     bool = false;
+                    manyBool = new Boolean[]{false, false};
                     break;
                 default:
+                    manyBool = new Boolean[]{true, false};
                     bool = null;
             }
             QAValue value = QAValue.builder()
                     .stringProp("%03d", i)
+                    .manyStringProp(String.format("%03d.1", i), String.format("%03d.2", i), String.format("%03d.3", i))
                     .integerProp(i)
+                    .manyIntegerProp(i * 100 + 1, i * 100 + 2, i * 100 + 3)
                     .longProp((long) i)
+                    .manyLongProp((long)i * 100 + 1, (long)i * 100 + 2, (long)i * 100 + 3)
                     .floatProp(i + 0.2f)
+                    .manyFloatProp(i * 100 + 0.2f + 1, i * 100 + 0.2f + 2, i * 100 + 0.2f + 3)
                     .doubleProp(i + 0.2d)
+                    .manyDoubleProp(i * 100 + 0.2d + 1, i * 100 + 0.2d + 2, i * 100 + 0.2d + 3)
                     .dateProp(BASE_DATE.plusDays(i))
-                    .datetimeProp(BASE_DATETIME.plusDays(i))
-                    .tzdatetimeProp(BASE_ZONED_DATETIME.plusDays(i))
+                    .manyDateProp(BASE_DATE.plusDays(i * 10 + 1), BASE_DATE.plusDays(i * 10 + 2), BASE_DATE.plusDays(i * 10 + 3))
                     .timeProp(BASE_TIME.plusMinutes(i))
+                    .manyTimeProp(BASE_TIME.plusMinutes(i * 10 + 1), BASE_TIME.plusMinutes(i * 10 + 2), BASE_TIME.plusMinutes(i * 10 + 3))
+                    .datetimeProp(BASE_DATETIME.plusDays(i))
+                    .manyDatetimeProp(BASE_DATETIME.plusDays(i * 10 + 1), BASE_DATETIME.plusDays(i * 10 + 2), BASE_DATETIME.plusDays(i * 10 + 3))
+                    .tzdatetimeProp(BASE_ZONED_DATETIME.plusDays(i))
+                    .manyTzdatetimeProp(BASE_ZONED_DATETIME.plusDays(i * 10 + 1), BASE_ZONED_DATETIME.plusDays(i * 10 + 2), BASE_ZONED_DATETIME.plusDays(i * 10 + 3))
                     .boolProp(bool)
+                    .manyBoolProp(manyBool)
                     .emptyProp(i % 4 == 0 ? "" : i % 2 == 0 ? null : "not empty")
                     .nested(Nested.builder()
                             .nestedProp("%03d", 100 - i)
@@ -1416,5 +1430,437 @@ public abstract class PropertyQueryAcceptanceTest {
                 actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()),
                 containsInAnyOrder("028", "029", "030", "042", "043", "044")
         );
+    }
+
+
+    /*
+    MANY VALUES PROPERTIES
+     */
+
+    /* STRING */
+    @Test
+    public void givenFilterOnManyStringProperty__whenContainsAny__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyStringProp contains any ('006.1', '013.2', '019.3')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006", "013", "019"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyStringProperty__whenContainsAll__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyStringProp contains all ('006.1', '006.3')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyStringProperty__whenContains__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyStringProp contains '006.2'")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006"
+        ));
+    }
+
+
+
+    /* INTEGER */
+
+    @Test
+    public void givenFilterOnManyIntegerProperty__whenContainsAny__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyIntegerProp contains any (601, 1302, 1903)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006", "013", "019"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyIntegerProperty__whenContainsAll__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyIntegerProp contains all (601, 603)")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyIntegerProperty__whenContains__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyIntegerProp contains 602")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006"
+        ));
+    }
+
+
+
+    /* LONG */
+
+    @Test
+    public void givenFilterOnManyLongProperty__whenContainsAny__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyLongProp contains any (601, 1302, 1903)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006", "013", "019"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyLongProperty__whenContainsAll__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyLongProp contains all (601, 603)")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyLongProperty__whenContains__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyLongProp contains 602")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006"
+        ));
+    }
+
+
+
+    /* FLOAT */
+
+    @Test
+    public void givenFilterOnManyFloatProperty__whenContainsAny__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyFloatProp contains any (601.2, 1302.2, 1903.2)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006", "013", "019"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyFloatProperty__whenContainsAll__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyFloatProp contains all (601.2, 603.2)")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyFloatProperty__whenContains__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyFloatProp contains 602.2")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006"
+        ));
+    }
+
+
+
+    /* DOUBLE */
+
+    @Test
+    public void givenFilterOnManyDoubleProperty__whenContainsAny__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDoubleProp contains any (601.2, 1302.2, 1903.2)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006", "013", "019"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyDoubleProperty__whenContainsAll__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDoubleProp contains all (601.2, 603.2)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyDoubleProperty__whenContains__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDoubleProp contains 602.2")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006"
+        ));
+    }
+
+
+
+    /* BOOL */
+
+    @Test
+    public void givenFilterOnManyBooleanProperty__whenContainsAny__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyBoolProp contains any (true, true, true)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(67L));
+    }
+
+    @Test
+    public void givenFilterOnManyBooleanProperty__whenContainsAll__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyBoolProp contains all (true, false)")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        assertThat(actual.total(), is(33L));
+    }
+
+    @Test
+    public void givenFilterOnManyBooleanProperty__whenContains__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyBoolProp contains true")
+                .build(), 0, 1000);
+
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        assertThat(actual.total(), is(67L));
+    }
+
+
+
+    /* DATE */
+
+    @Test
+    public void givenFilterOnManyDateProperty__whenContainsAny__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDateProp contains any (1985-06-13, 1985-06-25, 1985-07-04)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "000", "001", "002"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyDateProperty__whenContainsAll__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDateProp contains all (1985-06-23, 1985-06-25)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "001"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyDateProperty__whenContains__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDateProp contains 1985-07-04")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "002"
+        ));
+    }
+
+
+
+    /* TIME */
+
+    @Test
+    public void givenFilterOnManyTimeProperty__whenContainsAny__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyTimeProp contains any (12:43:33.123456789, 12:54:33.123456789, 13:05:33.123456789)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "000", "001", "002"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyTimeProperty__whenContainsAll__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyTimeProp contains all (12:53:33.123456789, 12:55:33.123456789)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "001"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyTimeProperty__whenContains__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyTimeProp contains 13:05:33.123456789")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "002"
+        ));
+    }
+
+
+
+    /* DATETIME */
+
+    @Test
+    public void givenFilterOnManyDatetimeProperty__whenContainsAny__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDatetimeProp contains any (1985-06-13T12:42:33.123456789, 1985-06-24T12:42:33.123456789, 1985-07-05T12:42:33.123456789)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "000", "001", "002"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyDatetimeProperty__whenContainsAll__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDatetimeProp contains all (1985-06-23T12:42:33.123456789, 1985-06-25T12:42:33.123456789)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "001"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyDatetimeProperty__whenContains__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDatetimeProp contains 1985-07-04T12:42:33.123456789")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "002"
+        ));
+    }
+
+
+
+    /* ZONED DATETIME */
+
+    @Test
+    public void givenFilterOnManyTZDatetimeProperty__whenContainsAny__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyTzdatetimeProp contains any (1985-06-13T12:42:33.123456789+05:00, 1985-06-24T12:42:33.123456789+05:00, 1985-07-05T12:42:33.123456789+05:00)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(3L));
+
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "000", "001", "002"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyTZDatetimeProperty__whenContainsAll__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyTzdatetimeProp contains all (1985-06-23T12:42:33.123456789+05:00, 1985-06-25T12:42:33.123456789+05:00)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "001"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnManyTZDatetimeProperty__whenContains__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyTzdatetimeProp contains 1985-07-04T12:42:33.123456789+05:00")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "002"
+        ));
     }
 }
