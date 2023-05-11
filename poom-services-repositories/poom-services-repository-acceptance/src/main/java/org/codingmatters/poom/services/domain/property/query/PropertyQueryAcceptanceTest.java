@@ -103,7 +103,7 @@ public abstract class PropertyQueryAcceptanceTest {
     @Test
     public void givenFilterOnStringProperty__whenIsIn__thenSelectedValueReturned() throws Exception {
         PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
-                .filter("stringProp in ('042', '006', '012')")
+                .filter("stringProp in ('042', '006', '012', '999')")
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(3L));
@@ -112,17 +112,74 @@ public abstract class PropertyQueryAcceptanceTest {
     }
 
     @Test
-    public void givenFilterOnStringProperty__whenContainsAny__thenSelectedValueReturned() throws Exception {
+    public void givenFilterOnStringProperty__whenContains_andAValueMatches__thenSelectedValueReturned() throws Exception {
         PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
-                .filter("stringProp contains any ('40', '006', '01')")
+                .filter("stringProp contains '006'")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenContains_andNoValueMatches__thenNoValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp contains '999'")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+//    @Test
+//    public void givenFilterOnStringProperty__whenLike__thenSelectedValueReturned() throws Exception {
+//        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+//                .filter("stringProp contains '08'")
+//                .build(), 0, 1000);
+//
+//        assertThat(actual.total(), is(11L));
+//        assertThat(
+//                actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
+//                is(arrayContainingInAnyOrder("008", "080", "081", "082", "083", "084", "085", "086", "087", "088", "089"))
+//        );
+//    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenContainsAny_andSomeValueMatches__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp contains any ('040', '006', '001', '999')")
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(13L));
 
         assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
-                "006", "040", "001", "010", "011", "012", "013", "014", "015", "016", "017", "018", "019"
+                "006", "040", "001"
         ));
     }
+
+    @Test
+    public void givenFilterOnStringProperty__whenContainsAny_andNoValueMatches__thenNoValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp contains any ('999', '1000', '1001')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+//    @Test
+//    public void givenFilterOnStringProperty__whenLikeAny_andAllValueMatches__thenSelectedValueReturned() throws Exception {
+//        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+//                .filter("stringProp contains any ('40', '006', '01')")
+//                .build(), 0, 1000);
+//
+//        assertThat(actual.total(), is(13L));
+//
+//        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+//                "006", "040", "001", "010", "011", "012", "013", "014", "015", "016", "017", "018", "019"
+//        ));
+//    }
 
     @Test
     public void givenFilterOnStringProperty__whenStartsWithAny__thenSelectedValueReturned() throws Exception {
@@ -1262,19 +1319,6 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(
                 actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
                 is(arrayContainingInAnyOrder("004"))
-        );
-    }
-
-    @Test
-    public void givenFilterOnStringProperty__whenContains__thenSelectedValueReturned() throws Exception {
-        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
-                .filter("stringProp contains '08'")
-                .build(), 0, 1000);
-
-        assertThat(actual.total(), is(11L));
-        assertThat(
-                actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
-                is(arrayContainingInAnyOrder("008", "080", "081", "082", "083", "084", "085", "086", "087", "088", "089"))
         );
     }
 

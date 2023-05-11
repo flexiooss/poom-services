@@ -25,14 +25,24 @@ LT : '<' ;
 LTE : '<=' ;
 EQ : '==' ;
 NEQ : '!=' ;
-STARTS_WITH : S T A R T S ' ' W I T H;
-ENDS_WITH : E N D S ' ' W I T H;
-CONTAINS : C O N T A I N S;
+
 IN : I N;
+
+STARTS_WITH : S T A R T S ' ' W I T H;
 STARTS_WITH_ANY : S T A R T S ' ' W I T H' ' A N Y;
+STARTS_WITH_ALL : S T A R T S ' ' W I T H' ' A L L;
+
+ENDS_WITH : E N D S ' ' W I T H;
 ENDS_WITH_ANY : E N D S ' ' W I T H ' ' A N Y;
+ENDS_WITH_ALL : E N D S ' ' W I T H ' ' A L L;
+
+CONTAINS : C O N T A I N S;
 CONTAINS_ANY : C O N T A I N S ' ' A N Y;
 CONTAINS_ALL : C O N T A I N S ' ' A L L;
+
+LIKE : L I K E;
+LIKE_ANY : L I K E ' ' A N Y;
+LIKE_ALL : L I K E ' ' A L L;
 
 /* Dates and times : watchout, order matters */
 ZONED_DATETIME_LITERAL: [0-9][0-9][0-9][0-9]'-'[0-9][0-9]'-'[0-9][0-9]'T'[0-9][0-9]':'[0-9][0-9]':'[0-9][0-9]'.'[0-9][0-9]?[0-9]?[0-9]?[0-9]?[0-9]?[0-9]?[0-9]?[0-9]?[+\-][0-9][0-9]':'[0-9][0-9];
@@ -70,9 +80,13 @@ expression
     | IDENTIFIER operator operand                           #comparison
     | IDENTIFIER IN LPAR operand_list RPAR                  #in
     | IDENTIFIER STARTS_WITH_ANY LPAR operand_list RPAR     #startsWithAny
+    | IDENTIFIER STARTS_WITH_ALL LPAR operand_list RPAR     #startsWithAll
     | IDENTIFIER ENDS_WITH_ANY LPAR operand_list RPAR       #endsWithAny
+    | IDENTIFIER ENDS_WITH_ALL LPAR operand_list RPAR       #endsWithAll
     | IDENTIFIER CONTAINS_ANY LPAR operand_list RPAR        #containsAny
     | IDENTIFIER CONTAINS_ALL LPAR operand_list RPAR        #containsAll
+    | IDENTIFIER LIKE_ANY LPAR operand_list RPAR            #likeAny
+    | IDENTIFIER LIKE_ALL LPAR operand_list RPAR            #likeAll
     ;
 
 operand
@@ -108,6 +122,7 @@ operator
     | STARTS_WITH
     | ENDS_WITH
     | CONTAINS
+    | LIKE
     ;
 
 
