@@ -5,6 +5,7 @@ import org.codingmatters.poom.generic.resource.domain.PagerProvider;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestAdapter;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestData;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestPager;
+import org.codingmatters.poom.services.domain.exceptions.RepositoryAccessDeniedException;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryQueryParsingException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
@@ -284,7 +285,7 @@ public class BrowseHandlerGeneratorTest {
     }
 
     @Test
-    public void givenAdapterOk_andPagerOk__whenRepositoryThrowsRepositoryQueryParsingException__then500() throws Exception {
+    public void givenAdapterOk_andPagerOk__whenRepositoryThrowsRepositoryQueryParsingException__then400() throws Exception {
         NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", new EntityLister<>() {
             @Override
             public PagedEntityList<org.generated.api.types.Entity> all(long start, long end) throws RepositoryException {
@@ -298,6 +299,23 @@ public class BrowseHandlerGeneratorTest {
         }, 100))).apply(NoParamsGetRequest.builder().build());
 
         response.opt().status400().orElseThrow(() -> new AssertionError("expected 400, got " + response));
+    }
+
+    @Test
+    public void givenAdapterOk_andPagerOk__whenRepositoryThrowsRepositoryAccessDeniedException__then503() throws Exception {
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", new EntityLister<>() {
+            @Override
+            public PagedEntityList<org.generated.api.types.Entity> all(long start, long end) throws RepositoryException {
+                throw new RepositoryAccessDeniedException("access denied");
+            }
+
+            @Override
+            public PagedEntityList<org.generated.api.types.Entity> search(PropertyQuery propertyQuery, long start, long end) throws RepositoryException {
+                throw new RepositoryAccessDeniedException("access denied");
+            }
+        }, 100))).apply(NoParamsGetRequest.builder().build());
+
+        response.opt().status403().orElseThrow(() -> new AssertionError("expected 403, got " + response));
     }
 
 
