@@ -195,6 +195,7 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
                 //nominal result
                 .addStatement("return $T.builder().status200($T.builder()" +
                                 ".xEntityId(entity.id())" +
+                                ".xEntityType(action.entityType())" +
                                 ".location(String.format($S, action.entityRepositoryUrl(), entity.id()))" +
                                 ".payload(entity.value())" +
                                 ".build()).build()",

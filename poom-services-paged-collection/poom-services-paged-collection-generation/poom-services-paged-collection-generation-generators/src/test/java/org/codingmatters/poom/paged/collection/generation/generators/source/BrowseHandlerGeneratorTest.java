@@ -265,6 +265,8 @@ public class BrowseHandlerGeneratorTest {
         }, 100))).apply(NoParamsGetRequest.builder().build());
 
         response.opt().status200().orElseThrow(() -> new AssertionError("expected 200, got " + response));
+        assertThat(response.status200().acceptRange(), is("Unit 100"));
+        assertThat(response.status200().xEntityType(), is("Unit"));
     }
 
     @Test
@@ -335,6 +337,8 @@ public class BrowseHandlerGeneratorTest {
 
 
         response.opt().status206().orElseThrow(() -> new AssertionError("expected 206, got " + response));
+        assertThat(response.status206().acceptRange(), is("Unit 100"));
+        assertThat(response.status206().xEntityType(), is("Unit"));
     }
 
     private List<Entity<org.generated.api.types.Entity>> entities(int count) {

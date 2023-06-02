@@ -16,6 +16,11 @@ public class UnexpectedExceptionAdapter<EntityTpe, CreationType, ReplaceType, Up
 
     private CRUD<EntityTpe, CreationType, ReplaceType, UpdateType> crud = new CRUD<EntityTpe, CreationType, ReplaceType, UpdateType>() {
         @Override
+        public String entityType() {
+            return null;
+        }
+
+        @Override
         public String entityRepositoryUrl() {
             return null;
         }

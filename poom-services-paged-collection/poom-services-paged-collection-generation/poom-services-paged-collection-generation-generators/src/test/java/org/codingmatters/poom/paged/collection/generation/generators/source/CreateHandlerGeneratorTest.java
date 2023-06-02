@@ -173,6 +173,7 @@ public class CreateHandlerGeneratorTest {
         response.opt().status201().orElseThrow(() -> new AssertionError("expected 201, got " + response));
 
         assertThat(response.status201().xEntityId(), is("12"));
+        assertThat(response.status201().xEntityType(), is("TestType"));
         assertThat(response.status201().location(), is(new TestCRUD().entityRepositoryUrl() + "/12"));
         assertThat(response.status201().payload(), is(aValue));
     }

@@ -19,7 +19,7 @@ public class CustomerRentalPager implements PagedCollectionAdapter.Pager<Rental>
 
     @Override
     public String unit() {
-        return "Rental";
+        return Rental.class.getSimpleName();
     }
 
     @Override

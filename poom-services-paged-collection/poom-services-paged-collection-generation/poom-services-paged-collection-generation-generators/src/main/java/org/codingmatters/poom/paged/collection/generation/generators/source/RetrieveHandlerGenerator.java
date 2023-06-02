@@ -120,6 +120,7 @@ public class RetrieveHandlerGenerator extends PagedCollectionHandlerGenerator {
                 .beginControlFlow("if(entity.isPresent())")
                     .addStatement("return $T.builder().status200($T.builder()" +
                                     ".xEntityId(entity.get().id())" +
+                                    ".xEntityType(action.entityType())" +
                                     ".location(String.format($S, action.entityRepositoryUrl(), entity.get().id()))" +
                                     ".payload(entity.get().value())" +
                                     ".build()).build()",

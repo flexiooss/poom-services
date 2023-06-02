@@ -34,6 +34,11 @@ public class MovieCRUD implements PagedCollectionAdapter.CRUD<Movie, MovieCreati
     }
 
     @Override
+    public String entityType() {
+        return Movie.class.getSimpleName();
+    }
+
+    @Override
     public String entityRepositoryUrl() {
         return String.format("/%s/movies", this.store);
     }

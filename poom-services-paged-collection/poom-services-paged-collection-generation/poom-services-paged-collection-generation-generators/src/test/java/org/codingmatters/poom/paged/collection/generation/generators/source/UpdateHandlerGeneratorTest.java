@@ -200,6 +200,7 @@ public class UpdateHandlerGeneratorTest {
         response.opt().status200().orElseThrow(() -> new AssertionError("expected 200, got " + response));
 
         assertThat(response.status200().xEntityId(), is("12"));
+        assertThat(response.status200().xEntityType(), is("TestType"));
         assertThat(response.status200().location(), is(new TestCRUD().entityRepositoryUrl() + "/12"));
         assertThat(response.status200().payload(), is(aValue));
     }
