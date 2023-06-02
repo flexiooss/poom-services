@@ -21,7 +21,7 @@ public class MoviePager implements PagedCollectionAdapter.Pager<Movie>, EntityLi
 
     @Override
     public String unit() {
-        return "Movie";
+        return Movie.class.getSimpleName();
     }
 
     @Override

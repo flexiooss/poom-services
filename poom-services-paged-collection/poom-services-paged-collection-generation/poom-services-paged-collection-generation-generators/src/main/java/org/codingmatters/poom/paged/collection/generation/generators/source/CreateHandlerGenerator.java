@@ -132,6 +132,7 @@ public class CreateHandlerGenerator extends PagedCollectionHandlerGenerator {
                 //nominal
                 .addStatement("return $T.builder().status201($T.builder()" +
                         ".xEntityId(entity.id())" +
+                        ".xEntityType(action.entityType())" +
                         ".location(String.format($S, action.entityRepositoryUrl(), entity.id()))" +
                         ".payload(entity.value())" +
                         ".build()).build()",

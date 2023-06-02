@@ -16,6 +16,11 @@ public class BadRequestAdapter<EntityType, CreationType, ReplaceType, UpdateType
 
     private CRUD<EntityType, CreationType, ReplaceType, UpdateType> crud = new CRUD<EntityType, CreationType, ReplaceType, UpdateType>() {
         @Override
+        public String entityType() {
+            return null;
+        }
+
+        @Override
         public String entityRepositoryUrl() {
             return null;
         }

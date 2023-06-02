@@ -30,6 +30,11 @@ public class LateRentalTaskCRUD implements PagedCollectionAdapter.CRUD<LateRenta
     }
 
     @Override
+    public String entityType() {
+        return LateRentalTask.class.getSimpleName();
+    }
+
+    @Override
     public String entityRepositoryUrl() {
         return "/late-rental-tasks";
     }

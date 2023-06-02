@@ -163,6 +163,7 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
                     .addStatement("return $T.builder().status206($T.builder()" +
                             ".acceptRange(page.acceptRange())" +
                             ".contentRange(page.contentRange())" +
+                            ".xEntityType(pager.unit())" +
                             ".payload(page.list().valueList())" +
                             ".build()).build()",
                             this.className(this.collectionDescriptor.browse().responseValueObject()),
@@ -172,6 +173,7 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
                     .addStatement("return $T.builder().status200($T.builder()" +
                                 ".acceptRange(page.acceptRange())" +
                                 ".contentRange(page.contentRange())" +
+                                ".xEntityType(pager.unit())" +
                                 ".payload(page.list().valueList())" +
                                 ".build()).build()",
                         this.className(this.collectionDescriptor.browse().responseValueObject()),
