@@ -10,9 +10,16 @@
         <version>1.150.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.codingmatters.poom</groupId>
+    <groupId>org.codingmatters.poom.containers</groupId>
     <artifactId>poom-services-containers</artifactId>
-    <version>1.150.0-SNAPSHOT</version>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <packaging>pom</packaging>
 
+    <modules>
+        <module>poom-services-containers-runtime</module>
+        <module>poom-services-containers-test-runtime</module>
+        <module>poom-services-containers-netty-runtime</module>
+        <module>poom-services-containers-undertow-runtime</module>
+    </modules>
     
 </project>

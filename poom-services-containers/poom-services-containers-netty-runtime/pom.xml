@@ -10,9 +10,11 @@
         <version>1.150.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.codingmatters.poom.containers</groupId>
+    <groupId>org.codingmatters.poom.containers.netty</groupId>
     <artifactId>poom-services-containers-netty-runtime</artifactId>
-    <version>1.150.0-SNAPSHOT</version>
 
+    <dependencies>
+
+    </dependencies>
     
 </project>

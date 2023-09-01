@@ -31,7 +31,7 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
         for (Api api : this.apis) {
             if (api.docResource() != null) {
                 handlers
-                        .addPrefixPath(api.path() + "/doc", new CdmHttpUndertowHandler(new StaticResourceProcessor(api.docResource())));
+                        .addPrefixPath(api.path() + "/doc", new CdmHttpUndertowHandler(new StaticResourceProcessor(api.docResource(), "text/html")));
             }
             handlers
                     .addPrefixPath(api.path(), new CdmHttpUndertowHandler(api.processor()));

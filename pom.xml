@@ -75,7 +75,7 @@
         <poom.service.base.image>poom-service-base-17-alpine</poom.service.base.image>
         <poom.service.base.image.version>2.7.0</poom.service.base.image.version>
         <codingmatters-value-objects.version>1.89.0</codingmatters-value-objects.version>
-        <codingmatters-rest.version>1.103.0</codingmatters-rest.version>
+        <codingmatters-rest.version>1.104.0-SNAPSHOT</codingmatters-rest.version>
     </properties>
 
     <modules>
@@ -93,6 +93,7 @@
         <module>poom-services-i18n</module>
         <module>poom-l10n</module>
         <module>poom-caches</module>
+        <module>poom-services-containers</module>
     </modules>
 
     <dependencies>
@@ -361,6 +362,26 @@
                 <version>1.150.0-SNAPSHOT</version>
             </dependency>
 <!--            //CACHES-->
+
+<!--            CONTAINERS-->
+            <dependency>
+                <groupId>org.codingmatters.poom.containers</groupId>
+                <artifactId>poom-services-containers-runtime</artifactId>
+                <version>1.150.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.containers</groupId>
+                <artifactId>poom-services-containers-test-runtime</artifactId>
+                <version>1.150.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.containers</groupId>
+                <artifactId>poom-services-containers-undertow-runtime</artifactId>
+                <version>1.150.0-SNAPSHOT</version>
+            </dependency>
+
+
+<!--            //CONTAINERS-->
 
 
             <!--// BOM-->
