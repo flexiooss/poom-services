@@ -7,11 +7,15 @@ import org.codingmatters.poom.containers.ApiContainerRuntime;
 import org.codingmatters.poom.containers.ApiContainerRuntimeBuilder;
 import org.codingmatters.poom.containers.RuntimeTestHandle;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
+import org.codingmatters.rest.api.processors.ProcessorChain;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.ServerSocket;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -19,7 +23,6 @@ import static org.hamcrest.Matchers.is;
 
 public abstract class ApiContainerRuntimeAcceptanceTest {
     abstract protected ApiContainerRuntime createContainer(String host, int port, CategorizedLogger logger);
-
 
     private int freePort;
     private RuntimeTestHandle runtime;
@@ -62,6 +65,69 @@ public abstract class ApiContainerRuntimeAcceptanceTest {
 
         assertThat(response.code(), is(200));
         assertThat(response.body().string(), is("I'm up"));
+    }
+
+    @Test
+    public void givenOneApiRegistered__whenWrapper__thenExpectedResponse() throws Exception {
+        new ApiContainerRuntimeBuilder()
+                .apiProcessorWrapper(processor -> ProcessorChain.chain(
+                        (requestDelegate, responseDelegate) -> responseDelegate.addHeader("wrapped", "true")
+                        ).then(processor)
+                )
+                .withApi(new TestApi("/path/to", (requestDelegate, responseDelegate) ->
+                        responseDelegate.contenType("text/plain").status(200).payload("I'm up", "utf-8")
+                ))
+                .build(this.runtime.runtime());
+        this.runtime.doStart();
+
+        Response response = this.client.newCall(new Request.Builder().url("http://localhost:" + this.freePort + "/path/to").build()).execute();
+
+        assertThat(response.code(), is(200));
+        assertThat(response.body().string(), is("I'm up"));
+        assertThat(response.header("wrapped"), is("true"));
+    }
+
+    @Test
+    public void givenOneApiRegistered__whenHasDoc__thenDocReturned() throws Exception {
+        new ApiContainerRuntimeBuilder()
+                .withApi(new TestApi("/path/to", (requestDelegate, responseDelegate) ->
+                        responseDelegate.contenType("text/plain").status(200).payload("I'm up", "utf-8"),
+                        true
+                ))
+                .build(this.runtime.runtime());
+        this.runtime.doStart();
+
+        Response response = this.client.newCall(new Request.Builder().url("http://localhost:" + this.freePort + "/path/to/doc").build()).execute();
+
+        assertThat(response.code(), is(200));
+        assertThat(response.body().string(), is(this.content("doc-index.html")));
+    }
+
+    @Test
+    public void givenOneApiRegistered__whenNotHasDoc__thenDocPassedToProcessor() throws Exception {
+        new ApiContainerRuntimeBuilder()
+                .withApi(new TestApi("/path/to", (requestDelegate, responseDelegate) ->
+                        responseDelegate.contenType("text/plain").status(200).payload("I'm up", "utf-8"),
+                        false
+                ))
+                .build(this.runtime.runtime());
+        this.runtime.doStart();
+
+        Response response = this.client.newCall(new Request.Builder().url("http://localhost:" + this.freePort + "/path/to/doc").build()).execute();
+
+        assertThat(response.code(), is(200));
+        assertThat(response.body().string(), is("I'm up"));
+    }
+
+    private String content(String resource) throws IOException {
+        try(Reader reader = new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(resource))) {
+            StringBuilder result = new StringBuilder();
+            char[] buffer = new char[1024];
+            for(int read = reader.read(buffer); read != -1 ; read = reader.read(buffer)) {
+                result.append(buffer, 0, read);
+            }
+            return result.toString();
+        }
     }
 
     @Test
