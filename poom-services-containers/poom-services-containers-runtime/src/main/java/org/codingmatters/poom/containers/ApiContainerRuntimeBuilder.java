@@ -25,7 +25,11 @@ public class ApiContainerRuntimeBuilder {
     public ApiContainerRuntime build(ApiContainerRuntime runtime) {
         List<Api> wrappedApis = new LinkedList<>();
         for (Api api : this.apis) {
-            wrappedApis.add(new WrappedApi(api, this.apiProcessorWrapper.apply(api.processor())));
+            Processor processor = api.processor();
+            if(this.apiProcessorWrapper != null) {
+                processor = this.apiProcessorWrapper.apply(api.processor());
+            }
+            wrappedApis.add(new WrappedApi(api, processor));
         }
         return runtime.apis(wrappedApis.toArray(new Api[0]));
     }

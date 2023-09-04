@@ -10,27 +10,30 @@
         <version>1.151.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>poom-services-containers-undertow-runtime</artifactId>
+    <artifactId>poom-services-containers-runtime-acceptance</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.codingmatters.poom.containers</groupId>
             <artifactId>poom-services-containers-runtime</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codingmatters.rest</groupId>
-            <artifactId>cdm-rest-undertow</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codingmatters.poom.containers</groupId>
-            <artifactId>poom-services-containers-runtime-acceptance</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.codingmatters.poom.containers</groupId>
             <artifactId>poom-services-containers-test-runtime</artifactId>
-            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
         </dependency>
     </dependencies>
     

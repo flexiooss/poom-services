@@ -18,6 +18,7 @@
     <modules>
         <module>poom-services-containers-runtime</module>
         <module>poom-services-containers-test-runtime</module>
+        <module>poom-services-containers-runtime-acceptance</module>
         <module>poom-services-containers-netty-runtime</module>
         <module>poom-services-containers-undertow-runtime</module>
     </modules>
