@@ -18,7 +18,7 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
 
     private Undertow undertow;
 
-    protected UndertowApiContainerRuntime(String host, int port, CategorizedLogger log) {
+    public UndertowApiContainerRuntime(String host, int port, CategorizedLogger log) {
         super(log);
         this.host = host;
         this.port = port;
