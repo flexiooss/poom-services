@@ -5,6 +5,7 @@ import org.codingmatters.rest.api.Api;
 
 public abstract class ApiContainerRuntime {
     protected final CategorizedLogger log;
+    private final Handle handle;
     protected Api[] apis;
 
     protected abstract void startupServer(Api[] apis) throws ServerStartupException;
@@ -12,6 +13,7 @@ public abstract class ApiContainerRuntime {
 
     protected ApiContainerRuntime(CategorizedLogger log) {
         this.log = log;
+        this.handle = new Handle(this);
     }
 
     public ApiContainerRuntime apis(Api ... apis) {
@@ -57,4 +59,22 @@ public abstract class ApiContainerRuntime {
         // TODO enable post shutdown injection
     }
 
+    public Handle handle() {
+        return this.handle;
+    }
+
+    public class Handle {
+        private final ApiContainerRuntime runtime;
+
+        public Handle(ApiContainerRuntime runtime) {
+            this.runtime = runtime;
+        }
+
+        public void start() throws ServerStartupException {
+            this.runtime.startup();
+        }
+        public void stop() throws ServerShutdownException {
+            this.runtime.stop();
+        }
+    }
 }
