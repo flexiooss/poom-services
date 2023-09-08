@@ -14,6 +14,7 @@
 
     <logger name="org.codingmatters.poomjobs.service.handlers.RunnerPatchHandler" level="WARN"/>
     <logger name="org.codingmatters.rest.undertow.UndertowRequestDelegate" level="INFO"/>
+    <logger name="io.netty.handler.logging.LoggingHandler" level="WARN"/>
     <logger name="org.xnio.nio" level="INFO"/>
     <logger name="io.undertow.request" level="INFO" />
     <logger name="org.mongodb.driver" level="WARN" />
