@@ -11,6 +11,8 @@ public class ApiContainerRuntimeBuilder {
 
     private final List<Api> apis = new LinkedList<>();
     private Function<Processor, Processor> apiProcessorWrapper;
+    private Runnable startupRunnable;
+    private Runnable shutdownRunnable;
 
     public ApiContainerRuntimeBuilder withApi(Api api) {
         this.apis.add(api);
@@ -22,7 +24,23 @@ public class ApiContainerRuntimeBuilder {
         return this;
     }
 
+    public ApiContainerRuntimeBuilder onStartup(Runnable runnable) {
+        this.startupRunnable = runnable;
+        return this;
+    }
+
+    public ApiContainerRuntimeBuilder onShutdown(Runnable runnable) {
+        this.shutdownRunnable = runnable;
+        return this;
+    }
+
     public ApiContainerRuntime build(ApiContainerRuntime runtime) {
+        if(this.startupRunnable != null) {
+            runtime.onStartup(this.startupRunnable);
+        }
+        if(this.shutdownRunnable != null) {
+            runtime.onShutdown(this.shutdownRunnable);
+        }
         List<Api> wrappedApis = new LinkedList<>();
         for (Api api : this.apis) {
             Processor processor = api.processor();
