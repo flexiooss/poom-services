@@ -29,20 +29,21 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
         PathHandler handlers = Handlers.path();
 
         for (Api api : this.apis) {
+            String path = api.path();
+            if(path.isEmpty()) {
+                path = "/";
+            }
+            if(! path.equals("/") && path.endsWith("/")) {
+                path = path.substring(0, path.length() - 1);
+            }
             if (api.docResource() != null) {
+                String docpath = path.equals("/") ? "/doc" : path + "/doc";
                 handlers
-                        .addPrefixPath(api.path() + "/doc", new CdmHttpUndertowHandler(new StaticResourceProcessor(api.docResource(), "text/html")));
+                        .addPrefixPath(docpath, new CdmHttpUndertowHandler(new StaticResourceProcessor(api.docResource(), "text/html")));
             }
             handlers
-                    .addPrefixPath(api.path(), new CdmHttpUndertowHandler(api.processor()));
+                    .addPrefixPath(path, new CdmHttpUndertowHandler(api.processor()));
         }
-//            if (rawHandlers != null)
-//                for (RawHandler handler : rawHandlers) {
-//                    handlers.addPrefixPath(api.path() + handler.getPath(), handler.getHandler());
-//                }
-//        }
-//
-//        this.setupConfigSubscriptions(handlers);
 
         this.undertow = Undertow.builder()
                 .addHttpListener(this.port, host)

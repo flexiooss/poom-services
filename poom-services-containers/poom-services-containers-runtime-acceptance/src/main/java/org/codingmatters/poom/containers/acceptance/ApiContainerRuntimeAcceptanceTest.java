@@ -232,4 +232,67 @@ public abstract class ApiContainerRuntimeAcceptanceTest {
         assertThat(response.code(), is(200));
         assertThat(response.body().string(), is("I'm second and I'm up"));
     }
+
+
+
+
+    @Test
+    public void givenOneApiRegistered__whenRegisteredOnSlash_andQueriedOneSlash__thenExpectedResponse() throws Exception {
+        new ApiContainerRuntimeBuilder()
+                .withApi(new TestApi("/", (requestDelegate, responseDelegate) ->
+                        responseDelegate.contenType("text/plain").status(200).payload("I'm up", "utf-8")
+                ))
+                .build(this.runtime.runtime());
+        this.runtime.doStart();
+
+        Response response = this.client.newCall(new Request.Builder().url("http://localhost:" + this.freePort + "/").build()).execute();
+
+        assertThat(response.code(), is(200));
+        assertThat(response.body().string(), is("I'm up"));
+    }
+
+    @Test
+    public void givenOneApiRegistered__whenRegisteredOnSlash_andQueriedOneEmpty__thenExpectedResponse() throws Exception {
+        new ApiContainerRuntimeBuilder()
+                .withApi(new TestApi("/", (requestDelegate, responseDelegate) ->
+                        responseDelegate.contenType("text/plain").status(200).payload("I'm up", "utf-8")
+                ))
+                .build(this.runtime.runtime());
+        this.runtime.doStart();
+
+        Response response = this.client.newCall(new Request.Builder().url("http://localhost:" + this.freePort).build()).execute();
+
+        assertThat(response.code(), is(200));
+        assertThat(response.body().string(), is("I'm up"));
+    }
+
+    @Test
+    public void givenOneApiRegistered__whenRegisteredOnEmpty_andQueriedOneSlash__thenExpectedResponse() throws Exception {
+        new ApiContainerRuntimeBuilder()
+                .withApi(new TestApi("", (requestDelegate, responseDelegate) ->
+                        responseDelegate.contenType("text/plain").status(200).payload("I'm up", "utf-8")
+                ))
+                .build(this.runtime.runtime());
+        this.runtime.doStart();
+
+        Response response = this.client.newCall(new Request.Builder().url("http://localhost:" + this.freePort + "/").build()).execute();
+
+        assertThat(response.code(), is(200));
+        assertThat(response.body().string(), is("I'm up"));
+    }
+
+    @Test
+    public void givenOneApiRegistered__whenRegisteredOnEmpty_andQueriedOneEmpty__thenExpectedResponse() throws Exception {
+        new ApiContainerRuntimeBuilder()
+                .withApi(new TestApi("", (requestDelegate, responseDelegate) ->
+                        responseDelegate.contenType("text/plain").status(200).payload("I'm up", "utf-8")
+                ))
+                .build(this.runtime.runtime());
+        this.runtime.doStart();
+
+        Response response = this.client.newCall(new Request.Builder().url("http://localhost:" + this.freePort).build()).execute();
+
+        assertThat(response.code(), is(200));
+        assertThat(response.body().string(), is("I'm up"));
+    }
 }
