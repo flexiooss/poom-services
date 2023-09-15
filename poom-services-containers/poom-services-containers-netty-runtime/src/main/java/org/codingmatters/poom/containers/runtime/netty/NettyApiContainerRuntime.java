@@ -55,15 +55,15 @@ public class NettyApiContainerRuntime extends ApiContainerRuntime {
             HashSet<String> registerd = new HashSet<>();
             for (Api api : orderedApis) {
                 String path = api.path();
-                if(path.isEmpty()) {
-                    path = "/";
+                if(path.equals("/")) {
+                    path = "";
                 }
-                if(! path.equals("/") && path.endsWith("/")) {
+                if(path.endsWith("/")) {
                     path = path.substring(0, path.length() - 1);
                 }
                 if(! registerd.contains(path)) {
                     if (api.docResource() != null) {
-                        String docpath = path.equals("/") ? "/doc" : path + "/doc";
+                        String docpath = path + "/doc";
                         processorBuilder.whenMatching(docpath + "($|/.*)", new StaticResourceProcessor(api.docResource(), "text/html"));
                     }
                     processorBuilder.whenMatching(path + "($|/.*)", api.processor());
