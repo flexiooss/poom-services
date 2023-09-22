@@ -8,17 +8,31 @@ public abstract class ApiContainerRuntime {
     private final Handle handle;
     protected Api[] apis;
 
+    private Runnable onStartup;
+    private Runnable onShutdown;
+
+
     protected abstract void startupServer(Api[] apis) throws ServerStartupException;
     protected abstract void shutdownServer() throws ServerShutdownException;
 
     protected ApiContainerRuntime(CategorizedLogger log) {
         this.log = log;
+        this.onStartup = () -> {};
+        this.onShutdown = () -> {};
         this.handle = new Handle(this);
     }
 
     public ApiContainerRuntime apis(Api ... apis) {
         this.apis = apis;
         return this;
+    }
+
+    public void onStartup(Runnable onStartup) {
+        this.onStartup = onStartup != null ? onStartup : () -> {};
+    }
+
+    public void onShutdown(Runnable onShutdown) {
+        this.onShutdown = onShutdown != null ? onShutdown : () -> {};
     }
 
     public void main() {
@@ -50,13 +64,21 @@ public abstract class ApiContainerRuntime {
     }
 
     protected void startup() throws ServerStartupException {
-        // TODO enable pre startup injection
+        try {
+            this.onStartup.run();
+        } catch (Throwable e) {
+            throw new ServerStartupException("error running pre startup runnable", e);
+        }
         this.startupServer(this.apis);
     }
 
     protected void stop() throws ServerShutdownException {
         this.shutdownServer();
-        // TODO enable post shutdown injection
+        try {
+            this.onShutdown.run();
+        } catch (Throwable t) {
+            throw new ServerShutdownException("error running post shutdown runnable", t);
+        }
     }
 
     public Handle handle() {
