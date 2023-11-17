@@ -48,6 +48,7 @@ public class Rfc7233Pager<V,Q> {
 
         private final String unit;
         private final int maxPageSize;
+        private Integer defaultPageSize;
         private final String requestedRange;
         private Builder(String unit, int maxPageSize, String requestedRange) {
             this.unit = unit;
@@ -55,8 +56,25 @@ public class Rfc7233Pager<V,Q> {
             this.requestedRange = requestedRange;
         }
 
+        public Builder defaultPageSize(int defaultPageSize) {
+            this.defaultPageSize = defaultPageSize;
+            return this;
+        }
+
         public <V, Q> Rfc7233Pager<V,Q> pager(EntityLister<V, Q> repository) {
-            return new Rfc7233Pager<>(repository, this.unit, this.maxPageSize, this.requestedRange);
+            int effectiveDefaultPageSize = this.maxPageSize;
+            if(this.defaultPageSize != null) {
+                if(this.defaultPageSize <= this.maxPageSize) {
+                    effectiveDefaultPageSize = this.defaultPageSize;
+                }
+            }
+            return new Rfc7233Pager<>(
+                    repository,
+                    this.unit,
+                    this.maxPageSize,
+                    effectiveDefaultPageSize,
+                    this.requestedRange
+            );
         }
 
 
@@ -64,17 +82,18 @@ public class Rfc7233Pager<V,Q> {
     private final EntityLister<V,Q> repository;
     private final String unit;
     private final int maxPageSize;
+    private final int defaultPageSize;
     private final String requestedRange;
     private final Range range;
 
-    public Rfc7233Pager(EntityLister<V,Q> repository, String unit, int maxPageSize, String requestedRange) {
+    public Rfc7233Pager(EntityLister<V,Q> repository, String unit, int maxPageSize, int defaultPageSize, String requestedRange) {
         this.repository = repository;
         this.unit = unit;
         this.maxPageSize = maxPageSize;
+        this.defaultPageSize = defaultPageSize;
         this.requestedRange = requestedRange;
 
-        this.range = Range.fromRequestedRange(requestedRange, maxPageSize);
-
+        this.range = Range.fromRequestedRange(this.requestedRange, this.maxPageSize, this.defaultPageSize);
     }
 
     private long start() {
