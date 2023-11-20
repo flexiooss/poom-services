@@ -217,11 +217,14 @@ public class BrowseHandlerGeneratorTest {
     }
 
     @Test
-    public void givenAdapterOk_andPagerOk__whenNoParameters__thenRequestDelegatedToLister_andRangeIs0ToMaxPageSizeMinus1() throws Exception {
-        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", ENTITY_LISTER, 100)))
+    public void givenAdapterOk_andPagerOk__whenNoParameters__thenRequestDelegatedToLister_andRangeIs0ToDefaultPageSizeMinus1() throws Exception {
+        this.fileHelper.printJavaContent("", this.dir.getRoot());
+        this.fileHelper.printFile(this.dir.getRoot(), "NoParamsBrowse.java");
+
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", ENTITY_LISTER, 100, 50)))
                 .apply(NoParamsGetRequest.builder().build());
 
-        assertThat(lastRequest.get(), is(new ListerRequest(0L, 99L, null)));
+        assertThat(lastRequest.get(), is(new ListerRequest(0L, 49L, null)));
     }
 
     @Test

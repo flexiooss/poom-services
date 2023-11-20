@@ -9,14 +9,16 @@ public class TestPager implements PagedCollectionAdapter.Pager<Entity> {
     private final String unit;
     private final EntityLister<Entity, PropertyQuery> lister;
     private final int maxPageSize;
+    private final int defaultPageSize;
 
-    public TestPager() {
-        this(null, null, -1);
-    }
     public TestPager(String unit, EntityLister<Entity, PropertyQuery> lister, int maxPageSize) {
+        this(unit, lister, maxPageSize, maxPageSize);
+    }
+    public TestPager(String unit, EntityLister<Entity, PropertyQuery> lister, int maxPageSize, int defaultPageSize) {
         this.unit = unit;
         this.lister = lister;
         this.maxPageSize = maxPageSize;
+        this.defaultPageSize = defaultPageSize;
     }
 
     @Override
@@ -27,6 +29,11 @@ public class TestPager implements PagedCollectionAdapter.Pager<Entity> {
     @Override
     public int maxPageSize() {
         return this.maxPageSize;
+    }
+
+    @Override
+    public int defaultPageSize() {
+        return this.defaultPageSize;
     }
 
     @Override
