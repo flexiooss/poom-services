@@ -106,6 +106,54 @@ public class Rfc7233PagerTest {
     }
 
     @Test
+    public void givenNoRange_andMoreElementsThanMaxPageSize__whenDefaultPageSizeLowerThanZero__thenMaxPageSizeUsedAsDefaultPageSize() throws Exception {
+        for(int i = 0 ; i < 15 ; i++) {
+            this.repository.create("test-" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange(null)
+                .unit("String")
+                .maxPageSize(10)
+                .defaultPageSize(-100)
+                .pager(this.repository)
+                .page();
+
+        assertThat(page.contentRange(), is("String 0-9/15"));
+    }
+
+    @Test
+    public void givenNoRange_andMoreElementsThanMaxPageSize__whenDefaultPageSizeGreaterThanMaxPageSize__thenMaxPageSizeUsedAsDefaultPageSize() throws Exception {
+        for(int i = 0 ; i < 15 ; i++) {
+            this.repository.create("test-" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange(null)
+                .unit("String")
+                .maxPageSize(10)
+                .defaultPageSize(100)
+                .pager(this.repository)
+                .page();
+
+        assertThat(page.contentRange(), is("String 0-9/15"));
+    }
+
+    @Test
+    public void givenNoRange_andMoreElementsThanMaxPageSize__whenDefaultPageSizeLessThanMaxPageSize__thenDefaultPageSizeUsedAsDefaultPageSize() throws Exception {
+        for(int i = 0 ; i < 15 ; i++) {
+            this.repository.create("test-" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange(null)
+                .unit("String")
+                .maxPageSize(10)
+                .defaultPageSize(5)
+                .pager(this.repository)
+                .page();
+
+        assertThat(page.contentRange(), is("String 0-4/15"));
+    }
+
+    @Test
     public void whenRange__ifRepositoryIsEmpty__thenReturnEmptyPage() throws Exception {
         Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("0-9")
                 .unit("String")
@@ -286,7 +334,7 @@ public class Rfc7233PagerTest {
                 .page();
 
         assertThat(page.isValid(), is(false));
-        assertThat(page.validationMessage(), is("start must be before end of range"));
+        assertThat(page.validationMessage(), is("malformed range expression, start is after end : 10-8"));
         assertThat(page.isPartial(), is(false));
 
         assertThat(page.acceptRange(), is("String 10"));
@@ -303,7 +351,7 @@ public class Rfc7233PagerTest {
                 .page();
 
         assertThat(page.isValid(), is(false));
-        assertThat(page.validationMessage(), is("range is not parsable"));
+        assertThat(page.validationMessage(), is("malformed range expression : yopyop tagada"));
     }
 
     @Test

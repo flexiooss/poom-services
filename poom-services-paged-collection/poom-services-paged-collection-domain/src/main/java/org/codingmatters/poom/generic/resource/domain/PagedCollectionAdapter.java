@@ -29,6 +29,7 @@ public interface PagedCollectionAdapter<EntityType, CreationType, ReplaceType, U
     interface Pager<EntityType> {
         String unit();
         int maxPageSize();
+        default int defaultPageSize() { return this.maxPageSize();}
         EntityLister<EntityType, PropertyQuery> lister();
     }
 

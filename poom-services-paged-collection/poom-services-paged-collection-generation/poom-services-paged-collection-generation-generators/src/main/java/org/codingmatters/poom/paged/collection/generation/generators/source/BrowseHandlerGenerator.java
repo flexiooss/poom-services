@@ -117,6 +117,7 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
                     .addStatement("page = $T.forRequestedRange(request.range())" +
                                     ".unit(pager.unit())" +
                                     ".maxPageSize(pager.maxPageSize())" +
+                                    ".defaultPageSize(pager.defaultPageSize())" +
                                     ".pager(pager.lister())" +
                                     ".page(this.parseQuery(request))",
                             Rfc7233Pager.class
