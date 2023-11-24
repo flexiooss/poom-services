@@ -39,6 +39,7 @@ public class CategorizedLoggerTest {
         System.out.println(log.tokenized().info("yopyop"));
         System.out.println(log.tokenized().info("yopyop {} {} {}", "a", "b", "c"));
         System.out.println(log.tokenized().info("yopyop", new Throwable()));
+
     }
 
     @Test
@@ -53,6 +54,26 @@ public class CategorizedLoggerTest {
         System.out.println(log.audit().tokenized().info("yopyop"));
         System.out.println(log.audit().tokenized().info("yopyop {} {} {}", "a", "b", "c"));
         System.out.println(log.audit().tokenized().info("yopyop", new Throwable()));
+    }
+
+    @Test
+    public void withThrownLog() throws Exception {
+        try {
+            throw new Throwable("test throwable");
+        } catch (Throwable t) {
+            log.withThrown(t).info("simple message");
+            log.withThrown(t).info("formatted message : {}, {}, {}", "a", "b", "c");
+        }
+    }
+
+    @Test
+    public void withThrownTokenizedLog() throws Exception {
+        try {
+            throw new Throwable("test throwable");
+        } catch (Throwable t) {
+            System.out.println(log.tokenized().withThrown(t).info("simple message"));
+            System.out.println(log.tokenized().withThrown(t).info("formatted message : {}, {}, {}", "a", "b", "c"));
+        }
     }
 
     @Test
