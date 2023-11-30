@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom.containers.load.tests</groupId>
         <artifactId>poom-services-containers-runtime-load-test</artifactId>
-        <version>1.159.0-SNAPSHOT</version>
+        <version>1.160.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>poom-services-containers-runtime-load-test-sut</artifactId>
@@ -25,6 +25,73 @@
             <groupId>org.codingmatters.poom.containers.netty</groupId>
             <artifactId>poom-services-containers-netty-runtime</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.codingmatters.poom.containers.load.tests.sut.api</groupId>
+            <artifactId>poom-services-containers-runtime-load-test-sut-api-types</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codingmatters.poom.containers.load.tests.sut.api</groupId>
+            <artifactId>poom-services-containers-runtime-load-test-sut-api-processor</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codingmatters.poom</groupId>
+            <artifactId>poom-services-logging-json-layout</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>runtime-assembly-build</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <attach>false</attach>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>runtime</finalName>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/main/assembly/runtime-assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <ignoredUnusedDeclaredDependencies>
+                        <ignoredUnusedDeclaredDependency>org.codingmatters.poom:poom-services-logging-json-layout</ignoredUnusedDeclaredDependency>
+                        <ignoredUnusedDeclaredDependency>com.fasterxml.jackson.core:jackson-databind</ignoredUnusedDeclaredDependency>
+                        <ignoredUnusedDeclaredDependency>org.codingmatters.poom:poom-services-production-support</ignoredUnusedDeclaredDependency>
+                    </ignoredUnusedDeclaredDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
     
 </project>

@@ -16,10 +16,16 @@ annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-s
       qparam: string
     responses:
       200:
-        body: Message
-      500: Error
+        body: Struct
+      500:
+        body: Error
   post:
-    body:
+    body: Struct
+    responses:
+      200:
+        body: Struct
+      500:
+        body: Error
 
 /file:
   displayName: file content
@@ -29,7 +35,8 @@ annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-s
     responses:
       200:
         body: Struct
-      500: Error
+      500:
+        body: Error
 
 
 types:

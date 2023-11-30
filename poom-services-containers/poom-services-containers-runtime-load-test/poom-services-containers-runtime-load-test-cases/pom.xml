@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom.containers.load.tests</groupId>
         <artifactId>poom-services-containers-runtime-load-test</artifactId>
-        <version>1.159.0-SNAPSHOT</version>
+        <version>1.160.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>poom-services-containers-runtime-load-test-cases</artifactId>
@@ -81,8 +81,12 @@
                 <artifactId>gatling-maven-plugin</artifactId>
                 <version>4.3.7</version>
                 <configuration>
-<!--                    <simulationClass>org.codingmatters.poom.containers.load.tests.scenarios.BaseGetSimulation</simulationClass>-->
-                    <simulationClass>org.codingmatters.poom.containers.load.tests.scenarios.BasePostSimulation</simulationClass>
+                    <runMultipleSimulations>true</runMultipleSimulations>
+                    <includes>
+                        <include>scenarios.BaseGetSimulation</include>
+                        <include>scenarios.BasePostSimulation</include>
+                        <include>scenarios.BasePostFileSimulation</include>
+                    </includes>
                 </configuration>
             </plugin>
         </plugins>
