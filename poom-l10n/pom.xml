@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services</artifactId>
-        <version>1.160.0-SNAPSHOT</version>
+        <version>1.161.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>poom-l10n</artifactId>
