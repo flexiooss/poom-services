@@ -2,6 +2,7 @@ package org.codingmatters.poom.services.logging.marked;
 
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.services.logging.Log;
+import org.codingmatters.poom.services.logging.MessageLog;
 import org.codingmatters.poom.services.logging.TokenizedLog;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
@@ -135,5 +136,10 @@ public class MarkedCategorizedLogger implements CategorizedLogger {
     @Override
     public TokenizedLog tokenized() {
         return messageLog.tokenized();
+    }
+
+    @Override
+    public MessageLog withThrown(Throwable t) {
+        return this.messageLog.withThrown(t);
     }
 }

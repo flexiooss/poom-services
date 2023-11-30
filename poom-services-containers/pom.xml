@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services</artifactId>
-        <version>1.159.0</version>
+        <version>1.160.0</version>
     </parent>
 
     <groupId>org.codingmatters.poom.containers</groupId>
@@ -21,6 +21,7 @@
         <module>poom-services-containers-runtime-acceptance</module>
         <module>poom-services-containers-netty-runtime</module>
         <module>poom-services-containers-undertow-runtime</module>
+        <module>poom-services-containers-runtime-load-test</module>
     </modules>
     
 </project>
