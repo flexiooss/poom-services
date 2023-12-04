@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-RAMP_USERS=50000
+RAMP_USERS=200000
 DURING=60
 
 mvn gatling:test \
