@@ -344,6 +344,26 @@ public class BrowseHandlerGeneratorTest {
         assertThat(response.status206().xEntityType(), is("Unit"));
     }
 
+
+    @Test
+    public void givenAdapterOk_andPagerOk__whenInvalidRange__then416() throws Exception {
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager("Unit", new EntityLister<>() {
+            @Override
+            public PagedEntityList<org.generated.api.types.Entity> all(long start, long end) throws RepositoryException {
+                return new PagedEntityList.DefaultPagedEntityList<>(0, 99, 200, entities(100));
+            }
+
+            @Override
+            public PagedEntityList<org.generated.api.types.Entity> search(PropertyQuery propertyQuery, long start, long end) throws RepositoryException {
+                return null;
+            }
+        }, 100))).apply(NoParamsGetRequest.builder().range("no-quite-a-range").build());
+
+
+        response.opt().status416().orElseThrow(() -> new AssertionError("expected 416, got " + response));
+        assertThat(response.status416().acceptRange(), is("Unit 100"));
+    }
+
     private List<Entity<org.generated.api.types.Entity>> entities(int count) {
         List<Entity<org.generated.api.types.Entity>> result = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {

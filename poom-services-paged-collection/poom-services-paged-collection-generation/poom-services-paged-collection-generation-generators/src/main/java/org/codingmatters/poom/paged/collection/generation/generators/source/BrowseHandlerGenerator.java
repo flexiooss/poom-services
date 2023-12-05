@@ -138,7 +138,7 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
                     .addStatement("$T token = log.tokenized().info($S, request)",
                             String.class, "illegal search for entities, request was {}"
                     )
-                .addStatement("$T.builder().status416($T.builder()" +
+                .addStatement("return $T.builder().status416($T.builder()" +
                         ".acceptRange(page.acceptRange())" +
                         ".contentRange(page.contentRange())" +
                         ".payload($T.builder()" +
