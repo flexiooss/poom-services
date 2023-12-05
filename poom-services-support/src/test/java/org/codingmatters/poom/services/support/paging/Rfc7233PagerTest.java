@@ -338,7 +338,7 @@ public class Rfc7233PagerTest {
         assertThat(page.isPartial(), is(false));
 
         assertThat(page.acceptRange(), is("String 10"));
-        assertThat(page.contentRange(), is("String */15"));
+        assertThat(page.contentRange(), is("String */0"));
         assertThat(page.requestedRange(), is("10-8"));
     }
 
@@ -479,5 +479,41 @@ public class Rfc7233PagerTest {
         Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("0-0").unit("String").maxPageSize(100).pager(this.repository).page();
 
         assertThat(page.list().size(), is(1));
+    }
+
+    @Test
+    public void givenRepositoryNotEmpty__whenInvalidRange__thenPageIsNotValid() throws Exception {
+        for(int i = 0 ; i < 5 ; i++) {
+            this.repository.create("test-" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("blu-bli").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.isValid(), is(false));
+    }
+
+    @Test
+    public void givenRepositoryNotEmpty__whenInvalidRange__thenPageIsEmpty() throws Exception {
+        for(int i = 0 ; i < 5 ; i++) {
+            this.repository.create("test-" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("blu-bli").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.list().total(), is(0L));
+        assertThat(page.list().valueList(), is(empty()));
+    }
+
+    @Test
+    public void givenRepositoryNotEmpty__whenRange0_Minus1__thenPageInvalid_andPageIsEmpty() throws Exception {
+        for(int i = 0 ; i < 5 ; i++) {
+            this.repository.create("test-" + i);
+        }
+
+        Rfc7233Pager.Page<String> page = Rfc7233Pager.forRequestedRange("0--1").unit("String").maxPageSize(100).pager(this.repository).page();
+
+        assertThat(page.isValid(), is(false));
+        assertThat(page.list().total(), is(0L));
+        assertThat(page.list().valueList(), is(empty()));
     }
 }

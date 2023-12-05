@@ -998,4 +998,22 @@ public class PropertyQueryParserTest {
         assertThat(value.get(), isA(LocalTime.class));
     }
 
+    @Test
+    public void givenChatelainQuery__when__then() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("key in('5')&&((65686bcb538f3814740eb7ac contains any ('6560a1bca7df7a051a690433')))").build();
+        AtomicReference<Object> value = new AtomicReference<>();
+
+//        PropertyQueryParser.builder()
+//                .leftHandSidePropertyValidator(property -> true)
+//                .build(new FilterEvents() {
+//                    @Override
+//                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
+//                        value.set(right);
+//                        return null;
+//                    }
+//                }).parse(query);
+//
+//        assertThat(value.get(), isA(LocalTime.class));
+    }
+
 }

@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Created by nelt on 7/13/17.
@@ -135,7 +135,7 @@ public class CollectionGetProtocolTest {
 
         assertThat(response.page.isValid(), is(false));
         assertThat(response.page.acceptRange(), is("String 100"));
-        assertThat(response.page.contentRange(), is("String */150"));
+        assertThat(response.page.contentRange(), is("String */0"));
         assertThat(response.page.validationMessage(), is("malformed range expression, start is after end : 9-0"));
 
         assertThat(response.errorToken, is(notNullValue()));

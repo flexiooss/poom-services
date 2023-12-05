@@ -4,6 +4,7 @@ import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.repositories.EntityLister;
 import org.codingmatters.poom.services.domain.entities.PagedEntityList;
 
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -132,12 +133,11 @@ public class Rfc7233Pager<V,Q> {
             );
             return new Page<>(list, contentRange, acceptRange, this.range.isValid(), this.range.validationMessage(), requestedRange);
         } else {
-            PagedEntityList<V> list = this.repository.all(0, 0);
             String contentRange = String.format("%s */%d",
                     this.unit,
-                    list.total()
+                    0
             );
-            return new Page<>(list, contentRange, acceptRange, this.range.isValid(), this.range.validationMessage(), requestedRange);
+            return new Page<>(new PagedEntityList.DefaultPagedEntityList<>(0L, 0L, 0L, Collections.emptyList()), contentRange, acceptRange, this.range.isValid(), this.range.validationMessage(), requestedRange);
         }
     }
 
