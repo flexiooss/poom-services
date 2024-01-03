@@ -9,8 +9,9 @@ import org.codingmatters.rest.api.Api;
 import org.codingmatters.rest.api.Processor;
 import org.codingmatters.rest.api.processors.MatchingPathProcessor;
 import org.codingmatters.rest.api.processors.StaticResourceProcessor;
+import org.codingmatters.rest.netty.utils.AbstratHttpServer;
+import org.codingmatters.rest.netty.utils.Http2Server;
 import org.codingmatters.rest.netty.utils.HttpRequestHandler;
-import org.codingmatters.rest.netty.utils.HttpServer;
 import org.codingmatters.rest.netty.utils.config.NettyHttpConfig;
 import org.codingmatters.rest.server.netty.ProcessorRequestHandler;
 
@@ -28,12 +29,12 @@ public class NettyApiContainerRuntime extends ApiContainerRuntime {
     private static final String NETTY_API_CONTAINER_ALLOW_DUPLICATE_CONTENT_LENGTH = "NETTY_API_CONTAINER_ALLOW_DUPLICATE_CONTENT_LENGTH";
     private static final String NETTY_API_CONTAINER_ALLOW_PARTIAL_CHUNCK = "NETTY_API_CONTAINER_ALLOW_PARTIAL_CHUNCK";
 
-    private HttpServer nettyServer;
+    private AbstratHttpServer nettyServer;
     private Processor mainProcessor;
 
     public NettyApiContainerRuntime(String host, int port, CategorizedLogger log) {
         super(log);
-        this.nettyServer = HttpServer.server(this.configFromEnv(host, port), this::handler);
+        this.nettyServer = new Http2Server(this.configFromEnv(host, port), this::handler);
     }
 
     private NettyHttpConfig configFromEnv(String host, int port) {
