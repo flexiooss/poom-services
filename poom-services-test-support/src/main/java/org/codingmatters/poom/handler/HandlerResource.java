@@ -5,7 +5,7 @@ import org.junit.rules.ExternalResource;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
-public abstract class HandlerResource <Req, Resp> extends ExternalResource implements Function<Req, Resp> {
+public abstract class HandlerResource<Req, Resp> extends ExternalResource implements Function<Req, Resp> {
 
     private final AtomicReference<Req> lastRequest = new AtomicReference<>();
     private final AtomicReference<Function<Req,Resp>> nextResponse = new AtomicReference<>();

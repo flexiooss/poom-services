@@ -16,6 +16,8 @@
 
     <modules>
         <module>poom-services-api-registry-api</module>
+        <module>poom-services-api-registry-client</module>
+
     </modules>
 
     
