@@ -112,6 +112,28 @@ public abstract class PropertyQueryAcceptanceTest {
     }
 
     @Test
+    public void givenFilterOnStringProperty__whenIsIn_andEmptyList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp in ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenIsIn_andNullInList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp in ('042', null)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "042"
+        ));
+    }
+
+    @Test
     public void givenFilterOnStringProperty__whenContainsAny__thenSelectedValueReturned() throws Exception {
         PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp contains any ('40', '006', '01')")
@@ -125,6 +147,28 @@ public abstract class PropertyQueryAcceptanceTest {
     }
 
     @Test
+    public void givenFilterOnStringProperty__whenContainsAny_andEmptyList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp contains any ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenContainsAny_withNullInList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp contains any ('006', null)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "006"
+        ));
+    }
+
+    @Test
     public void givenFilterOnStringProperty__whenStartsWithAny__thenSelectedValueReturned() throws Exception {
         PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp starts with any ('00', '03')")
@@ -134,6 +178,28 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
                 "000", "001", "002", "003", "004", "005", "006", "007", "008", "009",
+                "030", "031", "032", "033", "034", "035", "036", "037", "038", "039"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenStartsWithAny_andEmptyList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp starts with any ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenStartsWithAny_withNullInList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp starts with any (null, '03')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(10L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
                 "030", "031", "032", "033", "034", "035", "036", "037", "038", "039"
         ));
     }
@@ -153,6 +219,28 @@ public abstract class PropertyQueryAcceptanceTest {
     }
 
     @Test
+    public void givenFilterOnStringProperty__whenEndsWithAny_andEmptyList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp ends with any ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenEndsWithAny_withNullInList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp ends with any ('0', null)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(10L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "000" ,"010", "020" ,"030", "040" ,"050", "060" ,"070", "080" ,"090"
+        ));
+    }
+
+    @Test
     public void givenFilterOnStringProperty__whenContainsAll__thenSelectedValueReturned() throws Exception {
         PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp contains all ('01', '12')")
@@ -163,6 +251,24 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
                 "012"
         ));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenContainsAll_andEmptyList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp contains all ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(100L));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenContainsAll_withNullInList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp contains all ('01', null)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
     }
 
     @Test
