@@ -69,10 +69,15 @@ expression
     | IDENTIFIER IS_NOT_EMPTY                               #isNotEmpty
     | IDENTIFIER operator operand                           #comparison
     | IDENTIFIER IN LPAR operand_list RPAR                  #in
+    | IDENTIFIER IN LPAR RPAR                               #inEmpty
     | IDENTIFIER STARTS_WITH_ANY LPAR operand_list RPAR     #startsWithAny
+    | IDENTIFIER STARTS_WITH_ANY LPAR RPAR                  #startsWithAnyEmpty
     | IDENTIFIER ENDS_WITH_ANY LPAR operand_list RPAR       #endsWithAny
+    | IDENTIFIER ENDS_WITH_ANY LPAR RPAR                    #endsWithAnyEmpty
     | IDENTIFIER CONTAINS_ANY LPAR operand_list RPAR        #containsAny
+    | IDENTIFIER CONTAINS_ANY LPAR RPAR                     #containsAnyEmpty
     | IDENTIFIER CONTAINS_ALL LPAR operand_list RPAR        #containsAll
+    | IDENTIFIER CONTAINS_ALL LPAR RPAR                     #containsAllEmpty
     ;
 
 operand

@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -227,6 +228,11 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     }
 
     @Override
+    public Object visitInEmpty(PropertyFilterParser.InEmptyContext ctx) {
+        return this.events.in(ctx.IDENTIFIER().getText(), Collections.emptyList());
+    }
+
+    @Override
     public Object visitContainsAny(PropertyFilterParser.ContainsAnyContext ctx) {
         super.visitContainsAny(ctx);
         List<Object> list = new LinkedList<>();
@@ -236,6 +242,11 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
         this.stack.clear();
 
         return this.events.containsAny(ctx.IDENTIFIER().getText(), list);
+    }
+
+    @Override
+    public Object visitContainsAnyEmpty(PropertyFilterParser.ContainsAnyEmptyContext ctx) {
+        return this.events.containsAny(ctx.IDENTIFIER().getText(), Collections.emptyList());
     }
 
     @Override
@@ -251,6 +262,11 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     }
 
     @Override
+    public Object visitStartsWithAnyEmpty(PropertyFilterParser.StartsWithAnyEmptyContext ctx) {
+        return this.events.startsWithAny(ctx.IDENTIFIER().getText(), Collections.emptyList());
+    }
+
+    @Override
     public Object visitEndsWithAny(PropertyFilterParser.EndsWithAnyContext ctx) {
         super.visitEndsWithAny(ctx);
         List<Object> list = new LinkedList<>();
@@ -263,6 +279,11 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     }
 
     @Override
+    public Object visitEndsWithAnyEmpty(PropertyFilterParser.EndsWithAnyEmptyContext ctx) {
+        return this.events.endsWithAny(ctx.IDENTIFIER().getText(), Collections.emptyList());
+    }
+
+    @Override
     public Object visitContainsAll(PropertyFilterParser.ContainsAllContext ctx) {
         super.visitContainsAll(ctx);
         List<Object> list = new LinkedList<>();
@@ -272,6 +293,11 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
         this.stack.clear();
 
         return this.events.containsAll(ctx.IDENTIFIER().getText(), list);
+    }
+
+    @Override
+    public Object visitContainsAllEmpty(PropertyFilterParser.ContainsAllEmptyContext ctx) {
+        return this.events.containsAll(ctx.IDENTIFIER().getText(), Collections.emptyList());
     }
 
     @Override
