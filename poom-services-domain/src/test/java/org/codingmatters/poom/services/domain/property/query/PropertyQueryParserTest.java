@@ -377,32 +377,6 @@ public class PropertyQueryParserTest {
         assertThat(parsed, contains("l1 ends with any [1, 2, 3] ([String, String, String])"));
     }
 
-    @Test
-    public void given__whenInWithEmptyList__thenFilterEventException() throws Exception {
-        PropertyQuery query = PropertyQuery.builder().filter("l1 in ()").build();
-
-        FilterEvents<String> events = new FilterEvents<String>() {
-        };
-
-        thrown.expect(FilterEventException.class);
-        PropertyQueryParser.builder()
-                .build(events)
-                .parse(query);
-    }
-
-    @Test
-    public void given__whenContainsAnyWithEmptyList__thenFilterEventException() throws Exception {
-        PropertyQuery query = PropertyQuery.builder().filter("l1 contains any ()").build();
-
-        FilterEvents<String> events = new FilterEvents<String>() {
-        };
-
-        thrown.expect(FilterEventException.class);
-        PropertyQueryParser.builder()
-                .build(events)
-                .parse(query);
-    }
-
 
     @Test
     public void givenExpressionsWithProperties__whenAPropertyStartsWithADigit__thenParsesOk() throws Exception {
@@ -1016,4 +990,39 @@ public class PropertyQueryParserTest {
 //        assertThat(value.get(), isA(LocalTime.class));
     }
 
+    @Test
+    public void whenInEmpty__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 in ( )").build();
+
+        PropertyQueryParser.builder()
+                .build(FilterEvents.noop()).parse(query);
+    }
+    @Test
+    public void whenStartsWithAnyEmpty__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 starts with any ( )").build();
+
+        PropertyQueryParser.builder()
+                .build(FilterEvents.noop()).parse(query);
+    }
+    @Test
+    public void whenEndsWithAnyEmpty__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 ends with any ( )").build();
+
+        PropertyQueryParser.builder()
+                .build(FilterEvents.noop()).parse(query);
+    }
+    @Test
+    public void whenContainsAnyEmpty__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 contains any ( )").build();
+
+        PropertyQueryParser.builder()
+                .build(FilterEvents.noop()).parse(query);
+    }
+    @Test
+    public void whenContainsAllEmpty__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 contains all ( )").build();
+
+        PropertyQueryParser.builder()
+                .build(FilterEvents.noop()).parse(query);
+    }
 }

@@ -115,6 +115,31 @@ public class ApiRegistryTest {
     }
 
     @Test
+    public void givenNoRefreshement__whenFirstReturns404_andSecondReturns200__thenRetrieveCalledOnBothGet_andSpecReturned() throws Exception {
+        try(ApiRegistry registry = new ApiRegistry(this.registryClient, null)) {
+            ApiSpec expectedSpec = ApiSpec.builder()
+                    .name("an-api").version("1").endpoint("/pat/to/api")
+                    .build();
+
+            this.retrieveAnApi.nextResponse(request -> AnApiGetResponse.builder().status404(status -> status.payload(e -> e.code(Error.Code.RESOURCE_NOT_FOUND))).build());
+
+            OptionalApiSpec spec = registry.api("an-api");
+
+            assertThat(spec.isEmpty(), is(true));
+            assertThat(this.retrieveAnApi.lastRequest(), is(AnApiGetRequest.builder().api("an-api").build()));
+
+            this.retrieveAnApi.nextResponse(request -> AnApiGetResponse.builder().status200(status -> status.payload(expectedSpec)).build());
+            this.retrieveAnApi.reset();
+
+            OptionalApiSpec secondSpec = registry.api("an-api");
+            assertThat(this.retrieveAnApi.lastRequest(), is(AnApiGetRequest.builder().api("an-api").build()));
+
+            assertThat(secondSpec.isPresent(), is(true));
+            assertThat(secondSpec.get(), is(expectedSpec));
+        }
+    }
+
+    @Test
     public void givenRefreshment__whenNotGettingApi__thenNoRefreshmentAfterTwoTicks() throws Exception {
         try(ApiRegistry registry = new ApiRegistry(this.registryClient, this.scheduler, REFRESH_TICK)) {
             Thread.sleep(400);
