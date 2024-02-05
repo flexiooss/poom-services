@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Stack;
 
 public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
-    enum SpecialValues {
+    public enum SpecialValues {
         NULL
     }
 
