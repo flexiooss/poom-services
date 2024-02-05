@@ -50,8 +50,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <destination-package>org.codingmatters.poom.services.domain.property.query
-                            </destination-package>
+                            <destination-package>org.codingmatters.poom.services.domain.property.query</destination-package>
                             <input-spec>src/main/resources/property-query.yaml</input-spec>
                         </configuration>
                     </execution>
