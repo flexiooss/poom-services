@@ -43,14 +43,22 @@
         <repository>
             <id>codingmatters-snapshots</id>
             <url>https://mvn.ci.flexio.io/codingmatters-snapshots/</url>
-            <releases><enabled>false</enabled></releases>
-            <snapshots><enabled>true</enabled></snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>codingmatters-releases</id>
             <url>https://mvn.ci.flexio.io/codingmatters-releases/</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>false</enabled></snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
 
@@ -58,14 +66,22 @@
         <pluginRepository>
             <id>codingmatters-snapshots</id>
             <url>https://mvn.ci.flexio.io/codingmatters-snapshots/</url>
-            <releases><enabled>false</enabled></releases>
-            <snapshots><enabled>true</enabled></snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </pluginRepository>
         <pluginRepository>
             <id>codingmatters-releases</id>
             <url>https://mvn.ci.flexio.io/codingmatters-releases/</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>false</enabled></snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </pluginRepository>
     </pluginRepositories>
 
@@ -74,8 +90,8 @@
         <poom.service.base.image.namespace>codingmatters</poom.service.base.image.namespace>
         <poom.service.base.image>poom-service-base-17-alpine</poom.service.base.image>
         <poom.service.base.image.version>2.7.0</poom.service.base.image.version>
-        <codingmatters-value-objects.version>1.94.0-SNAPSHOT</codingmatters-value-objects.version>
-        <codingmatters-rest.version>1.114.0-SNAPSHOT</codingmatters-rest.version>
+        <codingmatters-value-objects.version>1.95.0-</codingmatters-value-objects.version>
+        <codingmatters-rest.version>1.114.0</codingmatters-rest.version>
     </properties>
 
     <modules>
@@ -88,8 +104,8 @@
         <module>poom-services-logging-json-layout</module>
         <module>poom-services-logging</module>
         <module>poom-services-demo</module>
-	    <module>poom-services-test-support</module>
-	    <module>poom-services-paged-collection</module>
+        <module>poom-services-test-support</module>
+        <module>poom-services-paged-collection</module>
         <module>poom-services-i18n</module>
         <module>poom-l10n</module>
         <module>poom-caches</module>
@@ -209,9 +225,9 @@
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-service</artifactId>
                 <version>1.165.0</version>
-	        </dependency>
+            </dependency>
 
-<!--            PAGED COLLECTIONS-->
+            <!--            PAGED COLLECTIONS-->
             <dependency>
                 <groupId>org.codingmatters.poom.api</groupId>
                 <artifactId>poom-services-paged-collection-api-spec</artifactId>
@@ -244,7 +260,7 @@
                 <version>1.165.0</version>
             </dependency>
 
-<!--            I18N / L10N-->
+            <!--            I18N / L10N-->
 
             <dependency>
                 <groupId>org.codingmatters.poom.i18n</groupId>
@@ -310,10 +326,10 @@
                 <artifactId>poom-services-simple-demo-service-server-side-usage</artifactId>
                 <version>1.165.0</version>
             </dependency>
-<!--            //SIMPLE DEMO-->
+            <!--            //SIMPLE DEMO-->
 
 
-<!--            ADVANCED DEMO-->
+            <!--            ADVANCED DEMO-->
             <dependency>
                 <groupId>org.codingmatters.poom.apis.demo</groupId>
                 <artifactId>poom-services-demo-api-spec</artifactId>
@@ -349,9 +365,9 @@
                 <artifactId>poom-services-demo-service</artifactId>
                 <version>1.165.0</version>
             </dependency>
-<!--            // ADVANCED DEMO-->
+            <!--            // ADVANCED DEMO-->
 
-<!--            CACHES-->
+            <!--            CACHES-->
             <dependency>
                 <groupId>org.codingmatters.poom.caches</groupId>
                 <artifactId>poom-caches-api</artifactId>
@@ -362,9 +378,9 @@
                 <artifactId>poom-caches-management</artifactId>
                 <version>1.165.0</version>
             </dependency>
-<!--            //CACHES-->
+            <!--            //CACHES-->
 
-<!--            CONTAINERS-->
+            <!--            CONTAINERS-->
             <dependency>
                 <groupId>org.codingmatters.poom.containers</groupId>
                 <artifactId>poom-services-containers-runtime</artifactId>
@@ -416,9 +432,9 @@
                 <artifactId>poom-services-containers-runtime-load-test-cases</artifactId>
                 <version>1.165.0</version>
             </dependency>
-<!--            //CONTAINERS-->
+            <!--            //CONTAINERS-->
 
-<!--            API REGISTRY-->
+            <!--            API REGISTRY-->
             <dependency>
                 <groupId>org.codingmatters.poom.api.registry</groupId>
                 <artifactId>poom-services-api-registry-api-spec</artifactId>
@@ -444,7 +460,7 @@
                 <artifactId>poom-services-api-registry-client</artifactId>
                 <version>1.165.0</version>
             </dependency>
-<!--            //API REGISTRY-->
+            <!--            //API REGISTRY-->
 
 
             <!--// BOM-->
@@ -505,10 +521,14 @@
                         <id>check-dependencies</id>
                         <configuration>
                             <ignoredUnusedDeclaredDependencies>
-                                <ignoredUnusedDeclaredDependency>ch.qos.logback:logback-core</ignoredUnusedDeclaredDependency>
-                                <ignoredUnusedDeclaredDependency>ch.qos.logback:logback-classic</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>ch.qos.logback:logback-core
+                                </ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>ch.qos.logback:logback-classic
+                                </ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.slf4j:slf4j-api</ignoredUnusedDeclaredDependency>
-                                <ignoredUnusedDeclaredDependency>org.codingmatters.value.objects:cdm-value-objects-matchers</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>
+                                    org.codingmatters.value.objects:cdm-value-objects-matchers
+                                </ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
                         </configuration>
                     </execution>
@@ -523,9 +543,12 @@
                         <docker.io.login.password>${docker.io.login.password}</docker.io.login.password>
                         <docker.io.login.email>${docker.io.login.email}</docker.io.login.email>
 
-                        <harbor.ci.flexio.io.login.username>${harbor.ci.flexio.io.login.username}</harbor.ci.flexio.io.login.username>
-                        <harbor.ci.flexio.io.login.password>${harbor.ci.flexio.io.login.password}</harbor.ci.flexio.io.login.password>
-                        <harbor.ci.flexio.io.login.email>${harbor.ci.flexio.io.login.email}</harbor.ci.flexio.io.login.email>
+                        <harbor.ci.flexio.io.login.username>${harbor.ci.flexio.io.login.username}
+                        </harbor.ci.flexio.io.login.username>
+                        <harbor.ci.flexio.io.login.password>${harbor.ci.flexio.io.login.password}
+                        </harbor.ci.flexio.io.login.password>
+                        <harbor.ci.flexio.io.login.email>${harbor.ci.flexio.io.login.email}
+                        </harbor.ci.flexio.io.login.email>
 
                         <buildDirectory>${project.build.directory}</buildDirectory>
                     </systemPropertyVariables>
@@ -587,7 +610,8 @@
                                     <appendAssemblyId>false</appendAssemblyId>
                                     <finalName>docker-image-build</finalName>
                                     <descriptors>
-                                        <descriptor>${project.basedir}/src/main/docker/docker-image-assembly.xml</descriptor>
+                                        <descriptor>${project.basedir}/src/main/docker/docker-image-assembly.xml
+                                        </descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>
@@ -598,9 +622,14 @@
                         <artifactId>maven-dependency-plugin</artifactId>
                         <configuration>
                             <ignoredUnusedDeclaredDependencies>
-                                <ignoredUnusedDeclaredDependency>org.codingmatters.poom:poom-services-logging-json-layout</ignoredUnusedDeclaredDependency>
-                                <ignoredUnusedDeclaredDependency>com.fasterxml.jackson.core:jackson-databind</ignoredUnusedDeclaredDependency>
-                                <ignoredUnusedDeclaredDependency>org.codingmatters.poom:poom-services-production-support</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>
+                                    org.codingmatters.poom:poom-services-logging-json-layout
+                                </ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>com.fasterxml.jackson.core:jackson-databind
+                                </ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>
+                                    org.codingmatters.poom:poom-services-production-support
+                                </ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
                         </configuration>
                     </plugin>
