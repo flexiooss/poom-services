@@ -38,17 +38,18 @@ public abstract class ApiContainerRuntime {
     public void main() {
         try {
             this.go();
-        } catch( Exception e ) {
-            log.error("error starting service", e);
+        } catch( Throwable e ) {
+            log.error("uncaught error starting service", e);
             System.exit( 2 );
         } finally {
             try {
                 this.stop();
-            } catch (Exception e) {
-                log.error("error starting service", e);
+            } catch (Throwable e) {
+                log.error("uncaught error stopping service", e);
                 System.exit( 3 );
             }
         }
+        log.info("normally stopped service");
         System.exit( 0 );
     }
 
