@@ -13,6 +13,10 @@ import java.util.Map;
 
 public class PropertyRewriter {
 
+    static public PropertyRewriter idTo_id() {
+        return new PropertyRewriter(Map.of("id", "_id"));
+    }
+
     private final Map<String, String> rewrittenProperties;
 
     public PropertyRewriter(Map<String, String> rewrittenProperties) {
