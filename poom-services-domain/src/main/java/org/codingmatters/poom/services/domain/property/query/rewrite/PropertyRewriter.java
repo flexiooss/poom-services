@@ -61,7 +61,6 @@ public class PropertyRewriter {
         tokens.fill();
         StringBuilder result = new StringBuilder();
         for (Token token : tokens.getTokens()) {
-            System.out.println(token.getText());
             if (token.getType() == PropertySortLexer.IDENTIFIER) {
                 if(this.rewrittenProperties.containsKey(token.getText())) {
                     result.append(this.rewrittenProperties.get(token.getText()));
