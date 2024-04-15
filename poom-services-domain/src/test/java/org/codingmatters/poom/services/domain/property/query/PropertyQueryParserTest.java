@@ -1025,4 +1025,11 @@ public class PropertyQueryParserTest {
         PropertyQueryParser.builder()
                 .build(FilterEvents.noop()).parse(query);
     }
+    @Test
+    public void whenAccents__thenParsedOk() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 == 'éèà'").build();
+
+        PropertyQueryParser.builder()
+                .build(FilterEvents.noop()).parse(query);
+    }
 }
