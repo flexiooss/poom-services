@@ -1,6 +1,5 @@
 package org.codingmatters.poom.services.support.paging.client;
 
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,12 +16,12 @@ public class Rfc7233Helper {
 
     public Rfc7233Helper(String contentRange, String acceptRange, long maxPageSize) throws UnparseableRfc7233Query {
         // content-range: FlexioEvent 0-0/3014846
-        Matcher contentRangeMatcher = Pattern.compile("(\\w+) (\\d+)-(\\d+)/(\\d+)").matcher(contentRange);
+        Matcher contentRangeMatcher = Pattern.compile("([a-zA-Z_\\-.0-9]+) (\\d+)-(\\d+)/(\\d+)").matcher(contentRange);
         int contentRangeMatcherGroupOffset = 0;
-        if(! contentRangeMatcher.matches()) {
+        if (!contentRangeMatcher.matches()) {
             contentRangeMatcherGroupOffset = 1;
             contentRangeMatcher = Pattern.compile("(\\d+)-(\\d+)/(\\d+)").matcher(contentRange);
-            if(! contentRangeMatcher.matches()) {
+            if (!contentRangeMatcher.matches()) {
                 throw new Rfc7233Helper.UnparseableRfc7233Query("cannot parse content range from : " + contentRange);
             }
         }
@@ -32,9 +31,9 @@ public class Rfc7233Helper {
         this.total = Long.parseLong(contentRangeMatcher.group(4 - contentRangeMatcherGroupOffset));
 
         // accept-range: FlexioEvent 1000
-        Matcher acceptRangeMatcher = Pattern.compile("(\\w+) (\\d+)").matcher(acceptRange);
+        Matcher acceptRangeMatcher = Pattern.compile("([a-zA-Z_\\-.0-9]+) (\\d+)").matcher(acceptRange);
         int acceptRangeMatcherGroupOffset = 0;
-        if(! acceptRangeMatcher.matches()) {
+        if (!acceptRangeMatcher.matches()) {
             acceptRangeMatcher = Pattern.compile("(\\d+)").matcher(acceptRange);
             acceptRangeMatcherGroupOffset = 1;
             if (!acceptRangeMatcher.matches()) {
