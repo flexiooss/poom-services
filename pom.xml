@@ -12,7 +12,7 @@
 
     <groupId>org.codingmatters.poom</groupId>
     <artifactId>poom-services</artifactId>
-    <version>1.170.0-SNAPSHOT</version>
+    <version>1.170.0</version>
     <packaging>pom</packaging>
 
     <name>Poor Man's Web Services</name>
@@ -157,107 +157,107 @@
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-domain</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-repository-acceptance</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-repository-extensions</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-repository-in-memory</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-support</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-production-support</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-runtime</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-production-support</artifactId>
                 <classifier>docker-support</classifier>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-logging-json-layout</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-logging</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-test-support</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-api-spec</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-api</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-report-service</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
 
             <!--            PAGED COLLECTIONS-->
             <dependency>
                 <groupId>org.codingmatters.poom.api</groupId>
                 <artifactId>poom-services-paged-collection-api-spec</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.api</groupId>
                 <artifactId>poom-services-paged-collection-api-types</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.api</groupId>
                 <artifactId>poom-services-paged-collection-api-processor</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-paged-collection-domain</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-paged-collection-generation-spec</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-services-paged-collection-generation-generators</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
 
             <!--            I18N / L10N-->
@@ -265,33 +265,33 @@
             <dependency>
                 <groupId>org.codingmatters.poom.i18n</groupId>
                 <artifactId>poom-services-i18n-bundle-spec</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.i18n</groupId>
                 <artifactId>poom-services-i18n-bundle-spec-gen</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-l10n-formatter-spec</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-l10n-formatter-api</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-l10n-formatter-json</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom</groupId>
                 <artifactId>poom-l10n-client</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
 
 
@@ -299,32 +299,32 @@
             <dependency>
                 <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
                 <artifactId>poom-services-simple-demo-api-spec</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
                 <artifactId>poom-services-simple-demo-api-types</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
                 <artifactId>poom-services-simple-demo-api-processor</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.apis.simple.demo</groupId>
                 <artifactId>poom-services-simple-demo-api-client</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.services.simple.demo</groupId>
                 <artifactId>poom-services-simple-demo-service-client-side-usage</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.services.simple.demo</groupId>
                 <artifactId>poom-services-simple-demo-service-server-side-usage</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <!--            //SIMPLE DEMO-->
 
@@ -333,37 +333,37 @@
             <dependency>
                 <groupId>org.codingmatters.poom.apis.demo</groupId>
                 <artifactId>poom-services-demo-api-spec</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.apis.demo</groupId>
                 <artifactId>poom-services-demo-api-types</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.apis.demo</groupId>
                 <artifactId>poom-services-demo-api-processor</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.apis.demo</groupId>
                 <artifactId>poom-services-demo-api-client</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.demo</groupId>
                 <artifactId>poom-services-demo-domain</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.demo</groupId>
                 <artifactId>poom-services-demo-processor</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.demo</groupId>
                 <artifactId>poom-services-demo-service</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <!--            // ADVANCED DEMO-->
 
@@ -371,12 +371,12 @@
             <dependency>
                 <groupId>org.codingmatters.poom.caches</groupId>
                 <artifactId>poom-caches-api</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.caches</groupId>
                 <artifactId>poom-caches-management</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <!--            //CACHES-->
 
@@ -384,53 +384,53 @@
             <dependency>
                 <groupId>org.codingmatters.poom.containers</groupId>
                 <artifactId>poom-services-containers-runtime</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.containers</groupId>
                 <artifactId>poom-services-containers-runtime-acceptance</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.containers</groupId>
                 <artifactId>poom-services-containers-test-runtime</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.containers</groupId>
                 <artifactId>poom-services-containers-undertow-runtime</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.containers.netty</groupId>
                 <artifactId>poom-services-containers-netty-runtime</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.codingmatters.poom.containers.load.tests.sut.api</groupId>
                 <artifactId>poom-services-containers-runtime-load-test-sut-api-spec</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.containers.load.tests.sut.api</groupId>
                 <artifactId>poom-services-containers-runtime-load-test-sut-api-types</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.containers.load.tests.sut.api</groupId>
                 <artifactId>poom-services-containers-runtime-load-test-sut-api-processor</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.containers.load.tests</groupId>
                 <artifactId>poom-services-containers-runtime-load-test-sut</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.containers.load.tests</groupId>
                 <artifactId>poom-services-containers-runtime-load-test-cases</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <!--            //CONTAINERS-->
 
@@ -438,27 +438,27 @@
             <dependency>
                 <groupId>org.codingmatters.poom.api.registry</groupId>
                 <artifactId>poom-services-api-registry-api-spec</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.api.registry</groupId>
                 <artifactId>poom-services-api-registry-api-types</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.api.registry</groupId>
                 <artifactId>poom-services-api-registry-api-processor</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.api.registry</groupId>
                 <artifactId>poom-services-api-registry-api-client</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <dependency>
                 <groupId>org.codingmatters.poom.api.registry</groupId>
                 <artifactId>poom-services-api-registry-client</artifactId>
-                <version>1.170.0-SNAPSHOT</version>
+                <version>1.170.0</version>
             </dependency>
             <!--            //API REGISTRY-->
 
@@ -483,12 +483,12 @@
                 <plugin>
                     <groupId>org.codingmatters.poom</groupId>
                     <artifactId>poom-services-paged-collection-generation-maven-plugin</artifactId>
-                    <version>1.170.0-SNAPSHOT</version>
+                    <version>1.170.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codingmatters.poom.i18n</groupId>
                     <artifactId>poom-services-i18n-bundle-spec-plugin</artifactId>
-                    <version>1.170.0-SNAPSHOT</version>
+                    <version>1.170.0</version>
                 </plugin>
 
 
