@@ -69,10 +69,10 @@ public class LocaleFormatterDateTimeTest {
 
         formatter = new LocaleFormatter(s, Locale.US, ZoneOffset.UTC);
         this.values.put("a", dateTime);
-        assertThat(formatter.format(values), is("10/29/20, 12:30:15 PM"));
+        assertThat(formatter.format(values), is("10/29/20, 12:30:15 PM"));
 
         formatter = new LocaleFormatter(s, Locale.US, ZoneOffset.of("+02:00"));
         this.values.put("a", dateTime);
-        assertThat(formatter.format(values), is("10/29/20, 2:30:15 PM"));
+        assertThat(formatter.format(values), is("10/29/20, 2:30:15 PM"));
     }
 }
