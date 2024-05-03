@@ -86,6 +86,6 @@ public class FormatterTest {
                 .with("msgs", 15000)
                 .at(Locale.US, ZoneOffset.UTC);
 
-        assertThat(format, is("Hello Toto, we are on 10/29/20 at 12:30:15 PM (10/29/20, 12:30:15 PM) you have come 16 times for 1.5 minutes. You have 15,000 messages!"));
+        assertThat(format, is("Hello Toto, we are on 10/29/20 at 12:30:15 PM (10/29/20, 12:30:15 PM) you have come 16 times for 1.5 minutes. You have 15,000 messages!"));
     }
 }
