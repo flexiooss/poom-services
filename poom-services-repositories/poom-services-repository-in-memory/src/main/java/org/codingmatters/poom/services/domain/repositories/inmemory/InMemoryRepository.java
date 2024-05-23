@@ -19,7 +19,6 @@ import java.util.stream.Stream;
  * Created by nelt on 6/5/17.
  */
 public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
-    static private final Logger log = LoggerFactory.getLogger(InMemoryRepository.class);
 
     private final Store<V> store;
 
