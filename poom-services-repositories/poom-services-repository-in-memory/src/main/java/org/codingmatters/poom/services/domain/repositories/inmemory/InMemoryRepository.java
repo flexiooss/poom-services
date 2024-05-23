@@ -6,8 +6,6 @@ import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
 import org.codingmatters.poom.services.domain.entities.MutableEntity;
 import org.codingmatters.poom.services.domain.entities.PagedEntityList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.Arrays;
