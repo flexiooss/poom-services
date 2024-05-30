@@ -6,8 +6,6 @@ import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.poom.services.domain.entities.ImmutableEntity;
 import org.codingmatters.poom.services.domain.entities.MutableEntity;
 import org.codingmatters.poom.services.domain.entities.PagedEntityList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -19,7 +17,6 @@ import java.util.stream.Stream;
  * Created by nelt on 6/5/17.
  */
 public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
-    static private final Logger log = LoggerFactory.getLogger(InMemoryRepository.class);
 
     private final Store<V> store;
 
