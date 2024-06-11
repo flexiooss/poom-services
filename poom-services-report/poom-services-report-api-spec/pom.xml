@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services-report</artifactId>
-        <version>1.178.0-SNAPSHOT</version>
+        <version>1.178.0</version>
     </parent>
 
     <artifactId>poom-services-report-api-spec</artifactId>
