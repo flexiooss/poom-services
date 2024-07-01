@@ -51,8 +51,7 @@ public interface ResourceGetProtocol<V, Q, Req, Resp> extends RepositoryRequestP
             } catch (RepositoryException e) {String errorToken = UUID.randomUUID().toString();
                 MDC.put("error-token", errorToken);
 
-                log().error("unexpected error while looking up entity : {}", entityId);
-                log().debug("unexpected exception", e);
+                log().error("unexpected error while looking up entity : " + entityId, e);
                 return this.unexpectedError(errorToken);
             }
         }
