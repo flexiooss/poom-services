@@ -47,7 +47,7 @@ public interface CollectionGetProtocol<V, Q, Req, Resp> extends RepositoryReques
 
                 Rfc7233Pager.Page<V> page;
                 if(query != null) {
-                    this.log().info("{} list requested with filter : {}", this.rfc7233Unit(), query);
+                    this.log().debug("{} list requested with filter : {}", this.rfc7233Unit(), query);
                     page = pager.page(query);
                 } else {
                     page = pager.page();
@@ -55,10 +55,10 @@ public interface CollectionGetProtocol<V, Q, Req, Resp> extends RepositoryReques
 
                 if(page.isValid()) {
                     if (page.isPartial()) {
-                        this.log().info("returning partial {} list ({})", this.rfc7233Unit(), page.contentRange());
+                        this.log().debug("returning partial {} list ({})", this.rfc7233Unit(), page.contentRange());
                         return this.partialList(page, request);
                     } else {
-                        this.log().info("returning complete {} list ({})", this.rfc7233Unit(), page.contentRange());
+                        this.log().debug("returning complete {} list ({})", this.rfc7233Unit(), page.contentRange());
                         return this.completeList(page, request);
                     }
                 } else {

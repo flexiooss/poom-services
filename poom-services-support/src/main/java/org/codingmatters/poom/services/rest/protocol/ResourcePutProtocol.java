@@ -63,7 +63,7 @@ public interface ResourcePutProtocol<V, Q, Req, Resp> extends RepositoryRequestP
 
                         entity = repository.update(entity, newValue);
 
-                        this.log().info("entity updated");
+                        this.log().debug("entity updated");
                         return this.entityUpdated(request, entity);
                     } else {
                         String errorToken = UUID.randomUUID().toString();
