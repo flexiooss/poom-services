@@ -74,13 +74,13 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
     @Override
     public TypeSpec handler() throws IncoherentDescriptorException {
         if(this.action == null) return null;
-        if(! collectionDescriptor.opt().types().entity().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without an entity type");
-        if(! collectionDescriptor.opt().types().error().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without an error type");
-        if(this.type == null) throw new IncoherentDescriptorException("cannot generate replace/update handler without an replace/update type");
-        if(! collectionDescriptor.opt().types().message().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without an message type");
-        if(! collectionDescriptor.opt().entityIdParam().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without an entityIdParam");
-        if(! this.action.opt().requestValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without a request class");
-        if(! this.action.opt().responseValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without a response class");
+        if(! collectionDescriptor.opt().types().entity().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without an entity type : " + collectionDescriptor.name());
+        if(! collectionDescriptor.opt().types().error().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without an error type" + collectionDescriptor.name());
+        if(this.type == null) throw new IncoherentDescriptorException("cannot generate replace/update handler without an replace/update type" + collectionDescriptor.name());
+        if(! collectionDescriptor.opt().types().message().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without an message type" + collectionDescriptor.name());
+//        if(! collectionDescriptor.opt().entityIdParam().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without an entityIdParam" + collectionDescriptor.name());
+        if(! this.action.opt().requestValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without a request class" + collectionDescriptor.name());
+        if(! this.action.opt().responseValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate replace/update handler without a response class" + collectionDescriptor.name());
 
         return TypeSpec.classBuilder(this.handlerClassSimpleName)
                 .addModifiers(Modifier.PUBLIC)
@@ -122,7 +122,7 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
     }
 
     private CodeBlock applyBody() {
-        return CodeBlock.builder()
+        CodeBlock.Builder result = CodeBlock.builder()
                 //adapter
                 .addStatement("$T<$T, $T> action",
                         this.actionClass,
@@ -130,18 +130,22 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
                         this.className(this.type)
                 )
                 .beginControlFlow("try")
-                    .addStatement("action = this.provider.action(request)")
+                .addStatement("action = this.provider.action(request)")
                 .nextControlFlow("catch($T e)", Exception.class)
-                    .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "failed getting adapter for ")
-                    .addStatement("return this.unexpectedError(token)")
-                .endControlFlow()
+                .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "failed getting adapter for ")
+                .addStatement("return this.unexpectedError(token)")
+                .endControlFlow();
+        if(this.collectionDescriptor.entityIdParam() != null) {
+            result
+                    //request validation
+                    .beginControlFlow("if(! request.opt().$L().isPresent())", this.entityProperty())
+                    .addStatement("$T token = log.tokenized().info($S, request)", String.class, "no entity id provided to update entity : {}")
+                    .addStatement("return this.badRequestError(token)")
+                    .endControlFlow()
+            ;
+        }
 
-                //request validation
-                .beginControlFlow("if(! request.opt().$L().isPresent())", this.entityProperty())
-                .addStatement("$T token = log.tokenized().info($S, request)", String.class, "no entity id provided to update entity : {}")
-                .addStatement("return this.badRequestError(token)")
-                .endControlFlow()
-
+        result
                 //default value
                 .addStatement("$T value = request.opt().payload().orElseGet(() -> $T.builder().build())",
                         this.className(this.type),
@@ -150,8 +154,19 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
 
                 //replace or update
                 .addStatement("$T<$T> entity", Entity.class, this.className(this.collectionDescriptor.types().entity()))
-                .beginControlFlow("try")
+                ;
+        if(this.collectionDescriptor.entityIdParam() != null) {
+            result
+                    .beginControlFlow("try")
                     .addStatement("entity = action.$L(request.$L(), value)", this.crudMethod, this.entityProperty())
+            ;
+        } else {
+            result
+                    .beginControlFlow("try")
+                    .addStatement("entity = action.$L(null, value)", this.crudMethod)
+            ;
+        }
+        result
                 .nextControlFlow("catch($T e)", BadRequestException.class)
                     .addStatement("return $T.builder().status400($T.builder().payload(this.casted(e.error())).build()).build()",
                             this.className(this.action.responseValueObject()),
@@ -203,6 +218,7 @@ public class ReplaceOrUpdateHandlerGenerator extends PagedCollectionHandlerGener
                         this.relatedClassName("Status200", this.action.responseValueObject()),
                         "%s/%s"
                 )
-                .build();
+                ;
+        return result.build();
     }
 }

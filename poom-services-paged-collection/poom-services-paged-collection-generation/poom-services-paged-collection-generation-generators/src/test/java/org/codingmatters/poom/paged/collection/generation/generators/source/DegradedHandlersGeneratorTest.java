@@ -141,13 +141,6 @@ public class DegradedHandlersGeneratorTest {
     }
 
     @Test(expected = IncoherentDescriptorException.class)
-    public void givenGeneratingRetrieve__whenEntityIdParamIsNotSet__thenIncoherentDescriptorException() throws Exception {
-        new RetrieveHandlerGenerator(TestData.FULL_COLLECTION
-                .withEntityIdParam(null)
-        ).handler();
-    }
-
-    @Test(expected = IncoherentDescriptorException.class)
     public void givenGeneratingRetrieve__whenRequestIsNotSet__thenIncoherentDescriptorException() throws Exception {
         new RetrieveHandlerGenerator(TestData.FULL_COLLECTION
                 .withRetrieve(TestData.FULL_COLLECTION.retrieve().withRequestValueObject(null))
@@ -231,13 +224,6 @@ public class DegradedHandlersGeneratorTest {
     }
 
     @Test(expected = IncoherentDescriptorException.class)
-    public void givenGeneratingDelete__whenEntityIdParamIsNotSet__thenIncoherentDescriptorException() throws Exception {
-        new DeleteHandlerGenerator(TestData.FULL_COLLECTION
-                .withEntityIdParam(null)
-        ).handler();
-    }
-
-    @Test(expected = IncoherentDescriptorException.class)
     public void givenGeneratingDelete__whenRequestIsNotSet__thenIncoherentDescriptorException() throws Exception {
         new DeleteHandlerGenerator(TestData.FULL_COLLECTION
                 .withDelete(TestData.FULL_COLLECTION.delete().withRequestValueObject(null))
@@ -276,13 +262,6 @@ public class DegradedHandlersGeneratorTest {
                 .withTypes(TestData.FULL_COLLECTION.types().withEntity(null))
                 , ReplaceOrUpdateHandlerGenerator.HandlerConfig.Replace
         ).handler();
-    }
-
-    @Test(expected = IncoherentDescriptorException.class)
-    public void givenGeneratingReplace__whenEntityIdParamIsNotSet__thenIncoherentDescriptorException() throws Exception {
-        new ReplaceOrUpdateHandlerGenerator(TestData.FULL_COLLECTION
-                .withEntityIdParam(null)
-                , ReplaceOrUpdateHandlerGenerator.HandlerConfig.Replace).handler();
     }
 
     @Test(expected = IncoherentDescriptorException.class)
@@ -330,13 +309,6 @@ public class DegradedHandlersGeneratorTest {
                 .withTypes(TestData.FULL_COLLECTION.types().withEntity(null))
                 , ReplaceOrUpdateHandlerGenerator.HandlerConfig.Update
         ).handler();
-    }
-
-    @Test(expected = IncoherentDescriptorException.class)
-    public void givenGeneratingUpdate__whenEntityIdParamIsNotSet__thenIncoherentDescriptorException() throws Exception {
-        new ReplaceOrUpdateHandlerGenerator(TestData.FULL_COLLECTION
-                .withEntityIdParam(null)
-                , ReplaceOrUpdateHandlerGenerator.HandlerConfig.Update).handler();
     }
 
     @Test(expected = IncoherentDescriptorException.class)

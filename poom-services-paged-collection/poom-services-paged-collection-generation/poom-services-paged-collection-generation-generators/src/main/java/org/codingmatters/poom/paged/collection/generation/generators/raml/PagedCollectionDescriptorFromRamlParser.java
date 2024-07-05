@@ -12,6 +12,7 @@ import org.raml.v2.api.model.v10.bodies.Response;
 import org.raml.v2.api.model.v10.methods.Method;
 import org.raml.v2.api.model.v10.resources.Resource;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -31,19 +32,30 @@ public class PagedCollectionDescriptorFromRamlParser {
 
     public PagedCollectionDescriptor[] parse() throws RamlSpecException {
         List<PagedCollectionDescriptor> results = new LinkedList<>();
-        for (Resource collection : this.collectPageCollections(this.ramlModel.getApiV10().resources())) {
+        for (Resource collection : this.collectPagedCollections(this.ramlModel.getApiV10().resources())) {
             results.add(this.descriptor(collection));
         }
         return results.toArray(new PagedCollectionDescriptor[results.size()]);
     }
 
-    private List<Resource> collectPageCollections(List<Resource> resources) {
+    private List<Resource> collectPagedCollections(List<Resource> resources) {
         List<Resource> collections = new LinkedList<>();
         for (Resource resource : resources) {
             if(this.isPagedCollection(resource)) {
                 collections.add(resource);
+                for (Resource subResource : resource.resources()) {
+                    if(this.isPagedCollectionEntity(subResource)) {
+                        collections.addAll(this.collectPagedCollections(subResource.resources()));
+                    } else {
+                        collections.addAll(this.collectPagedCollections(Arrays.asList(subResource)));
+                    }
+                }
+            } else if(this.isPagedCollectionEntity(resource)) {
+                collections.add(resource);
+                collections.addAll(this.collectPagedCollections(resource.resources()));
+            } else {
+                collections.addAll(this.collectPagedCollections(resource.resources()));
             }
-            collections.addAll(this.collectPageCollections(resource.resources()));
         }
         return collections;
     }
@@ -55,20 +67,35 @@ public class PagedCollectionDescriptorFromRamlParser {
     }
 
     private PagedCollectionDescriptor descriptor(Resource collection) throws RamlSpecException {
-        Optional<Resource> entity = this.entityResource(collection);
-        PagedCollectionDescriptor.Builder builder = PagedCollectionDescriptor.builder()
-                .name(this.naming.type(collection.displayName().value()))
-                .entityIdParam(this.entityIdParam(collection))
-                .types(this.types(collection))
-                .browse(this.resourceAction(Optional.of(collection), "get"))
-                .create(this.resourceAction(Optional.of(collection), "post"))
-                .retrieve(this.resourceAction(entity, "get"))
-                .replace(this.resourceAction(entity, "put"))
-                .update(this.resourceAction(entity, "patch"))
-                .delete(this.resourceAction(entity, "delete"))
-                ;
+        if(this.isPagedCollectionEntity(collection)) {
+            Optional<Resource> entity = Optional.of(collection);
+                    PagedCollectionDescriptor.Builder builder = PagedCollectionDescriptor.builder()
+                    .name(this.naming.type(collection.displayName().value()))
+                    .entityIdParam(null)
+                    .types(this.types(collection))
+                    .browse((Action) null)
+                    .create((Action) null)
+                    .retrieve(this.resourceAction(entity, "get"))
+                    .replace(this.resourceAction(entity, "put"))
+                    .update(this.resourceAction(entity, "patch"))
+                    .delete(this.resourceAction(entity, "delete"));
 
-        return builder.build();
+            return builder.build();
+        } else {
+            Optional<Resource> entity = this.entityResource(collection);
+            PagedCollectionDescriptor.Builder builder = PagedCollectionDescriptor.builder()
+                    .name(this.naming.type(collection.displayName().value()))
+                    .entityIdParam(this.entityIdParam(collection))
+                    .types(this.types(collection))
+                    .browse(this.resourceAction(Optional.of(collection), "get"))
+                    .create(this.resourceAction(Optional.of(collection), "post"))
+                    .retrieve(this.resourceAction(entity, "get"))
+                    .replace(this.resourceAction(entity, "put"))
+                    .update(this.resourceAction(entity, "patch"))
+                    .delete(this.resourceAction(entity, "delete"));
+
+            return builder.build();
+        }
     }
 
     private Action resourceAction(Optional<Resource> resource, String method) {
@@ -106,7 +133,7 @@ public class PagedCollectionDescriptorFromRamlParser {
             builder.create(new BodyTypeResolver(method.get().body().get(0), this.typesPackage).resolve().build().typeRef());
         }
 
-        Optional<Resource> entityResource = this.entityResource(collection);
+        Optional<Resource> entityResource = this.isPagedCollectionEntity(collection) ? Optional.of(collection) : this.entityResource(collection);
         if(entityResource.isPresent()) {
             method = this.method(entityResource.get(), "put");
             if (method.isPresent()) {

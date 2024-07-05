@@ -17,6 +17,7 @@ import org.raml.v2.api.RamlModelResult;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -24,6 +25,14 @@ import static org.hamcrest.Matchers.*;
 public class PagedCollectionDescriptorFromRamlParserTest {
 
     static RamlModelResult TEST_API_RAML = raml("test-api-spec.raml");
+
+    @Test
+    public void whenParsingTestApi__then20Collections() throws Exception {
+        PagedCollectionDescriptor[] parsed = new PagedCollectionDescriptorFromRamlParser(TEST_API_RAML, "org.generated.api", "org.generated.api.types").parse();
+
+        System.out.println(Arrays.stream(parsed).map(pagedCollectionDescriptor -> pagedCollectionDescriptor.name()).collect(Collectors.toList()));
+        assertThat(parsed.length, is(20));
+    }
 
     @Test
     public void givenParsingTestApi__whenGettingFullCollection__thenCollectionNameSetFromCollectionDisplayName() throws Exception {
@@ -433,6 +442,44 @@ public class PagedCollectionDescriptorFromRamlParserTest {
         PagedCollectionDescriptor collectionDescriptor = this.parseCollection("NonDefaultEntityIdParam");
 
         assertThat(collectionDescriptor.entityIdParam(), is("custom-id"));
+    }
+
+    @Test
+    public void givenParsingTestApi__whenGettingNoCollection__thenDescriptorIsCreatedFromApi() throws Exception {
+        PagedCollectionDescriptor collectionDescriptor = this.parseCollection("NoCollection");
+
+        assertThat(
+                collectionDescriptor,
+                is(PagedCollectionDescriptor.builder()
+                        .name("NoCollection").entityIdParam(null)
+                        .types(Types.builder()
+                                .entity(org.generated.api.types.Entity.class.getName())
+                                .create(null)
+                                .replace(Replace.class.getName())
+                                .update(Update.class.getName())
+                                .error(Error.class.getName())
+                                .message(Message.class.getName())
+                                .build())
+                        .browse((Action) null)
+                        .create((Action) null)
+                        .retrieve(Action.builder()
+                                .requestValueObject(NoCollectionGetRequest.class.getName())
+                                .responseValueObject(NoCollectionGetResponse.class.getName())
+                                .build())
+                        .delete(Action.builder()
+                                .requestValueObject(NoCollectionDeleteRequest.class.getName())
+                                .responseValueObject(NoCollectionDeleteResponse.class.getName())
+                                .build())
+                        .replace(Action.builder()
+                                .requestValueObject(NoCollectionPutRequest.class.getName())
+                                .responseValueObject(NoCollectionPutResponse.class.getName())
+                                .build())
+                        .update(Action.builder()
+                                .requestValueObject(NoCollectionPatchRequest.class.getName())
+                                .responseValueObject(NoCollectionPatchResponse.class.getName())
+                                .build())
+                        .build())
+        );
     }
 
 

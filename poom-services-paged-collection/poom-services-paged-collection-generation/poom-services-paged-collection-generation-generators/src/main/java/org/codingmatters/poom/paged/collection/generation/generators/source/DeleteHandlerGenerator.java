@@ -20,7 +20,7 @@ public class DeleteHandlerGenerator extends PagedCollectionHandlerGenerator {
     @Override
     public TypeSpec handler() throws IncoherentDescriptorException {
         if(! collectionDescriptor.opt().delete().isPresent()) return null;
-        if(! collectionDescriptor.opt().entityIdParam().isPresent()) throw new IncoherentDescriptorException("cannot generate delete handler without an entityIdParam");
+//        if(! collectionDescriptor.opt().entityIdParam().isPresent()) throw new IncoherentDescriptorException("cannot generate delete handler without an entityIdParam");
         if(! collectionDescriptor.opt().types().error().isPresent()) throw new IncoherentDescriptorException("cannot generate delete handler without an error type");
         if(! collectionDescriptor.opt().types().message().isPresent()) throw new IncoherentDescriptorException("cannot generate delete handler without an message type");
         if(! collectionDescriptor.opt().delete().requestValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate delete handler without a request class");
@@ -67,25 +67,33 @@ public class DeleteHandlerGenerator extends PagedCollectionHandlerGenerator {
     }
 
     private CodeBlock applyBody() {
-        return CodeBlock.builder()
+        CodeBlock.Builder result = CodeBlock.builder()
                 //adapter
                 .addStatement("$T action", EntityDeleter.class)
                 .beginControlFlow("try")
-                    .addStatement("action = this.provider.action(request)")
+                .addStatement("action = this.provider.action(request)")
                 .nextControlFlow("catch($T e)", Exception.class)
-                    .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "failed getting adapter for ")
-                    .addStatement("return this.unexpectedError(token)")
-                .endControlFlow()
+                .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "failed getting adapter for ")
+                .addStatement("return this.unexpectedError(token)")
+                .endControlFlow();
 
                 //request validation
-                .beginControlFlow("if(! request.opt().$L().isPresent())", this.entityProperty())
+        if(this.collectionDescriptor.entityIdParam() != null) {
+            result
+                    .beginControlFlow("if(! request.opt().$L().isPresent())", this.entityProperty())
                     .addStatement("$T token = log.tokenized().info($S, request)", String.class, "no entity id provided to update entity : {}")
                     .addStatement("return this.badRequestError(token)")
-                .endControlFlow()
-                
+                    .endControlFlow();
+        }
+        result
                 //deletion
-                .beginControlFlow("try")
-                    .addStatement("action.deleteEntity(request.$L())", this.entityProperty())
+                .beginControlFlow("try");
+        if(this.collectionDescriptor.entityIdParam() != null) {
+            result.addStatement("action.deleteEntity(request.$L())", this.entityProperty());
+        } else {
+            result.addStatement("action.deleteEntity(null)");
+        }
+        result
                 .nextControlFlow("catch($T e)", BadRequestException.class)
                     .addStatement("return $T.builder().status400($T.builder().payload(this.casted(e.error())).build()).build()",
                             this.className(this.collectionDescriptor.delete().responseValueObject()),
@@ -123,6 +131,8 @@ public class DeleteHandlerGenerator extends PagedCollectionHandlerGenerator {
                         this.className(this.collectionDescriptor.delete().responseValueObject()),
                         this.relatedClassName("Status204", this.collectionDescriptor.delete().responseValueObject())
                 )
-                .build();
+        ;
+
+        return result.build();
     }
 }
