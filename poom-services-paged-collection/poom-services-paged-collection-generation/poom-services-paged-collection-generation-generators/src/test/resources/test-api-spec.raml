@@ -5,7 +5,7 @@ description: Test API for paged collection processor generator
 baseUri: https://api.codingmatters.org/test
 mediaType: application/json
 
-annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/annotation-types/codingmatters.raml
+annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.27.0/apis/core/annotation-types/codingmatters.raml
 
 /no-params:
   displayName: no params
@@ -176,7 +176,6 @@ annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-s
 
 /not-a-collection:
   displayName: not a collection
-
   get:
     is: [rfc7233Browsing: {entityType: Entity, error: Error}]
   post:
@@ -394,8 +393,8 @@ annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-s
     is: [entityDelete: {error: Error}]
 
 types:
-  Message: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/types/message.raml
-  Error: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/types/error-with-messages.raml
+  Message: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.27.0/apis/core/types/message.raml
+  Error: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.27.0/apis/core/types/error-with-messages.raml
 
   Entity:
     type: object
@@ -418,10 +417,10 @@ types:
       p: string
 
 traits:
-  rfc7233Browsing: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/traits/collection/rfc7233-browse-collection.raml
-  entityCreation: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/traits/collection/create.raml
-  entityRetrieve: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/traits/entity/retrieve.raml
-  entityReplace: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/traits/entity/replace.raml
-  entityUpdate: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/traits/entity/update.raml
-  entityDelete: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.26.0/apis/core/traits/entity/delete.raml
+  rfc7233Browsing: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.27.0/apis/core/traits/collection/rfc7233-browse-collection.raml
+  entityCreation: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.27.0/apis/core/traits/collection/create.raml
+  entityRetrieve: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.27.0/apis/core/traits/entity/retrieve.raml
+  entityReplace: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.27.0/apis/core/traits/entity/replace.raml
+  entityUpdate: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.27.0/apis/core/traits/entity/update.raml
+  entityDelete: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.27.0/apis/core/traits/entity/delete.raml
 
