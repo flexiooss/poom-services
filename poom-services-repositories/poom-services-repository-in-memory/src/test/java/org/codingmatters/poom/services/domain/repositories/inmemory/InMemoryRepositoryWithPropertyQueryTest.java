@@ -1,5 +1,7 @@
 package org.codingmatters.poom.services.domain.repositories.inmemory;
 
+import org.codingmatters.poom.services.domain.entities.Entity;
+import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.entities.PagedEntityList;
@@ -7,12 +9,14 @@ import org.codingmatters.test.Ref;
 import org.codingmatters.test.Simple;
 import org.codingmatters.test.simple.E;
 import org.codingmatters.value.objects.values.ObjectValue;
+import org.codingmatters.value.objects.values.PropertyValue;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -211,4 +215,18 @@ public class InMemoryRepositoryWithPropertyQueryTest {
                 )
         );
     }
+
+    @Test
+    public void filterOnObjectValueMultipleProperty() throws RepositoryException {
+        Repository<ObjectValue, PropertyQuery> repo = InMemoryRepositoryWithPropertyQuery.validating(ObjectValue.class);
+        Entity<ObjectValue> entity = repo.create(ObjectValue.builder()
+                .property("toto", PropertyValue.multiple(PropertyValue.Type.STRING, Val -> Val.stringValue("plok")))
+                .build());
+        PagedEntityList<ObjectValue> search = repo.search(PropertyQuery.builder()
+                .filter("toto contains 'plok'")
+                .build(), 0, 100);
+        assertThat(search.size(), is(1));
+        assertThat(search.getFirst(), is(entity));
+    }
+
 }

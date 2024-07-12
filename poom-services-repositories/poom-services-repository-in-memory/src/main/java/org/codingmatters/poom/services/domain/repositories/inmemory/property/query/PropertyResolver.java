@@ -5,6 +5,7 @@ import org.codingmatters.value.objects.values.PropertyValue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 public class PropertyResolver {
     private final Class valueObjectClass;
@@ -56,7 +57,7 @@ public class PropertyResolver {
             } else if(propertyValue.cardinality().equals(PropertyValue.Cardinality.SINGLE)) {
                 return propertyValue.single().rawValue();
             } else {
-                return propertyValue.rawValue();
+                return Arrays.stream(propertyValue.multiple()).map(PropertyValue.Value::rawValue).toArray(Object[]::new);
             }
         } else {
             Object value;

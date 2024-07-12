@@ -118,6 +118,12 @@ public interface Operators {
                     return true;
                 }
             }
+        } else if (left instanceof Object[]) {
+            for (Object leftValue : ((Object[]) left)) {
+                if (containsOne(leftValue, right)) {
+                    return true;
+                }
+            }
         } else {
             for (Object o : right) {
                 Object value = normalized(o);
