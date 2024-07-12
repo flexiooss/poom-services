@@ -23,7 +23,7 @@ public class RetrieveHandlerGenerator extends PagedCollectionHandlerGenerator {
         if(! collectionDescriptor.opt().types().entity().isPresent()) throw new IncoherentDescriptorException("cannot generate retrieve handler without an entity type");
         if(! collectionDescriptor.opt().types().error().isPresent()) throw new IncoherentDescriptorException("cannot generate retrieve handler without an error type");
         if(! collectionDescriptor.opt().types().message().isPresent()) throw new IncoherentDescriptorException("cannot generate retrieve handler without an message type");
-        if(! collectionDescriptor.opt().entityIdParam().isPresent()) throw new IncoherentDescriptorException("cannot generate retrieve handler without an entityIdParam");
+//        if(! collectionDescriptor.opt().entityIdParam().isPresent()) throw new IncoherentDescriptorException("cannot generate retrieve handler without an entityIdParam");
         if(! collectionDescriptor.opt().retrieve().requestValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate retrieve handler without a request class");
         if(! collectionDescriptor.opt().retrieve().responseValueObject().isPresent()) throw new IncoherentDescriptorException("cannot generate retrieve handler without a response class");
 
@@ -62,28 +62,38 @@ public class RetrieveHandlerGenerator extends PagedCollectionHandlerGenerator {
     }
 
     private CodeBlock applyBody() {
-        return CodeBlock.builder()
+        CodeBlock.Builder result = CodeBlock.builder()
                 //adapter
                 .addStatement("$T<$T> action", EntityRetriever.class, this.className(this.collectionDescriptor.types().entity()))
                 .beginControlFlow("try")
-                    .addStatement("action = this.provider.action(request)")
+                .addStatement("action = this.provider.action(request)")
                 .nextControlFlow("catch($T e)", Exception.class)
-                    .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "failed getting action for ")
-                    .addStatement("return this.unexpectedError(token)")
-                .endControlFlow()
+                .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "failed getting action for ")
+                .addStatement("return this.unexpectedError(token)")
+                .endControlFlow();
 
-                //request validation
-                .beginControlFlow("if(! request.opt().$L().isPresent())", this.entityProperty())
+        if(this.collectionDescriptor.entityIdParam() != null) {
+            result
+                    //request validation
+                    .beginControlFlow("if(! request.opt().$L().isPresent())", this.entityProperty())
                     .addStatement("$T token = log.tokenized().info($S, request)",
                             String.class, "no entity id provided to update entity : {}"
                     )
                     .addStatement("return this.badRequestError(token)")
-                .endControlFlow()
-
+                    .endControlFlow()
+            ;
+        }
+        result
                 //retrieve
                 .addStatement("$T<$T<$T>> entity", Optional.class, Entity.class, this.className(this.collectionDescriptor.types().entity()))
                 .beginControlFlow("try")
-                .addStatement("entity = action.retrieveEntity(request.$L())", this.entityProperty())
+                ;
+        if(this.collectionDescriptor.entityIdParam() != null) {
+            result.addStatement("entity = action.retrieveEntity(request.$L())", this.entityProperty());
+        } else {
+            result.addStatement("entity = action.retrieveEntity(null)");
+        }
+        result
                 .nextControlFlow("catch($T e)", BadRequestException.class)
                 .addStatement("return $T.builder().status400($T.builder().payload(this.casted(e.error())).build()).build()",
                         this.className(this.collectionDescriptor.retrieve().responseValueObject()),
@@ -132,9 +142,14 @@ public class RetrieveHandlerGenerator extends PagedCollectionHandlerGenerator {
                     .addStatement("$T token = log.tokenized().info($S, action.entityRepositoryUrl(), request)",
                             String.class, "no entity found in repository {} for request {}"
                     )
-                .addStatement("return this.entityNotFound(request.$L(), token)", this.entityProperty())
-                .endControlFlow()
-                .build();
+                ;
+        if(this.collectionDescriptor.entityIdParam() != null) {
+            result.addStatement("return this.entityNotFound(request.$L(), token)", this.entityProperty());
+        } else {
+            result.addStatement("return this.entityNotFound(null, token)");
+        }
+        result.endControlFlow();
+        return result.build();
     }
 
 }
