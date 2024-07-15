@@ -92,9 +92,10 @@ public class InMemoryRepositoryWithPropertyQueryTest {
 
     @Test
     public void givenPropertyIsNestedAndString__whenSortingWithNullWithAsc__thenResultsAreSortedDescAlphabetically() throws Exception {
-        System.out.println(this.repository.search(PropertyQuery.builder().sort("e.g ASC").build(), 0, 2).stream().map(e -> e.value().e().g()).collect(Collectors.toList()));
+        PagedEntityList<Simple> search = this.repository.search(PropertyQuery.builder().sort("e.g ASC").build(), 0, 2);
+        System.out.println(search.stream().map(e -> e.value().e().g()).collect(Collectors.toList()));
         assertThat(
-                this.repository.search(PropertyQuery.builder().sort("e.g ASC").build(), 0, 2).stream().map(e -> e.value().e().g()).collect(Collectors.toList()),
+                search.stream().map(e -> e.value().e().g()).collect(Collectors.toList()),
                 contains("0", "10", "100")
         );
     }
@@ -224,6 +225,22 @@ public class InMemoryRepositoryWithPropertyQueryTest {
                 .build());
         PagedEntityList<ObjectValue> search = repo.search(PropertyQuery.builder()
                 .filter("toto contains 'plok'")
+                .build(), 0, 100);
+        assertThat(search.size(), is(1));
+        assertThat(search.getFirst(), is(entity));
+    }
+
+    @Test
+    public void filterOnObjectValueOnNestedProperty() throws RepositoryException {
+        Repository<ObjectValue, PropertyQuery> repo = InMemoryRepositoryWithPropertyQuery.notValidating(ObjectValue.class);
+        Entity<ObjectValue> entity = repo.create(ObjectValue.builder()
+                .property("toto", val -> val.objectValue(
+                        ObjectValue.builder()
+                                .property("tutu", PropertyValue.builder().stringValue("plok"))
+                                .build()
+                )).build());
+        PagedEntityList<ObjectValue> search = repo.search(PropertyQuery.builder()
+                .filter("toto.tutu == 'plok'")
                 .build(), 0, 100);
         assertThat(search.size(), is(1));
         assertThat(search.getFirst(), is(entity));
