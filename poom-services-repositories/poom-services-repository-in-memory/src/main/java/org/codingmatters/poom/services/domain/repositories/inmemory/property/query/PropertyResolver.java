@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 public class PropertyResolver {
+
     private final Class valueObjectClass;
 
     public PropertyResolver(Class valueObjectClass) {
@@ -15,11 +16,11 @@ public class PropertyResolver {
     }
 
     public boolean hasProperty(String property) {
-        if(this.isNestedProperty(property)) {
+        if (this.isNestedProperty(property)) {
             return this.hasNestedProperty(this.head(property), this.tail(property));
         }
         try {
-            if(this.valueObjectClass == ObjectValue.class) {
+            if (this.valueObjectClass == ObjectValue.class) {
                 return true;
             }
             return methodForProperty(property) != null;
@@ -42,22 +43,43 @@ public class PropertyResolver {
     }
 
     private Method methodForProperty(String property) throws NoSuchMethodException {
-        if(this.valueObjectClass == ObjectValue.class) {
+        if (this.valueObjectClass == ObjectValue.class) {
             return this.valueObjectClass.getMethod("property", String.class);
         } else {
             return this.valueObjectClass.getMethod(property);
         }
     }
 
-    private Object invokePropertyMethod(String property, Method method, Object on) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-        if(this.valueObjectClass == ObjectValue.class) {
+    static class TypedValue {
+
+        private final Object value;
+        private final Class<?> type;
+
+        TypedValue(Object value, Class<?> type) {
+            this.value = value;
+            this.type = type;
+        }
+
+        public Object value() {
+            return value;
+        }
+
+        public Class<?> type() {
+            return type;
+        }
+    }
+
+    private TypedValue invokePropertyMethod(String property, Method method, Object on) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        if (this.valueObjectClass == ObjectValue.class) {
             PropertyValue propertyValue = (PropertyValue) method.invoke(on, property);
-            if(propertyValue == null) {
-                return null;
-            } else if(propertyValue.cardinality().equals(PropertyValue.Cardinality.SINGLE)) {
-                return propertyValue.single().rawValue();
+            if (propertyValue == null) {
+                return new TypedValue(null, Object.class);
+            } else if (propertyValue.cardinality().equals(PropertyValue.Cardinality.SINGLE)) {
+                Object value = propertyValue.single().rawValue();
+                Class<?> aClass = value instanceof ObjectValue ? ObjectValue.class : value.getClass();
+                return new TypedValue(value, aClass);
             } else {
-                return Arrays.stream(propertyValue.multiple()).map(PropertyValue.Value::rawValue).toArray(Object[]::new);
+                return new TypedValue(Arrays.stream(propertyValue.multiple()).map(PropertyValue.Value::rawValue).toArray(Object[]::new), Object[].class);
             }
         } else {
             Object value;
@@ -66,33 +88,34 @@ public class PropertyResolver {
             } catch (NullPointerException e) {
                 throw e;
             }
-            if(value != null && value.getClass().isEnum()) {
-                return value.getClass().getMethod("name").invoke(value);
+            if (value != null && value.getClass().isEnum()) {
+                return new TypedValue(value.getClass().getMethod("name").invoke(value), String.class);
             } else {
-                return value;
+                return new TypedValue(value, method.getReturnType());
             }
         }
     }
 
-    public Object resolve(Object o, String property) {
-        if(o == null) return null;
+    public TypedValue resolve(Object o, String property) {
+        if (o == null) return new TypedValue(null, Object.class);
 
-        if(this.isNestedProperty(property)) {
+        if (this.isNestedProperty(property)) {
             return this.resolveNestedProperty(o, this.head(property), this.tail(property));
         }
         try {
             return this.invokePropertyMethod(property, this.methodForProperty(property), o);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            return null;
+            e.printStackTrace();
+            return new TypedValue(null, Object.class);
         }
     }
 
-    private Object resolveNestedProperty(Object o, String property, String subpath) {
-        if(o == null) return null;
+    private TypedValue resolveNestedProperty(Object o, String property, String subpath) {
+        if (o == null) return null;
         try {
             Method method = methodForProperty(property);
-            Object sub = this.invokePropertyMethod(property, method, o);
-            return new PropertyResolver(method.getReturnType()).resolve(sub, subpath);
+            TypedValue sub = this.invokePropertyMethod(property, method, o);
+            return new PropertyResolver(sub.type).resolve(sub.value, subpath);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             return null;
         }
