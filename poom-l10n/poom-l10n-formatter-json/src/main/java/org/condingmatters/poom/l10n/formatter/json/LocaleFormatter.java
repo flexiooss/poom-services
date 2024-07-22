@@ -43,7 +43,7 @@ public class LocaleFormatter {
             throw new FormatterException("Value '" + value + "' cannot be formatted in this format '" + format + "'");
         }
         String formatValue = this.formatValue(value, format);
-        return sentence.replaceFirst("\\{" + key + ":" + format + "\\}", formatValue);
+        return sentence.replaceFirst("\\{" + key + ":" + format + "\\}", Matcher.quoteReplacement(formatValue));
     }
 
     private Object getValue(Map<String, Object> values, String key) throws FormatterException {
