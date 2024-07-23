@@ -9,8 +9,9 @@ public class ForbiddenException extends Exception {
     public ForbiddenException(CategorizedLogger log, String message) {
         this(Error.builder().code(Error.Code.UNAUTHORIZED).token(log.tokenized().error(message)).build(), message);
     }
+
     public ForbiddenException(CategorizedLogger log, String message, Throwable cause) {
-        this(Error.builder().code(Error.Code.UNAUTHORIZED).token(log.tokenized().error(message)).build(), message, cause);
+        this(Error.builder().code(Error.Code.UNAUTHORIZED).token(log.tokenized().error(message, cause)).build(), message, cause);
     }
 
     public ForbiddenException(Error error, String message) {

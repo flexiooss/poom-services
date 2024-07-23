@@ -9,8 +9,9 @@ public class UnauthorizedException extends Exception {
     public UnauthorizedException(CategorizedLogger log, String message) {
         this(Error.builder().code(Error.Code.UNAUTHORIZED).token(log.tokenized().error(message)).build(), message);
     }
+
     public UnauthorizedException(CategorizedLogger log, String message, Throwable cause) {
-        this(Error.builder().code(Error.Code.UNAUTHORIZED).token(log.tokenized().error(message)).build(), message, cause);
+        this(Error.builder().code(Error.Code.UNAUTHORIZED).token(log.tokenized().error(message, cause)).build(), message, cause);
     }
 
     public UnauthorizedException(Error error, String message) {

@@ -9,8 +9,9 @@ public class MethodNotAllowedException extends Exception {
     public MethodNotAllowedException(CategorizedLogger log, Error.Code code, String message) {
         this(Error.builder().code(code).token(log.tokenized().error(message)).build(), message);
     }
+
     public MethodNotAllowedException(CategorizedLogger log, Error.Code code, String message, Throwable cause) {
-        this(Error.builder().code(code).token(log.tokenized().error(message)).build(), message, cause);
+        this(Error.builder().code(code).token(log.tokenized().error(message, cause)).build(), message, cause);
     }
 
     public MethodNotAllowedException(Error error, String message) {

@@ -9,8 +9,9 @@ public class UnexpectedException extends Exception {
     public UnexpectedException(CategorizedLogger log, String message) {
         this(Error.builder().code(Error.Code.UNEXPECTED_ERROR).token(log.tokenized().error(message)).build(), message);
     }
+
     public UnexpectedException(CategorizedLogger log, String message, Throwable cause) {
-        this(Error.builder().code(Error.Code.UNEXPECTED_ERROR).token(log.tokenized().error(message)).build(), message, cause);
+        this(Error.builder().code(Error.Code.UNEXPECTED_ERROR).token(log.tokenized().error(message, cause)).build(), message, cause);
     }
 
     public UnexpectedException(Error error, String message) {
