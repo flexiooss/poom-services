@@ -1,10 +1,12 @@
 package org.codingmatters.poom.services.domain.repositories.inmemory;
 
+import org.codingmatters.poom.services.domain.exceptions.AlreadyExistsException;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.repositories.RepositoryIterator;
 import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.poom.services.domain.entities.PagedEntityList;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -14,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 /**
  * Created by nelt on 6/6/17.
@@ -46,6 +49,11 @@ public class InMemoryRepositoryTest {
         assertThat(entity.id(), is(notNullValue()));
         assertThat(entity.version().intValue(), is(1));
         assertThat(entity.value(), is("yopyop"));
+    }
+    @Test
+    public void createExistingThrowsException() throws Exception {
+        this.repository.createWithId("12", "yopyop");
+        assertThrows(AlreadyExistsException.class, () -> this.repository.createWithId("12", "yopyop"));
     }
 
     @Test
