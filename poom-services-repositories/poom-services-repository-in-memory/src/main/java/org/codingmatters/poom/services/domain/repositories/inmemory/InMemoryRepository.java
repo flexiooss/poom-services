@@ -1,5 +1,6 @@
 package org.codingmatters.poom.services.domain.repositories.inmemory;
 
+import org.codingmatters.poom.services.domain.exceptions.AlreadyExistsException;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.entities.Entity;
@@ -38,7 +39,7 @@ public abstract class InMemoryRepository<V, Q> implements Repository<V, Q> {
         if(this.store.get(id) == null) {
             return this.quickCreate(id, withValue);
         } else {
-            throw new RepositoryException("entity already exists : " + id);
+            throw new AlreadyExistsException("entity already exists : " + id);
         }
     }
 

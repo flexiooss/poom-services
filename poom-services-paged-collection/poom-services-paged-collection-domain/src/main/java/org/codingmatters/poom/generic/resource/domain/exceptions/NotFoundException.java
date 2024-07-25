@@ -9,8 +9,9 @@ public class NotFoundException extends Exception {
     public NotFoundException(CategorizedLogger log, String message) {
         this(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).token(log.tokenized().error(message)).build(), message);
     }
+
     public NotFoundException(CategorizedLogger log, String message, Throwable cause) {
-        this(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).token(log.tokenized().error(message)).build(), message, cause);
+        this(Error.builder().code(Error.Code.RESOURCE_NOT_FOUND).token(log.tokenized().error(message, cause)).build(), message, cause);
     }
 
     public NotFoundException(Error error, String message) {
