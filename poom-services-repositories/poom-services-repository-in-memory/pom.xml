@@ -8,7 +8,6 @@
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services-repositories</artifactId>
         <version>1.190.0-SNAPSHOT</version>
-        <relativePath>../</relativePath>
     </parent>
 
     <artifactId>poom-services-repository-in-memory</artifactId>

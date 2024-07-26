@@ -3,10 +3,7 @@ package org.codingmatters.poom.services.domain.repositories.inmemory.property.qu
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 public interface Operators {
 
@@ -147,10 +144,13 @@ public interface Operators {
 
     static boolean containsAll(Object left, Collection<Object> right) {
         left = normalized(left);
+        if(left instanceof Object[]) {
+            left = Arrays.asList((Object[]) left);
+        }
         if(left instanceof Collection) {
             for (Object o : right) {
                 o = normalized(o);
-                if(! containsOne(o, ((Collection<Object>) left))) return false;
+                if (!containsOne(o, ((Collection<Object>) left))) return false;
             }
         } else {
             for (Object o : right) {

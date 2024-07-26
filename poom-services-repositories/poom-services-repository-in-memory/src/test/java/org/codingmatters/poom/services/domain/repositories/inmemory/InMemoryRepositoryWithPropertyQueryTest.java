@@ -218,7 +218,7 @@ public class InMemoryRepositoryWithPropertyQueryTest {
     }
 
     @Test
-    public void filterOnObjectValueMultipleProperty() throws RepositoryException {
+    public void givenObjectValueRepo__filterOnMultiplePropertyContains() throws RepositoryException {
         Repository<ObjectValue, PropertyQuery> repo = InMemoryRepositoryWithPropertyQuery.validating(ObjectValue.class);
         Entity<ObjectValue> entity = repo.create(ObjectValue.builder()
                 .property("toto", PropertyValue.multiple(PropertyValue.Type.STRING, Val -> Val.stringValue("plok")))
@@ -231,7 +231,38 @@ public class InMemoryRepositoryWithPropertyQueryTest {
     }
 
     @Test
-    public void filterOnObjectValueOnNestedProperty() throws RepositoryException {
+    public void givenObjectValueRepo__filterOnMultiplePropertyContainsAny() throws RepositoryException {
+        Repository<ObjectValue, PropertyQuery> repo = InMemoryRepositoryWithPropertyQuery.validating(ObjectValue.class);
+        Entity<ObjectValue> entity = repo.create(ObjectValue.builder()
+                .property("toto", PropertyValue.multipleString("plok", "plik"))
+                .build());
+        PagedEntityList<ObjectValue> search = repo.search(PropertyQuery.builder()
+                .filter("toto contains any ('plok', 'pluk')")
+                .build(), 0, 100);
+        assertThat(search.size(), is(1));
+        assertThat(search.getFirst(), is(entity));
+    }
+
+    @Test
+    public void givenObjectValueRepo__filterOnMultiplePropertyContainsAll() throws RepositoryException {
+        Repository<ObjectValue, PropertyQuery> repo = InMemoryRepositoryWithPropertyQuery.validating(ObjectValue.class);
+        Entity<ObjectValue> entity = repo.create(ObjectValue.builder()
+                .property("toto", PropertyValue.multipleString("plok", "plik"))
+                .build());
+        PagedEntityList<ObjectValue> search = repo.search(PropertyQuery.builder()
+                .filter("toto contains all ('plok', 'plik')")
+                .build(), 0, 100);
+        assertThat(search.size(), is(1));
+        assertThat(search.getFirst(), is(entity));
+
+        search = repo.search(PropertyQuery.builder()
+                .filter("toto contains all ('plok', 'pluk')")
+                .build(), 0, 100);
+        assertThat(search.size(), is(0));
+    }
+
+    @Test
+    public void givenObjectValueRepo__filterOnNestedProperty() throws RepositoryException {
         Repository<ObjectValue, PropertyQuery> repo = InMemoryRepositoryWithPropertyQuery.notValidating(ObjectValue.class);
         Entity<ObjectValue> entity = repo.create(ObjectValue.builder()
                 .property("toto", val -> val.objectValue(
