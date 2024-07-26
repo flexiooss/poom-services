@@ -6,6 +6,7 @@ import org.codingmatters.value.objects.values.PropertyValue;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 
 public class PropertyResolver {
 
@@ -79,7 +80,7 @@ public class PropertyResolver {
                 Class<?> aClass = value instanceof ObjectValue ? ObjectValue.class : value.getClass();
                 return new TypedValue(value, aClass);
             } else {
-                return new TypedValue(Arrays.stream(propertyValue.multiple()).map(PropertyValue.Value::rawValue).toArray(Object[]::new), Object[].class);
+                return new TypedValue(Arrays.stream(propertyValue.multiple()).map(PropertyValue.Value::rawValue).toList(), List.class);
             }
         } else {
             Object value;
