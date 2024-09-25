@@ -2,13 +2,13 @@ package org.codingmatters.poom.caches.management.caches;
 
 
 import org.codingmatters.poom.caches.Cache;
+import org.codingmatters.poom.caches.invalidation.Invalidation;
 import org.codingmatters.poom.caches.management.stores.CacheStore;
 import org.codingmatters.poom.caches.management.stores.MapCacheStore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +26,9 @@ public class CacheWithStoreTest {
         return new Object[]{
                 (Supplier<Object>) MapCacheStore::new
         };
-    };
+    }
+
+    ;
 
     @Parameterized.Parameter
     public Supplier<CacheStore<String, String>> storeSupplier;
@@ -38,7 +40,7 @@ public class CacheWithStoreTest {
     }
 
     @Test
-    public void whenInsert_thenRetrieveInserted() throws Exception{
+    public void whenInsert_thenRetrieveInserted() throws Exception {
         Cache<String, String> actual = this.createCache(key -> null);
         assertThat(actual.get("test"), nullValue());
         actual.insert("test", "ok");
@@ -157,6 +159,13 @@ public class CacheWithStoreTest {
             assertThat(e, isA(AssertionError.class));
             assertThat(e.getMessage(), is("error while invalidating test"));
         }
+    }
+
+    @Test
+    public void givenValid__withNewValue() throws Exception {
+        Cache<String, String> cache = this.createCache(key -> "new value", (key, value) -> Invalidation.replaced("plok"));
+        cache.insert("key", "value");
+        assertThat(cache.get("key"), is("plok"));
     }
 
     private Cache<String, String> createCache(Cache.ValueRetriever<String, String> retriever) {

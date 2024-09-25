@@ -1,8 +1,8 @@
 package org.codingmatters.poom.caches.management.caches;
 
 import org.codingmatters.poom.caches.Cache;
-import org.codingmatters.poom.caches.management.stores.CacheStore;
 import org.codingmatters.poom.caches.invalidation.Invalidation;
+import org.codingmatters.poom.caches.management.stores.CacheStore;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 
 import java.util.LinkedList;
@@ -32,25 +32,25 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
     @Override
     public synchronized V get(K key) throws Exception {
         Optional<V> value;
-        if(this.delegate.has(key)) {
+        if (this.delegate.has(key)) {
             value = this.delegate.get(key);
 
             Invalidation<V> invalidation = this.invalidator.check(key, value.get());
-            if(invalidation.isInvalid()) {
+            if (invalidation.isInvalid()) {
                 this.prune(key);
-                if(invalidation.newValue().isPresent()) {
+                if (invalidation.newValue().isPresent()) {
                     value = invalidation.newValue();
                     this.delegate.store(key, value.get());
                 } else {
                     value = this.retrieve(key);
-                    if(value.isPresent()) {
+                    if (value.isPresent()) {
                         this.delegate.store(key, value.get());
                     }
                 }
             }
         } else {
             value = this.retrieve(key);
-            if(value.isPresent()) {
+            if (value.isPresent()) {
                 this.delegate.store(key, value.get());
             }
         }
@@ -70,7 +70,7 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
 
     @Override
     public synchronized void prune(K key) {
-        if(this.delegate.has(key)) {
+        if (this.delegate.has(key)) {
             this.delegate.remove(key);
             this.pruneListeners.forEach(listener -> listener.pruned(key));
         }
@@ -85,14 +85,14 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
 
     @Override
     public synchronized void addPruneListener(PruneListener<K> listener) {
-        if(listener != null) {
+        if (listener != null) {
             this.pruneListeners.add(listener);
         }
     }
 
     @Override
     public void addAccessListener(AccessListener<K> listener) {
-        if(listener != null) {
+        if (listener != null) {
             this.accessListeners.add(listener);
         }
     }
