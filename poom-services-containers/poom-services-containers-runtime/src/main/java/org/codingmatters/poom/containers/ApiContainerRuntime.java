@@ -4,6 +4,8 @@ import org.codingmatters.poom.containers.internal.ExternallyStoppable;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.rest.api.Api;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public abstract class ApiContainerRuntime implements ExternallyStoppable {
     protected final CategorizedLogger log;
     private final Handle handle;
@@ -53,9 +55,11 @@ public abstract class ApiContainerRuntime implements ExternallyStoppable {
         System.exit( 0 );
     }
 
+    private final AtomicBoolean stopRequested = new AtomicBoolean(false);
+
     private void go() throws ServerStartupException {
         this.startup();
-        while (true) {
+        while (! this.stopRequested.get()) {
             try {
                 Thread.sleep(1000L);
             } catch (InterruptedException e) {
@@ -103,6 +107,6 @@ public abstract class ApiContainerRuntime implements ExternallyStoppable {
     
     @Override
     public void requireStop() {
-
+        this.stopRequested.set(true);
     }
 }
