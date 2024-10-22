@@ -100,4 +100,9 @@ public abstract class ApiContainerRuntime implements ExternallyStoppable {
             this.runtime.stop();
         }
     }
+    
+    @Override
+    public void requireStop() {
+
+    }
 }
