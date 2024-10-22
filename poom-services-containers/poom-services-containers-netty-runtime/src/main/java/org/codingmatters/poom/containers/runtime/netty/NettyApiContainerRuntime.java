@@ -127,4 +127,9 @@ public class NettyApiContainerRuntime extends ApiContainerRuntime {
             throw new ServerShutdownException("interrupted while waiting for shutdown", e);
         }
     }
+
+    @Override
+    public void requireStop() {
+
+    }
 }

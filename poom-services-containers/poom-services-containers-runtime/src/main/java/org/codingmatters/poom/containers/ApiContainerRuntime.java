@@ -1,16 +1,16 @@
 package org.codingmatters.poom.containers;
 
+import org.codingmatters.poom.containers.internal.ExternallyStoppable;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.rest.api.Api;
 
-public abstract class ApiContainerRuntime {
+public abstract class ApiContainerRuntime implements ExternallyStoppable {
     protected final CategorizedLogger log;
     private final Handle handle;
     protected Api[] apis;
 
     private Runnable onStartup;
     private Runnable onShutdown;
-
 
     protected abstract void startupServer(Api[] apis) throws ServerStartupException;
     protected abstract void shutdownServer() throws ServerShutdownException;

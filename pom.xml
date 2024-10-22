@@ -464,6 +464,12 @@
             <!--            //API REGISTRY-->
 
 
+            <dependency>
+                <groupId>org.codingmatters.poom</groupId>
+                <artifactId>poom-services-fast-failing</artifactId>
+                <version>1.201.0-SNAPSHOT</version>
+            </dependency>
+
             <!--// BOM-->
         </dependencies>
     </dependencyManagement>

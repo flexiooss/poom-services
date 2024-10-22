@@ -58,4 +58,9 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
         this.undertow.stop();
         this.log.info("undertow server stopped");
     }
+
+    @Override
+    public void requireStop() {
+
+    }
 }
