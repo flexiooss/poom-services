@@ -1,16 +1,18 @@
 package org.codingmatters.poom.containers;
 
+import org.codingmatters.poom.containers.internal.ExternallyStoppable;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.rest.api.Api;
 
-public abstract class ApiContainerRuntime {
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public abstract class ApiContainerRuntime implements ExternallyStoppable {
     protected final CategorizedLogger log;
     private final Handle handle;
     protected Api[] apis;
 
     private Runnable onStartup;
     private Runnable onShutdown;
-
 
     protected abstract void startupServer(Api[] apis) throws ServerStartupException;
     protected abstract void shutdownServer() throws ServerShutdownException;
@@ -53,9 +55,11 @@ public abstract class ApiContainerRuntime {
         System.exit( 0 );
     }
 
+    private final AtomicBoolean stopRequested = new AtomicBoolean(false);
+
     private void go() throws ServerStartupException {
         this.startup();
-        while (true) {
+        while (! this.stopRequested.get()) {
             try {
                 Thread.sleep(1000L);
             } catch (InterruptedException e) {
@@ -99,5 +103,10 @@ public abstract class ApiContainerRuntime {
         public void stop() throws ServerShutdownException {
             this.runtime.stop();
         }
+    }
+    
+    @Override
+    public void requireStop() {
+        this.stopRequested.set(true);
     }
 }
