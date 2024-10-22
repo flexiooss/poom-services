@@ -111,6 +111,7 @@
         <module>poom-caches</module>
         <module>poom-services-containers</module>
         <module>poom-services-api-registry</module>
+        <module>poom-services-fast-failing</module>
     </modules>
 
     <dependencies>
