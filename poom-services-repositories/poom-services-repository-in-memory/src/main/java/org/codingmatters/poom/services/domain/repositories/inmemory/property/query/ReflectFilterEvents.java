@@ -6,6 +6,7 @@ import org.codingmatters.poom.services.domain.property.query.events.FilterEventE
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public class ReflectFilterEvents<V> extends StackedFilterEvents<Predicate<V>> {
     private final PropertyResolver propertyResolver;
@@ -174,6 +175,18 @@ public class ReflectFilterEvents<V> extends StackedFilterEvents<Predicate<V>> {
     @Override
     public Void endsWithAny(String left, List<Object> right) throws FilterEventError {
         this.push(o -> Operators.endsWithOne(this.propertyResolver.resolve(o, left).value(), right));
+        return null;
+    }
+
+    @Override
+    public Void isMatchingPattern(String left, String pattern, List<PatternOption> options) throws FilterEventError {
+        Pattern compiledPattern;
+        if(options.contains(PatternOption.CASE_INSENSITIVE)) {
+            compiledPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+        } else {
+            compiledPattern = Pattern.compile(pattern);
+        }
+        this.push(o -> Operators.matchesPattern(this.propertyResolver.resolve(o, left).value(), compiledPattern));
         return null;
     }
 

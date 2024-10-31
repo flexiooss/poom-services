@@ -301,6 +301,27 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     }
 
     @Override
+    public Object visitIsMatchingPattern(PropertyFilterParser.IsMatchingPatternContext ctx) {
+        String pattern = ctx.PATTERN().getText();
+
+        List<FilterEvents.PatternOption> options;
+        if(pattern.matches("/.*/[iI]+")) {
+            options = Collections.singletonList(FilterEvents.PatternOption.CASE_INSENSITIVE);
+        } else {
+            options = Collections.emptyList();
+        }
+        return this.events.isMatchingPattern(ctx.IDENTIFIER().getText(), this.cleanPattern(pattern), options);
+    }
+
+    private String cleanPattern(String pattern) {
+        if(pattern.endsWith("/")) {
+            return pattern.substring(1, pattern.length() - 1);
+        } else {
+            return pattern.substring(1, pattern.length() - 2);
+        }
+    }
+
+    @Override
     public Object visitOr(PropertyFilterParser.OrContext ctx) {
         super.visitOr(ctx);
         return this.events.or();

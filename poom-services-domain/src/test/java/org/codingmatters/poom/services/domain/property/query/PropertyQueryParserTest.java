@@ -1032,4 +1032,50 @@ public class PropertyQueryParserTest {
         PropertyQueryParser.builder()
                 .build(FilterEvents.noop()).parse(query);
     }
+
+    @Test
+    public void givenRegexOperator__whenNoOptions__thenOK_andPatternWithoutMarker_andNoOptions() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 =~ /.*/").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<String>() {
+            @Override
+            public String isMatchingPattern(String left, String pattern, List<PatternOption> options) throws FilterEventError {
+                String exp = left + " matches " + pattern + " with options " + options;
+                parsed.add(exp);
+                return exp;
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed, hasSize(1));
+        assertThat(parsed.get(0), is("l1 matches .* with options []"));
+    }
+
+    @Test
+    public void givenRegexOperator__whenInsensitiveOption__thenOK_andPatternWithoutMarker_andInsensitiveOption() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 =~ /.*/i").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<String>() {
+            @Override
+            public String isMatchingPattern(String left, String pattern, List<PatternOption> options) throws FilterEventError {
+                String exp = left + " matches " + pattern + " with options " + options;
+                parsed.add(exp);
+                return exp;
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed, hasSize(1));
+        assertThat(parsed.get(0), is("l1 matches .* with options [" + FilterEvents.PatternOption.CASE_INSENSITIVE + "]"));
+    }
 }

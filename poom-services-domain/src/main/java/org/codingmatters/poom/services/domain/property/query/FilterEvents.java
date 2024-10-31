@@ -22,6 +22,7 @@ public interface FilterEvents<T> {
     default T isEqualsProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T isNotEquals(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T isNotEqualsProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
+    default T isMatchingPattern(String left, String pattern, List<PatternOption> options) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T startsWith(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T startsWithProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T endsWith(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
@@ -189,6 +190,15 @@ public interface FilterEvents<T> {
             public T isNotEqualsProperty(String left, String right) throws FilterEventError {
                 return null;
             }
+
+            @Override
+            public T isMatchingPattern(String left, String pattern, List<PatternOption> options) throws FilterEventError {
+                return null;
+            }
         };
+    }
+
+    enum PatternOption {
+        CASE_INSENSITIVE
     }
 }

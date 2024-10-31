@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public interface Operators {
 
@@ -167,6 +168,16 @@ public interface Operators {
             }
         }
         return true;
+    }
+
+
+    static boolean matchesPattern(Object value, Pattern compiledPattern) {
+        if(value == null) return false;
+        if(value instanceof String) {
+            return compiledPattern.matcher((String)value).matches();
+        } else {
+            return false;
+        }
     }
 
     static boolean in(Object left, List<Object> right) {
