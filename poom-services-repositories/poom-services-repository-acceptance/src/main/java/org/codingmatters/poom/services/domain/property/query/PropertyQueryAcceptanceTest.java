@@ -33,21 +33,26 @@ public abstract class PropertyQueryAcceptanceTest {
         for (int i = 0; i < 100; i++) {
             Boolean bool;
             Boolean [] manyBool;
+            String text;
             switch (i % 3) {
                 case 0:
                     bool = true;
                     manyBool = new Boolean[]{true, true};
+                    text = "aaa";
                     break;
                 case 1:
                     bool = false;
                     manyBool = new Boolean[]{false, false};
+                    text = "AAA";
                     break;
                 default:
                     manyBool = new Boolean[]{true, false};
                     bool = null;
+                    text = "bbb";
             }
             QAValue value = QAValue.builder()
                     .stringProp("%03d", i)
+                    .textProp(text)
                     .manyStringProp(String.format("%03d.1", i), String.format("%03d.2", i), String.format("%03d.3", i))
                     .integerProp(i)
                     .manyIntegerProp(i * 100 + 1, i * 100 + 2, i * 100 + 3)
@@ -1969,4 +1974,24 @@ public abstract class PropertyQueryAcceptanceTest {
                 "002"
         ));
     }
+
+    @Test
+    public void givenFilterOnStringPropertyProperty__whenRegexAndSensitive__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("textProp =~ /a+/")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(34L));
+    }
+
+    @Test
+    public void givenFilterOnStringPropertyProperty__whenRegexAndInsensitive__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("textProp =~ /a+/i")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(67L));
+    }
+
+
 }

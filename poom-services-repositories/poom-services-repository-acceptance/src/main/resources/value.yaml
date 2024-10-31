@@ -1,6 +1,7 @@
 ---
 QAValue:
   stringProp: string
+  textProp: string
   manyStringProp:
     $list: string
   integerProp: int

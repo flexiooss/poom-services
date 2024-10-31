@@ -24,6 +24,7 @@ GTE : '>=' ;
 LT : '<' ;
 LTE : '<=' ;
 EQ : '==' ;
+REQ : '=~' ;
 NEQ : '!=' ;
 STARTS_WITH : S T A R T S ' ' W I T H;
 ENDS_WITH : E N D S ' ' W I T H;
@@ -52,6 +53,9 @@ DECIMAL : '-'?[0-9]+('.'[0-9]+)? ;
 IDENTIFIER : [a-zA-Z_\-.0-9]+ ;
 QUOTED_STRING: '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 
+PATTERN: '/' ~('/')* '/' I?;
+PATTERN_OPT: 'i';
+
 WS : [ \r\t\u000C\n]+ -> skip ;
 
 /* Grammar rules */
@@ -67,6 +71,7 @@ expression
     | left=expression OR right=expression                   #or
     | IDENTIFIER IS_EMPTY                                   #isEmpty
     | IDENTIFIER IS_NOT_EMPTY                               #isNotEmpty
+    | IDENTIFIER REQ PATTERN                                #isMatchingPattern
     | IDENTIFIER operator operand                           #comparison
     | IDENTIFIER IN LPAR operand_list RPAR                  #in
     | IDENTIFIER IN LPAR RPAR                               #inEmpty
