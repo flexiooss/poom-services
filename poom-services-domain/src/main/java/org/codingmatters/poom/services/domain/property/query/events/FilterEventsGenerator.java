@@ -41,7 +41,12 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
 
     @Override
     public Object visitStringOperand(PropertyFilterParser.StringOperandContext ctx) {
-        this.stack.push(ctx.getText().substring(1, ctx.getText().length() - 1));
+        String raw = ctx.getText()
+                .substring(1, ctx.getText().length() - 1)
+                .replaceAll("''", "'")
+                .replaceAll("\\\\'", "'")
+                ;
+        this.stack.push(raw);
         return this.stack.peek();
     }
 

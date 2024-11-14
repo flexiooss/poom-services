@@ -2026,4 +2026,26 @@ public abstract class PropertyQueryAcceptanceTest {
                 "042"
         ));
     }
+
+    @Test
+    public void givenFilterOnStringProperty__whenDoubleQuote__thenSingleQuoteSearched() throws Exception {
+        this.repository().createWithId("cot-cot", QAValue.builder().stringProp("'").build());
+
+        PagedEntityList<QAValue> found = this.repository().search(PropertyQuery.builder()
+                .filter("stringProp == ''''")
+                .build(), 0, 0);
+
+        assertThat(found.total(), is(1L));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenEscapedQuote__thenSingleQuoteSearched() throws Exception {
+        this.repository().createWithId("cot-cot", QAValue.builder().stringProp("'").build());
+
+        PagedEntityList<QAValue> found = this.repository().search(PropertyQuery.builder()
+                .filter("stringProp == '\\''")
+                .build(), 0, 0);
+
+        assertThat(found.total(), is(1L));
+    }
 }
