@@ -233,6 +233,23 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     }
 
     @Override
+    public Object visitAnyIn(PropertyFilterParser.AnyInContext ctx) {
+        super.visitAnyIn(ctx);
+        List<Object> list = new LinkedList<>();
+        for (Object o : this.stack) {
+            list.add(o);
+        }
+        this.stack.clear();
+
+        return this.events.anyIn(ctx.IDENTIFIER().getText(), list);
+    }
+
+    @Override
+    public Object visitAnyInEmpty(PropertyFilterParser.AnyInEmptyContext ctx) {
+        return this.events.anyIn(ctx.IDENTIFIER().getText(), Collections.emptyList());
+    }
+
+    @Override
     public Object visitContainsAny(PropertyFilterParser.ContainsAnyContext ctx) {
         super.visitContainsAny(ctx);
         List<Object> list = new LinkedList<>();

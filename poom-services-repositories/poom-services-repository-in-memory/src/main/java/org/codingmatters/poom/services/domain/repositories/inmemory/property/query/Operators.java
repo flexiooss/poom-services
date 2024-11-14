@@ -184,6 +184,20 @@ public interface Operators {
         return right == null ? false : right.contains(left);
     }
 
+    static boolean anyIn(Object left, List<Object> right) {
+        if(left == null) return false;
+        if(right == null) return false;
+
+        if(left instanceof Collection) {
+            for (Object leftElement : ((Collection) left)) {
+                if(right.contains(leftElement)) return true;
+            }
+            return false;
+        } else {
+            return in(left, right);
+        }
+    }
+
     static Object normalized(Object o) {
         if (o == null) return null;
         if (o instanceof Number) {
