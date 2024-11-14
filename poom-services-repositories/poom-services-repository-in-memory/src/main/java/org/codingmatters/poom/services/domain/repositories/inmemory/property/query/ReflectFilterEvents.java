@@ -161,6 +161,12 @@ public class ReflectFilterEvents<V> extends StackedFilterEvents<Predicate<V>> {
     }
 
     @Override
+    public Void anyIn(String left, List<Object> right) throws FilterEventError {
+        this.push(o -> Operators.anyIn(this.propertyResolver.resolve(o, left).value(), right));
+        return null;
+    }
+
+    @Override
     public Void containsAny(String left, List<Object> right) throws FilterEventError {
         this.push(o -> Operators.containsOne(this.propertyResolver.resolve(o, left).value(), right));
         return null;

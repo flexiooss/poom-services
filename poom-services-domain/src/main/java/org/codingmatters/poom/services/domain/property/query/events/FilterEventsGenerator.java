@@ -41,7 +41,12 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
 
     @Override
     public Object visitStringOperand(PropertyFilterParser.StringOperandContext ctx) {
-        this.stack.push(ctx.getText().substring(1, ctx.getText().length() - 1));
+        String raw = ctx.getText()
+                .substring(1, ctx.getText().length() - 1)
+                .replaceAll("''", "'")
+                .replaceAll("\\\\'", "'")
+                ;
+        this.stack.push(raw);
         return this.stack.peek();
     }
 
@@ -230,6 +235,23 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     @Override
     public Object visitInEmpty(PropertyFilterParser.InEmptyContext ctx) {
         return this.events.in(ctx.IDENTIFIER().getText(), Collections.emptyList());
+    }
+
+    @Override
+    public Object visitAnyIn(PropertyFilterParser.AnyInContext ctx) {
+        super.visitAnyIn(ctx);
+        List<Object> list = new LinkedList<>();
+        for (Object o : this.stack) {
+            list.add(o);
+        }
+        this.stack.clear();
+
+        return this.events.anyIn(ctx.IDENTIFIER().getText(), list);
+    }
+
+    @Override
+    public Object visitAnyInEmpty(PropertyFilterParser.AnyInEmptyContext ctx) {
+        return this.events.anyIn(ctx.IDENTIFIER().getText(), Collections.emptyList());
     }
 
     @Override

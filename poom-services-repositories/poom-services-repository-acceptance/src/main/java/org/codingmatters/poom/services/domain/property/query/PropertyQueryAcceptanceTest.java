@@ -1994,4 +1994,58 @@ public abstract class PropertyQueryAcceptanceTest {
     }
 
 
+    @Test
+    public void givenFilterOnManyStringProperty__whenAnyIn__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyStringProp any in ('042.1', '006.5', '012.2')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(2L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder("012", "042"));
+    }
+
+    @Test
+    public void givenFilterOnManyStringProperty__whenAnyIn_andEmptyList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyStringProp any in ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnManyStringProperty__whenAnyIn_andNullInList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyStringProp any in ('042.1', null)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+                "042"
+        ));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenDoubleQuote__thenSingleQuoteSearched() throws Exception {
+        this.repository().createWithId("cot-cot", QAValue.builder().stringProp("'").build());
+
+        PagedEntityList<QAValue> found = this.repository().search(PropertyQuery.builder()
+                .filter("stringProp == ''''")
+                .build(), 0, 0);
+
+        assertThat(found.total(), is(1L));
+    }
+
+    @Test
+    public void givenFilterOnStringProperty__whenEscapedQuote__thenSingleQuoteSearched() throws Exception {
+        this.repository().createWithId("cot-cot", QAValue.builder().stringProp("'").build());
+
+        PagedEntityList<QAValue> found = this.repository().search(PropertyQuery.builder()
+                .filter("stringProp == '\\''")
+                .build(), 0, 0);
+
+        assertThat(found.total(), is(1L));
+    }
 }

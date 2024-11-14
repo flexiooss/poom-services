@@ -30,6 +30,7 @@ STARTS_WITH : S T A R T S ' ' W I T H;
 ENDS_WITH : E N D S ' ' W I T H;
 CONTAINS : C O N T A I N S;
 IN : I N;
+ANY: A N Y;
 STARTS_WITH_ANY : S T A R T S ' ' W I T H' ' A N Y;
 ENDS_WITH_ANY : E N D S ' ' W I T H ' ' A N Y;
 CONTAINS_ANY : C O N T A I N S ' ' A N Y;
@@ -75,6 +76,8 @@ expression
     | IDENTIFIER operator operand                           #comparison
     | IDENTIFIER IN LPAR operand_list RPAR                  #in
     | IDENTIFIER IN LPAR RPAR                               #inEmpty
+    | IDENTIFIER ANY IN LPAR operand_list RPAR              #anyIn
+    | IDENTIFIER ANY IN LPAR RPAR                           #anyInEmpty
     | IDENTIFIER STARTS_WITH_ANY LPAR operand_list RPAR     #startsWithAny
     | IDENTIFIER STARTS_WITH_ANY LPAR RPAR                  #startsWithAnyEmpty
     | IDENTIFIER ENDS_WITH_ANY LPAR operand_list RPAR       #endsWithAny
