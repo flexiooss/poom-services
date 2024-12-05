@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom.i18n</groupId>
         <artifactId>poom-services-i18n</artifactId>
-        <version>1.209.0</version>
+        <version>1.210.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>poom-services-i18n-bundle-spec</artifactId>
