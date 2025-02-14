@@ -91,7 +91,7 @@
         <poom.service.base.image>poom-service-base-21-alpine</poom.service.base.image>
         <poom.service.base.image.version>2.13.0</poom.service.base.image.version>
         <codingmatters-value-objects.version>1.127.0</codingmatters-value-objects.version>
-        <codingmatters-rest.version>1.158.0</codingmatters-rest.version>
+        <codingmatters-rest.version>1.159.0</codingmatters-rest.version>
     </properties>
 
     <modules>
