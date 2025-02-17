@@ -117,6 +117,17 @@ public abstract class PropertyQueryAcceptanceTest {
     }
 
     @Test
+    public void givenFilterOnStringProperty__whenIsInOneItem__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("stringProp in ('042')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder("006"));
+    }
+
+    @Test
     public void givenFilterOnStringProperty__whenIsIn_andEmptyList__thenSelectedValueReturned() throws Exception {
         PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .filter("stringProp in ()")
