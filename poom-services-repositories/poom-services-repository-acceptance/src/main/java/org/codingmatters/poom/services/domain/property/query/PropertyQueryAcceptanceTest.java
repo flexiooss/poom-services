@@ -124,7 +124,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder("006"));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder("042"));
     }
 
     @Test
