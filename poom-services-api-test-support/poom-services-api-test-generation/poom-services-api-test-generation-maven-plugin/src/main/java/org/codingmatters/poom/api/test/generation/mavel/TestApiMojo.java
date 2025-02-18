@@ -17,7 +17,10 @@ import java.io.IOException;
 @Mojo(name = "test-api-generator")
 public class TestApiMojo extends AbstractGenerateAPIMojo {
 
-    @Parameter(required = true, alias = "api-package")
+    @Parameter(required = true, alias = "root-package")
+    private String rootPackage;
+
+    @Parameter(required = false, alias = "api-package")
     private String apiPackage;
 
     @Parameter(required = false, alias = "client-package")
@@ -31,8 +34,8 @@ public class TestApiMojo extends AbstractGenerateAPIMojo {
         try {
             RamlModelResult raml = this.resolveRamlModel();
             TestApiGenerator generator = new TestApiGenerator(
-                    this.apiPackage,
-                    this.clientPackage != null ? this.clientPackage : this.apiPackage + ".client",
+                    this.apiPackage != null ? this.apiPackage : this.rootPackage + ".api",
+                    this.clientPackage != null ? this.clientPackage : this.rootPackage + ".client",
                     new Naming(),
                     this.outputDirectory
             );
