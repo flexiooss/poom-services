@@ -112,6 +112,7 @@
         <module>poom-services-containers</module>
         <module>poom-services-api-registry</module>
         <module>poom-services-fast-failing</module>
+        <module>poom-services-api-test-support</module>
     </modules>
 
     <dependencies>
@@ -469,6 +470,20 @@
                 <artifactId>poom-services-fast-failing</artifactId>
                 <version>1.223.0-SNAPSHOT</version>
             </dependency>
+
+
+            <!--            TESTS GENERATION-->
+            <dependency>
+                <groupId>org.codingmatters.poom.api.test</groupId>
+                <artifactId>poom-services-api-test-generation-generators</artifactId>
+                <version>1.223.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.api.test</groupId>
+                <artifactId>poom-services-api-test-generation-maven-plugin</artifactId>
+                <version>1.223.0-SNAPSHOT</version>
+            </dependency>
+            <!--            //TESTS GENERATION-->
 
             <!--// BOM-->
         </dependencies>
