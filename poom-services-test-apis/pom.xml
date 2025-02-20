@@ -14,7 +14,24 @@
     <artifactId>poom-services-test-apis</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>org.codingmatters.poom</groupId>
+            <artifactId>poom-services-test-support</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
+        <dependency>
+            <groupId>org.codingmatters.poom.api.registry</groupId>
+            <artifactId>poom-services-api-registry-api-types</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codingmatters.poom.api.registry</groupId>
+            <artifactId>poom-services-api-registry-api-client</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -36,8 +53,6 @@
                         <goals>
                             <goal>test-api-from-reactor-descriptors</goal>
                         </goals>
-                        <configuration>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -486,6 +486,12 @@
             </dependency>
             <!--            //TESTS GENERATION-->
 
+            <dependency>
+                <groupId>org.codingmatters.poom.test.apis</groupId>
+                <artifactId>poom-services-test-apis</artifactId>
+                <version>1.223.0-SNAPSHOT</version>
+            </dependency>
+
             <!--// BOM-->
         </dependencies>
     </dependencyManagement>

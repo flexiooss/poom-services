@@ -35,6 +35,13 @@ public class TestApiGenerator {
         this.testPackage = this.apiPackage + ".test";
     }
 
+
+    public void generate(RamlModelResult raml) throws IOException {
+        File packageDestination = packageDir(this.rootDirectory, this.testPackage);
+        writeJavaFile(packageDestination, this.testPackage, this.type(raml));
+        System.out.println("generated test api for " + raml.getApiV10().title().value());
+    }
+
     private TypeSpec type(RamlModelResult ramlModel) {
         String apiTitle = ramlModel.getApiV10().title().value();
         TypeSpec.Builder result = TypeSpec.classBuilder(this.naming.type(apiTitle, "TestApi"))
@@ -47,16 +54,17 @@ public class TestApiGenerator {
                 .addMethods(this.jupiterExtensionMethods(ramlModel.getApiV10().resources()))
                 ;
 
-        for (Resource resource : ramlModel.getApiV10().resources()) {
-            result.addMethods(this.handlerResourceMethods(resource));
-            result.addFields(this.handlerResourceField(resource));
-            for (Resource subResource : resource.resources()) {
-                result.addMethods(this.handlerResourceMethods(subResource));
-                result.addFields(this.handlerResourceField(subResource));
-            }
-        }
+        this.addMethodsAndFields(ramlModel.getApiV10().resources(), result);
 
         return result.build();
+    }
+
+    private void addMethodsAndFields(List<Resource> resources, TypeSpec.Builder result) {
+        for (Resource resource : resources) {
+            result.addMethods(this.handlerResourceMethods(resource));
+            result.addFields(this.handlerResourceFields(resource));
+            this.addMethodsAndFields(resource.resources(), result);
+        }
     }
 
     private List<MethodSpec> jupiterExtensionMethods(List<Resource> resources) {
@@ -93,7 +101,7 @@ public class TestApiGenerator {
         }
     }
 
-    private List<FieldSpec> handlerResourceField(Resource resource) {
+    private List<FieldSpec> handlerResourceFields(Resource resource) {
         List<FieldSpec> result = new LinkedList<>();
         for (Method method : resource.methods()) {
             result.add(FieldSpec.builder(
@@ -172,11 +180,6 @@ public class TestApiGenerator {
                 .returns(this.clientType(apiTitle))
                 .addStatement("return this.client")
                 .build();
-    }
-
-    public void generate(RamlModelResult raml) throws IOException {
-        File packageDestination = packageDir(this.rootDirectory, this.testPackage);
-        writeJavaFile(packageDestination, this.testPackage, this.type(raml));
     }
 
     private ClassName clientType(String apiTitle) {

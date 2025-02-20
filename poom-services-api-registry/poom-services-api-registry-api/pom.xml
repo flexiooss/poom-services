@@ -22,7 +22,6 @@
         <module>poom-services-api-registry-api-types</module>
         <module>poom-services-api-registry-api-client</module>
         <module>poom-services-api-registry-api-processor</module>
-        <module>poom-services-api-registry-api-tests</module>
     </modules>
     
 </project>
