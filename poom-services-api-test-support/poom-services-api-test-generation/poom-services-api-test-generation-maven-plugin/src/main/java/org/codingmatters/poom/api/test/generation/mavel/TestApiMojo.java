@@ -14,7 +14,7 @@ import org.raml.v2.api.RamlModelResult;
 import java.io.File;
 import java.io.IOException;
 
-@Mojo(name = "test-api-generator")
+@Mojo(name = "test-api")
 public class TestApiMojo extends AbstractGenerateAPIMojo {
 
     @Parameter(required = true, alias = "root-package")

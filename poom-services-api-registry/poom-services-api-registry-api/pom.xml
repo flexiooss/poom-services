@@ -13,12 +13,16 @@
     <artifactId>poom-services-api-registry-api</artifactId>
     <packaging>pom</packaging>
 
+    <properties>
+        <cdm-rest-maven-plugin-client-descriptor-storage-dir>${pom.basedir}/target/client-descriptors</cdm-rest-maven-plugin-client-descriptor-storage-dir>
+    </properties>
+
     <modules>
         <module>poom-services-api-registry-api-spec</module>
         <module>poom-services-api-registry-api-types</module>
         <module>poom-services-api-registry-api-client</module>
         <module>poom-services-api-registry-api-processor</module>
+        <module>poom-services-api-registry-api-tests</module>
     </modules>
-
     
 </project>

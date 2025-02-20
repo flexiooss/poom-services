@@ -28,6 +28,10 @@
             <groupId>org.codingmatters.value.objects</groupId>
             <artifactId>cdm-value-objects-values</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+        </dependency>
     </dependencies>
     
 </project>

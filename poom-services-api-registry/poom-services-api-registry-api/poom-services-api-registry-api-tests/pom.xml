@@ -5,53 +5,53 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.codingmatters.poom.apis.demo</groupId>
-        <artifactId>poom-services-demo-api</artifactId>
+        <groupId>org.codingmatters.poom.api.registry</groupId>
+        <artifactId>poom-services-api-registry-api</artifactId>
         <version>1.223.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>poom-services-demo-api-client</artifactId>
-    <name>${project.groupId}:${project.artifactId}</name>
+    <artifactId>poom-services-api-registry-api-tests</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>org.codingmatters.poom.apis.demo</groupId>
-            <artifactId>poom-services-demo-api-types</artifactId>
+            <groupId>org.codingmatters.poom.api.registry</groupId>
+            <artifactId>poom-services-api-registry-api-types</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codingmatters.rest</groupId>
-            <artifactId>cdm-rest-client-api</artifactId>
+            <groupId>org.codingmatters.poom.api.registry</groupId>
+            <artifactId>poom-services-api-registry-api-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
+            <groupId>org.codingmatters.poom</groupId>
+            <artifactId>poom-services-test-support</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codingmatters.rest</groupId>
-                <artifactId>cdm-rest-maven-plugin</artifactId>
+                <groupId>org.codingmatters.poom.api.test</groupId>
+                <artifactId>poom-services-api-test-generation-maven-plugin</artifactId>
                 <dependencies>
                     <dependency>
-                        <groupId>org.codingmatters.poom.apis.demo</groupId>
-                        <artifactId>poom-services-demo-api-spec</artifactId>
+                        <groupId>org.codingmatters.poom.api.registry</groupId>
+                        <artifactId>poom-services-api-registry-api-spec</artifactId>
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>
                 <executions>
                     <execution>
-                        <id>client</id>
+                        <id>test-apis-from-reactor</id>
                         <phase>generate-sources</phase>
                         <goals>
-                            <goal>generate-all-clients</goal>
+                            <goal>test-api-from-reactor-descriptors</goal>
                         </goals>
                         <configuration>
-                            <root-package>org.codingmatters.poom.apis.demo</root-package>
-                            <api-spec-resource>demo-api.raml</api-spec-resource>
-                            <vendor>flexio-oss</vendor>
-                            <generate-descriptor>false</generate-descriptor>
                         </configuration>
                     </execution>
                 </executions>
@@ -75,4 +75,5 @@
             </plugin>
         </plugins>
     </build>
+    
 </project>

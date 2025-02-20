@@ -51,6 +51,7 @@
                             <root-package>org.codingmatters.poom.apis.simple.demo</root-package>
                             <api-spec-resource>simple-demo-api.raml</api-spec-resource>
                             <vendor>flexio-oss</vendor>
+                            <generate-descriptor>false</generate-descriptor>
                         </configuration>
                     </execution>
                 </executions>

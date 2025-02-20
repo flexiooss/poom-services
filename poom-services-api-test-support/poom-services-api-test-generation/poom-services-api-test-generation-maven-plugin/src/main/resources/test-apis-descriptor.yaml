@@ -1,0 +1,6 @@
+---
+TestApisDescriptor:
+  root-package: string
+  api-package: string
+  client-package: string
+  api-spec-resource: string

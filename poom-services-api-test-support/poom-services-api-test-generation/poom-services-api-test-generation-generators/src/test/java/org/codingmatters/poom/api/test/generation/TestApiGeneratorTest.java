@@ -1,6 +1,7 @@
 package org.codingmatters.poom.api.test.generation;
 
 import org.codingmatters.poom.handler.CumulatingHandlerResource;
+import org.codingmatters.poom.handler.CumulatingTestHandler;
 import org.codingmatters.rest.api.generator.*;
 import org.codingmatters.rest.api.generator.handlers.HandlersHelper;
 import org.codingmatters.tests.compile.CompiledCode;
@@ -14,6 +15,8 @@ import org.codingmatters.value.objects.spec.Spec;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.rules.TemporaryFolder;
 import org.raml.v2.api.RamlModelBuilder;
 import org.raml.v2.api.RamlModelResult;
@@ -60,17 +63,16 @@ public class TestApiGeneratorTest {
                 .generate(this.raml);
 
 //        this.fileHelper.printJavaContent("", this.dir.getRoot());
-//        this.fileHelper.printFile(this.dir.getRoot(), "TestAPITestApi.java");
+        this.fileHelper.printFile(this.dir.getRoot(), "TestAPITestApi.java");
 
         this.compiled = CompiledCode.builder().source(this.dir.getRoot()).compile();
     }
 
     @Test
     public void thenTestApiClassGenerated() throws Exception {
-
         assertThat(
                 this.compiled.classLoader().get(API_PACK + ".test.TestAPITestApi").get(),
-                is(aClass())
+                is(aClass().implementing(BeforeEachCallback.class).implementing(AfterEachCallback.class))
         );
     }
 
@@ -116,20 +118,20 @@ public class TestApiGeneratorTest {
         assertThat(
                 this.compiled.classLoader().get(API_PACK + ".test.TestAPITestApi").get(),
                 is(aClass()
-                        .with(aPublic().method().named("rootGet").returning(CumulatingHandlerResource.class))
-                        .with(aPublic().method().named("subGet").returning(CumulatingHandlerResource.class))
+                        .with(aPublic().method().named("rootGet").returning(CumulatingTestHandler.class))
+                        .with(aPublic().method().named("subGet").returning(CumulatingTestHandler.class))
                 )
         );
     }
 
     @Test
-    public void thenTestApiClassHasACumulatingHandlerResourceFieldForEachResourceMethod() throws Exception {
+    public void thenTestApiClassHasACumulatingTestHandlerFieldForEachResourceMethod() throws Exception {
         assertThat(
                 this.compiled.classLoader().get(API_PACK + ".test.TestAPITestApi").get(),
                 is(aClass()
-                        .with(aPrivate().field().final_().named("rootGet").withType(CumulatingHandlerResource.class))
-                        .with(aPrivate().field().final_().named("rootPost").withType(CumulatingHandlerResource.class))
-                        .with(aPrivate().field().final_().named("subGet").withType(CumulatingHandlerResource.class))
+                        .with(aPrivate().field().final_().named("rootGet").withType(CumulatingTestHandler.class))
+                        .with(aPrivate().field().final_().named("rootPost").withType(CumulatingTestHandler.class))
+                        .with(aPrivate().field().final_().named("subGet").withType(CumulatingTestHandler.class))
                 )
         );
     }
@@ -148,19 +150,26 @@ public class TestApiGeneratorTest {
         ObjectHelper testApi = this.compiled.classLoader().get(API_PACK + ".test.TestAPITestApi").newInstance();
         ObjectHelper client = testApi.call("client");
 
-        AssertionError error = assertThrows(AssertionError.class, () -> client.call("root")
+        ObjectHelper actual = client.call("root")
                 .as(CLIENT_PACK + ".TestAPIClient$Root")
                 .call("get", this.compiled.classLoader().get(API_PACK + ".RootGetRequest").get())
-                .with(this.compiled.classLoader().get(API_PACK + ".RootGetRequest").call("builder").call("build").get())
-        );
-        assertThat(
-                error.getCause().getCause(),
-                isA(NullPointerException.class)
-        );
-        assertThat(
-                error.getCause().getCause().getMessage(),
-                is("Cannot invoke \"java.util.function.Function.apply(Object)\" because the return value of \"org.generated.api.TestAPIHandlers.rootGetHandler()\" is null")
+                .with(this.compiled.classLoader().get(API_PACK + ".RootGetRequest").call("builder").call("build").get());
 
-        );
+        assertThat(actual.get(), is(nullValue()));
+
+//        AssertionError error = assertThrows(AssertionError.class, () -> client.call("root")
+//                .as(CLIENT_PACK + ".TestAPIClient$Root")
+//                .call("get", this.compiled.classLoader().get(API_PACK + ".RootGetRequest").get())
+//                .with(this.compiled.classLoader().get(API_PACK + ".RootGetRequest").call("builder").call("build").get())
+//        );
+//        assertThat(
+//                error.getCause().getCause(),
+//                isA(NullPointerException.class)
+//        );
+//        assertThat(
+//                error.getCause().getCause().getMessage(),
+//                is("Cannot invoke \"java.util.function.Function.apply(Object)\" because the return value of \"org.generated.api.TestAPIHandlers.rootGetHandler()\" is null")
+//
+//        );
     }
 }

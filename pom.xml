@@ -113,6 +113,7 @@
         <module>poom-services-api-registry</module>
         <module>poom-services-fast-failing</module>
         <module>poom-services-api-test-support</module>
+        <module>poom-services-test-apis</module>
     </modules>
 
     <dependencies>
@@ -510,6 +511,11 @@
                 <plugin>
                     <groupId>org.codingmatters.poom.i18n</groupId>
                     <artifactId>poom-services-i18n-bundle-spec-plugin</artifactId>
+                    <version>1.223.0-SNAPSHOT</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codingmatters.poom.api.test</groupId>
+                    <artifactId>poom-services-api-test-generation-maven-plugin</artifactId>
                     <version>1.223.0-SNAPSHOT</version>
                 </plugin>
 
