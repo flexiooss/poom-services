@@ -10,6 +10,13 @@ import java.util.function.Function;
 
 public abstract class CumulatingHandlerResource<Req, Resp> extends ExternalResource implements Function<Req, Resp> {
 
+    private final CumulatingTestHandler<Req, Resp> deleguate = new CumulatingTestHandler<>() {
+        @Override
+        protected Resp defaultResponse(Req request) {
+            return CumulatingHandlerResource.this.defaultResponse(request);
+        }
+    };
+
     private final List<Req> requests = Collections.synchronizedList(new LinkedList<>());
     private final List<Function<Req, Resp>> nextResponses = Collections.synchronizedList(new LinkedList<>());
     private final AtomicInteger currentResponseIndex = new AtomicInteger(0);
@@ -18,46 +25,36 @@ public abstract class CumulatingHandlerResource<Req, Resp> extends ExternalResou
 
     @Override
     public synchronized Resp apply(Req req) {
-        this.requests.add(req);
-        if(this.nextResponses.size() > this.currentResponseIndex.get()) {
-            return this.nextResponses.get(this.currentResponseIndex.getAndIncrement()).apply(req);
-        } else if(! this.nextResponses.isEmpty()) {
-            return this.nextResponses.get(this.nextResponses.size() - 1).apply(req);
-        } else {
-            return this.defaultResponse(req);
-        }
+        return this.deleguate.apply(req);
     }
 
     @Override
     protected void before() throws Throwable {
         super.before();
-        this.requests.clear();
-        this.nextResponses.clear();
+        this.deleguate.initialize();
     }
 
     @Override
     protected void after() {
-        this.requests.clear();
-        this.nextResponses.clear();
+        this.deleguate.cleanup();
         super.after();
     }
 
     public synchronized CumulatingHandlerResource<Req, Resp> nextResponse(Function<Req,Resp> responder) {
-        this.nextResponses.add(responder);
+        this.deleguate.nextResponse(responder);
         return this;
     }
 
     public synchronized CumulatingHandlerResource<Req, Resp> reset() {
-        this.requests.clear();
+        this.deleguate.reset();
         return this;
     }
 
     public synchronized List<Req> requests() {
-        return new LinkedList<>(this.requests);
+        return this.deleguate.requests();
     }
 
     public synchronized Req lastRequest() {
-        if(this.requests.isEmpty()) return null;
-        return this.requests.get(this.requests.size() - 1);
+        return this.deleguate.lastRequest();
     }
 }
