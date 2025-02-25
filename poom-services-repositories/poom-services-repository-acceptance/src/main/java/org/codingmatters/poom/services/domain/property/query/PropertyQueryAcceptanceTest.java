@@ -1508,9 +1508,20 @@ public abstract class PropertyQueryAcceptanceTest {
     }
 
     @Test
-    public void whenNoFilter_andOrderByOnePropertyDesc__thenAllValuesReturnedIsAscending() throws Exception {
+    public void whenNoFilter_andOrderByOnePropertyDesc__thenAllValuesReturnedIsDescending() throws Exception {
         PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
                 .sort("stringProp desc")
+                .build(), 0, 1000);
+
+        assertThat(actual.valueList(), hasSize(100));
+        assertThat(actual.valueList().get(0).stringProp(), is("099"));
+        assertThat(actual.valueList().get(1).stringProp(), is("098"));
+    }
+
+    @Test
+    public void whenNoFilter_andOrderBySamePropertyBothDescAndAsc__thenAllValuesReturnedIsDescending() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .sort("stringProp desc, stringProp asc")
                 .build(), 0, 1000);
 
         assertThat(actual.valueList(), hasSize(100));
