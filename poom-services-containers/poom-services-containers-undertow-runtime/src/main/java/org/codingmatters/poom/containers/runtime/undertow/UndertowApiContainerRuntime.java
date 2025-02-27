@@ -12,12 +12,16 @@ import org.codingmatters.rest.api.Api;
 import org.codingmatters.rest.api.processors.StaticResourceProcessor;
 import org.codingmatters.rest.undertow.CdmHttpUndertowHandler;
 
+import java.io.IOException;
 import java.util.Optional;
+
+import static org.xnio.Options.*;
 
 public class UndertowApiContainerRuntime extends ApiContainerRuntime {
 
     public static final String UNDERTOW_IO_THREAD_COUNT = "UNDERTOW_IO_THREAD_COUNT";
     public static final String UNDERTOW_WORKER_THREAD_COUNT = "UNDERTOW_WORKER_THREAD_COUNT";
+    public static final String UNDERTOW_USE_DIRECT_BUFFER = "UNDERTOW_USE_DIRECT_BUFFER";
     private final String host;
     private final int port;
 
@@ -35,10 +39,10 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
 
         for (Api api : this.apis) {
             String path = api.path();
-            if(path.isEmpty()) {
+            if (path.isEmpty()) {
                 path = "/";
             }
-            if(! path.equals("/") && path.endsWith("/")) {
+            if (!path.equals("/") && path.endsWith("/")) {
                 path = path.substring(0, path.length() - 1);
             }
             if (api.docResource() != null) {
@@ -55,18 +59,34 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
                 .setHandler(handlers);
 
         Optional<Env.Var> ioThreadCount = Env.optional(UNDERTOW_IO_THREAD_COUNT);
-        if(ioThreadCount.isPresent()) {
+        if (ioThreadCount.isPresent()) {
             builder.setIoThreads(ioThreadCount.get().asInteger());
         }
         Optional<Env.Var> workerThreadCount = Env.optional(UNDERTOW_WORKER_THREAD_COUNT);
-        if(workerThreadCount.isPresent()) {
+        if (workerThreadCount.isPresent()) {
             builder.setWorkerThreads(workerThreadCount.get().asInteger());
         }
+        Optional<Env.Var> useDirectBuffer = Env.optional(UNDERTOW_USE_DIRECT_BUFFER);
+        if (useDirectBuffer.isPresent()) {
+            builder.setDirectBuffers(useDirectBuffer.get().asBoolean());
+        }
 
-        this.undertow = builder
-                .build();
+        this.undertow = builder.build();
         this.undertow.start();
-        this.log.info("undertow server started");
+
+        try {
+            Integer ioThread = undertow.getWorker().getIoThreadCount();
+            Integer coreThreadCount = undertow.getWorker().getOption(WORKER_TASK_CORE_THREADS);
+            Integer maxThreadCount = undertow.getWorker().getOption(WORKER_TASK_MAX_THREADS);
+            Boolean useDirectBufferOpt = undertow.getWorker().getOption(USE_DIRECT_BUFFERS);
+            this.log.info("Undertow server started with" +
+                    " IoThreadCount=" + ioThread +
+                    " useDirectBuffer=" + useDirectBufferOpt +
+                    " and coreThreadCount=" + coreThreadCount +
+                    " and maxThreadCount=" + maxThreadCount);
+        } catch (IOException e) {
+            this.log.error("Undertow server started with undefined options ", e);
+        }
     }
 
     @Override
