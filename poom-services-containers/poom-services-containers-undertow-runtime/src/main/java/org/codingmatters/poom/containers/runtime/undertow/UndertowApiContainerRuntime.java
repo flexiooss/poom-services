@@ -7,12 +7,17 @@ import org.codingmatters.poom.containers.ApiContainerRuntime;
 import org.codingmatters.poom.containers.ServerShutdownException;
 import org.codingmatters.poom.containers.ServerStartupException;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
+import org.codingmatters.poom.services.support.Env;
 import org.codingmatters.rest.api.Api;
 import org.codingmatters.rest.api.processors.StaticResourceProcessor;
 import org.codingmatters.rest.undertow.CdmHttpUndertowHandler;
 
+import java.util.Optional;
+
 public class UndertowApiContainerRuntime extends ApiContainerRuntime {
 
+    public static final String UNDERTOW_IO_THREAD_COUNT = "UNDERTOW_IO_THREAD_COUNT";
+    public static final String UNDERTOW_WORKER_THREAD_COUNT = "UNDERTOW_WORKER_THREAD_COUNT";
     private final String host;
     private final int port;
 
@@ -45,9 +50,20 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
                     .addPrefixPath(path, new CdmHttpUndertowHandler(api.processor()));
         }
 
-        this.undertow = Undertow.builder()
+        Undertow.Builder builder = Undertow.builder()
                 .addHttpListener(this.port, host)
-                .setHandler(handlers)
+                .setHandler(handlers);
+
+        Optional<Env.Var> ioThreadCount = Env.optional(UNDERTOW_IO_THREAD_COUNT);
+        if(ioThreadCount.isPresent()) {
+            builder.setIoThreads(ioThreadCount.get().asInteger());
+        }
+        Optional<Env.Var> workerThreadCount = Env.optional(UNDERTOW_WORKER_THREAD_COUNT);
+        if(workerThreadCount.isPresent()) {
+            builder.setWorkerThreads(workerThreadCount.get().asInteger());
+        }
+
+        this.undertow = builder
                 .build();
         this.undertow.start();
         this.log.info("undertow server started");
