@@ -1,9 +1,11 @@
 package org.codingmatters.poom.services.support;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
 
 public class EnvTest {
 
@@ -37,4 +39,15 @@ public class EnvTest {
         assertThat(new Env.Var("a,,,,,,,,,c").asList(","), contains("a", "c"));
     }
 
+    @Test
+    public void testBoolean() {
+        assertThat(new Env.Var("true").asBoolean(), is(true));
+        assertThat(new Env.Var("TRUE").asBoolean(), is(true));
+        assertThat(new Env.Var("True").asBoolean(), is(true));
+        assertThat(new Env.Var("TrUe").asBoolean(), is(true));
+        assertThat(new Env.Var("false").asBoolean(), is(false));
+        assertThat(new Env.Var(null).asBoolean(), is(false));
+        assertThat(new Env.Var("").asBoolean(), is(false));
+        assertThat(new Env.Var("plok").asBoolean(), is(false));
+    }
 }

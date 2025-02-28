@@ -22,19 +22,19 @@ public interface Env {
         String value = null;
 
         String varFile = EnvProvider.get().apply(envVariableName + "_FILE");
-        if(varFile != null) {
+        if (varFile != null) {
             value = readFile(varFile);
         }
 
-        if(value == null) {
+        if (value == null) {
             value = EnvProvider.get().apply(envVariableName);
         }
 
-        if(value == null) {
+        if (value == null) {
             value = System.getProperty(envVariableName.replaceAll("_", ".").toLowerCase());
         }
 
-        if(value != null) {
+        if (value != null) {
             return Optional.of(new Var(value));
         } else {
             return Optional.empty();
@@ -45,8 +45,8 @@ public interface Env {
         StringBuilder result = new StringBuilder();
         try {
             try (Reader in = new FileReader(varFile)) {
-                char [] buffer = new char[1024];
-                for(int read = in.read(buffer) ; read != -1 ; read = in.read(buffer)) {
+                char[] buffer = new char[1024];
+                for (int read = in.read(buffer); read != -1; read = in.read(buffer)) {
                     result.append(buffer, 0, read);
                 }
             }
@@ -75,15 +75,15 @@ public interface Env {
             List<String> result = new LinkedList<>();
 
             String str = this.rawValue;
-            while(str.indexOf(separator) != -1) {
+            while (str.indexOf(separator) != -1) {
                 String val = str.substring(0, str.indexOf(separator));
-                if(! val.isEmpty()) {
+                if (!val.isEmpty()) {
                     result.add(val);
                 }
                 str = str.substring(str.indexOf(separator) + separator.length());
             }
 
-            if(! str.isEmpty()) {
+            if (!str.isEmpty()) {
                 result.add(str);
             }
 
@@ -96,6 +96,10 @@ public interface Env {
 
         public Integer asInteger() {
             return Integer.valueOf(this.rawValue);
+        }
+
+        public Boolean asBoolean() {
+            return Optional.ofNullable(this.rawValue).orElse("").toLowerCase(Locale.FRENCH).equals("true");
         }
 
         public Long asLong() {
