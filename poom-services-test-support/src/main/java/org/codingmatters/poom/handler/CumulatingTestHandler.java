@@ -29,11 +29,13 @@ public abstract class CumulatingTestHandler<Req, Resp> implements Function<Req, 
     public void initialize() {
         this.requests.clear();
         this.nextResponses.clear();
+        this.currentResponseIndex.set(0);
     }
 
     public void cleanup() {
         this.requests.clear();
         this.nextResponses.clear();
+        this.currentResponseIndex.set(0);
     }
 
     public synchronized CumulatingTestHandler<Req, Resp> nextResponse(Function<Req,Resp> responder) {
