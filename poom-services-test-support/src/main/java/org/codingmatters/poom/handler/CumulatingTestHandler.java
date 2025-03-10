@@ -43,6 +43,11 @@ public abstract class CumulatingTestHandler<Req, Resp> implements Function<Req, 
         return this;
     }
 
+    public synchronized CumulatingTestHandler<Req, Resp> nthResponse(int index, Function<Req,Resp> responder) {
+        this.nextResponses.set(index, responder);
+        return this;
+    }
+
     public synchronized CumulatingTestHandler<Req, Resp> reset() {
         this.requests.clear();
         return this;
