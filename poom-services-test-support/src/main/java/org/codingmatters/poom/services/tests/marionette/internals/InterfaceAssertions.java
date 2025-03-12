@@ -33,7 +33,7 @@ public class InterfaceAssertions<I> implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-        if(! method.getDeclaringClass().equals(this.clazz)) return method.invoke(o, objects);
+        if(! method.getDeclaringClass().equals(this.clazz)) return null;
         Call expected = new Call(method, objects);
 
         List<Call> methodCalls = this.calls.stream().filter(call -> call.method().equals(method)).toList();

@@ -329,6 +329,13 @@ class MarionetteTest {
     }
 
     @Test
+    void givenNoReturnValue__whenNotCalled_andAssertingNeverCalled__thenOK() throws Exception {
+        Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
+
+        marionette.assertNeverCalled().unary(12);
+    }
+
+    @Test
     void givenDefaultRetunValue__whenNotCalled_andAssertingNeverCalled__thenOK() throws Exception {
         Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
         marionette.defaultCallReturns("plop").whenAnyArgs().oary();

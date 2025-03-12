@@ -18,7 +18,8 @@ public class NeverCalledAssertions<I> implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-        if(! method.getDeclaringClass().equals(this.clazz)) return method.invoke(o, objects);
+        if(! method.getDeclaringClass().equals(this.clazz)) return null;
+
         Call notExcepted = new Call(method, objects);
         Optional<Call> called = this.calls.stream().filter(call -> call.method().equals(notExcepted.method())).findAny();
         if(called.isPresent())  {
