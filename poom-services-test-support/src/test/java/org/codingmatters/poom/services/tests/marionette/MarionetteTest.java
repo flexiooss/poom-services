@@ -246,4 +246,85 @@ class MarionetteTest {
         AssertionError e = assertThrows(AssertionError.class, () -> marionette.assertNthCall(100).was().unary(12));
         assertThat(e.getMessage(), is("expected : Call{TestInterface#unary([12])} but was : null"));
     }
+
+    @Test
+    void whenCallsForDifferentMethods__thenEachMethodHasOwnLastCall() throws Exception {
+        Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
+
+        marionette.nextCallReturns("plop").whenAnyArgs().unary(null);
+        marionette.nextCallReturns("plop").whenAnyArgs().nary(null, null);
+
+        marionette.component().unary(12);
+        marionette.component().nary("plop", 42L);
+
+        marionette.assertLastCall().was().unary(12);
+        marionette.assertLastCall().was().nary("plop", 42L);
+    }
+
+    @Test
+    void whenCallsForDifferentMethods__thenEachMethodHasOwnNthCall() throws Exception {
+        Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
+
+        marionette.nextCallReturns("plop").whenAnyArgs().unary(null);
+        marionette.nextCallReturns("plop").whenAnyArgs().unary(null);
+        marionette.nextCallReturns("plop").whenAnyArgs().unary(null);
+        marionette.nextCallReturns("plop").whenAnyArgs().nary(null, null);
+        marionette.nextCallReturns("plop").whenAnyArgs().nary(null, null);
+        marionette.nextCallReturns("plop").whenAnyArgs().nary(null, null);
+
+        marionette.component().unary(12);
+        marionette.component().nary("plop", 42L);
+        marionette.component().unary(12);
+        marionette.component().nary("plop", 42L);
+        marionette.component().unary(12);
+        marionette.component().nary("plop", 42L);
+
+        for (int i = 0; i < 3; i++) {
+            marionette.assertNthCall(i).was().unary(12);
+            marionette.assertNthCall(i).was().nary("plop", 42L);
+        }
+
+    }
+
+    @Test
+    void giveDefaultCallDefined__whenMultipleCalls__thenOk() throws Exception {
+        Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
+
+        marionette.defaultCallReturns("plop").whenAnyArgs().unary(null);
+
+        for (int i = 0; i < 100;  i++) {
+            marionette.component().unary(12);
+        }
+    }
+
+    @Test
+    void givenManyOneCallDefined__whenMultipleCalls__thenManyPlusOneFails() throws Exception {
+        Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
+
+        marionette.nextCallReturns("plop").whenAnyArgs().unary(null);
+        marionette.nextCallReturns("plop").whenAnyArgs().unary(null);
+        marionette.nextCallReturns("plop").whenAnyArgs().unary(null);
+
+        for (int i = 0; i < 3;  i++) {
+            marionette.component().unary(12);
+        }
+
+        assertThrows(AssertionError.class, () -> marionette.component().unary(12));
+    }
+
+    @Test
+    void givenManyOneCallDefined__whenMultipleCalls_andDefaultCallDefined__thenManyPlusSucceeds() throws Exception {
+        Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
+
+        marionette.nextCallReturns("plop").whenAnyArgs().unary(null);
+        marionette.nextCallReturns("plop").whenAnyArgs().unary(null);
+        marionette.nextCallReturns("plop").whenAnyArgs().unary(null);
+
+        marionette.defaultCallReturns("plop").whenAnyArgs().unary(null);
+
+        for (int i = 0; i < 3;  i++) {
+            marionette.component().unary(12);
+        }
+        marionette.component().unary(12);
+    }
 }

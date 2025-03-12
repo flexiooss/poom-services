@@ -16,8 +16,9 @@ public class Marionette<I> {
     private final Class<I> clazz;
     private final List<Call> calls = new LinkedList<>();
     private final Map<Method, List<ExpectedReturnValue>> nextResults = Collections.synchronizedMap(new HashMap<>());
+    private final Map<Method, List<ExpectedReturnValue>> defaultResults = Collections.synchronizedMap(new HashMap<>());
 
-    private final InterfaceRuntime component = new InterfaceRuntime(this.calls, this.nextResults);
+    private final InterfaceRuntime component = new InterfaceRuntime(this.calls, this.nextResults, this.defaultResults);
 
     public Marionette(Class<I> clazz) {
         this.clazz = clazz;
@@ -28,17 +29,19 @@ public class Marionette<I> {
     }
 
     public InterfaceAssertions<I> assertLastCall() {
-        Call call = this.calls.isEmpty() ? null : this.calls.getLast();
-        return new InterfaceAssertions<>(this.clazz, call);
+        return InterfaceAssertions.onLastCall(this.clazz, new LinkedList<>(this.calls));
     }
 
     public InterfaceAssertions<I> assertNthCall(int index) {
-        Call call = this.calls.size() >= index + 1 ? this.calls.get(index) : null;
-        return new InterfaceAssertions<>(this.clazz, call);
+        return InterfaceAssertions.onNthCall(this.clazz, this.calls, index);
     }
 
     public InterfaceBehaviour<I> nextCallReturns(Object value) {
         return new InterfaceBehaviour<>(value, this.clazz, this.nextResults);
+    }
+
+    public InterfaceBehaviour<I> defaultCallReturns(Object value) {
+        return new InterfaceBehaviour<>(value, this.clazz, this.defaultResults);
     }
 
     public InterfaceBehaviour<I> nextCallThrows(Supplier<Throwable> thrown) {

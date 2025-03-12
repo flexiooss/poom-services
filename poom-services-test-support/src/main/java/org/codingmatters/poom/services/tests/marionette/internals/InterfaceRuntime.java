@@ -8,10 +8,12 @@ public class InterfaceRuntime implements InvocationHandler {
 
     private final List<Call> calls;
     private final Map<Method, List<ExpectedReturnValue>> nextResults;
+    private final Map<Method, List<ExpectedReturnValue>> defaultResults;
 
-    public InterfaceRuntime(List<Call> calls, Map<Method, List<ExpectedReturnValue>> nextResults) {
+    public InterfaceRuntime(List<Call> calls, Map<Method, List<ExpectedReturnValue>> nextResults, Map<Method, List<ExpectedReturnValue>> defaultResults) {
         this.calls = calls;
         this.nextResults = nextResults;
+        this.defaultResults = defaultResults;
     }
 
     @Override
@@ -22,11 +24,18 @@ public class InterfaceRuntime implements InvocationHandler {
     }
 
     private Object resolveResult(Call call) throws Throwable {
+        ExpectedReturnValue result;
         List<ExpectedReturnValue> methodResults = this.nextResults.getOrDefault(call.method(), Collections.emptyList());
         if(methodResults.isEmpty()) {
-            throw new AssertionError("unexpected call " + call);
+            List<ExpectedReturnValue> methodDefaultResults = this.defaultResults.getOrDefault(call.method(), Collections.emptyList());
+            if(methodDefaultResults.isEmpty()) {
+                throw new AssertionError("unexpected call " + call);
+            } else {
+                result = methodDefaultResults.getLast();
+            }
+        } else {
+            result = methodResults.removeFirst();
         }
-        ExpectedReturnValue result = methodResults.removeFirst();
         if(result.checkedArguments().isPresent()) {
             if(! Arrays.equals(call.arguments(), result.checkedArguments().get())) {
                 throw new AssertionError(String.format(
