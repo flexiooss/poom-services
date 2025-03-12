@@ -353,4 +353,20 @@ class MarionetteTest {
         AssertionError e = assertThrows(AssertionError.class, () -> marionette.assertNeverCalled().oary());
         assertThat(e.getMessage(), is("was not expecting to be called : Call{TestInterface#oary([])}"));
     }
+
+    @Test
+    void givenDefaultRetunValue__whenCalledNTimes_andAssertingOnCalledTimes__thenSucceedsOnSameCount_andFailsOnDifferentCount() throws Exception {
+        Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
+        marionette.defaultCallReturns("plop").whenAnyArgs().oary();
+
+        for (int i = 0; i < 124; i++) {
+            marionette.component().oary();
+        }
+
+        marionette.assertCalledTimes(124).oary();
+        AssertionError e = assertThrows(AssertionError.class, () -> marionette.assertCalledTimes(12).oary());
+        assertThat(e.getMessage(), is("expected 12 calls of Call{TestInterface#oary([])} but was 124"));
+    }
+
+
 }

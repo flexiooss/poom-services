@@ -54,4 +54,7 @@ public class Marionette<I> {
     }
 
 
+    public I assertCalledTimes(int expectedCount) {
+        return (I) Proxy.newProxyInstance(this.clazz.getClassLoader(), new Class[]{this.clazz}, new CallCountAssertions<I>(this.clazz, new LinkedList<>(this.calls), expectedCount));
+    }
 }
