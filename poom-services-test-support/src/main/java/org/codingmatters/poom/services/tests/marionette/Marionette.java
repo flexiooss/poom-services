@@ -1,5 +1,6 @@
 package org.codingmatters.poom.services.tests.marionette;
 
+import org.codingmatters.poom.services.tests.marionette.internals.NeverCalledAssertions;
 import org.codingmatters.poom.services.tests.marionette.internals.*;
 
 import java.lang.reflect.Method;
@@ -26,6 +27,10 @@ public class Marionette<I> {
 
     public I component() {
         return (I) Proxy.newProxyInstance(this.clazz.getClassLoader(), new Class[]{this.clazz}, this.component);
+    }
+
+    public I assertNeverCalled() {
+        return (I) Proxy.newProxyInstance(this.clazz.getClassLoader(), new Class[]{this.clazz}, new NeverCalledAssertions<I>(this.clazz, new LinkedList<>(this.calls)));
     }
 
     public InterfaceAssertions<I> assertLastCall() {

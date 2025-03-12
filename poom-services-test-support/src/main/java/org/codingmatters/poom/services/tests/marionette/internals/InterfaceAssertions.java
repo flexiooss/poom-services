@@ -30,6 +30,7 @@ public class InterfaceAssertions<I> implements InvocationHandler {
         return (I) Proxy.newProxyInstance(this.clazz.getClassLoader(), new Class[]{this.clazz}, this);
     }
 
+
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
         if(! method.getDeclaringClass().equals(this.clazz)) return method.invoke(o, objects);

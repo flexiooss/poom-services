@@ -327,4 +327,23 @@ class MarionetteTest {
         }
         marionette.component().unary(12);
     }
+
+    @Test
+    void givenDefaultRetunValue__whenNotCalled_andAssertingNeverCalled__thenOK() throws Exception {
+        Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
+        marionette.defaultCallReturns("plop").whenAnyArgs().oary();
+
+        marionette.assertNeverCalled().oary();
+    }
+
+    @Test
+    void givenDefaultRetunValue__whenCalled_andAssertingNeverCalled__thenAssertionError() throws Exception {
+        Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
+        marionette.defaultCallReturns("plop").whenAnyArgs().oary();
+
+        marionette.component().oary();
+
+        AssertionError e = assertThrows(AssertionError.class, () -> marionette.assertNeverCalled().oary());
+        assertThat(e.getMessage(), is("was not expecting to be called : Call{TestInterface#oary([])}"));
+    }
 }
