@@ -1,4 +1,4 @@
-package org.codingmatters.poom.services.tests.mock.support.internals;
+package org.codingmatters.poom.services.tests.marionette.internals;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;

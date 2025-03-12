@@ -1,5 +1,6 @@
-package org.codingmatters.poom.services.tests.mock.support;
+package org.codingmatters.poom.services.tests.marionette;
 
+import org.codingmatters.poom.services.tests.marionette.internals.*;
 import org.codingmatters.poom.services.tests.mock.support.internals.*;
 
 import java.lang.reflect.Method;
