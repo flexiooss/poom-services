@@ -26,7 +26,7 @@ public class InterfaceBehaviourHandler<I> implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-        if(! method.getDeclaringClass().equals(this.clazz)) return null;
+        if(method.getName().equals("toString")) return o.toString();
         if(! this.nextResults.containsKey(method)) {
             this.nextResults.put(method, Collections.synchronizedList(new LinkedList<>()));
         }

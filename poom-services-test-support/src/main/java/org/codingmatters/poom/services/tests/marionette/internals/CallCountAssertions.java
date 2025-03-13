@@ -17,7 +17,7 @@ public class CallCountAssertions<I> implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-        if(! method.getDeclaringClass().equals(this.clazz)) return null;
+        if(method.getName().equals("toString")) return o.toString();
 
         Call callTemplate = new Call(method, objects);
         int actual = this.calls.stream().filter(call -> call.method().equals(callTemplate.method())).toList().size();
