@@ -114,10 +114,12 @@ SERVICE_PID=0
 proxy_sigterm() {
     echo "terminating service with pid ${SERVICE_PID}"
     kill -SIGTERM $SERVICE_PID
+    wait $SERVICE_PID
 }
 proxy_sigint() {
     echo "interrupting service with pid ${SERVICE_PID}"
     kill -SIGINT $SERVICE_PID
+    wait $SERVICE_PID
 }
 trap 'proxy_sigterm' TERM
 trap 'proxy_sigint' INT
