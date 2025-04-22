@@ -15,51 +15,56 @@ public abstract class ApiContainerRuntime implements ExternallyStoppable {
     private Runnable onShutdown;
 
     protected abstract void startupServer(Api[] apis) throws ServerStartupException;
+
     protected abstract void shutdownServer() throws ServerShutdownException;
 
     protected ApiContainerRuntime(CategorizedLogger log) {
         this.log = log;
-        this.onStartup = () -> {};
-        this.onShutdown = () -> {};
+        this.onStartup = () -> {
+        };
+        this.onShutdown = () -> {
+        };
         this.handle = new Handle(this);
     }
 
-    public ApiContainerRuntime apis(Api ... apis) {
+    public ApiContainerRuntime apis(Api... apis) {
         this.apis = apis;
         return this;
     }
 
     public void onStartup(Runnable onStartup) {
-        this.onStartup = onStartup != null ? onStartup : () -> {};
+        this.onStartup = onStartup != null ? onStartup : () -> {
+        };
     }
 
     public void onShutdown(Runnable onShutdown) {
-        this.onShutdown = onShutdown != null ? onShutdown : () -> {};
+        this.onShutdown = onShutdown != null ? onShutdown : () -> {
+        };
     }
 
     public void main() {
         try {
             this.go();
-        } catch( Throwable e ) {
+        } catch (Throwable e) {
             log.error("uncaught error starting service", e);
-            System.exit( 2 );
+            System.exit(2);
         } finally {
             try {
                 this.stop();
             } catch (Throwable e) {
                 log.error("uncaught error stopping service", e);
-                System.exit( 3 );
+                System.exit(3);
             }
         }
         log.info("normally stopped service");
-        System.exit( 0 );
+        System.exit(0);
     }
 
     private final AtomicBoolean stopRequested = new AtomicBoolean(false);
 
     private void go() throws ServerStartupException {
         this.startup();
-        while (! this.stopRequested.get()) {
+        while (!this.stopRequested.get()) {
             try {
                 Thread.sleep(1000L);
             } catch (InterruptedException e) {
@@ -77,7 +82,7 @@ public abstract class ApiContainerRuntime implements ExternallyStoppable {
         this.startupServer(this.apis);
     }
 
-    protected void stop() throws ServerShutdownException {
+    public void stop() throws ServerShutdownException {
         this.shutdownServer();
         try {
             this.onShutdown.run();
@@ -100,11 +105,12 @@ public abstract class ApiContainerRuntime implements ExternallyStoppable {
         public void start() throws ServerStartupException {
             this.runtime.startup();
         }
+
         public void stop() throws ServerShutdownException {
             this.runtime.stop();
         }
     }
-    
+
     @Override
     public void requireStop() {
         this.stopRequested.set(true);
