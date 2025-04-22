@@ -12,4 +12,11 @@ public interface TestInterface {
     Object oary();
 
     String throwing() throws IOException;
+
+    void primitiveTypeArg(boolean b);
+    boolean primitiveBooleanTypeResult();
+    int primitiveIntTypeResult();
+    long primitiveLongTypeResult();
+    float primitiveFloatTypeResult();
+    double primitiveDoubleTypeResult();
 }
