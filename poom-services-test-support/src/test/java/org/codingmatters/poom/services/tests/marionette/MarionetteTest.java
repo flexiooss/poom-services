@@ -368,5 +368,15 @@ class MarionetteTest {
         assertThat(e.getMessage(), is("expected 12 calls of Call{TestInterface#oary([])} but was 124"));
     }
 
+    @Test
+    void whenPrimitiveTypeArg__then() throws Exception {
+        Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
+        marionette.nextCallReturns(null).whenAnyArgs().primitiveTypeArg(false);
+    }
 
+    @Test
+    void whenPrimitiveTypeResult__then() throws Exception {
+        Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
+        marionette.nextCallReturns(Boolean.TRUE).whenAnyArgs().primitiveBooleanTypeResult();
+    }
 }
