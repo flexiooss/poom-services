@@ -2070,4 +2070,55 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(found.total(), is(1L));
     }
+
+    @Test
+    public void givenValuesWithParenthsis__whenStartWithContainingParenthesis__thenFound() throws Exception {
+        this.repository.createWithId("special-chars-0", QAValue.builder().stringProp("text (3)").build());
+        this.repository.createWithId("special-chars-1", QAValue.builder().stringProp("text (4)").build());
+        this.repository.createWithId("special-chars-2", QAValue.builder().stringProp("text (3) (1)").build());
+
+        PagedEntityList<QAValue> found = this.repository.search(PropertyQuery.builder()
+                        .filter("stringProp starts with 'text (3)'")
+                .build(), 0, 100);
+
+        assertThat(
+                found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(),
+                contains("text (3)", "text (3) (1)")
+                );
+
+    }
+
+    @Test
+    public void givenValuesWithParenthsis__whenEndsWithContainingParenthesis__thenFound() throws Exception {
+        this.repository.createWithId("special-chars-0", QAValue.builder().stringProp("text (3)").build());
+        this.repository.createWithId("special-chars-1", QAValue.builder().stringProp("text (4)").build());
+        this.repository.createWithId("special-chars-2", QAValue.builder().stringProp("text (3) (1)").build());
+
+        PagedEntityList<QAValue> found = this.repository.search(PropertyQuery.builder()
+                        .filter("stringProp ends with 't (3)'")
+                .build(), 0, 100);
+
+        assertThat(
+                found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(),
+                contains("text (3)")
+                );
+
+    }
+
+    @Test
+    public void givenValuesWithParenthsis__whenContainsWithContainingParenthesis__thenFound() throws Exception {
+        this.repository.createWithId("special-chars-0", QAValue.builder().stringProp("text (3)").build());
+        this.repository.createWithId("special-chars-1", QAValue.builder().stringProp("text (4)").build());
+        this.repository.createWithId("special-chars-2", QAValue.builder().stringProp("text (3) (1)").build());
+
+        PagedEntityList<QAValue> found = this.repository.search(PropertyQuery.builder()
+                        .filter("stringProp contains 'ext (3'")
+                .build(), 0, 100);
+
+        assertThat(
+                found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(),
+                contains("text (3)", "text (3) (1)")
+                );
+
+    }
 }
