@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom.api.registry</groupId>
         <artifactId>poom-services-api-registry</artifactId>
-        <version>1.235.0-SNAPSHOT</version>
+        <version>1.235.0</version>
     </parent>
 
     <artifactId>poom-services-api-registry-client</artifactId>
