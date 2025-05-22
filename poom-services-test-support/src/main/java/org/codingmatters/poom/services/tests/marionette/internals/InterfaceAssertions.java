@@ -1,5 +1,8 @@
 package org.codingmatters.poom.services.tests.marionette.internals;
 
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -34,13 +37,13 @@ public class InterfaceAssertions<I> implements InvocationHandler {
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
         if(method.getName().equals("toString")) return o.toString();
+
         Call expected = new Call(method, objects);
 
         List<Call> methodCalls = this.calls.stream().filter(call -> call.method().equals(method)).toList();
         Call call = this.actualCallProvider.apply(methodCalls);
-        if(call == null || ! call.equals(expected)) {
-            throw new AssertionError("expected : " + expected + " but was : " + call);
-        }
+
+        MatcherAssert.assertThat(call, Matchers.is(expected));
         return null;
     }
 }
