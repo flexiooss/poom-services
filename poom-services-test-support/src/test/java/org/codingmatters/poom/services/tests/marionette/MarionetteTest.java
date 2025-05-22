@@ -131,7 +131,7 @@ class MarionetteTest {
         marionette.component().unary(42);
 
         AssertionError e = assertThrows(AssertionError.class, () -> marionette.assertLastCall().was().unary(12));
-        assertThat(e.getMessage(), is("expected : Call{TestInterface#unary([12])} but was : Call{TestInterface#unary([42])}"));
+        assertThat(e.getMessage(), is("\nExpected: is <Call{TestInterface#unary([12])}>\n     but: was <Call{TestInterface#unary([42])}>"));
     }
 
     @Test
@@ -140,7 +140,7 @@ class MarionetteTest {
         marionette.nextCallReturns("yop").whenAnyArgs().unary(null);
 
         AssertionError e = assertThrows(AssertionError.class, () -> marionette.assertLastCall().was().unary(12));
-        assertThat(e.getMessage(), is("expected : Call{TestInterface#unary([12])} but was : null"));
+        assertThat(e.getMessage(), is("\nExpected: is <Call{TestInterface#unary([12])}>\n     but: was null"));
     }
 
     @Test
@@ -151,7 +151,7 @@ class MarionetteTest {
         marionette.component().nary("other", 12L);
 
         AssertionError e = assertThrows(AssertionError.class, () -> marionette.assertLastCall().was().nary("str", 42L));
-        assertThat(e.getMessage(), is("expected : Call{TestInterface#nary([str, 42])} but was : Call{TestInterface#nary([other, 12])}"));
+        assertThat(e.getMessage(), is("\nExpected: is <Call{TestInterface#nary([str, 42])}>\n     but: was <Call{TestInterface#nary([other, 12])}>"));
     }
 
     @Test
@@ -160,7 +160,7 @@ class MarionetteTest {
         marionette.nextCallReturns("yop").whenAnyArgs().nary(null, null);
 
         AssertionError e = assertThrows(AssertionError.class, () -> marionette.assertLastCall().was().nary("str", 42L));
-        assertThat(e.getMessage(), is("expected : Call{TestInterface#nary([str, 42])} but was : null"));
+        assertThat(e.getMessage(), is("\nExpected: is <Call{TestInterface#nary([str, 42])}>\n     but: was null"));
     }
 
     @Test
@@ -169,7 +169,7 @@ class MarionetteTest {
         marionette.nextCallReturns("yop").whenAnyArgs().oary();
 
         AssertionError e = assertThrows(AssertionError.class, () -> marionette.assertLastCall().was().oary());
-        assertThat(e.getMessage(), is("expected : Call{TestInterface#oary([])} but was : null"));
+        assertThat(e.getMessage(), is("\nExpected: is <Call{TestInterface#oary([])}>\n     but: was null"));
     }
 
     @Test
@@ -180,7 +180,7 @@ class MarionetteTest {
         marionette.component().proc("other", 12, "p");
 
         AssertionError e = assertThrows(AssertionError.class, () -> marionette.assertLastCall().was().proc("str", 42, "o"));
-        assertThat(e.getMessage(), is("expected : Call{TestInterface#proc([str, 42, o])} but was : Call{TestInterface#proc([other, 12, p])}"));
+        assertThat(e.getMessage(), is("\nExpected: is <Call{TestInterface#proc([str, 42, o])}>\n     but: was <Call{TestInterface#proc([other, 12, p])}>"));
     }
 
     @Test
@@ -189,7 +189,7 @@ class MarionetteTest {
         marionette.nextCallReturns(null).whenAnyArgs().proc(null, null, null);
 
         AssertionError e = assertThrows(AssertionError.class, () -> marionette.assertLastCall().was().proc("str", 12, "o"));
-        assertThat(e.getMessage(), is("expected : Call{TestInterface#proc([str, 12, o])} but was : null"));
+        assertThat(e.getMessage(), is("\nExpected: is <Call{TestInterface#proc([str, 12, o])}>\n     but: was null"));
     }
 
     @Test
@@ -244,7 +244,7 @@ class MarionetteTest {
         }
 
         AssertionError e = assertThrows(AssertionError.class, () -> marionette.assertNthCall(100).was().unary(12));
-        assertThat(e.getMessage(), is("expected : Call{TestInterface#unary([12])} but was : null"));
+        assertThat(e.getMessage(), is("\nExpected: is <Call{TestInterface#unary([12])}>\n     but: was null"));
     }
 
     @Test
