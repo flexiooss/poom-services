@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services</artifactId>
-        <version>1.235.0</version>
+        <version>1.236.0</version>
     </parent>
 
     <groupId>org.codingmatters.poom</groupId>
     <artifactId>poom-services-test-support</artifactId>
-    <version>1.235.0</version>
+    <version>1.236.0</version>
     <name>${project.groupId}:${project.artifactId}</name>
 
     <dependencies>
