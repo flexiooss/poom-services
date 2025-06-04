@@ -53,13 +53,15 @@ public class LoggingResponseDelegate implements ResponseDelegate {
     public ResponseDelegate contenType(String contenType) {
         this.contentType = contenType;
         this.data.put("content-type", contenType);
-        return delegate.contenType(contenType);
+        delegate.contenType(contenType);
+        return this;
     }
 
     @Override
     public ResponseDelegate status(int code) {
         this.data.put("status", code);
-        return delegate.status(code);
+        delegate.status(code);
+        return this;
     }
 
     @Override
@@ -68,7 +70,8 @@ public class LoggingResponseDelegate implements ResponseDelegate {
         if(name.equalsIgnoreCase("content-type") && value != null && value.length > 0) {
             this.contentType = value[0];
         }
-        return delegate.addHeader(name, value);
+        delegate.addHeader(name, value);
+        return this;
     }
 
     @Override
@@ -79,7 +82,14 @@ public class LoggingResponseDelegate implements ResponseDelegate {
                 this.contentType = value[0];
             }
         }
-        return delegate.addHeaderIfNot(name, value);
+        delegate.addHeaderIfNot(name, value);
+        return this;
+    }
+
+    @Override
+    public ResponseDelegate clearHeader(String name) {
+        this.delegate.clearHeader(name);
+        return this;
     }
 
     @Override
@@ -89,13 +99,15 @@ public class LoggingResponseDelegate implements ResponseDelegate {
         } catch (UnsupportedEncodingException e) {
             log.warn("error building payload log", e);
         }
-        return delegate.payload(payload, charset);
+        delegate.payload(payload, charset);
+        return this;
     }
 
     @Override
     public ResponseDelegate payload(byte[] bytes) {
         this.content = Content.from(bytes);
-        return delegate.payload(bytes);
+        delegate.payload(bytes);
+        return this;
     }
 
     @Override
@@ -106,7 +118,8 @@ public class LoggingResponseDelegate implements ResponseDelegate {
         } catch (IOException e) {
             log.warn("error building stream payload log", e);
         }
-        return delegate.payload(in);
+        delegate.payload(in);
+        return this;
     }
 
     @Override
