@@ -66,6 +66,146 @@ public class PropertyPrefixer {
         }
 
         @Override
+        public Object visitIn(PropertyFilterParser.InContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.IN());
+            this.visit(ctx.LPAR());
+            this.visit(ctx.operand_list());
+            this.visit(ctx.RPAR());
+            return null;
+        }
+
+        @Override
+        public Object visitEndsWithAny(PropertyFilterParser.EndsWithAnyContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.ENDS_WITH_ANY());
+            this.visit(ctx.LPAR());
+            this.visit(ctx.operand_list());
+            this.visit(ctx.RPAR());
+            return null;
+        }
+
+        @Override
+        public Object visitContainsAll(PropertyFilterParser.ContainsAllContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.CONTAINS_ALL());
+            this.visit(ctx.LPAR());
+            this.visit(ctx.operand_list());
+            this.visit(ctx.RPAR());
+            return null;
+        }
+
+        @Override
+        public Object visitIsEmpty(PropertyFilterParser.IsEmptyContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.IS_EMPTY());
+            return null;
+        }
+
+        @Override
+        public Object visitContainsAny(PropertyFilterParser.ContainsAnyContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.CONTAINS_ANY());
+            this.visit(ctx.LPAR());
+            this.visit(ctx.operand_list());
+            this.visit(ctx.RPAR());
+            return null;
+        }
+
+        @Override
+        public Object visitInEmpty(PropertyFilterParser.InEmptyContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.IN());
+            this.visit(ctx.LPAR());
+            this.visit(ctx.RPAR());
+            return null;
+
+        }
+
+        @Override
+        public Object visitStartsWithAny(PropertyFilterParser.StartsWithAnyContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.STARTS_WITH_ANY());
+            this.visit(ctx.LPAR());
+            this.visit(ctx.operand_list());
+            this.visit(ctx.RPAR());
+            return null;
+        }
+
+        @Override
+        public Object visitIsMatchingPattern(PropertyFilterParser.IsMatchingPatternContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.REQ());
+            this.visit(ctx.PATTERN());
+            return null;
+        }
+
+        @Override
+        public Object visitContainsAllEmpty(PropertyFilterParser.ContainsAllEmptyContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.CONTAINS_ALL());
+            this.visit(ctx.LPAR());
+            this.visit(ctx.RPAR());
+            return null;
+        }
+
+        @Override
+        public Object visitStartsWithAnyEmpty(PropertyFilterParser.StartsWithAnyEmptyContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.STARTS_WITH_ANY());
+            this.visit(ctx.LPAR());
+            this.visit(ctx.RPAR());
+            return null;
+        }
+
+        @Override
+        public Object visitContainsAnyEmpty(PropertyFilterParser.ContainsAnyEmptyContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.CONTAINS_ANY());
+            this.visit(ctx.LPAR());
+            this.visit(ctx.RPAR());
+            return null;
+        }
+
+        @Override
+        public Object visitEndsWithAnyEmpty(PropertyFilterParser.EndsWithAnyEmptyContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.ENDS_WITH_ANY());
+            this.visit(ctx.LPAR());
+            this.visit(ctx.RPAR());
+            return null;
+
+        }
+
+        @Override
+        public Object visitAnyInEmpty(PropertyFilterParser.AnyInEmptyContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.ANY());
+            this.visit(ctx.IN());
+            this.visit(ctx.LPAR());
+            this.visit(ctx.RPAR());
+            return null;
+        }
+
+        @Override
+        public Object visitIsNotEmpty(PropertyFilterParser.IsNotEmptyContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.IS_NOT_EMPTY());
+            return null;
+        }
+
+        @Override
+        public Object visitAnyIn(PropertyFilterParser.AnyInContext ctx) {
+            this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
+            this.visit(ctx.ANY());
+            this.visit(ctx.IN());
+            this.visit(ctx.LPAR());
+            this.visit(ctx.operand_list());
+            this.visit(ctx.RPAR());
+            return null;
+        }
+
+        @Override
         public Object visitPropertyOperand(PropertyFilterParser.PropertyOperandContext ctx) {
             this.result.append(this.prefix).append(ctx.IDENTIFIER().getSymbol().getText()).append(" ");
             return null;
