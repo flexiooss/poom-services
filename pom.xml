@@ -669,6 +669,9 @@
                                 <ignoredUnusedDeclaredDependency>
                                     org.codingmatters.poom:poom-services-production-support
                                 </ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>
+                                    io.opentelemetry.javaagent:opentelemetry-javaagent
+                                </ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
                         </configuration>
                     </plugin>
