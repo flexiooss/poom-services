@@ -33,6 +33,26 @@ public class InterfaceAssertions<I> implements InvocationHandler {
         return (I) Proxy.newProxyInstance(this.clazz.getClassLoader(), new Class[]{this.clazz}, this);
     }
 
+    public Call getFor(String methodName, Class<?> ... argTypes) {
+        List<Call> methodCalls = this.calls.stream().filter(call -> {
+            if(call.method().getName().equals(methodName)) {
+                if(argTypes != null) {
+                    for (int i = 0; i < argTypes.length; i++) {
+                        Class<?> parameterType = call.method().getParameterTypes()[i];
+                        if(! parameterType.isAssignableFrom(argTypes[i])) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }).toList();
+        Call call = this.actualCallProvider.apply(methodCalls);
+        return call;
+    }
+
 
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
