@@ -1,5 +1,6 @@
 package org.codingmatters.poom.services.tests.marionette;
 
+import org.codingmatters.poom.services.tests.marionette.internals.Call;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -378,5 +379,16 @@ class MarionetteTest {
     void whenPrimitiveTypeResult__then() throws Exception {
         Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
         marionette.nextCallReturns(Boolean.TRUE).whenAnyArgs().primitiveBooleanTypeResult();
+    }
+
+    @Test
+    void givenNextCallReturnsSet__whenProc_andGetLastCall__thenCallReturned() throws Exception {
+        Marionette<TestInterface> marionette = Marionette.of(TestInterface.class);
+        marionette.nextCallReturns(null).whenAnyArgs().proc(null, null, null);
+
+        marionette.component().proc("other", 12, "p");
+
+        Call actual = marionette.assertLastCall().getFor("proc", String.class, Integer.class, String.class);
+        assertThat(actual.arguments(), is(arrayContaining("other", 12, "p")));
     }
 }
