@@ -2121,4 +2121,45 @@ public abstract class PropertyQueryAcceptanceTest {
                 );
 
     }
+
+
+
+    @Test
+    public void givenFilterOnStringProperty__whenNegateIsEqual__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("! (stringProp == '006')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(99L));
+        assertThat(
+                actual.valueList().stream().map(complexValue -> complexValue.stringProp()).toArray(),
+                not(hasItemInArray("006"))
+        );
+    }
+
+    @Test
+    public void givenStringProperty__whenIsNullOrEmpty__thenReturnsOnlyEntitiesWithNoValue() throws Exception {
+        PagedEntityList<QAValue> found = this.repository.search(PropertyQuery.builder()
+                        .filter("emptyProp == null || emptyProp is empty")
+                .build(), 0, 1000);
+
+        assertThat(found.total(), is(50L));
+
+        assertThat(found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(), hasItem("000"));
+        assertThat(found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(), hasItem("002"));
+        assertThat(found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(), not(hasItem("001")));
+    }
+
+    @Test
+    public void givenStringProperty__whenNotIsNullOrEmpty__thenReturnsOnlyEntitiesWithAValue() throws Exception {
+        PagedEntityList<QAValue> found = this.repository.search(PropertyQuery.builder()
+                        .filter("(!((emptyProp == null || emptyProp is empty)))")
+                .build(), 0, 1000);
+
+        assertThat(found.total(), is(50L));
+
+        assertThat(found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(), hasItem("001"));
+        assertThat(found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(), not(hasItem("000")));
+        assertThat(found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(), not(hasItem("002")));
+    }
 }
