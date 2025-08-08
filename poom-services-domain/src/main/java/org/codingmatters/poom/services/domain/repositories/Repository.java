@@ -28,12 +28,12 @@ public interface Repository<V, Q> extends EntityLister<V, Q> {
         throw new UnsupportedOperationException();
     }
 
-    default List<String> createMany(V ... values) throws RepositoryException {
-        List<String> result = new LinkedList<>();
+    default List<Entity<V>> createMany(V ... values) throws RepositoryException {
+        List<Entity<V>> result = new LinkedList<>();
         if(values != null) {
             for (V value : values) {
                 Entity<V> created = this.create(value);
-                result.add(created.id());
+                result.add(created);
             }
         }
         return result;
