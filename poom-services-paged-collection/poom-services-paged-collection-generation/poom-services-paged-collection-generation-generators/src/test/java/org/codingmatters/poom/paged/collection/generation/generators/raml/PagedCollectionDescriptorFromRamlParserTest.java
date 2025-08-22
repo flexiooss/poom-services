@@ -1,15 +1,15 @@
 package org.codingmatters.poom.paged.collection.generation.generators.raml;
 
-import org.codingmatters.poom.paged.collection.generation.generators.raml.PagedCollectionDescriptorFromRamlParser;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestData;
 import org.codingmatters.poom.paged.collection.generation.spec.Action;
 import org.codingmatters.poom.paged.collection.generation.spec.PagedCollectionDescriptor;
 import org.codingmatters.poom.paged.collection.generation.spec.pagedcollectiondescriptor.Types;
 import org.codingmatters.rest.api.generator.exception.RamlSpecException;
 import org.codingmatters.rest.maven.plugin.raml.RamlFileCollector;
+import org.generated.api.ValueList;
 import org.generated.api.*;
-import org.generated.api.types.*;
 import org.generated.api.types.Error;
+import org.generated.api.types.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.raml.v2.api.RamlModelBuilder;
@@ -124,7 +124,6 @@ public class PagedCollectionDescriptorFromRamlParserTest {
     @Test
     public void givenParsingTestApi__whenGettingFullCollection__thenDescriptorIsCreatedFromApi() throws Exception {
         PagedCollectionDescriptor collectionDescriptor = this.parseFullCollection();
-
         assertThat(
                 collectionDescriptor,
                 is(TestData.FULL_COLLECTION.withEntityIdParam("entity-identifier"))
@@ -138,40 +137,42 @@ public class PagedCollectionDescriptorFromRamlParserTest {
         assertThat(
                 collectionDescriptor,
                 is(PagedCollectionDescriptor.builder()
-                            .name("WithParam").entityIdParam("entity-identifier")
-                            .types(Types.builder()
-                                    .entity(org.generated.api.types.Entity.class.getName())
-                                    .create(Create.class.getName())
-                                    .replace(Replace.class.getName())
-                                    .update(Update.class.getName())
-                                    .error(Error.class.getName())
-                                    .message(Message.class.getName())
-                                    .build())
-                            .browse(Action.builder()
-                                    .requestValueObject(WithParamGetRequest.class.getName())
-                                    .responseValueObject(WithParamGetResponse.class.getName())
-                                    .build())
-                            .create(Action.builder()
-                                    .requestValueObject(WithParamPostRequest.class.getName())
-                                    .responseValueObject(WithParamPostResponse.class.getName())
-                                    .build())
-                            .retrieve(Action.builder()
-                                    .requestValueObject(WithParamsElementGetRequest.class.getName())
-                                    .responseValueObject(WithParamsElementGetResponse.class.getName())
-                                    .build())
-                            .delete(Action.builder()
-                                    .requestValueObject(WithParamsElementDeleteRequest.class.getName())
-                                    .responseValueObject(WithParamsElementDeleteResponse.class.getName())
-                                    .build())
-                            .replace(Action.builder()
-                                    .requestValueObject(WithParamsElementPutRequest.class.getName())
-                                    .responseValueObject(WithParamsElementPutResponse.class.getName())
-                                    .build())
-                            .update(Action.builder()
-                                    .requestValueObject(WithParamsElementPatchRequest.class.getName())
-                                    .responseValueObject(WithParamsElementPatchResponse.class.getName())
-                                    .build())
-                            .build())
+                        .name("WithParam").entityIdParam("entity-identifier")
+                        .types(Types.builder()
+                                .entity(org.generated.api.types.Entity.class.getName())
+                                .create(Create.class.getName())
+                                .batchCreateResponse(BatchCreateResponse.class.getName())
+                                .replace(Replace.class.getName())
+                                .update(Update.class.getName())
+                                .error(Error.class.getName())
+                                .message(Message.class.getName())
+                                .valueList(ValueList.class.getName())
+                                .build())
+                        .browse(Action.builder()
+                                .requestValueObject(WithParamGetRequest.class.getName())
+                                .responseValueObject(WithParamGetResponse.class.getName())
+                                .build())
+                        .create(Action.builder()
+                                .requestValueObject(WithParamPostRequest.class.getName())
+                                .responseValueObject(WithParamPostResponse.class.getName())
+                                .build())
+                        .retrieve(Action.builder()
+                                .requestValueObject(WithParamsElementGetRequest.class.getName())
+                                .responseValueObject(WithParamsElementGetResponse.class.getName())
+                                .build())
+                        .delete(Action.builder()
+                                .requestValueObject(WithParamsElementDeleteRequest.class.getName())
+                                .responseValueObject(WithParamsElementDeleteResponse.class.getName())
+                                .build())
+                        .replace(Action.builder()
+                                .requestValueObject(WithParamsElementPutRequest.class.getName())
+                                .responseValueObject(WithParamsElementPutResponse.class.getName())
+                                .build())
+                        .update(Action.builder()
+                                .requestValueObject(WithParamsElementPatchRequest.class.getName())
+                                .responseValueObject(WithParamsElementPatchResponse.class.getName())
+                                .build())
+                        .build())
         );
     }
 
@@ -185,11 +186,12 @@ public class PagedCollectionDescriptorFromRamlParserTest {
                         .name("Root").entityIdParam("entity-identifier")
                         .types(Types.builder()
                                 .entity(org.generated.api.types.Entity.class.getName())
-                                .create(Create.class.getName())
+                                .create(Create.class.getName()).batchCreateResponse(BatchCreateResponse.class.getName())
                                 .replace(Replace.class.getName())
                                 .update(Update.class.getName())
                                 .error(Error.class.getName())
                                 .message(Message.class.getName())
+                                .valueList(ValueList.class.getName())
                                 .build())
                         .browse(Action.builder()
                                 .requestValueObject(RootGetRequest.class.getName())
@@ -229,11 +231,12 @@ public class PagedCollectionDescriptorFromRamlParserTest {
                         .name("Node").entityIdParam("entity-identifier")
                         .types(Types.builder()
                                 .entity(org.generated.api.types.Entity.class.getName())
-                                .create(Create.class.getName())
+                                .create(Create.class.getName()).batchCreateResponse(BatchCreateResponse.class.getName())
                                 .replace(Replace.class.getName())
                                 .update(Update.class.getName())
                                 .error(Error.class.getName())
                                 .message(Message.class.getName())
+                                .valueList(ValueList.class.getName())
                                 .build())
                         .browse(Action.builder()
                                 .requestValueObject(NodeGetRequest.class.getName())
@@ -273,11 +276,12 @@ public class PagedCollectionDescriptorFromRamlParserTest {
                         .name("Leaf").entityIdParam("entity-identifier")
                         .types(Types.builder()
                                 .entity(org.generated.api.types.Entity.class.getName())
-                                .create(Create.class.getName())
+                                .create(Create.class.getName()).batchCreateResponse(BatchCreateResponse.class.getName())
                                 .replace(Replace.class.getName())
                                 .update(Update.class.getName())
                                 .error(Error.class.getName())
                                 .message(Message.class.getName())
+                                .valueList(ValueList.class.getName())
                                 .build())
                         .browse(Action.builder()
                                 .requestValueObject(LeafGetRequest.class.getName())
@@ -455,10 +459,12 @@ public class PagedCollectionDescriptorFromRamlParserTest {
                         .types(Types.builder()
                                 .entity(org.generated.api.types.Entity.class.getName())
                                 .create(null)
+                                .batchCreateResponse(BatchCreateResponse.class.getName())
                                 .replace(Replace.class.getName())
                                 .update(Update.class.getName())
                                 .error(Error.class.getName())
                                 .message(Message.class.getName())
+                                .valueList(ValueList.class.getName())
                                 .build())
                         .browse((Action) null)
                         .create((Action) null)
@@ -490,8 +496,8 @@ public class PagedCollectionDescriptorFromRamlParserTest {
 
     private PagedCollectionDescriptor parseCollection(String collectionName) throws RamlSpecException {
         return Arrays.stream(
-                    new PagedCollectionDescriptorFromRamlParser(TEST_API_RAML, "org.generated.api", "org.generated.api.types").parse()
-            ).filter(pagedCollectionDescriptor -> pagedCollectionDescriptor.name().equals(collectionName)).findFirst().get();
+                new PagedCollectionDescriptorFromRamlParser(TEST_API_RAML, "org.generated.api", "org.generated.api.types").parse()
+        ).filter(pagedCollectionDescriptor -> pagedCollectionDescriptor.name().equals(collectionName)).findFirst().get();
     }
 
     static private RamlModelResult raml(String resource) {
