@@ -1,9 +1,8 @@
 package org.codingmatters.poom.generic.resource.domain;
 
-import org.codingmatters.poom.generic.resource.domain.impl.BadRequestAdapter;
-import org.codingmatters.poom.generic.resource.domain.impl.DefaultAdapterBuilder;
-import org.codingmatters.poom.generic.resource.domain.impl.NotFoundAdapter;
-import org.codingmatters.poom.generic.resource.domain.impl.UnexpectedExceptionAdapter;
+import org.codingmatters.poom.api.paged.collection.api.types.BatchCreateResponse;
+import org.codingmatters.poom.generic.resource.domain.exceptions.*;
+import org.codingmatters.poom.generic.resource.domain.impl.*;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.EntityLister;
 
@@ -35,11 +34,16 @@ public interface PagedCollectionAdapter<EntityType, CreationType, ReplaceType, U
 
     interface CRUD<EntityType, CreationType, ReplaceType, UpdateType> extends
             EntityCreator<EntityType, CreationType>,
+            BatchEntityCreator<CreationType>,
             EntityRetriever<EntityType>,
             EntityReplacer<EntityType, ReplaceType>,
             EntityUpdater<EntityType, UpdateType>,
             EntityDeleter
-        {}
+        {
+            default BatchCreateResponse createEntitiesFrom(CreationType... values) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException, MethodNotAllowedException {
+                return new BatchEntityCreatorFromEntityCreator<>(this).createEntitiesFrom(values);
+            }
+        }
 
     static <EntityType, CreationType, ReplaceType, UpdateType> DefaultAdapterBuilder<EntityType, CreationType, ReplaceType, UpdateType> builder() {
         return new DefaultAdapterBuilder<>();
