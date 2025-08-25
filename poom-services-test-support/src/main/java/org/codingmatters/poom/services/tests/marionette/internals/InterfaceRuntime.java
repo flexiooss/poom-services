@@ -2,7 +2,10 @@ package org.codingmatters.poom.services.tests.marionette.internals;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class InterfaceRuntime implements InvocationHandler {
 
@@ -18,7 +21,7 @@ public class InterfaceRuntime implements InvocationHandler {
 
     @Override
     public synchronized Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-        if(method.getName().equals("toString")) return o.toString();
+        if (method.getName().equals("toString")) return this.toString();
         Call call = new Call(method, objects);
         this.calls.add(call);
         return this.resolveResult(call);
@@ -27,9 +30,9 @@ public class InterfaceRuntime implements InvocationHandler {
     private Object resolveResult(Call call) throws Throwable {
         ExpectedReturnValue result;
         List<ExpectedReturnValue> methodResults = this.nextResults.getOrDefault(call.method(), Collections.emptyList());
-        if(methodResults.isEmpty()) {
+        if (methodResults.isEmpty()) {
             List<ExpectedReturnValue> methodDefaultResults = this.defaultResults.getOrDefault(call.method(), Collections.emptyList());
-            if(methodDefaultResults.isEmpty()) {
+            if (methodDefaultResults.isEmpty()) {
                 throw new AssertionError("unexpected call " + call);
             } else {
                 result = methodDefaultResults.getLast();
@@ -37,8 +40,8 @@ public class InterfaceRuntime implements InvocationHandler {
         } else {
             result = methodResults.removeFirst();
         }
-        if(result.checkedArguments().isPresent()) {
-            if(! Arrays.equals(call.arguments(), result.checkedArguments().get())) {
+        if (result.checkedArguments().isPresent()) {
+            if (!Arrays.equals(call.arguments(), result.checkedArguments().get())) {
                 throw new AssertionError(String.format(
                         "argument expected : %s but was : %s",
                         Arrays.toString(result.checkedArguments().get()),
@@ -46,9 +49,18 @@ public class InterfaceRuntime implements InvocationHandler {
                 ));
             }
         }
-        if(result.thrown() != null) {
+        if (result.thrown() != null) {
             throw result.thrown().get();
         }
         return result.value();
+    }
+
+    @Override
+    public String toString() {
+        return "InterfaceRuntime{" +
+                "calls=" + calls +
+                ", nextResults=" + nextResults +
+                ", defaultResults=" + defaultResults +
+                '}';
     }
 }

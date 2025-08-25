@@ -12,34 +12,39 @@ import java.util.function.Function;
 public class InterfaceAssertions<I> implements InvocationHandler {
 
     static public <I> InterfaceAssertions<I> onLastCall(Class<I> clazz, List<Call> callList) {
-        return new InterfaceAssertions<>(clazz, callList, calls -> calls.size() > 0 ? calls.getLast() : null);
+        return new InterfaceAssertions<>(clazz, callList, calls -> calls.size() > 0 ? calls.getLast() : null, false);
+    }
+    static public <I> InterfaceAssertions<I> onUniqueCall(Class<I> clazz, List<Call> callList) {
+        return new InterfaceAssertions<>(clazz, callList, calls -> calls.size() > 0 ? calls.getLast() : null, true);
     }
 
     static public <I> InterfaceAssertions<I> onNthCall(Class<I> clazz, List<Call> callList, int index) {
-        return new InterfaceAssertions<>(clazz, callList, calls -> calls.size() >= index + 1 ? calls.get(index) : null);
+        return new InterfaceAssertions<>(clazz, callList, calls -> calls.size() >= index + 1 ? calls.get(index) : null, false);
     }
 
     private final Class<I> clazz;
     private final List<Call> calls;
     private final Function<List<Call>, Call> actualCallProvider;
+    private final boolean expectedUnique;
 
-    private InterfaceAssertions(Class<I> clazz, List<Call> calls, Function<List<Call>, Call> actualCallProvider) {
+    private InterfaceAssertions(Class<I> clazz, List<Call> calls, Function<List<Call>, Call> actualCallProvider, boolean expectedUnique) {
         this.clazz = clazz;
         this.calls = calls;
         this.actualCallProvider = actualCallProvider;
+        this.expectedUnique = expectedUnique;
     }
 
     public I was() {
         return (I) Proxy.newProxyInstance(this.clazz.getClassLoader(), new Class[]{this.clazz}, this);
     }
 
-    public Call getFor(String methodName, Class<?> ... argTypes) {
+    public Call getFor(String methodName, Class<?>... argTypes) {
         List<Call> methodCalls = this.calls.stream().filter(call -> {
-            if(call.method().getName().equals(methodName)) {
-                if(argTypes != null) {
+            if (call.method().getName().equals(methodName)) {
+                if (argTypes != null) {
                     for (int i = 0; i < argTypes.length; i++) {
                         Class<?> parameterType = call.method().getParameterTypes()[i];
-                        if(! parameterType.isAssignableFrom(argTypes[i])) {
+                        if (!parameterType.isAssignableFrom(argTypes[i])) {
                             return false;
                         }
                     }
@@ -56,14 +61,29 @@ public class InterfaceAssertions<I> implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-        if(method.getName().equals("toString")) return o.toString();
+        if (method.getName().equals("toString")) return this.toString();
+
 
         Call expected = new Call(method, objects);
 
         List<Call> methodCalls = this.calls.stream().filter(call -> call.method().equals(method)).toList();
+
+        if(this.expectedUnique) {
+            MatcherAssert.assertThat("expected call to be unique", methodCalls, Matchers.hasSize(1));
+        }
+
         Call call = this.actualCallProvider.apply(methodCalls);
 
         MatcherAssert.assertThat(call, Matchers.is(expected));
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return "InterfaceAssertions{" +
+                "actualCallProvider=" + actualCallProvider +
+                ", clazz=" + clazz +
+                ", calls=" + calls +
+                '}';
     }
 }

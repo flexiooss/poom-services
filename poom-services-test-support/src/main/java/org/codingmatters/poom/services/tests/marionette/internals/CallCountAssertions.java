@@ -17,16 +17,25 @@ public class CallCountAssertions<I> implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-        if(method.getName().equals("toString")) return o.toString();
+        if (method.getName().equals("toString")) return this.toString();
 
         Call callTemplate = new Call(method, objects);
         int actual = this.calls.stream().filter(call -> call.method().equals(callTemplate.method())).toList().size();
-        if(expected != actual) {
+        if (expected != actual) {
             throw new AssertionError(String.format(
                     "expected %s calls of %s but was %s",
                     expected, callTemplate, actual
             ));
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return "CallCountAssertions{" +
+                "calls=" + calls +
+                ", clazz=" + clazz +
+                ", expected=" + expected +
+                '}';
     }
 }
