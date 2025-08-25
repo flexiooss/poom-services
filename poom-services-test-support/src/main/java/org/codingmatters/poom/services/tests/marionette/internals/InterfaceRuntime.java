@@ -61,8 +61,13 @@ public class InterfaceRuntime implements InvocationHandler {
     @Override
     public String toString() {
         return "InterfaceRuntime{" +
-                ", nextResults=" + nextResults +
+                "nextResults=" + nextResults +
                 ", defaultResults=" + defaultResults +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o;
     }
 }
