@@ -22,8 +22,7 @@ public class InterfaceRuntime implements InvocationHandler {
     @Override
     public synchronized Object invoke(Object o, Method method, Object[] objects) throws Throwable {
         if (method.getName().equals("toString")) return this.toString();
-        if (method.getName().equals("equals"))
-            return this.equals(objects != null && objects.length > 0 ? objects[0] : null);
+        if (method.getName().equals("equals")) return this.equals(o);
 
         Call call = new Call(method, objects);
         this.calls.add(call);
