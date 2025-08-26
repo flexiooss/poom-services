@@ -1,5 +1,6 @@
 package org.codingmatters.poom.paged.collection.generation.generators.source.test;
 
+import org.codingmatters.poom.api.paged.collection.api.types.BatchCreateResponse;
 import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.exceptions.*;
 import org.codingmatters.poom.services.domain.entities.Entity;
@@ -28,6 +29,11 @@ public class TestCRUD implements PagedCollectionAdapter.CRUD<org.generated.api.t
 
     @Override
     public Entity<org.generated.api.types.Entity> createEntityFrom(Create value) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException {
+        throw new AssertionError("NYIML");
+    }
+
+    @Override
+    public BatchCreateResponse createEntitiesFrom(Create... values) throws BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException, UnexpectedException, MethodNotAllowedException {
         throw new AssertionError("NYIML");
     }
 

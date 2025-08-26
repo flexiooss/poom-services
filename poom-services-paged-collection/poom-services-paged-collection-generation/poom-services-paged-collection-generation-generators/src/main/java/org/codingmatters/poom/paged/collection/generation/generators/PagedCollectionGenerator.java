@@ -53,6 +53,10 @@ public class PagedCollectionGenerator {
         if(handlerSpec != null) {
             handlerSpecs.add(handlerSpec);
         }
+        handlerSpec = new BatchCreateHandlerGenerator(collectionDescriptor).handler();
+        if(handlerSpec != null) {
+            handlerSpecs.add(handlerSpec);
+        }
         handlerSpec = new RetrieveHandlerGenerator(collectionDescriptor).handler();
         if(handlerSpec != null) {
             handlerSpecs.add(handlerSpec);

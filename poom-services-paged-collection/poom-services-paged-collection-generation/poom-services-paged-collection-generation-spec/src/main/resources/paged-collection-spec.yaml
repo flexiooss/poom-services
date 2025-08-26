@@ -10,9 +10,12 @@ PagedCollectionDescriptor:
     update: string
     error: string
     message: string
+    batch-create-response: string
+    value-list: string
 
   browse: $Action
   create: $Action
+  batch-create: $Action
   retrieve: $Action
   update: $Action
   replace: $Action

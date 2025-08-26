@@ -37,6 +37,10 @@ public class Marionette<I> {
         return InterfaceAssertions.onLastCall(this.clazz, new LinkedList<>(this.calls));
     }
 
+    public InterfaceAssertions<I> assertUniqueCall() {
+        return InterfaceAssertions.onUniqueCall(this.clazz, new LinkedList<>(this.calls));
+    }
+
     public InterfaceAssertions<I> assertNthCall(int index) {
         return InterfaceAssertions.onNthCall(this.clazz, this.calls, index);
     }
