@@ -33,7 +33,6 @@ public class CallCountAssertions<I> implements InvocationHandler {
     @Override
     public String toString() {
         return "CallCountAssertions{" +
-                "calls=" + calls +
                 ", clazz=" + clazz +
                 ", expected=" + expected +
                 '}';
