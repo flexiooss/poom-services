@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom.api.test</groupId>
         <artifactId>poom-services-api-test-generation</artifactId>
-        <version>1.252.0-SNAPSHOT</version>
+        <version>1.253.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>poom-services-api-test-generation-maven-plugin</artifactId>
