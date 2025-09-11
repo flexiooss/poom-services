@@ -90,8 +90,8 @@
         <poom.service.base.image.namespace>codingmatters</poom.service.base.image.namespace>
         <poom.service.base.image>poom-service-base-21-alpine</poom.service.base.image>
         <poom.service.base.image.version>2.13.0</poom.service.base.image.version>
-        <codingmatters-value-objects.version>1.145.0</codingmatters-value-objects.version>
-        <codingmatters-rest.version>1.177.0</codingmatters-rest.version>
+        <codingmatters-value-objects.version>1.146.0-SNAPSHOT</codingmatters-value-objects.version>
+        <codingmatters-rest.version>1.178.0-SNAPSHOT</codingmatters-rest.version>
     </properties>
 
     <modules>
