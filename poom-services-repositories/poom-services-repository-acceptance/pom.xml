@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services-repositories</artifactId>
-        <version>1.255.0</version>
+        <version>1.256.0</version>
     </parent>
 
     <artifactId>poom-services-repository-acceptance</artifactId>
@@ -24,7 +24,7 @@
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
+            <artifactId>hamcrest</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -80,5 +80,4 @@
             </plugin>
         </plugins>
     </build>
-    
 </project>
