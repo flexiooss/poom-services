@@ -25,6 +25,11 @@ then
     LOGGING_TYPE="text"
 fi
 
+if [ -z ${OTEL_ACTIVE} ]
+then
+    OTEL_ACTIVE="yes"
+fi
+
 echo "setting logging type to ${LOGGING_TYPE} with level ${LOG_LEVEL}"
 
 LOGGER_CONFIG="-Dlogback.configurationFile=/var/service/config/logs/logback-${LOGGING_TYPE}.xml"
@@ -103,9 +108,27 @@ then
     JVM_VM="${JVM_VM} -Djdk.nio.maxCachedBufferSize=${JVM_MAX_CACHED_BUFFER_SIZE} "
 fi
 
+
+if [ "$OTEL_ACTIVE" = "yes" ]; then
+  if [ -n "${OTEL_EXPORTER_OTLP_ENDPOINT}" ]; then
+    OTEL_LIB=$(ls /var/service/lib/opentelemetry-javaagent-*.jar 2>/dev/null)
+    if [ -n "$OTEL_LIB" ]; then
+      JVM_OPTS="${JVM_OPTS} -javaagent:${OTEL_LIB}"
+      echo "OTEL active with endpoint : ${OTEL_EXPORTER_OTLP_ENDPOINT}"
+    else
+      echo "OTEL should be activated but no java agent library found : not activating"
+    fi
+  else
+    echo "OTEL should be activated but no endpoint defined in variable OTEL_EXPORTER_OTLP_ENDPOINT : not activating"
+  fi
+fi
+
+
+
 JVM_VM="${JVM_VM} $JVM_MEMORY_TUNING $JVM_OPTS"
 #JVM_VM="${JVM_VM} -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${REPORT_DIR}/heap.hprof"
 JVM_VM="${JVM_VM} -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${REPORT_DIR}/heap.hprof -XX:-OmitStackTraceInFastThrow"
+
 
 ##
 #   Trapping SIGINT and SIGTERM to pass them to the service
