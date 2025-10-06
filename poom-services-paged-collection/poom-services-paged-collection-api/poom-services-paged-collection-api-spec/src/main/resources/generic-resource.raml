@@ -8,15 +8,15 @@ mediaType: application/json
 /:
   displayName: paged collection
   get:
-    is: [rfc7233Browsing: {entityType: object, error: Error}]
-#    responses:
-#      200:
-#        (conforms-to): [org.codingmatters.poom.api.Rfc7233PageResponse]
-#      206:
-#        (conforms-to): [org.codingmatters.poom.api.Rfc7233PageResponse]
+    is: [ rfc7233Browsing: { entityType: object, error: Error } ]
+  #    responses:
+  #      200:
+  #        (conforms-to): [org.codingmatters.poom.api.Rfc7233PageResponse]
+  #      206:
+  #        (conforms-to): [org.codingmatters.poom.api.Rfc7233PageResponse]
 
   post:
-    is: [entityCreation: {entityType: object, entityCreationType: object, error: Error}]
+    is: [ entityCreation: { entityType: object, entityCreationType: object, error: Error } ]
   /batch:
     displayName: batch
     post:
@@ -26,27 +26,27 @@ mediaType: application/json
     uriParameters:
       entity-id: string
     get:
-      is: [entityRetrieve: {entityType: object, error: Error}]
+      is: [ entityRetrieve: { entityType: object, error: Error } ]
     put:
-      is: [entityReplace: {entityType: object, entityReplaceType: object, error: Error}]
+      is: [ entityReplace: { entityType: object, entityReplaceType: object, error: Error } ]
     patch:
-      is: [entityUpdate: {entityType: object, entityUpdateType: object, error: Error}]
+      is: [ entityUpdate: { entityType: object, entityUpdateType: object, error: Error } ]
     delete:
-      is: [entityDelete: {error: Error}]
+      is: [ entityDelete: { error: Error } ]
 
-annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.34.0/apis/core/annotation-types/codingmatters.raml
+annotationTypes: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.36.0/apis/core/annotation-types/codingmatters.raml
 
 types:
-  Message: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.34.0/apis/core/types/message.raml
-  Error: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.34.0/apis/core/types/error-with-messages.raml
-  BatchCreateResponse: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.34.0/apis/core/types/batch-create-response.raml
+  Message: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.36.0/apis/core/types/message.raml
+  Error: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.36.0/apis/core/types/error-with-messages.raml
+  BatchCreateResponse: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.36.0/apis/core/types/batch-create-response.raml
 
 traits:
-  rfc7233Browsing: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.34.0/apis/core/traits/collection/rfc7233-browse-collection.raml
-  entityCreation: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.34.0/apis/core/traits/collection/create.raml
-  entityBatchCreation: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.34.0/apis/core/traits/collection/batch/batch-create.raml
-  entityRetrieve: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.34.0/apis/core/traits/entity/retrieve.raml
-  entityReplace: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.34.0/apis/core/traits/entity/replace.raml
-  entityUpdate: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.34.0/apis/core/traits/entity/update.raml
-  entityDelete: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.34.0/apis/core/traits/entity/delete.raml
+  rfc7233Browsing: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.36.0/apis/core/traits/collection/rfc7233-browse-collection.raml
+  entityCreation: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.36.0/apis/core/traits/collection/create.raml
+  entityBatchCreation: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.36.0/apis/core/traits/collection/batch/batch-create.raml
+  entityRetrieve: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.36.0/apis/core/traits/entity/retrieve.raml
+  entityReplace: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.36.0/apis/core/traits/entity/replace.raml
+  entityUpdate: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.36.0/apis/core/traits/entity/update.raml
+  entityDelete: !include https://raw.githubusercontent.com/flexiooss/poom-api-specs/1.36.0/apis/core/traits/entity/delete.raml
 
