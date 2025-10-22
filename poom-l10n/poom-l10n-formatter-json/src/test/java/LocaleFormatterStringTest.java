@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.is;
 
 public class LocaleFormatterStringTest {
     private Map<String, Object> values = new HashMap<>();
-    private LocalTime time = LocalTime.of(12,30,15,200 * 1000000);
+    private LocalTime time = LocalTime.of(12, 30, 15, 200 * 1000000);
     private LocalDate date = LocalDate.of(2020, 10, 29);
     private LocalDateTime dateTime = LocalDateTime.of(date, time);
 
@@ -30,6 +30,14 @@ public class LocaleFormatterStringTest {
         LocaleFormatter formatter = new LocaleFormatter(s, Locale.FRANCE, ZoneOffset.UTC);
         this.values.put("a", "plok");
         assertThat(formatter.format(values), is("plok"));
+    }
+
+    @Test
+    public void whenNull__thenNullString() throws Exception {
+        String s = "{a:s}";
+        LocaleFormatter formatter = new LocaleFormatter(s, Locale.FRANCE, ZoneOffset.UTC);
+        this.values.put("a", null);
+        assertThat(formatter.format(values), is("null"));
     }
 
     @Test
