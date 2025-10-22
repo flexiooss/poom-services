@@ -17,12 +17,13 @@ import static org.hamcrest.Matchers.is;
 
 public class LocaleFormatterIntTest {
     private Map<String, Object> values = new HashMap<>();
-    private LocalTime time = LocalTime.of(12,30,15,200 * 1000000);
+    private LocalTime time = LocalTime.of(12, 30, 15, 200 * 1000000);
     private LocalDate date = LocalDate.of(2020, 10, 29);
     private LocalDateTime dateTime = LocalDateTime.of(date, time);
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
+
     @Test
     public void givenFormatInt__giveString__thenGetError() throws Exception {
         String s = "{a:d}";
@@ -38,6 +39,14 @@ public class LocaleFormatterIntTest {
         LocaleFormatter formatter = new LocaleFormatter(s, Locale.FRANCE, ZoneOffset.UTC);
         this.values.put("a", 1000);
         assertThat(formatter.format(values), is("1\u202f000"));
+    }
+
+    @Test
+    public void whenNull__thenNullString() throws Exception {
+        String s = "{a:d}";
+        LocaleFormatter formatter = new LocaleFormatter(s, Locale.FRANCE, ZoneOffset.UTC);
+        this.values.put("a", null);
+        assertThat(formatter.format(values), is("null"));
     }
 
     @Test

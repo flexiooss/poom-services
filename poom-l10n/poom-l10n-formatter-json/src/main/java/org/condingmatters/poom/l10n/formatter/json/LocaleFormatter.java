@@ -39,11 +39,15 @@ public class LocaleFormatter {
         String key = split[0];
         String format = split[1];
         Object value = this.getValue(values, key);
-        if (!this.checkValueFormat(value, format)) {
-            throw new FormatterException("Value '" + value + "' cannot be formatted in this format '" + format + "'");
+        if (value == null) {
+            return sentence.replaceFirst("\\{" + key + ":" + format + "\\}", "null");
+        } else {
+            if (!this.checkValueFormat(value, format)) {
+                throw new FormatterException("Value '" + value + "' cannot be formatted in this format '" + format + "'");
+            }
+            String formatValue = this.formatValue(value, format);
+            return sentence.replaceFirst("\\{" + key + ":" + format + "\\}", Matcher.quoteReplacement(formatValue));
         }
-        String formatValue = this.formatValue(value, format);
-        return sentence.replaceFirst("\\{" + key + ":" + format + "\\}", Matcher.quoteReplacement(formatValue));
     }
 
     private Object getValue(Map<String, Object> values, String key) throws FormatterException {
@@ -98,7 +102,7 @@ public class LocaleFormatter {
                 .appendLocalized(FormatStyle.SHORT, FormatStyle.MEDIUM)
 //                        .appendFraction(ChronoField.MILLI_OF_SECOND, 3, 3, true)
                 .toFormatter(locale);
-      return dateTimeFormatter.format(offsetDateTime);
+        return dateTimeFormatter.format(offsetDateTime);
     }
 
     private String getDate(Object value) {
@@ -118,8 +122,8 @@ public class LocaleFormatter {
                 .appendLocalized(null, FormatStyle.MEDIUM)
                 .toFormatter(locale);
 
-        if (value instanceof LocalTime){
-         return timeFormatter.format((LocalTime)value);
+        if (value instanceof LocalTime) {
+            return timeFormatter.format((LocalTime) value);
         }
 
         return timeFormatter.format(this.offsetDateTime((LocalDateTime) value));

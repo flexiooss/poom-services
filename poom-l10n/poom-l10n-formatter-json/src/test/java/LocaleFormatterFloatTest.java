@@ -80,4 +80,16 @@ public class LocaleFormatterFloatTest {
         format = formatter.format(values);
         assertThat(format, is("1,501,520.551"));
     }
+
+    @Test
+    public void whenNull__thenNullString() throws Exception {
+        LocaleFormatter formatter = new LocaleFormatter(s, Locale.FRANCE, ZoneOffset.UTC);
+        this.values.put("a", null);
+        String format = formatter.format(values);
+        assertThat(format, is("null"));
+
+        formatter = new LocaleFormatter(s, Locale.US, ZoneOffset.UTC);
+        format = formatter.format(values);
+        assertThat(format, is("null"));
+    }
 }

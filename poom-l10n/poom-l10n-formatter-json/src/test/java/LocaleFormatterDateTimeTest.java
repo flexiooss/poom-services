@@ -75,4 +75,15 @@ public class LocaleFormatterDateTimeTest {
         this.values.put("a", dateTime);
         assertThat(formatter.format(values), is("10/29/20, 2:30:15 PM"));
     }
+
+    @Test
+    public void whenNull__thenNullString() throws Exception {
+        LocaleFormatter formatter = new LocaleFormatter(s, Locale.FRANCE, ZoneOffset.UTC);
+        this.values.put("a", null);
+        assertThat(formatter.format(values), is("null"));
+
+        formatter = new LocaleFormatter(s, Locale.FRANCE, ZoneOffset.of("+02:00"));
+        this.values.put("a", null);
+        assertThat(formatter.format(values), is("null"));
+    }
 }

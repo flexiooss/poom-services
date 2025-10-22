@@ -38,4 +38,16 @@ public class LocaleFormatterDateTest {
                 .format(values);
         assertThat(format, is("29/10/2020"));
     }
+
+    @Test
+    public void whenNull__thenNullString() throws Exception {
+        values.put("date", null);
+        String format = new LocaleFormatter(s, Locale.FRANCE, ZoneOffset.ofHours(-1))
+                .format(values);
+        assertThat(format, is("null"));
+
+        format = new LocaleFormatter(s, Locale.FRANCE, ZoneOffset.ofHours(1))
+                .format(values);
+        assertThat(format, is("null"));
+    }
 }
