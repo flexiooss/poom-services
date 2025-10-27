@@ -29,6 +29,10 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-instrumentation-annotations</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -51,7 +55,8 @@
                             <goal>generate-server-side</goal>
                         </goals>
                         <configuration>
-                            <destination-package>org.codingmatters.poom.containers.load.tests.sut.api.processor</destination-package>
+                            <destination-package>org.codingmatters.poom.containers.load.tests.sut.api.processor
+                            </destination-package>
                             <types-package>org.codingmatters.poom.containers.load.tests.sut.api</types-package>
                             <api-spec-resource>sut.raml</api-spec-resource>
                         </configuration>

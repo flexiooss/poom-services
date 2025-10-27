@@ -29,6 +29,10 @@
             <groupId>org.codingmatters.value.objects</groupId>
             <artifactId>cdm-value-objects-values</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-instrumentation-annotations</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -51,7 +55,8 @@
                             <goal>generate-server-side</goal>
                         </goals>
                         <configuration>
-                            <destination-package>org.codingmatters.poom.api.paged.collection.processor</destination-package>
+                            <destination-package>org.codingmatters.poom.api.paged.collection.processor
+                            </destination-package>
                             <types-package>org.codingmatters.poom.api.paged.collection.api</types-package>
                             <api-spec-resource>generic-resource.raml</api-spec-resource>
                         </configuration>
