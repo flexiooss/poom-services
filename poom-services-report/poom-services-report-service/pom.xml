@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services-report</artifactId>
-        <version>1.262.0</version>
+        <version>1.263.0</version>
     </parent>
 
     <artifactId>poom-services-report-service</artifactId>
@@ -35,6 +35,10 @@
         <dependency>
             <groupId>org.codingmatters.rest</groupId>
             <artifactId>cdm-rest-client-okhttp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-instrumentation-annotations</artifactId>
         </dependency>
     </dependencies>
 
