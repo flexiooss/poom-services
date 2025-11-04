@@ -1,11 +1,14 @@
 package org.codingmatters.poom.containers.runtime.undertow;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
+import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.PathHandler;
 import org.codingmatters.poom.containers.ApiContainerRuntime;
 import org.codingmatters.poom.containers.ServerShutdownException;
 import org.codingmatters.poom.containers.ServerStartupException;
+import org.codingmatters.poom.containers.internal.FastFailingProcessor;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.services.support.Env;
 import org.codingmatters.rest.api.Api;
@@ -26,6 +29,7 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
     private final int port;
 
     private Undertow undertow;
+    private final JsonFactory jsonFactory = new JsonFactory();
 
     public UndertowApiContainerRuntime(String host, int port, CategorizedLogger log) {
         super(log);
@@ -51,7 +55,7 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
                         .addPrefixPath(docpath, new CdmHttpUndertowHandler(new StaticResourceProcessor(api.docResource(), "text/html")));
             }
             handlers
-                    .addPrefixPath(path, new CdmHttpUndertowHandler(api.processor()));
+                    .addPrefixPath(path, new CdmHttpUndertowHandler(new FastFailingProcessor(api.processor(), this, this.jsonFactory)));
         }
 
         Undertow.Builder builder = Undertow.builder()
