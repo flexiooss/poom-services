@@ -1,8 +1,10 @@
 package org.codingmatters.poom.containers.runtime.netty;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import org.codingmatters.poom.containers.ApiContainerRuntime;
 import org.codingmatters.poom.containers.ServerShutdownException;
 import org.codingmatters.poom.containers.ServerStartupException;
+import org.codingmatters.poom.containers.internal.FastFailingProcessor;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.services.support.Env;
 import org.codingmatters.rest.api.Api;
@@ -31,6 +33,7 @@ public class NettyApiContainerRuntime extends ApiContainerRuntime {
 
     private AbstratHttpServer nettyServer;
     private Processor mainProcessor;
+    private final JsonFactory jsonFactory = new JsonFactory();
 
     public NettyApiContainerRuntime(String host, int port, CategorizedLogger log) {
         super(log);
@@ -104,7 +107,7 @@ public class NettyApiContainerRuntime extends ApiContainerRuntime {
                         String docpath = path + "/doc";
                         processorBuilder.whenMatching(docpath + "($|/.*)", new StaticResourceProcessor(api.docResource(), "text/html"));
                     }
-                    processorBuilder.whenMatching(path + "($|/.*)", api.processor());
+                    processorBuilder.whenMatching(path + "($|/.*)", new FastFailingProcessor(api.processor(), this, this.jsonFactory));
                     registerd.add(path);
                 }
             }
