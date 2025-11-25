@@ -25,12 +25,20 @@ public class CacheManager<K, V> implements Closeable {
         return newMapBackedCache(new HashMap<>(), retriever, invalidator, capacity, scheduler, delay, delayUnit);
     }
 
-    static public <K, V> CacheManager<K, V> newMapBackedCache(Map<K, Optional<V>> map, Cache.ValueRetriever<K, V> retriever, Cache.ValueInvalidator<K, V> invalidator, int capacity, ScheduledExecutorService scheduler, long delay, TimeUnit delayUnit) {
+    static public <K, V> CacheManager<K, V> newMapBackedCache(
+            Map<K, Optional<V>> map,
+            Cache.ValueRetriever<K, V> retriever, Cache.ValueInvalidator<K, V> invalidator,
+            int capacity,
+            ScheduledExecutorService scheduler, long delay, TimeUnit delayUnit) {
         CacheStore<K, V> cacheStore = new MapCacheStore<>(map);
         return newCache(cacheStore, retriever, invalidator, capacity, scheduler, delay, delayUnit);
     }
 
-    private static <K, V> CacheManager<K, V> newCache(CacheStore<K, V> cacheStore, Cache.ValueRetriever<K, V> retriever, Cache.ValueInvalidator<K, V> invalidator, int capacity, ScheduledExecutorService scheduler, long delay, TimeUnit delayUnit) {
+    private static <K, V> CacheManager<K, V> newCache(
+            CacheStore<K, V> cacheStore,
+            Cache.ValueRetriever<K, V> retriever, Cache.ValueInvalidator<K, V> invalidator,
+            int capacity,
+            ScheduledExecutorService scheduler, long delay, TimeUnit delayUnit) {
         return new CacheManager<K, V>(
                 new CacheWithStore<>(retriever, cacheStore, invalidator),
                 capacity,
