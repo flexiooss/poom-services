@@ -28,8 +28,6 @@ public class CacheWithStoreTest {
         };
     }
 
-    ;
-
     @Parameterized.Parameter
     public Supplier<CacheStore<String, String>> storeSupplier;
 

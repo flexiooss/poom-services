@@ -19,14 +19,25 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
     private final List<PruneListener<K>> pruneListeners = new LinkedList<>();
     private final List<AccessListener<K>> accessListeners = new LinkedList<>();
 
+    private final boolean readOnly;
+
     public CacheWithStore(
             ValueRetriever<K, V> retriever,
             CacheStore<K, V> store,
             Cache.ValueInvalidator<K, V> invalidator
     ) {
+        this(retriever, store, invalidator, false);
+    }
+    public CacheWithStore(
+            ValueRetriever<K, V> retriever,
+            CacheStore<K, V> store,
+            Cache.ValueInvalidator<K, V> invalidator,
+            boolean readOnly
+    ) {
         this.retriever = retriever;
         this.delegate = store;
         this.invalidator = invalidator;
+        this.readOnly = readOnly;
     }
 
     @Override
@@ -43,16 +54,10 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
                     this.delegate.store(key, value.get());
                 } else {
                     value = this.retrieve(key);
-                    if (value.isPresent()) {
-                        this.delegate.store(key, value.get());
-                    }
                 }
             }
         } else {
             value = this.retrieve(key);
-            if (value.isPresent()) {
-                this.delegate.store(key, value.get());
-            }
         }
         this.accessListeners.forEach(listener -> listener.accessed(key));
         return value.orElse(null);
@@ -65,6 +70,9 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
 
     private Optional<V> retrieve(K key) throws Exception {
         V newValue = this.retriever.retrieve(key);
+        if ((! this.readOnly) && newValue != null) {
+            this.delegate.store(key, newValue);
+        }
         return newValue != null ? Optional.of(newValue) : Optional.empty();
     }
 
