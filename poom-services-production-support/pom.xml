@@ -38,7 +38,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>docker-support-with-health-check</id>
+                        <id>docker-support-no-health-check</id>
                         <goals>
                             <goal>single</goal>
                         </goals>
@@ -47,7 +47,7 @@
                             <appendAssemblyId>true</appendAssemblyId>
                             <attach>true</attach>
                             <descriptors>
-                                <descriptor>${project.basedir}/src/main/docker-support/docker-support-assembly-with-health-check.xml</descriptor>
+                                <descriptor>${project.basedir}/src/main/docker-support/docker-support-assembly-no-health-check.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
