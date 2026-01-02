@@ -11,8 +11,8 @@ RUN chmod a+x /var/service/service-endpoint.sh
 EXPOSE 80
 ENV SERVICE_PORT=80
 
-HEALTHCHECK --interval=5s --timeout=3s --start-period=30s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
+HEALTHCHECK --interval=${health.check.interval} --timeout=${health.check.timeout} --start-period=${health.check.start.period} --retries=${health.check.retries} \
+  CMD ${health.check.command}
 
 ENV MAX_RAM_PERCENTAGE=70.0
 # ENV INITIAL_RAM_PERCENTAGE=70.0

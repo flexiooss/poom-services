@@ -83,8 +83,10 @@ public abstract class ApiContainerRuntime implements ExternallyStoppable {
     }
 
     public void stop() throws ServerShutdownException {
-        this.shutdownServer();
         try {
+            log.info("Shutting down server");
+            this.shutdownServer();
+            log.info("Running shutdown callback");
             this.onShutdown.run();
         } catch (Throwable t) {
             throw new ServerShutdownException("error running post shutdown runnable", t);

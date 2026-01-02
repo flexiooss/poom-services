@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services</artifactId>
-        <version>1.270.0</version>
+        <version>1.271.0</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -34,6 +34,34 @@
                             <attach>true</attach>
                             <descriptors>
                                 <descriptor>${project.basedir}/src/main/docker-support/docker-support-assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>docker-support-no-health-check</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <appendAssemblyId>true</appendAssemblyId>
+                            <attach>true</attach>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/main/docker-support/docker-support-assembly-no-health-check.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>docker-support-with-parameterized-health-check</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <appendAssemblyId>true</appendAssemblyId>
+                            <attach>true</attach>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/main/docker-support/docker-support-assembly-with-parameterized-health-check.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
