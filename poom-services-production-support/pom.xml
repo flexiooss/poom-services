@@ -37,6 +37,20 @@
                             </descriptors>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>docker-support-with-health-check</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <appendAssemblyId>true</appendAssemblyId>
+                            <attach>true</attach>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/main/docker-support/docker-support-assembly-with-health-check.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
