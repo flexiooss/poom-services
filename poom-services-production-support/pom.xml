@@ -37,34 +37,6 @@
                             </descriptors>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>docker-support-no-health-check</id>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <appendAssemblyId>true</appendAssemblyId>
-                            <attach>true</attach>
-                            <descriptors>
-                                <descriptor>${project.basedir}/src/main/docker-support/docker-support-assembly-no-health-check.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>docker-support-with-parameterized-health-check</id>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <appendAssemblyId>true</appendAssemblyId>
-                            <attach>true</attach>
-                            <descriptors>
-                                <descriptor>${project.basedir}/src/main/docker-support/docker-support-assembly-with-parameterized-health-check.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
         </plugins>
