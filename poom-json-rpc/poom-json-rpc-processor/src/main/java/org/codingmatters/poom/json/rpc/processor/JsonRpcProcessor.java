@@ -20,10 +20,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class JsonRpcProcessor implements Processor {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(JsonRpcProcessor.class);
@@ -56,10 +54,12 @@ public class JsonRpcProcessor implements Processor {
 
     private final RpcEntryPointDescriptor descriptor;
     private final JsonFactory  jsonFactory;
+    private final ExecutorService pool;
 
-    public JsonRpcProcessor(RpcEntryPointDescriptor descriptor, JsonFactory jsonFactory) {
+    public JsonRpcProcessor(RpcEntryPointDescriptor descriptor, JsonFactory jsonFactory, ExecutorService pool) {
         this.descriptor = descriptor;
         this.jsonFactory = jsonFactory;
+        this.pool = pool;
     }
 
     @Override
@@ -80,7 +80,6 @@ public class JsonRpcProcessor implements Processor {
     }
 
     private void processPayload(RequestDelegate request, ResponseDelegate response) {
-        response.status(200);
         response.contenType("application/json");
 
         RpcRequest[] requests;
@@ -88,34 +87,77 @@ public class JsonRpcProcessor implements Processor {
             requests = new RpcRequestReader().readArray(parser);;
         } catch (IOException e) {
             log.error("error reading rpc request", e);
+            response.status(200);
             response.payload(PARSE_ERROR);
             return;
         }
 
-        List<RpcResponse> rpcResponses = new ArrayList<>(requests.length);
-        for (RpcRequest rpcRequest : requests) {
-            rpcResponses.add(this.processRpcRequest(rpcRequest));
+        boolean synchronousCall = Arrays.stream(requests).filter(rpcRequest -> rpcRequest.opt().id().isPresent()).findAny().isPresent();
+        if(synchronousCall) {
+            response.status(200);
+        } else {
+            response.status(204);
         }
 
-        RpcResponseWriter writer = new RpcResponseWriter();
-        try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            try (JsonGenerator generator = this.jsonFactory.createGenerator(out)) {
-                if (rpcResponses.size() > 1) {
-                    writer.writeArray(generator, rpcResponses.toArray(new RpcResponse[0]));
-                } else {
-                    writer.write(generator, rpcResponses.get(0));
+        Future<List<RpcResponse>> futures = null;
+        try {
+            futures = this.executeCalls(requests);
+        } catch (BusyException e) {
+            response.status(200);
+            response.payload(INTERNAL_ERROR);
+            return;
+        }
+
+        if(synchronousCall) {
+            List<RpcResponse> rpcResponses;
+            try {
+                rpcResponses = futures.get();
+            } catch (InterruptedException | ExecutionException e) {
+                response.payload(INTERNAL_ERROR);
+                return;
+            }
+            RpcResponseWriter writer = new RpcResponseWriter();
+            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                try (JsonGenerator generator = this.jsonFactory.createGenerator(out)) {
+                    if (rpcResponses.size() > 1) {
+                        writer.writeArray(generator, rpcResponses.toArray(new RpcResponse[0]));
+                    } else {
+                        writer.write(generator, rpcResponses.get(0));
+                    }
+                    generator.flush();
+                    generator.close();
+                } catch (IOException e) {
+                    response.payload(INTERNAL_ERROR);
+                    return;
                 }
-                generator.flush();
-                generator.close();
+                response.payload(out.toByteArray());
             } catch (IOException e) {
                 response.payload(INTERNAL_ERROR);
                 return;
             }
-            response.payload(out.toByteArray());
-        } catch (IOException e) {
-            response.payload(INTERNAL_ERROR);
-            return;
         }
+    }
+
+    private Future<List<RpcResponse>> executeCalls(RpcRequest[] requests) throws BusyException {
+        FutureTask<List<RpcResponse>> result = new FutureTask<List<RpcResponse>>(new Callable<List<RpcResponse>>() {
+            @Override
+            public List<RpcResponse> call() throws Exception {
+                List<RpcResponse> rpcResponses = new ArrayList<>(requests.length);
+                for (RpcRequest rpcRequest : requests) {
+                    rpcResponses.add(processRpcRequest(rpcRequest));
+                }
+
+                return rpcResponses;
+            }
+        });
+        try {
+            this.pool.submit(result);
+        } catch (RejectedExecutionException e) {
+            log.error("error submitting RPC requests, call was rejected by pool", e);
+            throw new BusyException("resource exhausted", e);
+        }
+
+        return result;
     }
 
     private RpcResponse processRpcRequest(RpcRequest rpcRequest) {
@@ -138,7 +180,9 @@ public class JsonRpcProcessor implements Processor {
                                 .message("Internal Error")
                         .build()).build();
             }
+
             Object result = methodDescriptor.get().handler().apply(param);
+
             ObjectValue resultValue;
             try {
                 resultValue = this.processResult(methodDescriptor.get(), result);
@@ -152,6 +196,7 @@ public class JsonRpcProcessor implements Processor {
             return RpcResponse.builder()
                     .jsonrpc(JSON_RPC_VERSION)
                     .result(resultValue)
+                    .id(rpcRequest.id())
                     .build();
         } else {
             return METHOD_NOT_FOUND_RESPONSE;
@@ -204,6 +249,16 @@ public class JsonRpcProcessor implements Processor {
         }
 
         public ResultProcessingException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    private class BusyException extends Exception {
+        public BusyException(String message) {
+            super(message);
+        }
+
+        public BusyException(String message, Throwable cause) {
             super(message, cause);
         }
     }

@@ -35,6 +35,11 @@
             <artifactId>cdm-rest-tests-support</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.codingmatters.poom</groupId>
+            <artifactId>poom-services-test-support</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 

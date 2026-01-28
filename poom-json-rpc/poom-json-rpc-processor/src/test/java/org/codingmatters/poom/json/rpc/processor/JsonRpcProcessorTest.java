@@ -7,12 +7,14 @@ import org.codingmatters.poom.json.rpc.descriptors.RpcEntryPointDescriptor;
 import org.codingmatters.poom.json.rpc.descriptors.RpcMethodDescriptor;
 import org.codingmatters.poom.json.rpc.processor.test.binding.MethodParams;
 import org.codingmatters.poom.json.rpc.processor.test.binding.MethodResult;
+import org.codingmatters.poom.services.tests.Eventually;
 import org.codingmatters.rest.api.RequestDelegate;
 import org.codingmatters.rest.api.ResponseDelegate;
 import org.codingmatters.rest.tests.api.TestRequestDeleguate;
 import org.codingmatters.rest.tests.api.TestResponseDeleguate;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -20,6 +22,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,12 +35,19 @@ class JsonRpcProcessorTest {
     private static final String URL = "http://plip/plpop";
     private JsonFactory jsonFactory = new JsonFactory();
 
+    private final ExecutorService pool = Executors.newSingleThreadExecutor();
+
+    @AfterEach
+    void tearDown() {
+        this.pool.shutdownNow();
+    }
+
     @ParameterizedTest
     @EnumSource(value = RequestDelegate.Method.class, names = {"GET", "PUT", "PATCH", "DELETE", "HEAD", "UNIMPLEMENTED"})
     void whileProcess__whenNotPost__then405(RequestDelegate.Method method) throws Exception {
         TestResponseDeleguate response =  new TestResponseDeleguate();
 
-        new JsonRpcProcessor(RpcEntryPointDescriptor.builder().build(), this.jsonFactory).process(
+        new JsonRpcProcessor(RpcEntryPointDescriptor.builder().build(), this.jsonFactory, this.pool).process(
                 TestRequestDeleguate.request(method, URL).build(),
                 response
         );
@@ -50,7 +63,7 @@ class JsonRpcProcessorTest {
 
         RpcEntryPointDescriptor.Builder descriptor = RpcEntryPointDescriptor.builder();
 
-        new JsonRpcProcessor(descriptor.build(), this.jsonFactory).process(
+        new JsonRpcProcessor(descriptor.build(), this.jsonFactory, this.pool).process(
                 TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
                         .contentType("application/not-json")
                         .payload(this.asPayload("[{}]"))
@@ -69,11 +82,11 @@ class JsonRpcProcessorTest {
 
         RpcEntryPointDescriptor.Builder descriptor = RpcEntryPointDescriptor.builder();
 
-        new JsonRpcProcessor(descriptor.build(), this.jsonFactory).process(
+        new JsonRpcProcessor(descriptor.build(), this.jsonFactory, this.pool).process(
                 TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
                         .contentType("application/json")
                         .payload(this.asPayload("""
-                                [{}]
+                                [{"id":"1"}]
                                 """))
                         .build(),
                 response
@@ -93,7 +106,7 @@ class JsonRpcProcessorTest {
 
         RpcEntryPointDescriptor.Builder descriptor = RpcEntryPointDescriptor.builder();
 
-        new JsonRpcProcessor(descriptor.build(), this.jsonFactory).process(
+        new JsonRpcProcessor(descriptor.build(), this.jsonFactory, this.pool).process(
                 TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
                         .contentType("application/json")
                         .payload(this.asPayload("""
@@ -117,11 +130,11 @@ class JsonRpcProcessorTest {
 
         RpcEntryPointDescriptor.Builder descriptor = RpcEntryPointDescriptor.builder();
 
-        new JsonRpcProcessor(descriptor.build(), this.jsonFactory).process(
+        new JsonRpcProcessor(descriptor.build(), this.jsonFactory, this.pool).process(
                 TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
                         .contentType("application/json")
                         .payload(this.asPayload("""
-                                [{"jsonrpc":"2.0"}]
+                                [{"jsonrpc":"2.0","id":"1"}]
                                 """))
                         .build(),
                 response
@@ -141,11 +154,11 @@ class JsonRpcProcessorTest {
 
         RpcEntryPointDescriptor.Builder descriptor = RpcEntryPointDescriptor.builder();
 
-        new JsonRpcProcessor(descriptor.build(), this.jsonFactory).process(
+        new JsonRpcProcessor(descriptor.build(), this.jsonFactory, this.pool).process(
                 TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
                         .contentType("application/json")
                         .payload(this.asPayload("""
-                                [{"jsonrpc":"4.0"}]
+                                [{"jsonrpc":"4.0","id":"1"}]
                                 """))
                         .build(),
                 response
@@ -167,11 +180,11 @@ class JsonRpcProcessorTest {
 
         RpcEntryPointDescriptor.Builder descriptor = RpcEntryPointDescriptor.builder();
 
-        new JsonRpcProcessor(descriptor.build(), this.jsonFactory).process(
+        new JsonRpcProcessor(descriptor.build(), this.jsonFactory, this.pool).process(
                 TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
                         .contentType("application/json")
                         .payload(this.asPayload("""
-                                [{"jsonrpc":"2.0","method":"noDescriptor"}]
+                                [{"jsonrpc":"2.0","method":"noDescriptor","id":"1"}]
                                 """))
                         .build(),
                 response
@@ -197,11 +210,11 @@ class JsonRpcProcessorTest {
                         .handler((RpcMethodHandler<MethodParams, MethodResult>) methodParams -> MethodResult.builder().params(methodParams).build())
                         .build());
 
-        new JsonRpcProcessor(descriptor.build(), this.jsonFactory).process(
+        new JsonRpcProcessor(descriptor.build(), this.jsonFactory, this.pool).process(
                 TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
                         .contentType("application/json")
                         .payload(this.asPayload("""
-                                [{"jsonrpc":"2.0","method":"calledMethod","params":{"prop":"test value 1"}},{"jsonrpc":"2.0","method":"calledMethod","params":{"prop":"test value 2"}}]
+                                [{"jsonrpc":"2.0","method":"calledMethod","params":{"prop":"test value 1"},"id":"1"},{"jsonrpc":"2.0","method":"calledMethod","params":{"prop":"test value 2"},"id":"2"}]
                                 """))
                         .build(),
                 response
@@ -212,7 +225,7 @@ class JsonRpcProcessorTest {
 
         assertThat(new String(response.payload()), Matchers.is(
                 """
-                [{"jsonrpc":"2.0","result":{"params":{"prop":"test value 1"}}},{"jsonrpc":"2.0","result":{"params":{"prop":"test value 2"}}}]"""
+                [{"jsonrpc":"2.0","result":{"params":{"prop":"test value 1"}},"id":"1"},{"jsonrpc":"2.0","result":{"params":{"prop":"test value 2"}},"id":"2"}]"""
         ));
     }
 
@@ -228,11 +241,11 @@ class JsonRpcProcessorTest {
                         .handler((RpcMethodHandler<MethodParams, MethodResult>) methodParams -> MethodResult.builder().params(methodParams).build())
                         .build());
 
-        new JsonRpcProcessor(descriptor.build(), this.jsonFactory).process(
+        new JsonRpcProcessor(descriptor.build(), this.jsonFactory, this.pool).process(
                 TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
                         .contentType("application/json")
                         .payload(this.asPayload("""
-                                {"jsonrpc":"2.0","method":"calledMethod","params":{"prop":"test value 1"}}
+                                {"jsonrpc":"2.0","method":"calledMethod","params":{"prop":"test value 1"},"id":"1"}
                                 """))
                         .build(),
                 response
@@ -243,7 +256,103 @@ class JsonRpcProcessorTest {
 
         assertThat(new String(response.payload()), Matchers.is(
                 """
-                {"jsonrpc":"2.0","result":{"params":{"prop":"test value 1"}}}"""
+                {"jsonrpc":"2.0","result":{"params":{"prop":"test value 1"}},"id":"1"}"""
+        ));
+    }
+
+    @Test
+    void whileProcess__givenUniqueCall__whenNoId__then204_andMethodCalled() throws Exception {
+        TestResponseDeleguate response =  new TestResponseDeleguate();
+
+        AtomicInteger counter = new AtomicInteger(0);
+        RpcEntryPointDescriptor.Builder descriptor = RpcEntryPointDescriptor.builder()
+                .methodsAdd(RpcMethodDescriptor.builder()
+                        .method("calledMethod")
+                        .paramsValue(MethodParams.class)
+                        .resultValue(MethodResult.class)
+                        .handler((RpcMethodHandler<MethodParams, MethodResult>) methodParams -> {
+                            MethodResult r = MethodResult.builder().params(methodParams).build();
+                            counter.incrementAndGet();
+                            return r;
+                        })
+                        .build());
+
+        new JsonRpcProcessor(descriptor.build(), this.jsonFactory, this.pool).process(
+                TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
+                        .contentType("application/json")
+                        .payload(this.asPayload("""
+                                {"jsonrpc":"2.0","method":"calledMethod","params":{"prop":"test value 1"}}
+                                """))
+                        .build(),
+                response
+        );
+
+        assertThat(response.status(), Matchers.is(204));
+        assertThat(response.payload(), Matchers.is(Matchers.nullValue()));
+        Eventually.defaults().assertThat(() -> counter.get(), Matchers.is(1));
+    }
+
+    @Test
+    void whileProcess__givenManyCalls__whenNoId__then204_andMethodCalled() throws Exception {
+        TestResponseDeleguate response =  new TestResponseDeleguate();
+
+        AtomicInteger counter = new AtomicInteger(0);
+        RpcEntryPointDescriptor.Builder descriptor = RpcEntryPointDescriptor.builder()
+                .methodsAdd(RpcMethodDescriptor.builder()
+                        .method("calledMethod")
+                        .paramsValue(MethodParams.class)
+                        .resultValue(MethodResult.class)
+                        .handler((RpcMethodHandler<MethodParams, MethodResult>) methodParams -> {
+                            MethodResult r = MethodResult.builder().params(methodParams).build();
+                            counter.incrementAndGet();
+                            return r;
+                        })
+                        .build());
+
+        new JsonRpcProcessor(descriptor.build(), this.jsonFactory, this.pool).process(
+                TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
+                        .contentType("application/json")
+                        .payload(this.asPayload("""
+                                [{"jsonrpc":"2.0","method":"calledMethod","params":{"prop":"test value 1"}},{"jsonrpc":"2.0","method":"calledMethod","params":{"prop":"test value 1"}}]
+                                """))
+                        .build(),
+                response
+        );
+
+        assertThat(response.status(), Matchers.is(204));
+        assertThat(response.payload(), Matchers.is(Matchers.nullValue()));
+        Eventually.defaults().assertThat(() ->  counter.get(), Matchers.is(2));
+
+    }
+
+    @Test
+    void whileProcess__givenManyCalls__whenSomeHaveId__then200() throws Exception {
+        TestResponseDeleguate response =  new TestResponseDeleguate();
+
+        RpcEntryPointDescriptor.Builder descriptor = RpcEntryPointDescriptor.builder()
+                .methodsAdd(RpcMethodDescriptor.builder()
+                        .method("calledMethod")
+                        .paramsValue(MethodParams.class)
+                        .resultValue(MethodResult.class)
+                        .handler((RpcMethodHandler<MethodParams, MethodResult>) methodParams -> MethodResult.builder().params(methodParams).build())
+                        .build());
+
+        new JsonRpcProcessor(descriptor.build(), this.jsonFactory, this.pool).process(
+                TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
+                        .contentType("application/json")
+                        .payload(this.asPayload("""
+                                [{"jsonrpc":"2.0","method":"calledMethod","params":{"prop":"test value 1"}},{"jsonrpc":"2.0","method":"calledMethod","params":{"prop":"test value 2"},"id":"2"}]
+                                """))
+                        .build(),
+                response
+        );
+
+        assertThat(response.status(), Matchers.is(200));
+        assertThat(response.contentType(), Matchers.is("application/json"));
+
+        assertThat(new String(response.payload()), Matchers.is(
+                """
+                [{"jsonrpc":"2.0","result":{"params":{"prop":"test value 1"}}},{"jsonrpc":"2.0","result":{"params":{"prop":"test value 2"}},"id":"2"}]"""
         ));
     }
 
