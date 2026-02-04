@@ -18,6 +18,8 @@ public abstract class ApiContainerRuntime implements ExternallyStoppable {
 
     protected abstract void shutdownServer() throws ServerShutdownException;
 
+    protected abstract void statusUp();
+
     protected ApiContainerRuntime(CategorizedLogger log) {
         this.log = log;
         this.onStartup = () -> {

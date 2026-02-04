@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.GracefulShutdownHandler;
-import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.PathHandler;
 import org.codingmatters.poom.containers.ApiContainerRuntime;
 import org.codingmatters.poom.containers.ServerShutdownException;
@@ -34,16 +33,20 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
     private Undertow undertow;
     private final JsonFactory jsonFactory = new JsonFactory();
     private GracefulShutdownHandler gracefulShutdownHandler;
+    private StatusHandler statusHandler;
 
     public UndertowApiContainerRuntime(String host, int port, CategorizedLogger log) {
         super(log);
         this.host = host;
         this.port = port;
+        this.statusHandler = new StatusHandler();
     }
 
     @Override
     protected void startupServer(Api[] apis) throws ServerStartupException {
         PathHandler handlers = Handlers.path();
+
+        handlers.addExactPath("/status", statusHandler);
 
         for (Api api : this.apis) {
             String path = api.path();
@@ -60,9 +63,9 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
             }
             handlers
                     .addPrefixPath(path, new CdmHttpUndertowHandler(new FastFailingProcessor(api.processor(), this, this.jsonFactory)));
+
         }
 
-        // Wrap handlers with GracefulShutdownHandler for graceful shutdown support
         this.gracefulShutdownHandler = new GracefulShutdownHandler(handlers);
 
         Undertow.Builder builder = Undertow.builder()
@@ -98,6 +101,8 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
         } catch (IOException e) {
             this.log.error("Undertow server started with undefined options ", e);
         }
+
+        this.statusUp();
     }
 
     @Override
@@ -127,5 +132,11 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
         // Stop the Undertow server
         this.undertow.stop();
         this.log.info("Undertow server stopped");
+    }
+
+    @Override
+    protected void statusUp() {
+        log.info("Server status UP");
+        statusHandler.started();
     }
 }
