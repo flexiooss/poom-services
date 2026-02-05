@@ -1,0 +1,27 @@
+---
+RpcRequest:
+  jsonrpc: string
+    #"MUST be '2.0'"
+  method: string
+    #The name of the method to be invoked (ex: 'user.create'), required
+  params:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+  id: string
+    #If empty, then it's a notification (no response awaited), a 204 response is issued
+
+RpcResponse:
+  jsonrpc: string
+    #MUST be '2.0'
+  result:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+  error: $RpcError
+  id: string
+
+RpcError:
+  code: int
+    #error code (ex: -32600)", required
+  message: string
+    #short error description, required
+  data:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+    #details (stacktrace, détails...)

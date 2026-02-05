@@ -34,10 +34,12 @@ public class NettyApiContainerRuntime extends ApiContainerRuntime {
     private AbstratHttpServer nettyServer;
     private Processor mainProcessor;
     private final JsonFactory jsonFactory = new JsonFactory();
+    private StatusProcessor statusProcessor;
 
     public NettyApiContainerRuntime(String host, int port, CategorizedLogger log) {
         super(log);
         this.nettyServer = new Http2Server(this.configFromEnv(host, port), this::handler);
+        statusProcessor = new StatusProcessor();
     }
 
     private NettyHttpConfig configFromEnv(String host, int port) {
@@ -80,6 +82,7 @@ public class NettyApiContainerRuntime extends ApiContainerRuntime {
 
         try {
             this.nettyServer.start();
+            this.statusUp();
             this.log.info("netty server started");
         } catch (Exception e) {
             throw new ServerStartupException("error starting netty server", e);
@@ -88,6 +91,7 @@ public class NettyApiContainerRuntime extends ApiContainerRuntime {
 
     private Processor builderMainProcessor(Api[] apis) {
         MatchingPathProcessor.Builder processorBuilder = new MatchingPathProcessor.Builder();
+        processorBuilder.whenMatching("/status", statusProcessor);
         if(apis != null && apis.length > 0) {
             LinkedList<Api> orderedApis = new LinkedList<>();
             for (Api api : apis) {
@@ -102,6 +106,7 @@ public class NettyApiContainerRuntime extends ApiContainerRuntime {
                 if(path.endsWith("/")) {
                     path = path.substring(0, path.length() - 1);
                 }
+                processorBuilder.whenMatching("/status", new StatusProcessor() {});
                 if(! registerd.contains(path)) {
                     if (api.docResource() != null) {
                         String docpath = path + "/doc";
@@ -129,5 +134,10 @@ public class NettyApiContainerRuntime extends ApiContainerRuntime {
         } catch (InterruptedException e) {
             throw new ServerShutdownException("interrupted while waiting for shutdown", e);
         }
+    }
+
+    @Override
+    protected void statusUp() {
+        statusProcessor.start();
     }
 }

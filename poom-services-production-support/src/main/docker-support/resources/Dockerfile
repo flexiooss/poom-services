@@ -7,6 +7,7 @@ COPY logback-text.xml /var/service/config/logs/
 COPY logback-json.xml /var/service/config/logs/
 COPY service-endpoint.sh /var/service/
 RUN chmod a+x /var/service/service-endpoint.sh
+COPY healthcheck.info /var/service/
 
 EXPOSE 80
 ENV SERVICE_PORT=80

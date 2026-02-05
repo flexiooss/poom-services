@@ -1,0 +1,13 @@
+---
+RpcMethodDescriptor:
+  method: string
+  params-value:
+    $type: java.lang.Class
+  result-value:
+    $type: java.lang.Class
+  handler:
+    $type: org.codingmatters.poom.json.rpc.RpcMethodHandler
+
+RpcEntryPointDescriptor:
+  methods:
+    $list: $RpcMethodDescriptor

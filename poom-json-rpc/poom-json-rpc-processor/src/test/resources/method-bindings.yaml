@@ -1,0 +1,6 @@
+---
+MethodParams:
+  prop: string
+
+MethodResult:
+  params: $MethodParams
