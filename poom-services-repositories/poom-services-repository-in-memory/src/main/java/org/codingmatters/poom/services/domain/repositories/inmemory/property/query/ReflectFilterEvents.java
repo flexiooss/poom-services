@@ -78,13 +78,13 @@ public class ReflectFilterEvents<V> extends StackedFilterEvents<Predicate<V>> {
 
     @Override
     public Void isNotEquals(String left, Object right) throws FilterEventError {
-        this.push(o -> ! Operators.eq(this.propertyResolver.resolve(o, left).value(), right));
+        this.push(o -> !Operators.eq(this.propertyResolver.resolve(o, left).value(), right));
         return null;
     }
 
     @Override
     public Void isNotEqualsProperty(String left, String right) throws FilterEventError {
-        this.push(o -> ! Operators.eq(this.propertyResolver.resolve(o, left).value(), this.propertyResolver.resolve(o, right).value()));
+        this.push(o -> !Operators.eq(this.propertyResolver.resolve(o, left).value(), this.propertyResolver.resolve(o, right).value()));
         return null;
     }
 
@@ -108,7 +108,7 @@ public class ReflectFilterEvents<V> extends StackedFilterEvents<Predicate<V>> {
 
     @Override
     public Void isNotEmpty(String property) throws FilterEventError {
-        this.push(o -> this.propertyResolver.resolve(o, property).value() != null && ! this.propertyResolver.resolve(o, property).value().toString().isEmpty());
+        this.push(o -> this.propertyResolver.resolve(o, property).value() != null && !this.propertyResolver.resolve(o, property).value().toString().isEmpty());
         return null;
     }
 
@@ -187,7 +187,7 @@ public class ReflectFilterEvents<V> extends StackedFilterEvents<Predicate<V>> {
     @Override
     public Void isMatchingPattern(String left, String pattern, List<PatternOption> options) throws FilterEventError {
         Pattern compiledPattern;
-        if(options.contains(PatternOption.CASE_INSENSITIVE)) {
+        if (options.contains(PatternOption.CASE_INSENSITIVE)) {
             compiledPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
         } else {
             compiledPattern = Pattern.compile(pattern);
@@ -199,6 +199,18 @@ public class ReflectFilterEvents<V> extends StackedFilterEvents<Predicate<V>> {
     @Override
     public Void containsAll(String left, List<Object> right) throws FilterEventError {
         this.push(o -> Operators.containsAll(this.propertyResolver.resolve(o, left).value(), right));
+        return null;
+    }
+
+    @Override
+    public Void isEqualsList(String left, List<Object> right) throws FilterEventError {
+        this.push(o -> Operators.eq(this.propertyResolver.resolve(o, left).value(), right));
+        return null;
+    }
+
+    @Override
+    public Void isNotEqualsList(String left, List<Object> right) throws FilterEventError {
+        this.push(o -> Operators.neq(this.propertyResolver.resolve(o, left).value(), right));
         return null;
     }
 

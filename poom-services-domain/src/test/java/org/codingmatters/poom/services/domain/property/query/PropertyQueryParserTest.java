@@ -7,15 +7,16 @@ import org.codingmatters.poom.services.domain.property.query.events.SortEventExc
 import org.codingmatters.poom.services.domain.property.query.validation.InvalidPropertyException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.Ignore;
 import org.junit.rules.ExpectedException;
 
 import java.time.*;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.*;
 
 
 public class PropertyQueryParserTest {
@@ -43,7 +44,7 @@ public class PropertyQueryParserTest {
         thrown.expectMessage("invalid left hand side properties : l2");
 
         PropertyQueryParser.builder()
-                .leftHandSidePropertyValidator(s -> ! "l2".equals(s))
+                .leftHandSidePropertyValidator(s -> !"l2".equals(s))
                 .build(FilterEvents.noop()).parse(query);
     }
 
@@ -67,7 +68,7 @@ public class PropertyQueryParserTest {
         thrown.expectMessage("invalid right hand side properties : r2");
 
         PropertyQueryParser.builder()
-                .rightHandSidePropertyValidator(s -> ! "r2".equals(s))
+                .rightHandSidePropertyValidator(s -> !"r2".equals(s))
                 .build(FilterEvents.noop()).parse(query);
     }
 
@@ -129,7 +130,7 @@ public class PropertyQueryParserTest {
             @Override
             public String isNull(String property) throws FilterEventError {
                 parsed.add(property + " is null");
-                return parsed.get(parsed.size() - 1);
+                return parsed.getLast();
             }
         };
 
@@ -150,7 +151,7 @@ public class PropertyQueryParserTest {
             @Override
             public String isNotNull(String property) throws FilterEventError {
                 parsed.add(property + " is not null");
-                return parsed.get(parsed.size() - 1);
+                return parsed.getLast();
             }
         };
 
@@ -171,7 +172,7 @@ public class PropertyQueryParserTest {
             @Override
             public String isEmpty(String property) throws FilterEventError {
                 parsed.add(property + " is empty property");
-                return parsed.get(parsed.size() - 1);
+                return parsed.getLast();
             }
         };
 
@@ -192,7 +193,7 @@ public class PropertyQueryParserTest {
             @Override
             public String isNotEmpty(String property) throws FilterEventError {
                 parsed.add(property + " is not empty property");
-                return parsed.get(parsed.size() - 1);
+                return parsed.getLast();
             }
         };
 
@@ -213,7 +214,7 @@ public class PropertyQueryParserTest {
             @Override
             public String isNotEquals(String left, Object right) throws FilterEventError {
                 parsed.add(left + " is not equal to " + right);
-                return parsed.get(parsed.size() - 1);
+                return parsed.getLast();
             }
 
         };
@@ -235,7 +236,7 @@ public class PropertyQueryParserTest {
             @Override
             public String isNotEqualsProperty(String left, String right) throws FilterEventError {
                 parsed.add(left + " is not equal to property " + right);
-                return parsed.get(parsed.size() - 1);
+                return parsed.getLast();
             }
         };
 
@@ -255,13 +256,13 @@ public class PropertyQueryParserTest {
         FilterEvents<String> events = new FilterEvents<String>() {
             @Override
             public String in(String left, List<Object> right) throws FilterEventError {
-                List classes = new LinkedList();
+                List<String> classes = new LinkedList<>();
                 for (Object o : right) {
                     classes.add(o.getClass().getSimpleName());
                 }
 
                 parsed.add(String.format("%s in %s (%s)", left, right, classes));
-                return parsed.get(parsed.size() - 1);
+                return parsed.getLast();
             }
         };
 
@@ -282,13 +283,13 @@ public class PropertyQueryParserTest {
         FilterEvents<String> events = new FilterEvents<String>() {
             @Override
             public String in(String left, List<Object> right) throws FilterEventError {
-                List classes = new LinkedList();
+                List<String> classes = new LinkedList<>();
                 for (Object o : right) {
                     classes.add(o.getClass().getSimpleName());
                 }
 
                 parsed.add(String.format("%s in %s (%s)", left, right, classes));
-                return parsed.get(parsed.size() - 1);
+                return parsed.getLast();
             }
         };
 
@@ -308,13 +309,13 @@ public class PropertyQueryParserTest {
         FilterEvents<String> events = new FilterEvents<String>() {
             @Override
             public String containsAny(String left, List<Object> right) throws FilterEventError {
-                List classes = new LinkedList();
+                List<String> classes = new LinkedList<>();
                 for (Object o : right) {
                     classes.add(o.getClass().getSimpleName());
                 }
 
                 parsed.add(String.format("%s contains any %s (%s)", left, right, classes));
-                return parsed.get(parsed.size() - 1);
+                return parsed.getLast();
             }
         };
 
@@ -334,13 +335,13 @@ public class PropertyQueryParserTest {
         FilterEvents<String> events = new FilterEvents<String>() {
             @Override
             public String startsWithAny(String left, List<Object> right) throws FilterEventError {
-                List classes = new LinkedList();
+                List<String> classes = new LinkedList<>();
                 for (Object o : right) {
                     classes.add(o.getClass().getSimpleName());
                 }
 
                 parsed.add(String.format("%s starts with any %s (%s)", left, right, classes));
-                return parsed.get(parsed.size() - 1);
+                return parsed.getLast();
             }
         };
 
@@ -360,13 +361,13 @@ public class PropertyQueryParserTest {
         FilterEvents<String> events = new FilterEvents<String>() {
             @Override
             public String endsWithAny(String left, List<Object> right) throws FilterEventError {
-                List classes = new LinkedList();
+                List<String> classes = new LinkedList<>();
                 for (Object o : right) {
                     classes.add(o.getClass().getSimpleName());
                 }
 
                 parsed.add(String.format("%s ends with any %s (%s)", left, right, classes));
-                return parsed.get(parsed.size() - 1);
+                return parsed.getLast();
             }
         };
 
@@ -432,7 +433,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object isEquals(String left, Object right) throws FilterEventError {
                         parsed.set(right);
@@ -454,7 +455,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object isEquals(String left, Object right) throws FilterEventError {
                         parsed.set(right);
@@ -476,7 +477,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object isEquals(String left, Object right) throws FilterEventError {
                         parsed.set(right);
@@ -487,7 +488,7 @@ public class PropertyQueryParserTest {
 
         assertThat(parsed.get(), is(notNullValue()));
         assertThat(parsed.get(), isA(ZonedDateTime.class));
-        assertThat(((ZonedDateTime)parsed.get()).getOffset(), is(ZoneOffset.UTC));
+        assertThat(((ZonedDateTime) parsed.get()).getOffset(), is(ZoneOffset.UTC));
     }
 
     @Test
@@ -499,7 +500,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object isEquals(String left, Object right) throws FilterEventError {
                         parsed.set(right);
@@ -510,7 +511,7 @@ public class PropertyQueryParserTest {
 
         assertThat(parsed.get(), is(notNullValue()));
         assertThat(parsed.get(), isA(ZonedDateTime.class));
-        assertThat(((ZonedDateTime)parsed.get()).getOffset(), is(ZoneOffset.UTC));
+        assertThat(((ZonedDateTime) parsed.get()).getOffset(), is(ZoneOffset.UTC));
     }
 
     @Test
@@ -522,7 +523,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object isEquals(String left, Object right) throws FilterEventError {
                         parsed.set(right);
@@ -533,7 +534,7 @@ public class PropertyQueryParserTest {
 
         assertThat(parsed.get(), is(notNullValue()));
         assertThat(parsed.get(), isA(ZonedDateTime.class));
-        assertThat(((ZonedDateTime)parsed.get()).getOffset(), is(ZoneOffset.ofHoursMinutes(3,30)));
+        assertThat(((ZonedDateTime) parsed.get()).getOffset(), is(ZoneOffset.ofHoursMinutes(3, 30)));
     }
 
     @Test
@@ -545,7 +546,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object isEquals(String left, Object right) throws FilterEventError {
                         parsed.set(right);
@@ -556,7 +557,7 @@ public class PropertyQueryParserTest {
 
         assertThat(parsed.get(), is(notNullValue()));
         assertThat(parsed.get(), isA(ZonedDateTime.class));
-        assertThat(((ZonedDateTime)parsed.get()).getOffset(), is(ZoneOffset.ofHoursMinutes(3,30)));
+        assertThat(((ZonedDateTime) parsed.get()).getOffset(), is(ZoneOffset.ofHoursMinutes(3, 30)));
     }
 
     @Test
@@ -568,7 +569,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object isEquals(String left, Object right) throws FilterEventError {
                         parsed.set(right);
@@ -579,7 +580,7 @@ public class PropertyQueryParserTest {
 
         assertThat(parsed.get(), is(notNullValue()));
         assertThat(parsed.get(), isA(ZonedDateTime.class));
-        assertThat(((ZonedDateTime)parsed.get()).getOffset(), is(ZoneOffset.ofHoursMinutes(3,30)));
+        assertThat(((ZonedDateTime) parsed.get()).getOffset(), is(ZoneOffset.ofHoursMinutes(3, 30)));
     }
 
     @Test
@@ -591,7 +592,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object isEquals(String left, Object right) throws FilterEventError {
                         parsed.set(right);
@@ -613,7 +614,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object isEquals(String left, Object right) throws FilterEventError {
                         parsed.set(right);
@@ -635,7 +636,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object isEquals(String left, Object right) throws FilterEventError {
                         parsed.set(right);
@@ -656,7 +657,8 @@ public class PropertyQueryParserTest {
         thrown.expectMessage("4 syntax errors found while parsing sort \"&é'(-è_ç\" : [line 1:0 token recognition error at: '&', line 1:1 token recognition error at: 'é', line 1:2 token recognition error at: ''(-è_ç', line 1:8 mismatched input '<EOF>' expecting IDENTIFIER]");
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {}).parse(query);
+                .build(new FilterEvents<>() {
+                }).parse(query);
     }
 
 
@@ -668,7 +670,8 @@ public class PropertyQueryParserTest {
         thrown.expectMessage("1 syntax error found while parsing filter \"l1 !== 12\" : [line 1:5 token recognition error at: '= ']");
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {}).parse(query);
+                .build(new FilterEvents<>() {
+                }).parse(query);
     }
 
     @Test
@@ -679,7 +682,8 @@ public class PropertyQueryParserTest {
         thrown.expectMessage("1 syntax error found while parsing filter \"expiresAt < 2020-02-25T06:27:38.132456789123456789\" : [line 1:41 extraneous input '123456789' expecting <EOF>]");
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {}).parse(query);
+                .build(new FilterEvents<>() {
+                }).parse(query);
     }
 
     @Test
@@ -689,7 +693,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -707,7 +711,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -725,7 +729,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -743,7 +747,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -761,7 +765,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -779,7 +783,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -797,7 +801,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -815,7 +819,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -833,7 +837,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -851,7 +855,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -869,7 +873,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -887,7 +891,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -898,8 +902,6 @@ public class PropertyQueryParserTest {
         assertThat(value.get(), isA(ZonedDateTime.class));
     }
 
-
-
     @Test
     public void givenTimeLiteral__whenNoMillis__thenParsedOk() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("618c033a6a63b9190f5419b9 >= 10:00:03").build();
@@ -907,7 +909,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -925,7 +927,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -943,7 +945,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -961,7 +963,7 @@ public class PropertyQueryParserTest {
 
         PropertyQueryParser.builder()
                 .leftHandSidePropertyValidator(property -> true)
-                .build(new FilterEvents() {
+                .build(new FilterEvents<>() {
                     @Override
                     public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
                         value.set(right);
@@ -979,7 +981,7 @@ public class PropertyQueryParserTest {
 
 //        PropertyQueryParser.builder()
 //                .leftHandSidePropertyValidator(property -> true)
-//                .build(new FilterEvents() {
+//                .build(new FilterEvents<>() {
 //                    @Override
 //                    public Object graterThanOrEquals(String left, Object right) throws FilterEventError {
 //                        value.set(right);
@@ -994,43 +996,42 @@ public class PropertyQueryParserTest {
     public void whenInEmpty__thenParsedOk() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("l1 in ( )").build();
 
-        PropertyQueryParser.builder()
-                .build(FilterEvents.noop()).parse(query);
+        PropertyQueryParser.builder().build(FilterEvents.noop()).parse(query);
     }
+
     @Test
     public void whenStartsWithAnyEmpty__thenParsedOk() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("l1 starts with any ( )").build();
 
-        PropertyQueryParser.builder()
-                .build(FilterEvents.noop()).parse(query);
+        PropertyQueryParser.builder().build(FilterEvents.noop()).parse(query);
     }
+
     @Test
     public void whenEndsWithAnyEmpty__thenParsedOk() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("l1 ends with any ( )").build();
 
-        PropertyQueryParser.builder()
-                .build(FilterEvents.noop()).parse(query);
+        PropertyQueryParser.builder().build(FilterEvents.noop()).parse(query);
     }
+
     @Test
     public void whenContainsAnyEmpty__thenParsedOk() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("l1 contains any ( )").build();
 
-        PropertyQueryParser.builder()
-                .build(FilterEvents.noop()).parse(query);
+        PropertyQueryParser.builder().build(FilterEvents.noop()).parse(query);
     }
+
     @Test
     public void whenContainsAllEmpty__thenParsedOk() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("l1 contains all ( )").build();
 
-        PropertyQueryParser.builder()
-                .build(FilterEvents.noop()).parse(query);
+        PropertyQueryParser.builder().build(FilterEvents.noop()).parse(query);
     }
+
     @Test
     public void whenAccents__thenParsedOk() throws Exception {
         PropertyQuery query = PropertyQuery.builder().filter("l1 == 'éèà'").build();
 
-        PropertyQueryParser.builder()
-                .build(FilterEvents.noop()).parse(query);
+        PropertyQueryParser.builder().build(FilterEvents.noop()).parse(query);
     }
 
     @Test
@@ -1039,7 +1040,7 @@ public class PropertyQueryParserTest {
 
         List<String> parsed = new LinkedList<>();
 
-        FilterEvents<String> events = new FilterEvents<String>() {
+        FilterEvents<String> events = new FilterEvents<>() {
             @Override
             public String isMatchingPattern(String left, String pattern, List<PatternOption> options) throws FilterEventError {
                 String exp = left + " matches " + pattern + " with options " + options;
@@ -1053,7 +1054,7 @@ public class PropertyQueryParserTest {
                 .parse(query);
 
         assertThat(parsed, hasSize(1));
-        assertThat(parsed.get(0), is("l1 matches .* with options []"));
+        assertThat(parsed.getFirst(), is("l1 matches .* with options []"));
     }
 
     @Test
@@ -1062,7 +1063,7 @@ public class PropertyQueryParserTest {
 
         List<String> parsed = new LinkedList<>();
 
-        FilterEvents<String> events = new FilterEvents<String>() {
+        FilterEvents<String> events = new FilterEvents<>() {
             @Override
             public String isMatchingPattern(String left, String pattern, List<PatternOption> options) throws FilterEventError {
                 String exp = left + " matches " + pattern + " with options " + options;
@@ -1076,6 +1077,136 @@ public class PropertyQueryParserTest {
                 .parse(query);
 
         assertThat(parsed, hasSize(1));
-        assertThat(parsed.get(0), is("l1 matches .* with options [" + FilterEvents.PatternOption.CASE_INSENSITIVE + "]"));
+        assertThat(parsed.getFirst(), is("l1 matches .* with options [" + FilterEvents.PatternOption.CASE_INSENSITIVE + "]"));
+    }
+
+    @Test
+    public void given__whenEqualsWithParenList__thenIsEqualsListIsCalled() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 == ('a', 'b', 'c')").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<>() {
+            @Override
+            public String isEqualsList(String left, List<Object> right) throws FilterEventError {
+                List<String> classes = new LinkedList<>();
+                for (Object o : right) {
+                    classes.add(o.getClass().getSimpleName());
+                }
+
+                parsed.add(String.format("%s == %s (%s)", left, right, classes));
+                return parsed.getLast();
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed, contains("l1 == [a, b, c] ([String, String, String])"));
+    }
+
+    @Test
+    public void given__whenEqualsWithEmptyParenList__thenIsEqualsListIsCalledWithEmptyList() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 == ()").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<>() {
+            @Override
+            public String isEqualsList(String left, List<Object> right) throws FilterEventError {
+                List<String> classes = new LinkedList<>();
+                for (Object o : right) {
+                    classes.add(o.getClass().getSimpleName());
+                }
+
+                parsed.add(String.format("%s == %s (%s)", left, right, classes));
+                return parsed.getLast();
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed, contains("l1 == [] ([])"));
+    }
+
+    @Test
+    public void given__whenNotEqualsWithParenList__thenIsNotEqualsListIsCalled() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 != ('a', 'b', 'c')").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<>() {
+            @Override
+            public String isNotEqualsList(String left, List<Object> right) throws FilterEventError {
+                List<String> classes = new LinkedList<>();
+                for (Object o : right) {
+                    classes.add(o.getClass().getSimpleName());
+                }
+
+                parsed.add(String.format("%s != %s (%s)", left, right, classes));
+                return parsed.getLast();
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed.getFirst(), is("l1 != [a, b, c] ([String, String, String])"));
+    }
+
+    @Test
+    public void given__whenNotEqualsWithEmptyParenList__thenIsNotEqualsListIsCalledWithEmptyList() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 != ()").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<>() {
+            @Override
+            public String isNotEqualsList(String left, List<Object> right) throws FilterEventError {
+                List<String> classes = new LinkedList<>();
+                for (Object o : right) {
+                    classes.add(o.getClass().getSimpleName());
+                }
+
+                parsed.add(String.format("%s != %s (%s)", left, right, classes));
+                return parsed.getLast();
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed.getFirst(), is("l1 != [] ([])"));
+    }
+
+    @Test
+    public void given__whenEqualsWithParenListOfInts__thenIsEqualsListIsCalledWithLongs() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 == (1, 2, 3)").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<>() {
+            @Override
+            public String isEqualsList(String left, List<Object> right) throws FilterEventError {
+                List<String> classes = new LinkedList<>();
+                for (Object o : right) {
+                    classes.add(o.getClass().getSimpleName());
+                }
+
+                parsed.add(String.format("%s == %s (%s)", left, right, classes));
+                return parsed.getLast();
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed.getFirst(), is("l1 == [1, 2, 3] ([Long, Long, Long])"));
     }
 }

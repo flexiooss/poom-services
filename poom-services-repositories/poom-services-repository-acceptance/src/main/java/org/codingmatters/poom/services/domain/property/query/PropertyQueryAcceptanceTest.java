@@ -32,7 +32,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         for (int i = 0; i < 100; i++) {
             Boolean bool;
-            Boolean [] manyBool;
+            Boolean[] manyBool;
             String text;
             switch (i % 3) {
                 case 0:
@@ -57,7 +57,7 @@ public abstract class PropertyQueryAcceptanceTest {
                     .integerProp(i)
                     .manyIntegerProp(i * 100 + 1, i * 100 + 2, i * 100 + 3)
                     .longProp((long) i)
-                    .manyLongProp((long)i * 100 + 1, (long)i * 100 + 2, (long)i * 100 + 3)
+                    .manyLongProp((long) i * 100 + 1, (long) i * 100 + 2, (long) i * 100 + 3)
                     .floatProp(i + 0.2f)
                     .manyFloatProp(i * 100 + 0.2f + 1, i * 100 + 0.2f + 2, i * 100 + 0.2f + 3)
                     .doubleProp(i + 0.2d)
@@ -113,7 +113,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(3L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder("006", "012", "042"));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder("006", "012", "042"));
     }
 
     @Test
@@ -124,7 +124,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder("042"));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder("042"));
     }
 
     @Test
@@ -144,7 +144,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "042"
         ));
     }
@@ -157,7 +157,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(13L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006", "040", "001", "010", "011", "012", "013", "014", "015", "016", "017", "018", "019"
         ));
     }
@@ -179,7 +179,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006"
         ));
     }
@@ -192,7 +192,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(20L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "000", "001", "002", "003", "004", "005", "006", "007", "008", "009",
                 "030", "031", "032", "033", "034", "035", "036", "037", "038", "039"
         ));
@@ -215,7 +215,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(10L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "030", "031", "032", "033", "034", "035", "036", "037", "038", "039"
         ));
     }
@@ -228,9 +228,9 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(20L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
-                "000" ,"010", "020" ,"030", "040" ,"050", "060" ,"070", "080" ,"090",
-                "003" ,"013", "023" ,"033", "043" ,"053", "063" ,"073", "083" ,"093"
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
+                "000", "010", "020", "030", "040", "050", "060", "070", "080", "090",
+                "003", "013", "023", "033", "043", "053", "063", "073", "083", "093"
         ));
     }
 
@@ -251,8 +251,8 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(10L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
-                "000" ,"010", "020" ,"030", "040" ,"050", "060" ,"070", "080" ,"090"
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
+                "000", "010", "020", "030", "040", "050", "060", "070", "080", "090"
         ));
     }
 
@@ -264,7 +264,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "012"
         ));
     }
@@ -295,7 +295,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(3L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder("006", "012", "042"));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder("006", "012", "042"));
     }
 
     @Test
@@ -1553,14 +1553,14 @@ public abstract class PropertyQueryAcceptanceTest {
     @Test
     public void givenFilterWithParenthesis_thenReturnOr() throws RepositoryException {
         PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder().filter(
-                "(integerProp >= 28 && integerProp <= 30) || (integerProp >= 42 && integerProp <= 44)").build(),
+                        "(integerProp >= 28 && integerProp <= 30) || (integerProp >= 42 && integerProp <= 44)").build(),
                 0, 1000
         );
 
         assertThat(actual.valueList(), hasSize(6));
 
         assertThat(
-                actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()),
+                actual.valueList().stream().map(v -> v.stringProp()).toList(),
                 containsInAnyOrder("028", "029", "030", "042", "043", "044")
         );
     }
@@ -1579,7 +1579,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(3L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006", "013", "019"
         ));
     }
@@ -1592,7 +1592,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006"
         ));
     }
@@ -1605,7 +1605,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006"
         ));
     }
@@ -1622,7 +1622,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(3L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006", "013", "019"
         ));
     }
@@ -1633,10 +1633,10 @@ public abstract class PropertyQueryAcceptanceTest {
                 .filter("manyIntegerProp contains all (601, 603)")
                 .build(), 0, 1000);
 
-        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).toList());
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006"
         ));
     }
@@ -1647,10 +1647,10 @@ public abstract class PropertyQueryAcceptanceTest {
                 .filter("manyIntegerProp contains 602")
                 .build(), 0, 1000);
 
-        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).toList());
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006"
         ));
     }
@@ -1667,7 +1667,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(3L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006", "013", "019"
         ));
     }
@@ -1678,10 +1678,10 @@ public abstract class PropertyQueryAcceptanceTest {
                 .filter("manyLongProp contains all (601, 603)")
                 .build(), 0, 1000);
 
-        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).toList());
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006"
         ));
     }
@@ -1692,10 +1692,10 @@ public abstract class PropertyQueryAcceptanceTest {
                 .filter("manyLongProp contains 602")
                 .build(), 0, 1000);
 
-        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).toList());
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006"
         ));
     }
@@ -1712,7 +1712,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(3L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006", "013", "019"
         ));
     }
@@ -1723,10 +1723,10 @@ public abstract class PropertyQueryAcceptanceTest {
                 .filter("manyFloatProp contains all (601.2, 603.2)")
                 .build(), 0, 1000);
 
-        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).toList());
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006"
         ));
     }
@@ -1737,10 +1737,10 @@ public abstract class PropertyQueryAcceptanceTest {
                 .filter("manyFloatProp contains 602.2")
                 .build(), 0, 1000);
 
-        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).toList());
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006"
         ));
     }
@@ -1757,7 +1757,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(3L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006", "013", "019"
         ));
     }
@@ -1770,7 +1770,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006"
         ));
     }
@@ -1783,7 +1783,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "006"
         ));
     }
@@ -1807,7 +1807,7 @@ public abstract class PropertyQueryAcceptanceTest {
                 .filter("manyBoolProp contains all (true, false)")
                 .build(), 0, 1000);
 
-        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).toList());
         assertThat(actual.total(), is(33L));
     }
 
@@ -1817,7 +1817,7 @@ public abstract class PropertyQueryAcceptanceTest {
                 .filter("manyBoolProp contains true")
                 .build(), 0, 1000);
 
-        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).toList());
         assertThat(actual.total(), is(67L));
     }
 
@@ -1833,8 +1833,8 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(3L));
 
-        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).toList());
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "000", "001", "002"
         ));
     }
@@ -1847,7 +1847,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "001"
         ));
     }
@@ -1860,7 +1860,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "002"
         ));
     }
@@ -1877,8 +1877,8 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(3L));
 
-        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).toList());
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "000", "001", "002"
         ));
     }
@@ -1891,7 +1891,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "001"
         ));
     }
@@ -1904,7 +1904,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "002"
         ));
     }
@@ -1921,8 +1921,8 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(3L));
 
-        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).toList());
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "000", "001", "002"
         ));
     }
@@ -1935,7 +1935,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "001"
         ));
     }
@@ -1948,7 +1948,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "002"
         ));
     }
@@ -1965,8 +1965,8 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(3L));
 
-        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()));
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        System.out.println(actual.valueList().stream().map(v -> v.stringProp()).toList());
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "000", "001", "002"
         ));
     }
@@ -1979,7 +1979,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "001"
         ));
     }
@@ -1992,7 +1992,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "002"
         ));
     }
@@ -2024,7 +2024,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(2L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder("012", "042"));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder("012", "042"));
     }
 
     @Test
@@ -2044,7 +2044,7 @@ public abstract class PropertyQueryAcceptanceTest {
 
         assertThat(actual.total(), is(1L));
 
-        assertThat(actual.valueList().stream().map(v -> v.stringProp()).collect(Collectors.toList()), containsInAnyOrder(
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder(
                 "042"
         ));
     }
@@ -2078,13 +2078,13 @@ public abstract class PropertyQueryAcceptanceTest {
         this.repository.createWithId("special-chars-2", QAValue.builder().stringProp("text (3) (1)").build());
 
         PagedEntityList<QAValue> found = this.repository.search(PropertyQuery.builder()
-                        .filter("stringProp starts with 'text (3)'")
+                .filter("stringProp starts with 'text (3)'")
                 .build(), 0, 100);
 
         assertThat(
                 found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(),
                 contains("text (3)", "text (3) (1)")
-                );
+        );
 
     }
 
@@ -2095,13 +2095,13 @@ public abstract class PropertyQueryAcceptanceTest {
         this.repository.createWithId("special-chars-2", QAValue.builder().stringProp("text (3) (1)").build());
 
         PagedEntityList<QAValue> found = this.repository.search(PropertyQuery.builder()
-                        .filter("stringProp ends with 't (3)'")
+                .filter("stringProp ends with 't (3)'")
                 .build(), 0, 100);
 
         assertThat(
                 found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(),
                 contains("text (3)")
-                );
+        );
 
     }
 
@@ -2112,16 +2112,15 @@ public abstract class PropertyQueryAcceptanceTest {
         this.repository.createWithId("special-chars-2", QAValue.builder().stringProp("text (3) (1)").build());
 
         PagedEntityList<QAValue> found = this.repository.search(PropertyQuery.builder()
-                        .filter("stringProp contains 'ext (3'")
+                .filter("stringProp contains 'ext (3'")
                 .build(), 0, 100);
 
         assertThat(
                 found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(),
                 contains("text (3)", "text (3) (1)")
-                );
+        );
 
     }
-
 
 
     @Test
@@ -2140,7 +2139,7 @@ public abstract class PropertyQueryAcceptanceTest {
     @Test
     public void givenStringProperty__whenIsNullOrEmpty__thenReturnsOnlyEntitiesWithNoValue() throws Exception {
         PagedEntityList<QAValue> found = this.repository.search(PropertyQuery.builder()
-                        .filter("emptyProp == null || emptyProp is empty")
+                .filter("emptyProp == null || emptyProp is empty")
                 .build(), 0, 1000);
 
         assertThat(found.total(), is(50L));
@@ -2153,7 +2152,7 @@ public abstract class PropertyQueryAcceptanceTest {
     @Test
     public void givenStringProperty__whenNotIsNullOrEmpty__thenReturnsOnlyEntitiesWithAValue() throws Exception {
         PagedEntityList<QAValue> found = this.repository.search(PropertyQuery.builder()
-                        .filter("(!((emptyProp == null || emptyProp is empty)))")
+                .filter("(!((emptyProp == null || emptyProp is empty)))")
                 .build(), 0, 1000);
 
         assertThat(found.total(), is(50L));
@@ -2161,5 +2160,289 @@ public abstract class PropertyQueryAcceptanceTest {
         assertThat(found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(), hasItem("001"));
         assertThat(found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(), not(hasItem("000")));
         assertThat(found.valueList().stream().map(qaValue -> qaValue.stringProp()).toList(), not(hasItem("002")));
+    }
+
+    @Test
+    public void givenFilterOnManyStringProperty__whenEqualsToList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyStringProp == ('042.1', '042.2', '042.3')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder("042"));
+    }
+
+    @Test
+    public void givenFilterOnManyStringProperty__whenEqualsToList_withDifferentOrder__thenNoValue() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyStringProp == ('042.3', '042.1', '042.2')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnManyStringProperty__whenEqualsToList_withPartialMatch__thenNoValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyStringProp == ('042.1', '042.2')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnManyStringProperty__whenEqualsToEmptyList__thenNoValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyStringProp == ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnManyStringProperty__whenNotEqualsToList__thenOtherValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyStringProp != ('042.1', '042.2', '042.3')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(99L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), not(hasItem("042")));
+    }
+
+    @Test
+    public void givenFilterOnManyStringProperty__whenNotEqualsToList_withPartialMatch__thenAllValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyStringProp != ('042.1', '042.2')")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(100L));
+    }
+
+    @Test
+    public void givenFilterOnManyStringProperty__whenNotEqualsToEmptyList__thenAllValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyStringProp != ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(100L));
+    }
+
+    @Test
+    public void givenFilterOnManyDateProperty__whenEqualsToList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDateProp == (1985-06-23, 1985-06-24, 1985-06-25)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder("001"));
+    }
+
+    @Test
+    public void givenFilterOnManyDateProperty__whenEqualsToList_withDifferentOrder__thenNoValue() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDateProp == (1985-06-25, 1985-06-23, 1985-06-24)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnManyDateProperty__whenEqualsToList_withPartialMatch__thenNoValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDateProp == (1985-06-23, 1985-06-24)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnManyDateProperty__whenEqualsToEmptyList__thenNoValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDateProp == ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnManyDateProperty__whenNotEqualsToList__thenOtherValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDateProp != (1985-06-23, 1985-06-24, 1985-06-25)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(99L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), not(hasItem("001")));
+    }
+
+    @Test
+    public void givenFilterOnManyDateProperty__whenNotEqualsToList_withPartialMatch__thenAllValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDateProp != (1985-06-23, 1985-06-24)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(100L));
+    }
+
+    @Test
+    public void givenFilterOnManyDateProperty__whenNotEqualsToEmptyList__thenAllValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDateProp != ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(100L));
+    }
+
+    @Test
+    public void givenFilterOnManyBoolProperty__whenEqualsToList_withTrueTrue__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyBoolProp == (true, true)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(34L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), hasItem("000"));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), hasItem("003"));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), not(hasItem("001")));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), not(hasItem("002")));
+    }
+
+    @Test
+    public void givenFilterOnManyBoolProperty__whenEqualsToList_withFalseFalse__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyBoolProp == (false, false)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(33L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), hasItem("001"));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), hasItem("004"));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), not(hasItem("000")));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), not(hasItem("002")));
+    }
+
+    @Test
+    public void givenFilterOnManyBoolProperty__whenEqualsToList_withTrueFalse__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyBoolProp == (true, false)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(33L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), hasItem("002"));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), hasItem("005"));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), not(hasItem("000")));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), not(hasItem("001")));
+    }
+
+    @Test
+    public void givenFilterOnManyBoolProperty__whenEqualsToList_withDifferentOrder__thenNoValue() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyBoolProp == (false, true)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnManyBoolProperty__whenEqualsToEmptyList__thenNoValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyBoolProp == ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnManyBoolProperty__whenNotEqualsToList__thenOtherValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyBoolProp != (true, true)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(66L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), not(hasItem("000")));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), not(hasItem("003")));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), hasItem("001"));
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), hasItem("002"));
+    }
+
+    @Test
+    public void givenFilterOnManyBoolProperty__whenNotEqualsToEmptyList__thenAllValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyBoolProp != ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(100L));
+    }
+
+    @Test
+    public void givenFilterOnManyDoubleProperty__whenEqualsToList__thenSelectedValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDoubleProp == (101.2, 102.2, 103.2)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(1L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), containsInAnyOrder("001"));
+    }
+
+    @Test
+    public void givenFilterOnManyDoubleProperty__whenEqualsToList_withDifferentOrder__thenNoValue() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDoubleProp == (103.2, 101.2, 102.2)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnManyDoubleProperty__whenEqualsToList_withPartialMatch__thenNoValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDoubleProp == (101.2, 102.2)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnManyDoubleProperty__whenEqualsToEmptyList__thenNoValueReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDoubleProp == ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(0L));
+    }
+
+    @Test
+    public void givenFilterOnManyDoubleProperty__whenNotEqualsToList__thenOtherValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDoubleProp != (101.2, 102.2, 103.2)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(99L));
+
+        assertThat(actual.valueList().stream().map(v -> v.stringProp()).toList(), not(hasItem("001")));
+    }
+
+    @Test
+    public void givenFilterOnManyDoubleProperty__whenNotEqualsToList_withPartialMatch__thenAllValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDoubleProp != (101.2, 102.2)")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(100L));
+    }
+
+    @Test
+    public void givenFilterOnManyDoubleProperty__whenNotEqualsToEmptyList__thenAllValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("manyDoubleProp != ()")
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(100L));
     }
 }

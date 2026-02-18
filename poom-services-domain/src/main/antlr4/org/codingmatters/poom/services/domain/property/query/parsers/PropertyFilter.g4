@@ -86,6 +86,10 @@ expression
     | IDENTIFIER CONTAINS_ANY LPAR RPAR                     #containsAnyEmpty
     | IDENTIFIER CONTAINS_ALL LPAR operand_list RPAR        #containsAll
     | IDENTIFIER CONTAINS_ALL LPAR RPAR                     #containsAllEmpty
+    | IDENTIFIER EQ LPAR operand_list RPAR                  #equalsToList
+    | IDENTIFIER EQ LPAR RPAR                               #equalsToEmptyList
+    | IDENTIFIER NEQ LPAR operand_list RPAR                 #notEqualsToList
+    | IDENTIFIER NEQ LPAR RPAR                              #notEqualsToEmptyList
     ;
 
 operand
