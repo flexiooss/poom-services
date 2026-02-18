@@ -1209,4 +1209,30 @@ public class PropertyQueryParserTest {
 
         assertThat(parsed.getFirst(), is("l1 == [1, 2, 3] ([Long, Long, Long])"));
     }
+
+    @Test
+    public void givenDatetime__whenEqualsWithParenListOfInts__thenIsEqualsListIsCalledWithLongs() throws Exception {
+        PropertyQuery query = PropertyQuery.builder().filter("l1 == (2026-02-18T15:43:37.619)").build();
+
+        List<String> parsed = new LinkedList<>();
+
+        FilterEvents<String> events = new FilterEvents<>() {
+            @Override
+            public String isEqualsList(String left, List<Object> right) throws FilterEventError {
+                List<String> classes = new LinkedList<>();
+                for (Object o : right) {
+                    classes.add(o.getClass().getSimpleName());
+                }
+
+                parsed.add(String.format("%s == %s (%s)", left, right, classes));
+                return parsed.getLast();
+            }
+        };
+
+        PropertyQueryParser.builder()
+                .build(events)
+                .parse(query);
+
+        assertThat(parsed.getFirst(), is("l1 == [2026-02-18T15:43:37.619] ([LocalDateTime])"));
+    }
 }
