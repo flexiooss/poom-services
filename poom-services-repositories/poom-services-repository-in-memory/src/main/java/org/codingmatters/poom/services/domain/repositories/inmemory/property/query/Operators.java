@@ -8,6 +8,18 @@ import java.util.regex.Pattern;
 
 public interface Operators {
 
+    static boolean neq(Object left, Object right){
+        left = normalized(left);
+        right = normalized(right);
+
+        if (left == null) {
+            return right != null;
+        }
+        if (right == null) return true;
+
+        return !Objects.equals(normalized(left), normalized(right));
+    }
+
     static boolean eq(Object left, Object right) {
         left = normalized(left);
         right = normalized(right);

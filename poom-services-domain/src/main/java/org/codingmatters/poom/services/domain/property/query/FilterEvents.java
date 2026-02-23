@@ -30,6 +30,8 @@ public interface FilterEvents<T> {
     default T contains(String left, Object right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T containsProperty(String left, String right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T in(String left, List<Object> right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
+    default T isEqualsList(String left, List<Object> right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
+    default T isNotEqualsList(String left, List<Object> right) throws FilterEventError {throw new FilterEventError("feature not implemented");}
     default T anyIn(String left, List<Object> right) throws FilterEventError {
         throw new FilterEventError("feature not implemented");
     }
@@ -131,6 +133,16 @@ public interface FilterEvents<T> {
 
             @Override
             public T in(String left, List<Object> right) throws FilterEventError {
+                return null;
+            }
+
+            @Override
+            public T isEqualsList(String left, List<Object> right) throws FilterEventError {
+                return null;
+            }
+
+            @Override
+            public T isNotEqualsList(String left, List<Object> right) throws FilterEventError {
                 return null;
             }
 

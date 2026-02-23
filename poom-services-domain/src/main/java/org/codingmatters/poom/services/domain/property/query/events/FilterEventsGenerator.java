@@ -31,7 +31,7 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
 
     @Override
     public Object visitDecimalOperand(PropertyFilterParser.DecimalOperandContext ctx) {
-        if(ctx.getText().contains(".")) {
+        if (ctx.getText().contains(".")) {
             this.stack.push(Double.parseDouble(ctx.getText()));
         } else {
             this.stack.push(Long.parseLong(ctx.getText()));
@@ -44,8 +44,7 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
         String raw = ctx.getText()
                 .substring(1, ctx.getText().length() - 1)
                 .replaceAll("''", "'")
-                .replaceAll("\\\\'", "'")
-                ;
+                .replaceAll("\\\\'", "'");
         this.stack.push(raw);
         return this.stack.peek();
     }
@@ -82,9 +81,9 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
 
     @Override
     public Object visitTimeOperand(PropertyFilterParser.TimeOperandContext ctx) {
-        if(ctx.TIME_LITERAL() != null) {
+        if (ctx.TIME_LITERAL() != null) {
             this.stack.push(LocalTime.parse(ctx.TIME_LITERAL().getText()));
-        } else if(ctx.TIME_WITHOUT_SFRAC_LITERAL() != null) {
+        } else if (ctx.TIME_WITHOUT_SFRAC_LITERAL() != null) {
             this.stack.push(LocalTime.parse(ctx.TIME_WITHOUT_SFRAC_LITERAL().getText()));
         } else {
             throw new AssertionError("unimplemented time literal :" + ctx.getText());
@@ -95,9 +94,9 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
 
     @Override
     public Object visitDatetimeOperand(PropertyFilterParser.DatetimeOperandContext ctx) {
-        if(ctx.DATETIME_LITERAL() != null) {
+        if (ctx.DATETIME_LITERAL() != null) {
             this.stack.push(LocalDateTime.parse(ctx.DATETIME_LITERAL().getText()));
-        } else if(ctx.DATETIME_WITHOUT_SFRAC_LITERAL() != null) {
+        } else if (ctx.DATETIME_WITHOUT_SFRAC_LITERAL() != null) {
             this.stack.push(LocalDateTime.parse(ctx.DATETIME_WITHOUT_SFRAC_LITERAL().getText()));
         } else {
             throw new AssertionError("unimplemented datetime literal :" + ctx.getText());
@@ -107,9 +106,9 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
 
     @Override
     public Object visitUtcDatetimeOperand(PropertyFilterParser.UtcDatetimeOperandContext ctx) {
-        if(ctx.UTC_DATETIME_LITERAL() != null) {
+        if (ctx.UTC_DATETIME_LITERAL() != null) {
             this.stack.push(ZonedDateTime.parse(ctx.UTC_DATETIME_LITERAL().getText()));
-        } else if(ctx.UTC_DATETIME_WITHOUT_SFRAC_LITERAL() != null) {
+        } else if (ctx.UTC_DATETIME_WITHOUT_SFRAC_LITERAL() != null) {
             this.stack.push(ZonedDateTime.parse(ctx.UTC_DATETIME_WITHOUT_SFRAC_LITERAL().getText()));
         } else {
             throw new AssertionError("unimplemented utc datetime literal :" + ctx.getText());
@@ -119,9 +118,9 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
 
     @Override
     public Object visitZonedDatetimeOperand(PropertyFilterParser.ZonedDatetimeOperandContext ctx) {
-        if(ctx.ZONED_DATETIME_LITERAL() != null) {
+        if (ctx.ZONED_DATETIME_LITERAL() != null) {
             this.stack.push(ZonedDateTime.parse(ctx.ZONED_DATETIME_LITERAL().getText()));
-        } else if(ctx.ZONED_DATETIME_WITHOUT_SFRAC_LITERAL() != null) {
+        } else if (ctx.ZONED_DATETIME_WITHOUT_SFRAC_LITERAL() != null) {
             this.stack.push(ZonedDateTime.parse(ctx.ZONED_DATETIME_WITHOUT_SFRAC_LITERAL().getText()));
         } else {
             throw new AssertionError("unimplemented zoned datetime literal :" + ctx.getText());
@@ -133,25 +132,25 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     @Override
     public Object visitComparison(PropertyFilterParser.ComparisonContext ctx) {
         super.visitComparison(ctx);
-        if(this.stack.peek() instanceof Property) {
+        if (this.stack.peek() instanceof Property) {
             if (ctx.operator().GT() != null) {
-                return this.events.graterThanProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
+                return this.events.graterThanProperty(ctx.IDENTIFIER().getText(), ((Property) this.stack.pop()).name);
             } else if (ctx.operator().GTE() != null) {
-                return this.events.graterThanOrEqualsProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
+                return this.events.graterThanOrEqualsProperty(ctx.IDENTIFIER().getText(), ((Property) this.stack.pop()).name);
             } else if (ctx.operator().LT() != null) {
-                return this.events.lowerThanProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
+                return this.events.lowerThanProperty(ctx.IDENTIFIER().getText(), ((Property) this.stack.pop()).name);
             } else if (ctx.operator().LTE() != null) {
-                return this.events.lowerThanOrEqualsProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
+                return this.events.lowerThanOrEqualsProperty(ctx.IDENTIFIER().getText(), ((Property) this.stack.pop()).name);
             } else if (ctx.operator().EQ() != null) {
                 return this.eqPropExpression(ctx);
             } else if (ctx.operator().NEQ() != null) {
                 return this.neqPropExpression(ctx);
             } else if (ctx.operator().STARTS_WITH() != null) {
-                return this.events.startsWithProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
+                return this.events.startsWithProperty(ctx.IDENTIFIER().getText(), ((Property) this.stack.pop()).name);
             } else if (ctx.operator().ENDS_WITH() != null) {
-                return this.events.endsWithProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
+                return this.events.endsWithProperty(ctx.IDENTIFIER().getText(), ((Property) this.stack.pop()).name);
             } else if (ctx.operator().CONTAINS() != null) {
-                return this.events.containsProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
+                return this.events.containsProperty(ctx.IDENTIFIER().getText(), ((Property) this.stack.pop()).name);
             }
         } else {
             if (ctx.operator().GT() != null) {
@@ -179,7 +178,7 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
 
     private Object eqExpression(PropertyFilterParser.ComparisonContext ctx) {
         Object value = this.stack.pop();
-        if(SpecialValues.NULL.equals(value)) {
+        if (SpecialValues.NULL.equals(value)) {
             return this.events.isNull(ctx.IDENTIFIER().getText());
         } else {
             return this.events.isEquals(ctx.IDENTIFIER().getText(), value);
@@ -188,7 +187,7 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
 
     private Object neqExpression(PropertyFilterParser.ComparisonContext ctx) {
         Object value = this.stack.pop();
-        if(SpecialValues.NULL.equals(value)) {
+        if (SpecialValues.NULL.equals(value)) {
             return this.events.isNotNull(ctx.IDENTIFIER().getText());
         } else {
             return this.events.isNotEquals(ctx.IDENTIFIER().getText(), value);
@@ -196,10 +195,11 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     }
 
     private Object eqPropExpression(PropertyFilterParser.ComparisonContext ctx) {
-        return this.events.isEqualsProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
+        return this.events.isEqualsProperty(ctx.IDENTIFIER().getText(), ((Property) this.stack.pop()).name);
     }
+
     private Object neqPropExpression(PropertyFilterParser.ComparisonContext ctx) {
-        return this.events.isNotEqualsProperty(ctx.IDENTIFIER().getText(), ((Property)this.stack.pop()).name);
+        return this.events.isNotEqualsProperty(ctx.IDENTIFIER().getText(), ((Property) this.stack.pop()).name);
     }
 
     @Override
@@ -323,11 +323,43 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     }
 
     @Override
+    public Object visitEqualsToList(PropertyFilterParser.EqualsToListContext ctx) {
+        super.visitEqualsToList(ctx);
+        List<Object> list = new LinkedList<>();
+        for (Object o : this.stack) {
+            list.add(o);
+        }
+        this.stack.clear();
+        return this.events.isEqualsList(ctx.IDENTIFIER().getText(), list);
+    }
+
+    @Override
+    public Object visitEqualsToEmptyList(PropertyFilterParser.EqualsToEmptyListContext ctx) {
+        return this.events.isEqualsList(ctx.IDENTIFIER().getText(), Collections.emptyList());
+    }
+
+    @Override
+    public Object visitNotEqualsToList(PropertyFilterParser.NotEqualsToListContext ctx) {
+        super.visitNotEqualsToList(ctx);
+        List<Object> list = new LinkedList<>();
+        for (Object o : this.stack) {
+            list.add(o);
+        }
+        this.stack.clear();
+        return this.events.isNotEqualsList(ctx.IDENTIFIER().getText(), list);
+    }
+
+    @Override
+    public Object visitNotEqualsToEmptyList(PropertyFilterParser.NotEqualsToEmptyListContext ctx) {
+        return this.events.isNotEqualsList(ctx.IDENTIFIER().getText(), Collections.emptyList());
+    }
+
+    @Override
     public Object visitIsMatchingPattern(PropertyFilterParser.IsMatchingPatternContext ctx) {
         String pattern = ctx.PATTERN().getText();
 
         List<FilterEvents.PatternOption> options;
-        if(pattern.matches("/.*/[iI]+")) {
+        if (pattern.matches("/.*/[iI]+")) {
             options = Collections.singletonList(FilterEvents.PatternOption.CASE_INSENSITIVE);
         } else {
             options = Collections.emptyList();
@@ -336,7 +368,7 @@ public class FilterEventsGenerator extends PropertyFilterBaseVisitor {
     }
 
     private String cleanPattern(String pattern) {
-        if(pattern.endsWith("/")) {
+        if (pattern.endsWith("/")) {
             return pattern.substring(1, pattern.length() - 1);
         } else {
             return pattern.substring(1, pattern.length() - 2);
