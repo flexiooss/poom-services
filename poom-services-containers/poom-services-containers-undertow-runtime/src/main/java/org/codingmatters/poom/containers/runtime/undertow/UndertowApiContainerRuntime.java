@@ -3,6 +3,7 @@ package org.codingmatters.poom.containers.runtime.undertow;
 import com.fasterxml.jackson.core.JsonFactory;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
+import io.undertow.UndertowOptions;
 import io.undertow.server.handlers.GracefulShutdownHandler;
 import io.undertow.server.handlers.PathHandler;
 import org.codingmatters.poom.containers.ApiContainerRuntime;
@@ -26,6 +27,9 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
     public static final String UNDERTOW_IO_THREAD_COUNT = "UNDERTOW_IO_THREAD_COUNT";
     public static final String UNDERTOW_WORKER_THREAD_COUNT = "UNDERTOW_WORKER_THREAD_COUNT";
     public static final String UNDERTOW_USE_DIRECT_BUFFER = "UNDERTOW_USE_DIRECT_BUFFER";
+    public static final String UNDERTOW_MAX_ENTITY_SIZE = "UNDERTOW_MAX_ENTITY_SIZE";
+    public static final String UNDERTOW_IDLE_TIMEOUT = "UNDERTOW_IDLE_TIMEOUT";
+    public static final String UNDERTOW_NO_REQUEST_TIMEOUT = "UNDERTOW_NO_REQUEST_TIMEOUT";
     public static final String UNDERTOW_GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS = "UNDERTOW_GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS";
     private final String host;
     private final int port;
@@ -84,9 +88,23 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
         if (useDirectBuffer.isPresent()) {
             builder.setDirectBuffers(useDirectBuffer.get().asBoolean());
         }
+        Optional<Env.Var> maxEntitySize = Env.optional(UNDERTOW_MAX_ENTITY_SIZE);
+        if (maxEntitySize.isPresent()) {
+            builder.setServerOption(UndertowOptions.MAX_ENTITY_SIZE, maxEntitySize.get().asLong());
+        }
+        Optional<Env.Var> idleTimeout = Env.optional(UNDERTOW_IDLE_TIMEOUT);
+        if (maxEntitySize.isPresent()) {
+            builder.setServerOption(UndertowOptions.IDLE_TIMEOUT, idleTimeout.get().asInteger());
+        }
+        Optional<Env.Var> noRequestTimeout = Env.optional(UNDERTOW_NO_REQUEST_TIMEOUT);
+        if (maxEntitySize.isPresent()) {
+            builder.setServerOption(UndertowOptions.NO_REQUEST_TIMEOUT, noRequestTimeout.get().asInteger());
+        }
+
 
         this.undertow = builder.build();
         this.undertow.start();
+
 
         try {
             Integer ioThread = undertow.getWorker().getIoThreadCount();
@@ -96,8 +114,12 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
             this.log.info("Undertow server started with" +
                     " IoThreadCount=" + ioThread +
                     " useDirectBuffer=" + useDirectBufferOpt +
-                    " and coreThreadCount=" + coreThreadCount +
-                    " and maxThreadCount=" + maxThreadCount);
+                    " coreThreadCount=" + coreThreadCount +
+                    " maxThreadCount=" + maxThreadCount +
+                    " maxEntitySize=" + this.undertow.getWorker().getOption(UndertowOptions.MAX_ENTITY_SIZE) +
+                    " idleTimeout=" + this.undertow.getWorker().getOption(UndertowOptions.IDLE_TIMEOUT) +
+                    " noRequestTimeout=" + this.undertow.getWorker().getOption(UndertowOptions.NO_REQUEST_TIMEOUT)
+            );
         } catch (IOException e) {
             this.log.error("Undertow server started with undefined options ", e);
         }
