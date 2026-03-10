@@ -88,10 +88,9 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
         if (useDirectBuffer.isPresent()) {
             builder.setDirectBuffers(useDirectBuffer.get().asBoolean());
         }
-        Optional<Env.Var> maxEntitySize = Env.optional(UNDERTOW_MAX_ENTITY_SIZE);
-        if (maxEntitySize.isPresent()) {
-            builder.setServerOption(UndertowOptions.MAX_ENTITY_SIZE, maxEntitySize.get().asLong());
-        }
+        Env.Var maxEntitySize = Env.optional(UNDERTOW_MAX_ENTITY_SIZE).orElse(new Env.Var("104857600")); // 100 mo
+        builder.setServerOption(UndertowOptions.MAX_ENTITY_SIZE, maxEntitySize.asLong());
+
         Optional<Env.Var> idleTimeout = Env.optional(UNDERTOW_IDLE_TIMEOUT);
         if (idleTimeout.isPresent()) {
             builder.setServerOption(UndertowOptions.IDLE_TIMEOUT, idleTimeout.get().asInteger());
