@@ -31,6 +31,7 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
     public static final String UNDERTOW_IDLE_TIMEOUT = "UNDERTOW_IDLE_TIMEOUT";
     public static final String UNDERTOW_NO_REQUEST_TIMEOUT = "UNDERTOW_NO_REQUEST_TIMEOUT";
     public static final String UNDERTOW_GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS = "UNDERTOW_GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS";
+    public static final String UNDERTOW_ENABLE_HTTP2 = "UNDERTOW_ENABLE_HTTP2";
     private final String host;
     private final int port;
 
@@ -100,13 +101,16 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
             builder.setServerOption(UndertowOptions.NO_REQUEST_TIMEOUT, noRequestTimeout.get().asInteger());
         }
 
+        Optional<Env.Var> enableHttp2 = Env.optional(UNDERTOW_ENABLE_HTTP2);
+        if (enableHttp2.isPresent()){
+            builder.setServerOption(UndertowOptions.ENABLE_HTTP2, enableHttp2.get().asBoolean());
+        }
 
         this.undertow = builder.build();
         this.undertow.start();
 
-
         try {
-            Integer ioThread = undertow.getWorker().getIoThreadCount();
+            int ioThread = undertow.getWorker().getIoThreadCount();
             Integer coreThreadCount = undertow.getWorker().getOption(WORKER_TASK_CORE_THREADS);
             Integer maxThreadCount = undertow.getWorker().getOption(WORKER_TASK_MAX_THREADS);
             Boolean useDirectBufferOpt = undertow.getWorker().getOption(USE_DIRECT_BUFFERS);
@@ -117,7 +121,8 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
                     " maxThreadCount=" + maxThreadCount +
                     " maxEntitySize=" + this.undertow.getWorker().getOption(UndertowOptions.MAX_ENTITY_SIZE) +
                     " idleTimeout=" + this.undertow.getWorker().getOption(UndertowOptions.IDLE_TIMEOUT) +
-                    " noRequestTimeout=" + this.undertow.getWorker().getOption(UndertowOptions.NO_REQUEST_TIMEOUT)
+                    " noRequestTimeout=" + this.undertow.getWorker().getOption(UndertowOptions.NO_REQUEST_TIMEOUT),
+                    " http2="+this.undertow.getWorker().getOption(UndertowOptions.ENABLE_HTTP2)
             );
         } catch (IOException e) {
             this.log.error("Undertow server started with undefined options ", e);
