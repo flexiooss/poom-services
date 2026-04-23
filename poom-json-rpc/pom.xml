@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.codingmatters.poom</groupId>
         <artifactId>poom-services</artifactId>
-        <version>1.280.0</version>
+        <version>1.281.0</version>
     </parent>
 
     <groupId>org.codingmatters.poom.json.rpc</groupId>
     <artifactId>poom-json-rpc</artifactId>
-    <version>1.280.0</version>
+    <version>1.281.0</version>
     <packaging>pom</packaging>
 
     <modules>

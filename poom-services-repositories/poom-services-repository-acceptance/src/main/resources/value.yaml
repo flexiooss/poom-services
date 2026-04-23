@@ -32,6 +32,18 @@ QAValue:
   manyTzdatetimeProp:
     $list: tz-date-time
 
+  setStringProp:
+    $list: string
+  enumProp:
+    $enum: A, B, C
+  enumListProp:
+    $list:
+      $enum: A, B, C
+  enumSetProp:
+    $set:
+      $enum: A, B, C
+
+
   emptyProp: string
 
   nested:

@@ -77,6 +77,10 @@ public abstract class PropertyQueryAcceptanceTest {
                             .nestedProp("%03d", 100 - i)
                             .deep(Deep.builder().deepProp("04").build())
                             .build())
+                    .setStringProp(text + "-first", text + "-second")
+                    .enumProp(QAValue.EnumProp.values()[i%3])
+                    .enumListProp(QAValue.EnumListProp.values()[i%3], QAValue.EnumListProp.values()[(i + 2)%3])
+                    .enumSetProp(QAValue.EnumSetProp.values()[i%3], QAValue.EnumSetProp.values()[(i + 2)%3])
                     .build();
             Entity<QAValue> e = this.repository.create(value);
         }
@@ -2444,5 +2448,41 @@ public abstract class PropertyQueryAcceptanceTest {
                 .build(), 0, 1000);
 
         assertThat(actual.total(), is(100L));
+    }
+
+    @Test
+    public void givenFilterOnEnumProp__whenEquals__thenMatchingValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("%s == '%s'", QAValue.names_().enumProp(), QAValue.EnumProp.A.name())
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(34L));
+    }
+
+    @Test
+    public void givenFilterOnEnumListProp__whenContains__thenMatchingValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("%s contains '%s'", QAValue.names_().enumListProp(), QAValue.EnumListProp.A.name())
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(67L));
+    }
+
+    @Test
+    public void givenFilterOnEnumSetProp__whenContains__thenMatchingValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("%s contains '%s'", QAValue.names_().enumSetProp(), QAValue.EnumSetProp.A.name())
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(67L));
+    }
+
+    @Test
+    public void givenFilterSetStringProp__whenContains__thenMatchingValuesReturned() throws Exception {
+        PagedEntityList<QAValue> actual = this.repository.search(PropertyQuery.builder()
+                .filter("%s contains 'aaa-first'", QAValue.names_().setStringProp())
+                .build(), 0, 1000);
+
+        assertThat(actual.total(), is(34L));
     }
 }
