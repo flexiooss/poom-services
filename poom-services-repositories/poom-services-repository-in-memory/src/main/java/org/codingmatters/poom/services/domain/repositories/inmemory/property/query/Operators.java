@@ -221,6 +221,9 @@ public interface Operators {
         if (o instanceof LocalTime) {
             return ((LocalTime) o).atDate(LocalDate.EPOCH);
         }
+        if(o instanceof Enum<?>) {
+            return ((Enum<?>) o).name();
+        }
         return o;
     }
 }
