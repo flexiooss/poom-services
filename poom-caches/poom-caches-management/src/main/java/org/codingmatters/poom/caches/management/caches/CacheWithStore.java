@@ -28,6 +28,7 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
     ) {
         this(retriever, store, invalidator, false);
     }
+
     public CacheWithStore(
             ValueRetriever<K, V> retriever,
             CacheStore<K, V> store,
@@ -42,10 +43,8 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
 
     @Override
     public synchronized V get(K key) throws Exception {
-        Optional<V> value;
-        if (this.delegate.has(key)) {
-            value = this.delegate.get(key);
-
+        Optional<V> value = this.delegate.get(key);
+        if (value != null && value.isPresent()) {
             Invalidation<V> invalidation = this.invalidator.check(key, value.get());
             if (invalidation.isInvalid()) {
                 this.prune(key);
@@ -70,7 +69,7 @@ public class CacheWithStore<K, V> implements Cache<K, V> {
 
     private Optional<V> retrieve(K key) throws Exception {
         V newValue = this.retriever.retrieve(key);
-        if ((! this.readOnly) && newValue != null) {
+        if ((!this.readOnly) && newValue != null) {
             this.delegate.store(key, newValue);
         }
         return newValue != null ? Optional.of(newValue) : Optional.empty();
