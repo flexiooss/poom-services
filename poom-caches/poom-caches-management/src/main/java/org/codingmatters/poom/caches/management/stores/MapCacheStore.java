@@ -9,8 +9,8 @@ public class MapCacheStore<K, V> implements CacheStore<K, V> {
         this(new HashMap<>());
     }
 
-    public MapCacheStore(Map<K, Optional<V>> deleguate) {
-        this.delegate = deleguate;
+    public MapCacheStore(Map<K, Optional<V>> delegate) {
+        this.delegate = delegate;
     }
 
     public Optional<V> get(K key) {
