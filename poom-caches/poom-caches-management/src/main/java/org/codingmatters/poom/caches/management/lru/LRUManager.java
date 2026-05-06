@@ -18,7 +18,7 @@ public class LRUManager<K> {
     }
 
     public synchronized List<K> overload() {
-        if(this.delegate.size() > this.capacity) {
+        if (this.delegate.size() > this.capacity) {
             return this.delegate.subList(this.capacity, this.delegate.size());
         } else {
             return Collections.emptyList();

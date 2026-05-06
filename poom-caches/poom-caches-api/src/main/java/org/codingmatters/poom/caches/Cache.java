@@ -2,15 +2,17 @@ package org.codingmatters.poom.caches;
 
 import org.codingmatters.poom.caches.invalidation.Invalidation;
 
-import java.util.Optional;
-
 public interface Cache<K, V> {
     V get(K key) throws Exception;
+
     void prune(K key);
+
     void pruneAll();
+
     void insert(K key, V value);
 
     void addPruneListener(PruneListener<K> listener);
+
     void addAccessListener(AccessListener<K> listener);
 
     @FunctionalInterface

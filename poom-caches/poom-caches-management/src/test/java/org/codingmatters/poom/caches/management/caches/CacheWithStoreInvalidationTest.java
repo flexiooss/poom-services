@@ -50,7 +50,7 @@ public class CacheWithStoreInvalidationTest {
         assertThat(this.pruned, is(empty()));
 
         assertThat(this.store.actions(), contains(
-                TestCacheStore.ActionType.HAS.action("test").returning(false),
+                TestCacheStore.ActionType.GET.action("test").returning(null),
                 TestCacheStore.ActionType.STORE.action("test", "test").returning(null)
         ));
     }
@@ -67,12 +67,12 @@ public class CacheWithStoreInvalidationTest {
         assertThat(this.pruned, is(empty()));
 
         assertThat(this.store.actions(), contains(
-                TestCacheStore.ActionType.HAS.action("test").returning(false),
+                TestCacheStore.ActionType.GET.action("test").returning(null),
                 TestCacheStore.ActionType.STORE.action("test", "test").returning(null),
-                TestCacheStore.ActionType.HAS.action("test").returning(true),
                 TestCacheStore.ActionType.GET.action("test").returning(Optional.of("test"))
         ));
     }
+
     @Test
     public void givenValueCached__whenGetting_andValueIsInvalidated__thenValidationChecked_andValueRetrieved_andNewValueReturned() throws Exception {
         this.cache.get("test");
@@ -87,15 +87,15 @@ public class CacheWithStoreInvalidationTest {
         assertThat(this.pruned, contains("test"));
 
         assertThat(this.store.actions(), contains(
-                TestCacheStore.ActionType.HAS.action("test").returning(false),
+                TestCacheStore.ActionType.GET.action("test").returning(null),
                 TestCacheStore.ActionType.STORE.action("test", "test").returning(null),
-                TestCacheStore.ActionType.HAS.action("test").returning(true),
                 TestCacheStore.ActionType.GET.action("test").returning(Optional.of("test")),
                 TestCacheStore.ActionType.HAS.action("test").returning(true),
                 TestCacheStore.ActionType.REMOVE.action("test").returning(null),
                 TestCacheStore.ActionType.STORE.action("test", "new value").returning(null)
         ));
     }
+
     @Test
     public void givenValueCached__whenGetting_andValueInvalidated_andNewValueWithValidation__thenValidationChecked_andValueNotRetrieved_andNewValueReturned_andNewValueStored() throws Exception {
         this.cache.get("test");
@@ -109,9 +109,8 @@ public class CacheWithStoreInvalidationTest {
         assertThat(this.pruned, contains("test"));
 
         assertThat(this.store.actions(), contains(
-                TestCacheStore.ActionType.HAS.action("test").returning(false),
+                TestCacheStore.ActionType.GET.action("test").returning(null),
                 TestCacheStore.ActionType.STORE.action("test", "test").returning(null),
-                TestCacheStore.ActionType.HAS.action("test").returning(true),
                 TestCacheStore.ActionType.GET.action("test").returning(Optional.of("test")),
                 TestCacheStore.ActionType.HAS.action("test").returning(true),
                 TestCacheStore.ActionType.REMOVE.action("test").returning(null),

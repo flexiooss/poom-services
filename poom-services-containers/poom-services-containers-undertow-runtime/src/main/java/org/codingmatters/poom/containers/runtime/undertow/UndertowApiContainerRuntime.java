@@ -102,7 +102,7 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
         }
 
         Optional<Env.Var> enableHttp2 = Env.optional(UNDERTOW_ENABLE_HTTP2);
-        if (enableHttp2.isPresent()){
+        if (enableHttp2.isPresent()) {
             builder.setServerOption(UndertowOptions.ENABLE_HTTP2, enableHttp2.get().asBoolean());
         }
 
@@ -121,8 +121,8 @@ public class UndertowApiContainerRuntime extends ApiContainerRuntime {
                     " maxThreadCount=" + maxThreadCount +
                     " maxEntitySize=" + this.undertow.getWorker().getOption(UndertowOptions.MAX_ENTITY_SIZE) +
                     " idleTimeout=" + this.undertow.getWorker().getOption(UndertowOptions.IDLE_TIMEOUT) +
-                    " noRequestTimeout=" + this.undertow.getWorker().getOption(UndertowOptions.NO_REQUEST_TIMEOUT),
-                    " http2="+this.undertow.getWorker().getOption(UndertowOptions.ENABLE_HTTP2)
+                    " noRequestTimeout=" + this.undertow.getWorker().getOption(UndertowOptions.NO_REQUEST_TIMEOUT) +
+                    " http2=" + this.undertow.getWorker().getOption(UndertowOptions.ENABLE_HTTP2)
             );
         } catch (IOException e) {
             this.log.error("Undertow server started with undefined options ", e);
