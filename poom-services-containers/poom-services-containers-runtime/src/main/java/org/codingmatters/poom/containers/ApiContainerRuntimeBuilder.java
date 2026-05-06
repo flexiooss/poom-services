@@ -36,17 +36,17 @@ public class ApiContainerRuntimeBuilder {
     }
 
     public ApiContainerRuntime build(ApiContainerRuntime runtime) {
-        if(this.startupRunnable != null) {
+        if (this.startupRunnable != null) {
             runtime.onStartup(this.startupRunnable);
         }
-        if(this.shutdownRunnable != null) {
+        if (this.shutdownRunnable != null) {
             runtime.onShutdown(this.shutdownRunnable);
         }
         List<Api> wrappedApis = new LinkedList<>();
         for (Api api : this.apis) {
             Processor processor = api.processor();
-            if(this.apiProcessorWrapper != null) {
-                processor = this.apiProcessorWrapper.apply(api.processor());
+            if (this.apiProcessorWrapper != null) {
+                processor = this.apiProcessorWrapper.apply(processor);
             }
             wrappedApis.add(new WrappedApi(api, processor));
         }
