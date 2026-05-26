@@ -102,13 +102,13 @@ public class ReflectFilterEvents<V> extends StackedFilterEvents<Predicate<V>> {
 
     @Override
     public Void isEmpty(String property) throws FilterEventError {
-        this.push(o -> this.propertyResolver.resolve(o, property).value() == null || this.propertyResolver.resolve(o, property).value().toString().isEmpty());
+        this.push(o -> this.propertyResolver.resolve(o, property).value() == null || this.propertyResolver.resolve(o, property).value().toString().isEmpty() || (this.propertyResolver.resolve(o, property).type().isArray() && this.propertyResolver.resolve(o, property).value().equals(List.of())));
         return null;
     }
 
     @Override
     public Void isNotEmpty(String property) throws FilterEventError {
-        this.push(o -> this.propertyResolver.resolve(o, property).value() != null && !this.propertyResolver.resolve(o, property).value().toString().isEmpty());
+        this.push(o -> this.propertyResolver.resolve(o, property).value() != null && !this.propertyResolver.resolve(o, property).value().toString().isEmpty() && !(this.propertyResolver.resolve(o, property).type().isArray() && this.propertyResolver.resolve(o, property).value().equals(List.of())));
         return null;
     }
 

@@ -2,6 +2,9 @@ package org.codingmatters.poom.services.domain.repositories.inmemory.property.qu
 
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.property.query.PropertyQueryParser;
+import org.codingmatters.poom.services.domain.property.query.events.FilterEventException;
+import org.codingmatters.poom.services.domain.property.query.events.SortEventException;
+import org.codingmatters.poom.services.domain.property.query.validation.InvalidPropertyException;
 import org.codingmatters.test.Simple;
 import org.codingmatters.test.WithObject;
 import org.codingmatters.value.objects.values.ObjectValue;
@@ -9,6 +12,7 @@ import org.codingmatters.value.objects.values.PropertyValue;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -247,5 +251,47 @@ public class ReflectFilterEventsTest {
 
         assertFalse(events.result().test(Simple.builder().aDate(LocalDateTime.of(1970, 1, 2, 3, 4, 5, 678000000)).build()));
         assertTrue(events.result().test(Simple.builder().aDate(LocalDateTime.of(2020, 1, 2, 3, 4, 5, 678000000)).build()));
+    }
+
+    @Test
+    public void givenLists__whenIsEmpty__thenPredicateIsOk() throws FilterEventException, SortEventException, InvalidPropertyException {
+        ReflectFilterEvents<Simple> events = new ReflectFilterEvents<>(Simple.class);
+        PropertyQueryParser.builder().build(events).parse(PropertyQuery.builder().filter("aList is empty").build());
+
+
+        assertFalse(events.result().test(Simple.builder().aList(List.of("toto")).build()));
+        assertTrue(events.result().test(Simple.builder().aList().build()));
+    }
+
+    @Test
+    public void givenStrings__whenIsEmpty__thenPredicateIsOk() throws FilterEventException, SortEventException, InvalidPropertyException {
+        ReflectFilterEvents<Simple> events = new ReflectFilterEvents<>(Simple.class);
+        PropertyQueryParser.builder().build(events).parse(PropertyQuery.builder().filter("c is empty").build());
+
+
+        assertFalse(events.result().test(Simple.builder().c("c").build()));
+        assertTrue(events.result().test(Simple.builder().c(null).build()));
+        assertTrue(events.result().test(Simple.builder().c("").build()));
+    }
+
+    @Test
+    public void givenLists__whenIsNotEmpty__thenPredicateIsOk() throws FilterEventException, SortEventException, InvalidPropertyException {
+        ReflectFilterEvents<Simple> events = new ReflectFilterEvents<>(Simple.class);
+        PropertyQueryParser.builder().build(events).parse(PropertyQuery.builder().filter("aList is not empty").build());
+
+
+        assertTrue(events.result().test(Simple.builder().aList(List.of("toto")).build()));
+        assertFalse(events.result().test(Simple.builder().aList().build()));
+    }
+
+    @Test
+    public void givenStrings__whenIsNotEmpty__thenPredicateIsOk() throws FilterEventException, SortEventException, InvalidPropertyException {
+        ReflectFilterEvents<Simple> events = new ReflectFilterEvents<>(Simple.class);
+        PropertyQueryParser.builder().build(events).parse(PropertyQuery.builder().filter("c is not empty").build());
+
+
+        assertTrue(events.result().test(Simple.builder().c("toto").build()));
+        assertFalse(events.result().test(Simple.builder().c(null).build()));
+        assertFalse(events.result().test(Simple.builder().c("").build()));
     }
 }

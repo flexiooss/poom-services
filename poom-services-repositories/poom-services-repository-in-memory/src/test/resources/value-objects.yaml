@@ -11,6 +11,8 @@ Simple:
   ref: $Ref
   o:
     $value-object: org.codingmatters.value.objects.values.ObjectValue
+  aList:
+    $list: string
 
 WithObject:
   p:
