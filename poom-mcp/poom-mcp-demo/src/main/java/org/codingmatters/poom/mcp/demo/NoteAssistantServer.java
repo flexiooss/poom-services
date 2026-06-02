@@ -20,8 +20,9 @@ public class NoteAssistantServer {
 
         NoteService noteService = new NoteService(NoteRepository.create());
         ExecutorService executor = Executors.newFixedThreadPool(4);
+        String path = "/notes/assstant/mcp";
         McpProcessor processor = new McpProcessor(
-                "/mcp",
+                path,
                 new JsonFactory(),
                 NoteAssistantDescriptor.build(noteService),
                 executor
@@ -32,7 +33,7 @@ public class NoteAssistantServer {
                 .setHandler(new CdmHttpUndertowHandler(processor))
                 .build();
         server.start();
-        log.info("Note Assistant MCP server started at http://{}:{}/mcp", host, port);
+        log.info("Note Assistant MCP server started at http://{}:{}{}", host, port, path);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("Shutting down...");
