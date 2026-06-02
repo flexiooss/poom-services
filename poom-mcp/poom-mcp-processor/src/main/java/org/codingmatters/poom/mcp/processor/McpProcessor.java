@@ -148,6 +148,7 @@ public class McpProcessor implements Processor {
             case "tools/list" -> writeJsonRpcResponse(response, buildListToolsResult(mcpRequest));
             case "tools/call" -> handleToolCall(response, session, mcpRequest);
             case "resources/list" -> writeJsonRpcResponse(response, buildListResourcesResult(mcpRequest));
+            case "resources/read" -> handleResourceRead(response, mcpRequest);
             case "prompts/list" -> writeJsonRpcResponse(response, buildListPromptsResult(mcpRequest));
             default -> writeJsonRpcError(response, mcpRequest.id(), -32601, "Method not found");
         }
@@ -263,6 +264,62 @@ public class McpProcessor implements Processor {
                 .result(ObjectValue.builder()
                         .property("tools", PropertyValue.multipleObject(tools.toArray(new ObjectValue[0])))
                         .build())
+                .build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handleResourceRead(ResponseDelegate response, McpRequest mcpRequest) throws IOException {
+        String uri = mcpRequest.params() != null && mcpRequest.params().property("uri") != null
+                ? mcpRequest.params().property("uri").single().stringValue()
+                : null;
+        if (uri == null) {
+            writeJsonRpcError(response, mcpRequest.id(), -32602, "Invalid params: uri required");
+            return;
+        }
+        // Prefix routing: match by the literal portion before the first template variable.
+        // The handler receives the full URI and is responsible for precise extraction.
+        Optional<org.codingmatters.poom.mcp.McpResourceDescriptor> resource =
+                descriptor.opt().resources().safe().stream()
+                        .filter(r -> r.uri() != null && uri.startsWith(uriPrefix(r.uri())))
+                        .findFirst();
+        if (resource.isEmpty()) {
+            writeJsonRpcError(response, mcpRequest.id(), -32601, "Resource not found: " + uri);
+            return;
+        }
+        org.codingmatters.poom.mcp.types.ReadResourceParams params =
+                org.codingmatters.poom.mcp.types.ReadResourceParams.builder().uri(uri).build();
+        try {
+            org.codingmatters.poom.mcp.types.ReadResourceResult result =
+                    (org.codingmatters.poom.mcp.types.ReadResourceResult) resource.get().handler().apply(params);
+            writeJsonRpcResponse(response, McpResponse.builder()
+                    .jsonrpc("2.0").id(mcpRequest.id())
+                    .result(buildReadResourceResultObject(result))
+                    .build());
+        } catch (RuntimeException e) {
+            log.error("resource handler threw for uri {}", uri, e);
+            writeJsonRpcError(response, mcpRequest.id(), -32603, "Internal error");
+        }
+    }
+
+    private String uriPrefix(String uriTemplate) {
+        int idx = uriTemplate.indexOf('{');
+        return idx >= 0 ? uriTemplate.substring(0, idx) : uriTemplate;
+    }
+
+    private ObjectValue buildReadResourceResultObject(org.codingmatters.poom.mcp.types.ReadResourceResult result) {
+        List<ObjectValue> contents = result.opt().contents().safe().stream()
+                .map(c -> {
+                    ObjectValue.Builder b = ObjectValue.builder()
+                            .property("uri", v -> v.stringValue(c.uri()))
+                            .property("mimeType", v -> v.stringValue(c.mimeType() != null ? c.mimeType() : ""));
+                    if (c.text() != null) {
+                        b.property("text", v -> v.stringValue(c.text()));
+                    }
+                    return b.build();
+                })
+                .toList();
+        return ObjectValue.builder()
+                .property("contents", PropertyValue.multipleObject(contents.toArray(new ObjectValue[0])))
                 .build();
     }
 
