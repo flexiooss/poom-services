@@ -115,6 +115,7 @@
         <module>poom-services-api-test-support</module>
         <module>poom-services-test-apis</module>
         <module>poom-json-rpc</module>
+        <module>poom-mcp</module>
     </modules>
 
     <dependencies>
@@ -522,6 +523,24 @@
                 <version>1.289.0-SNAPSHOT</version>
             </dependency>
             <!--            //JSON-RPC-->
+
+            <!--            MCP-->
+            <dependency>
+                <groupId>org.codingmatters.poom.mcp</groupId>
+                <artifactId>poom-mcp-types</artifactId>
+                <version>1.289.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.mcp</groupId>
+                <artifactId>poom-mcp-descriptors</artifactId>
+                <version>1.289.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codingmatters.poom.mcp</groupId>
+                <artifactId>poom-mcp-processor</artifactId>
+                <version>1.289.0-SNAPSHOT</version>
+            </dependency>
+            <!--            //MCP-->
 
             <!--// BOM-->
         </dependencies>
