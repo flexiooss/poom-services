@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-**poom-services** ("Poor Old Man's Web Services") is a multi-module Maven library suite (`org.codingmatters.poom`, currently `1.283.0-SNAPSHOT`) that provides building blocks for code-generated REST services on top of the `codingmatters-rest` and `codingmatters-value-objects` frameworks.
+**poom-services** ("Poor Old Man's Web Services") is a multi-module Maven library suite (`org.codingmatters.poom`, currently `1.289.0-SNAPSHOT`) that provides building blocks for code-generated REST services on top of the `codingmatters-rest` and `codingmatters-value-objects` frameworks.
 
 The repo is itself a library, not a deployable application — the `poom-services-demo` modules are the canonical examples of how everything fits together.
 
@@ -70,28 +70,35 @@ Cross-cutting framework modules (the building blocks the above slices depend on)
 
 | Module | Purpose |
 |---|---|
-| `poom-services-domain` | `Entity<V>`, `Repository<V,Q>`, `Change<T>`, `PropertyQuery` ANTLR-based filter/sort language. Has its own [CLAUDE.md](poom-services-domain/CLAUDE.md). |
+| `poom-services-domain` | `Entity<V>`, `Repository<V,Q>`, `Change<T>`, `PropertyQuery` ANTLR-based filter/sort language |
 | `poom-services-repositories` | In-memory repo (`*-in-memory`), repository extensions, and an acceptance test suite (`*-acceptance`) that any new repository implementation should pass |
-| `poom-services-runtime` | `Service` request lifecycle, request-logging processors / state providers |
-| `poom-services-containers` | `ApiContainerRuntime` — the embedded HTTP server abstraction. Backends in `*-undertow-runtime` and `*-netty-runtime`; `*-test-runtime` is for tests. Acceptance tests in `*-runtime-acceptance` cover all backends. |
-| `poom-services-support` / `poom-services-production-support` | Misc helpers; production-support also publishes `docker-support` classifiers used by the `docker-image-assembler` profile |
-| `poom-services-logging` / `poom-services-logging-json-layout` | SLF4J helpers and a Logback JSON layout used in production images |
+| `poom-services-runtime` | `Service` — a simple single-processor Undertow wrapper that reads `SERVICE_HOST`/`SERVICE_PORT` from env, wraps the processor with request logging, and provides a `main()` loop |
+| `poom-services-containers` | `ApiContainerRuntime` — the production-grade HTTP server abstraction. Built via `ApiContainerRuntimeBuilder`, registered with `Api` objects, and dispatched to a backend (`*-undertow-runtime` or `*-netty-runtime`). `*-test-runtime` for tests. Acceptance tests in `*-runtime-acceptance` cover all backends. |
+| `poom-services-support` / `poom-services-production-support` | Misc helpers including `Env` (env-var config), `Rfc7233Pager`, `UTC`; production-support also publishes `docker-support` classifiers used by the `docker-image-assembler` profile |
+| `poom-services-logging` / `poom-services-logging-json-layout` | `CategorizedLogger` (SLF4J wrapper) and a Logback JSON layout used in production images |
 | `poom-services-fast-failing` | `FastFailingProcessor` and helpers for failing requests early on container shutdown |
 | `poom-services-api-registry` | Service discovery / registry API + client |
 | `poom-services-api-test-support` | Generates acceptance tests for any API spec — used by service implementors |
-| `poom-services-paged-collection` | Generic pagination over `Repository`, plus generators that produce paged-collection processors |
+| `poom-services-paged-collection` | `PagedCollectionAdapter<E,C,R,U>` — the central abstraction for CRUD+paging over a `Repository`; sub-module `*-generation` contains the Maven plugin that generates paged-collection processors |
 | `poom-services-i18n` / `poom-l10n` | Bundle-based i18n spec with codegen, and a localized formatter (spec / api / json / client) |
 | `poom-caches` | `Cache` API + `CacheManager` (LRU, decision on access). See `poom-caches/README.md`. |
 | `poom-json-rpc` | JSON-RPC types, descriptors, processor |
+| `poom-services-test-support` | Test helpers: `Eventually` (async assertion), `Marionette` (dynamic proxy handler recording), `CumulatingTestHandler`, Hamcrest matchers for dates/strings/`ObjectValue` |
+| `poom-services-test-apis` | Canned RAML specs used as fixtures in generation tests |
+| `poom-services-report` | Structured service-report API — types, processor, reporter library, and a runnable service |
 | `poom-services-demo` | Reference apps. `poom-services-simple-demo` is minimal; `poom-services-advanced-demo` ("digital video club") shows a full domain/processor/service stack — read its README for example curl flows. |
 
 ## Key Architectural Patterns
 
 **Spec-first**: REST APIs are designed as RAML, value types as yaml. Hand-written code only implements interfaces produced by the generators — never edit the generated processor/client/types directly.
 
+**Handler wiring**: The generated `*Processor` accepts a `*Handlers` object whose builder lets you assign a lambda per endpoint. Each lambda receives a typed request and returns the domain adapter. For paged collections, the adapter is a `PagedCollectionAdapter<E,C,R,U>` that exposes a `Pager` (listing) and a `CRUD` (create/retrieve/replace/update/delete). The `poom-services-advanced-demo` `DemoHandlersBuilder` is the canonical example of this wiring.
+
 **Repository / Property Query**: Every persistent collection is exposed through `Repository<V, Q>` with a generic query type. Filter/sort criteria are expressed in the property-query DSL (`name == 'John' && age >= 18`, `email =~ /.*@x/i`, `tags IN (...)`, `items CONTAINS_ALL (...)`). Backends translate these by implementing `FilterEvents<T>` / `SortEvents<T>` ANTLR visitors. The `*-acceptance` test suite is run against every new repository backend.
 
-**Container runtime**: A service builds an `ApiContainerRuntime` via `ApiContainerRuntimeBuilder`, registers one or more processors, and chooses a backend (Undertow or Netty). The runtime handles startup/shutdown, fast-failing requests when shutting down, and request logging.
+**Service startup — two patterns**:
+- *Simple*: `Service.fromEnv(processor, name, jsonFactory).main(log)` — reads host/port from `SERVICE_HOST`/`SERVICE_PORT`, wraps with request logging. Used by the demo.
+- *Container*: `new ApiContainerRuntimeBuilder().withApi(api).onStartup(...).build(undertowOrNettyRuntime).main()` — backend-pluggable, supports multiple APIs, fast-failing on shutdown. Preferred for production services.
 
 **BOM-driven versions**: Modules never declare versions for sibling modules — they rely on the root `<dependencyManagement>` so a single bump updates the whole reactor.
 
