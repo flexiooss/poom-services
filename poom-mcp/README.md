@@ -39,9 +39,32 @@ Streamable HTTP uses a **single endpoint** for everything. The same URL accepts 
 
 | Method | Body / headers | Purpose |
 |--------|---------------|---------|
-| `POST` | JSON-RPC message + optional `Mcp-Session-Id` | Send a request or notification to the server |
+| `POST` | JSON-RPC 2.0 message + optional `Mcp-Session-Id` | Send a request or notification to the server |
 | `GET` | `Accept: text/event-stream` + `Mcp-Session-Id` | Open a persistent SSE channel for server→client messages |
 | `DELETE` | `Mcp-Session-Id` | Terminate the session |
+
+### JSON-RPC 2.0 as the message format
+
+All `POST` bodies and all server responses are **JSON-RPC 2.0** messages. MCP doesn't invent a new wire format — it defines which method names exist and what their `params`/`result` shapes look like.
+
+A tool call POST body looks like:
+```json
+{"jsonrpc":"2.0","method":"tools/call","params":{"name":"search_notes","arguments":{"query":"meeting"}},"id":"3"}
+```
+
+A synchronous server response looks like:
+```json
+{"jsonrpc":"2.0","result":{"content":[{"type":"text","text":"note-42: team meeting notes…"}],"isError":false},"id":"3"}
+```
+
+An error response follows the standard JSON-RPC error shape:
+```json
+{"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found"},"id":"3"}
+```
+
+The same response is sent inline (200) for fast tools or pushed as an `event: message` on the SSE channel (after a 202) for slow tools — the wire format is identical in both cases.
+
+**Note — `McpProcessor` and `poom-json-rpc`:** `poom-services` already has a JSON-RPC 2.0 processor (`poom-json-rpc`). `McpProcessor` does not reuse it. The reason is architectural: `poom-json-rpc` blocks the HTTP thread until all handlers return, which is incompatible with the SSE channel (the `GET` handler must hold the thread open indefinitely) and with the async 202 path (which must release the POST thread before the handler finishes). `McpProcessor` therefore handles JSON-RPC parsing and serialization directly — the overlap with `poom-json-rpc` is intentional, not an oversight.
 
 The server can respond to a `POST` in two ways depending on how long the handler takes:
 
