@@ -19,5 +19,6 @@
         <module>poom-mcp-types</module>
         <module>poom-mcp-descriptors</module>
         <module>poom-mcp-processor</module>
+        <module>poom-mcp-demo</module>
     </modules>
 </project>
