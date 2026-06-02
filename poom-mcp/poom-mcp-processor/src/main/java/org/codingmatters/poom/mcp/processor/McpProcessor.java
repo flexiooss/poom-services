@@ -22,9 +22,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class McpProcessor implements Processor {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(McpProcessor.class);
@@ -149,8 +153,85 @@ public class McpProcessor implements Processor {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void handleToolCall(ResponseDelegate response, McpSession session, McpRequest mcpRequest) throws IOException {
-        writeJsonRpcError(response, mcpRequest.id(), -32601, "tools/call not yet implemented");
+        String toolName = mcpRequest.params() != null && mcpRequest.params().property("name") != null
+                ? mcpRequest.params().property("name").single().stringValue()
+                : null;
+        Optional<org.codingmatters.poom.mcp.McpToolDescriptor> tool = descriptor.opt().tools().safe().stream()
+                .filter(t -> toolName != null && toolName.equals(t.name()))
+                .findFirst();
+
+        if (tool.isEmpty()) {
+            writeJsonRpcError(response, mcpRequest.id(), -32601, "Tool not found: " + toolName);
+            return;
+        }
+
+        ObjectValue arguments = mcpRequest.params() != null && mcpRequest.params().property("arguments") != null
+                ? mcpRequest.params().property("arguments").single().objectValue()
+                : ObjectValue.builder().build();
+        if (arguments == null) {
+            arguments = ObjectValue.builder().build();
+        }
+
+        org.codingmatters.poom.mcp.types.CallToolParams params =
+                org.codingmatters.poom.mcp.types.CallToolParams.builder()
+                        .name(toolName)
+                        .arguments(arguments)
+                        .build();
+
+        CompletableFuture<org.codingmatters.poom.mcp.types.CallToolResult> future =
+                CompletableFuture.supplyAsync(
+                        () -> (org.codingmatters.poom.mcp.types.CallToolResult) tool.get().handler().apply(params),
+                        toolExecutor
+                );
+
+        try {
+            org.codingmatters.poom.mcp.types.CallToolResult result =
+                    future.get(syncTimeoutMillis, TimeUnit.MILLISECONDS);
+            writeJsonRpcResponse(response, McpResponse.builder()
+                    .jsonrpc("2.0").id(mcpRequest.id())
+                    .result(buildCallToolResultObject(result))
+                    .build());
+        } catch (TimeoutException e) {
+            handleAsyncToolCall(response, session, mcpRequest, future);
+        } catch (Exception e) {
+            writeJsonRpcError(response, mcpRequest.id(), -32603, "Internal error: " + e.getMessage());
+        }
+    }
+
+    private void handleAsyncToolCall(ResponseDelegate response, McpSession session, McpRequest mcpRequest,
+            CompletableFuture<org.codingmatters.poom.mcp.types.CallToolResult> future) throws IOException {
+        response.status(202);
+        response.payload(new byte[0]);
+        future.thenAccept(result -> {
+            if (!session.hasSseChannel()) {
+                log.error("async tool result ready but no SSE channel for session {}", session.id());
+                return;
+            }
+            try {
+                McpResponse mcpResponse = McpResponse.builder()
+                        .jsonrpc("2.0").id(mcpRequest.id())
+                        .result(buildCallToolResultObject(result))
+                        .build();
+                session.sseChannel().send("message", new String(serializeResponse(mcpResponse), StandardCharsets.UTF_8));
+            } catch (IOException ex) {
+                log.error("failed to push async result to SSE channel for session {}", session.id(), ex);
+            }
+        });
+    }
+
+    private ObjectValue buildCallToolResultObject(org.codingmatters.poom.mcp.types.CallToolResult result) {
+        List<ObjectValue> contentList = result.opt().content().safe().stream()
+                .map(c -> ObjectValue.builder()
+                        .property("type", v -> v.stringValue(c.type()))
+                        .property("text", v -> v.stringValue(c.text()))
+                        .build())
+                .toList();
+        return ObjectValue.builder()
+                .property("content", PropertyValue.multipleObject(contentList.toArray(new ObjectValue[0])))
+                .property("isError", v -> v.booleanValue(result.isError() != null && result.isError()))
+                .build();
     }
 
     private void handleDelete(RequestDelegate request, ResponseDelegate response, String sessionId) throws IOException {
