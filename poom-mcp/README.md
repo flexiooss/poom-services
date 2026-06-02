@@ -578,9 +578,9 @@ void createNoteReturnssId() throws Exception {
 | `tools/call` (sync) | ✅ implemented |
 | `tools/call` (async via SSE) | ✅ implemented |
 | `resources/list` | ✅ implemented (listing only) |
-| `resources/read` | ❌ not yet dispatched to handler |
+| `resources/read` | ✅ implemented |
 | `prompts/list` | ✅ implemented (listing only) |
-| `prompts/get` | ❌ not yet dispatched to handler |
+| `prompts/get` | ✅ implemented |
 | Numeric / null `id` | ❌ `id` is typed `string`; numeric ids cause a parse error |
 | Tool call cancellation | ❌ not implemented |
 | Roots negotiation | ❌ not implemented |
