@@ -96,7 +96,7 @@ class JsonRpcProcessorTest {
         assertThat(response.contentType(), Matchers.is("application/json"));
         assertThat(new String(response.payload()), Matchers.is(
                                 """
-                                {"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"}}"""
+                                [{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":"1"}]"""
         ));
     }
 
@@ -144,7 +144,7 @@ class JsonRpcProcessorTest {
         assertThat(response.contentType(), Matchers.is("application/json"));
         assertThat(new String(response.payload()), Matchers.is(
                 """
-                {"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"}}"""
+                [{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":"1"}]"""
         ));
     }
 
@@ -168,7 +168,7 @@ class JsonRpcProcessorTest {
         assertThat(response.contentType(), Matchers.is("application/json"));
         assertThat(new String(response.payload()), Matchers.is(
                 """
-                {"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"}}"""
+                [{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request"},"id":"1"}]"""
         ));
     }
 
@@ -194,7 +194,7 @@ class JsonRpcProcessorTest {
         assertThat(response.contentType(), Matchers.is("application/json"));
         assertThat(new String(response.payload()), Matchers.is(
                 """
-                {"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found"}}"""
+                [{"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found"},"id":"1"}]"""
         ));
     }
 
@@ -352,7 +352,7 @@ class JsonRpcProcessorTest {
 
         assertThat(new String(response.payload()), Matchers.is(
                 """
-                [{"jsonrpc":"2.0","result":{"params":{"prop":"test value 1"}}},{"jsonrpc":"2.0","result":{"params":{"prop":"test value 2"}},"id":"2"}]"""
+                [{"jsonrpc":"2.0","result":{"params":{"prop":"test value 2"}},"id":"2"}]"""
         ));
     }
 
