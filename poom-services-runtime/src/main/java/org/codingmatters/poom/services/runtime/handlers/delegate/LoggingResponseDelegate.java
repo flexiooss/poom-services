@@ -3,6 +3,7 @@ package org.codingmatters.poom.services.runtime.handlers.delegate;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.poom.services.runtime.handlers.RequestLoggingProcessor;
 import org.codingmatters.rest.api.ResponseDelegate;
+import org.codingmatters.rest.api.SseChannel;
 import org.codingmatters.rest.io.Content;
 
 import java.io.*;
@@ -120,6 +121,11 @@ public class LoggingResponseDelegate implements ResponseDelegate {
         }
         delegate.payload(in);
         return this;
+    }
+
+    @Override
+    public SseChannel openSse() throws IOException {
+        return this.delegate.openSse();
     }
 
     @Override
