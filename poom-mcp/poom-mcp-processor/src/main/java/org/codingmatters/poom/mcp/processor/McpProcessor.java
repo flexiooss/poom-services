@@ -150,6 +150,7 @@ public class McpProcessor implements Processor {
             case "resources/list" -> writeJsonRpcResponse(response, buildListResourcesResult(mcpRequest));
             case "resources/read" -> handleResourceRead(response, mcpRequest);
             case "prompts/list" -> writeJsonRpcResponse(response, buildListPromptsResult(mcpRequest));
+            case "prompts/get" -> handlePromptGet(response, mcpRequest);
             default -> writeJsonRpcError(response, mcpRequest.id(), -32601, "Method not found");
         }
     }
@@ -336,6 +337,53 @@ public class McpProcessor implements Processor {
                 .result(ObjectValue.builder()
                         .property("resources", PropertyValue.multipleObject(resources.toArray(new ObjectValue[0])))
                         .build())
+                .build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handlePromptGet(ResponseDelegate response, McpRequest mcpRequest) throws IOException {
+        String name = mcpRequest.params() != null && mcpRequest.params().property("name") != null
+                ? mcpRequest.params().property("name").single().stringValue()
+                : null;
+        Optional<org.codingmatters.poom.mcp.McpPromptDescriptor> prompt =
+                descriptor.opt().prompts().safe().stream()
+                        .filter(p -> name != null && name.equals(p.name()))
+                        .findFirst();
+        if (prompt.isEmpty()) {
+            writeJsonRpcError(response, mcpRequest.id(), -32601, "Prompt not found: " + name);
+            return;
+        }
+        ObjectValue arguments = mcpRequest.params() != null && mcpRequest.params().property("arguments") != null
+                ? mcpRequest.params().property("arguments").single().objectValue()
+                : ObjectValue.builder().build();
+        if (arguments == null) arguments = ObjectValue.builder().build();
+
+        org.codingmatters.poom.mcp.types.GetPromptParams params =
+                org.codingmatters.poom.mcp.types.GetPromptParams.builder()
+                        .name(name).arguments(arguments).build();
+        try {
+            org.codingmatters.poom.mcp.types.GetPromptResult result =
+                    (org.codingmatters.poom.mcp.types.GetPromptResult) prompt.get().handler().apply(params);
+            writeJsonRpcResponse(response, McpResponse.builder()
+                    .jsonrpc("2.0").id(mcpRequest.id())
+                    .result(buildGetPromptResultObject(result))
+                    .build());
+        } catch (RuntimeException e) {
+            log.error("prompt handler threw for name {}", name, e);
+            writeJsonRpcError(response, mcpRequest.id(), -32603, "Internal error");
+        }
+    }
+
+    private ObjectValue buildGetPromptResultObject(org.codingmatters.poom.mcp.types.GetPromptResult result) {
+        List<ObjectValue> messages = result.opt().messages().safe().stream()
+                .map(m -> ObjectValue.builder()
+                        .property("role", v -> v.stringValue(m.role()))
+                        .property("content", v -> v.objectValue(m.content() != null ? m.content() : ObjectValue.builder().build()))
+                        .build())
+                .toList();
+        return ObjectValue.builder()
+                .property("description", v -> v.stringValue(result.description() != null ? result.description() : ""))
+                .property("messages", PropertyValue.multipleObject(messages.toArray(new ObjectValue[0])))
                 .build();
     }
 
