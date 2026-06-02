@@ -17,6 +17,49 @@
             <groupId>org.codingmatters.poom.mcp</groupId>
             <artifactId>poom-mcp-types</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.codingmatters.value.objects</groupId>
+            <artifactId>cdm-value-objects-values</artifactId>
+        </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codingmatters.value.objects</groupId>
+                <artifactId>cdm-value-objects-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>mcp-descriptors</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <destination-package>org.codingmatters.poom.mcp</destination-package>
+                            <input-spec>src/main/resources/mcp-descriptors.yaml</input-spec>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-generated-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>target/generated-sources</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

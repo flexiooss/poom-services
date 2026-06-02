@@ -1,0 +1,31 @@
+---
+McpToolDescriptor:
+  name: string
+  description: string
+  inputSchema:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+  handler:
+    $type: java.util.function.Function
+
+McpResourceDescriptor:
+  uri: string
+  name: string
+  mimeType: string
+  handler:
+    $type: java.util.function.Function
+
+McpPromptDescriptor:
+  name: string
+  description: string
+  handler:
+    $type: java.util.function.Function
+
+McpServerDescriptor:
+  name: string
+  version: string
+  tools:
+    $list: $McpToolDescriptor
+  resources:
+    $list: $McpResourceDescriptor
+  prompts:
+    $list: $McpPromptDescriptor
