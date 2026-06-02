@@ -125,6 +125,8 @@ public class NoteAssistantDescriptor {
     /**
      * Builds a minimal JSON Schema ObjectValue from (name, type, description) triples.
      * Each triple declares one property in the schema's "properties" object.
+     * Note: the "required" array is intentionally omitted — required/optional semantics
+     * are enforced at runtime inside each tool handler.
      */
     private static ObjectValue schema(String... tripleNameTypeDesc) {
         ObjectValue.Builder props = ObjectValue.builder();

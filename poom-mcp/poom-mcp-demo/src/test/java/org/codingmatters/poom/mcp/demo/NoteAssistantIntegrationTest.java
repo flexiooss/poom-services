@@ -9,6 +9,7 @@ import org.codingmatters.rest.api.RequestDelegate;
 import org.codingmatters.rest.tests.api.TestRequestDeleguate;
 import org.codingmatters.rest.tests.api.TestResponseDeleguate;
 import org.codingmatters.rest.tests.api.TestSseChannel;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -40,6 +41,11 @@ class NoteAssistantIntegrationTest {
                 500
         );
         sessionId = initialize();
+    }
+
+    @AfterEach
+    void tearDown() {
+        pool.shutdownNow();
     }
 
     // -------------------------------------------------------------------------

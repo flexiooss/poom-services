@@ -197,6 +197,9 @@ public class McpProcessor implements Processor {
                     .build());
         } catch (TimeoutException e) {
             handleAsyncToolCall(response, session, mcpRequest, future);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            writeJsonRpcError(response, mcpRequest.id(), -32603, "Internal error: request interrupted");
         } catch (Exception e) {
             writeJsonRpcError(response, mcpRequest.id(), -32603, "Internal error: " + e.getMessage());
         }

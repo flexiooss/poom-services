@@ -38,6 +38,8 @@ public class SearchNotesTool implements Function<CallToolParams, CallToolResult>
                 String excerpt = content.length() > 80 ? content.substring(0, 80) : content;
                 sb.append(entity.id())
                         .append(": ")
+                        .append(note.title())
+                        .append(" — ")
                         .append(excerpt)
                         .append("\n");
             }

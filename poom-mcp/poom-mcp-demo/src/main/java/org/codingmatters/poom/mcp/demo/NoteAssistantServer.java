@@ -8,6 +8,7 @@ import org.codingmatters.poom.mcp.processor.McpProcessor;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.rest.undertow.CdmHttpUndertowHandler;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class NoteAssistantServer {
@@ -18,11 +19,12 @@ public class NoteAssistantServer {
         int port = Integer.parseInt(System.getenv().getOrDefault("SERVICE_PORT", "8080"));
 
         NoteService noteService = new NoteService(NoteRepository.create());
+        ExecutorService executor = Executors.newFixedThreadPool(4);
         McpProcessor processor = new McpProcessor(
                 "/mcp",
                 new JsonFactory(),
                 NoteAssistantDescriptor.build(noteService),
-                Executors.newFixedThreadPool(4)
+                executor
         );
 
         Undertow server = Undertow.builder()
@@ -35,6 +37,7 @@ public class NoteAssistantServer {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("Shutting down...");
             server.stop();
+            executor.shutdown();
         }));
     }
 }

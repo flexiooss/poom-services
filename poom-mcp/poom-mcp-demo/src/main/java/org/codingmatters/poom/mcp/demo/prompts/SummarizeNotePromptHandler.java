@@ -3,8 +3,6 @@ package org.codingmatters.poom.mcp.demo.prompts;
 import org.codingmatters.poom.mcp.demo.domain.NoteService;
 import org.codingmatters.poom.mcp.types.GetPromptParams;
 import org.codingmatters.poom.mcp.types.GetPromptResult;
-import org.codingmatters.poom.mcp.types.PromptMessage;
-import org.codingmatters.value.objects.values.ObjectValue;
 
 import java.util.function.Function;
 
@@ -18,9 +16,9 @@ public class SummarizeNotePromptHandler implements Function<GetPromptParams, Get
 
     @Override
     public GetPromptResult apply(GetPromptParams params) {
-        String noteId = stringArg(params, "note_id");
+        String noteId = PromptHelper.stringArg(params, "note_id");
         if (noteId == null) {
-            return error("note_id argument is required");
+            return PromptHelper.error("note_id argument is required");
         }
         try {
             return noteService.get(noteId)
@@ -31,35 +29,12 @@ public class SummarizeNotePromptHandler implements Function<GetPromptParams, Get
                                 + n.content();
                         return GetPromptResult.builder()
                                 .description("Summarize note '" + n.title() + "'")
-                                .messages(userMessage(promptText))
+                                .messages(PromptHelper.userMessage(promptText))
                                 .build();
                     })
-                    .orElseGet(() -> error("Note not found: " + noteId));
+                    .orElseGet(() -> PromptHelper.error("Note not found: " + noteId));
         } catch (Exception e) {
-            return error("Error: " + e.getMessage());
+            return PromptHelper.error("Error: " + e.getMessage());
         }
-    }
-
-    static PromptMessage userMessage(String text) {
-        return PromptMessage.builder()
-                .role("user")
-                .content(ObjectValue.builder()
-                        .property("type", v -> v.stringValue("text"))
-                        .property("text", v -> v.stringValue(text))
-                        .build())
-                .build();
-    }
-
-    private static GetPromptResult error(String msg) {
-        return GetPromptResult.builder()
-                .description("Error")
-                .messages(userMessage(msg))
-                .build();
-    }
-
-    private static String stringArg(GetPromptParams params, String name) {
-        if (params.arguments() == null || params.arguments().property(name) == null) return null;
-        var pv = params.arguments().property(name);
-        return pv.isSingle() ? pv.single().stringValue() : null;
     }
 }
