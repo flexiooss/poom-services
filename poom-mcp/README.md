@@ -20,6 +20,80 @@ The model discovers available tools/resources/prompts, calls them during generat
 
 ---
 
+## The Streamable HTTP transport
+
+MCP can run over several transports. `poom-mcp` implements **Streamable HTTP** (MCP spec 2025-03-26), the current standard transport, which replaced the legacy HTTP+SSE transport in early 2025.
+
+### The problem Streamable HTTP solves
+
+Plain HTTP is request/response: the client asks, the server answers once. That works for short tool calls. But two situations break it:
+
+- **Slow tools** — a tool that runs for several seconds would leave the HTTP connection open waiting, blocking server threads and confusing clients with timeouts.
+- **Server-initiated messages** — the server may want to push progress updates or notifications to the client without being asked.
+
+The legacy transport solved this by separating GET (SSE channel for server→client messages) and POST (JSON-RPC calls), but it required a dedicated SSE endpoint alongside the JSON-RPC endpoint.
+
+### How Streamable HTTP works
+
+Streamable HTTP uses a **single endpoint** for everything. The same URL accepts three HTTP methods with different semantics:
+
+| Method | Body / headers | Purpose |
+|--------|---------------|---------|
+| `POST` | JSON-RPC message + optional `Mcp-Session-Id` | Send a request or notification to the server |
+| `GET` | `Accept: text/event-stream` + `Mcp-Session-Id` | Open a persistent SSE channel for server→client messages |
+| `DELETE` | `Mcp-Session-Id` | Terminate the session |
+
+The server can respond to a `POST` in two ways depending on how long the handler takes:
+
+```
+Client                                  Server
+  │                                        │
+  │  POST /mcp  { tools/call }             │
+  │───────────────────────────────────────►│
+  │                                        │  handler finishes in < 500ms
+  │  200 { result: ... }                   │
+  │◄───────────────────────────────────────│  ← synchronous response
+  │                                        │
+  │  POST /mcp  { tools/call (slow) }      │
+  │───────────────────────────────────────►│
+  │                                        │  handler still running at 500ms
+  │  202 Accepted                          │
+  │◄───────────────────────────────────────│  ← accepted, will push result later
+  │                                        │
+  │                    event: message      │  ← result arrives on SSE channel
+  │◄───────────────────────────────────────│    once the handler completes
+```
+
+The `202` path requires a live SSE channel (opened with `GET`) to be available for the session. The server pushes the result as a `message` event once the handler finishes.
+
+### SSE channel
+
+The SSE channel (`GET /mcp`) is a long-lived HTTP response with `Content-Type: text/event-stream`. The connection stays open for the duration of the session. The server sends:
+
+- `event: ping` — keepalive every 30 seconds (no data)
+- `event: message` — async tool call result (JSON-RPC response payload)
+
+The channel is closed when the client sends `DELETE /mcp` or disconnects.
+
+### Session lifecycle
+
+```
+POST /mcp { initialize }         → session created, Mcp-Session-Id returned
+GET  /mcp (SSE)                  → channel registered for the session
+POST /mcp { tools/list }         → sync response
+POST /mcp { tools/call (fast) }  → sync response (< syncTimeoutMillis)
+POST /mcp { tools/call (slow) }  → 202, then event: message on SSE channel
+DELETE /mcp                      → session closed, SSE channel closed
+```
+
+Every request after `initialize` must carry the `Mcp-Session-Id` header returned during initialization. Without it the server returns `400` (for `POST`) or `404` (for `GET`/`DELETE`).
+
+### Why not just use WebSocket?
+
+WebSocket is bidirectional but requires a dedicated upgrade handshake and persistent connection management at the load balancer / proxy layer. Streamable HTTP is two standard HTTP semantics (request/response + SSE) that work out-of-the-box with any HTTP/1.1 infrastructure.
+
+---
+
 ## Module layout
 
 ```
