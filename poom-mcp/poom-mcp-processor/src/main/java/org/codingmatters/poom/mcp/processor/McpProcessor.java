@@ -229,7 +229,7 @@ public class McpProcessor implements Processor {
     private ObjectValue buildCallToolResultObject(org.codingmatters.poom.mcp.types.CallToolResult result) {
         List<ObjectValue> contentList = result.opt().content().safe().stream()
                 .map(c -> ObjectValue.builder()
-                        .property("type", v -> v.stringValue(c.type()))
+                        .property("type", v -> v.stringValue(c.type() != null ? c.type().name() : null))
                         .property("text", v -> v.stringValue(c.text()))
                         .build())
                 .toList();
@@ -380,7 +380,7 @@ public class McpProcessor implements Processor {
     private ObjectValue buildGetPromptResultObject(org.codingmatters.poom.mcp.types.GetPromptResult result) {
         List<ObjectValue> messages = result.opt().messages().safe().stream()
                 .map(m -> ObjectValue.builder()
-                        .property("role", v -> v.stringValue(m.role()))
+                        .property("role", v -> v.stringValue(m.role() != null ? m.role().name() : null))
                         .property("content", v -> v.objectValue(m.content() != null ? m.content() : ObjectValue.builder().build()))
                         .build())
                 .toList();

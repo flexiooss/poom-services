@@ -37,7 +37,7 @@ class McpProcessorAsyncToolCallTest {
                 .handler(params -> {
                     try { Thread.sleep(800); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
                     return CallToolResult.builder()
-                            .content(ToolContent.builder().type("text").text("slow-result").build())
+                            .content(ToolContent.builder().type(ToolContent.Type.text).text("slow-result").build())
                             .isError(false)
                             .build();
                 })

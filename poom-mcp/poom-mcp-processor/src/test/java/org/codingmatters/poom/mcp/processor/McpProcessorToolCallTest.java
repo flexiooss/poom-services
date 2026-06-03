@@ -33,7 +33,7 @@ class McpProcessorToolCallTest {
                 .name("echo")
                 .description("Returns its input")
                 .handler(params -> CallToolResult.builder()
-                        .content(ToolContent.builder().type("text").text("echo").build())
+                        .content(ToolContent.builder().type(ToolContent.Type.text).text("echo").build())
                         .isError(false)
                         .build())
                 .build();

@@ -10,7 +10,7 @@ class PromptHelper {
 
     static PromptMessage userMessage(String text) {
         return PromptMessage.builder()
-                .role("user")
+                .role(PromptMessage.Role.user)
                 .content(ObjectValue.builder()
                         .property(ToolContent.names_().type(), v -> v.stringValue("text"))
                         .property(ToolContent.names_().text(), v -> v.stringValue(text))

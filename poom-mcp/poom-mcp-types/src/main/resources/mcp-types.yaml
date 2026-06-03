@@ -46,7 +46,8 @@ InitializeResult:
   serverInfo: $ServerInfo
 
 ToolContent:
-  type: string
+  type:
+    $enum: text, image, resource
   text: string
 
 CallToolParams:
@@ -107,7 +108,8 @@ GetPromptParams:
     $value-object: org.codingmatters.value.objects.values.ObjectValue
 
 PromptMessage:
-  role: string
+  role:
+    $enum: user, assistant
   content:
     $value-object: org.codingmatters.value.objects.values.ObjectValue
 

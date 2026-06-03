@@ -12,14 +12,14 @@ class ToolHelper {
 
     static CallToolResult success(String text) {
         return CallToolResult.builder()
-                .content(ToolContent.builder().type("text").text(text).build())
+                .content(ToolContent.builder().type(ToolContent.Type.text).text(text).build())
                 .isError(false)
                 .build();
     }
 
     static CallToolResult error(String text) {
         return CallToolResult.builder()
-                .content(ToolContent.builder().type("text").text(text).build())
+                .content(ToolContent.builder().type(ToolContent.Type.text).text(text).build())
                 .isError(true)
                 .build();
     }
