@@ -20,9 +20,9 @@ public class CreateNoteTool implements Function<CallToolParams, CallToolResult> 
 
     @Override
     public CallToolResult apply(CallToolParams params) {
-        String title = ToolHelper.arg(params.arguments(), "title");
-        String content = ToolHelper.arg(params.arguments(), "content");
-        List<String> tags = ToolHelper.argList(params.arguments(), "tags");
+        String title = ToolHelper.arg(params.arguments(), Note.names_().title());
+        String content = ToolHelper.arg(params.arguments(), Note.names_().content());
+        List<String> tags = ToolHelper.argList(params.arguments(), Note.names_().tags());
 
         if (title == null || title.isBlank()) {
             return ToolHelper.error("Missing required argument: title");

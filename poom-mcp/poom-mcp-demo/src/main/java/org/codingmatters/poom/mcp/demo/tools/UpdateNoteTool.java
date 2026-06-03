@@ -27,9 +27,9 @@ public class UpdateNoteTool implements Function<CallToolParams, CallToolResult> 
             return ToolHelper.error("Missing required argument: id");
         }
 
-        String title = ToolHelper.arg(params.arguments(), "title");
-        String content = ToolHelper.arg(params.arguments(), "content");
-        List<String> tags = ToolHelper.argList(params.arguments(), "tags");
+        String title = ToolHelper.arg(params.arguments(), Note.names_().title());
+        String content = ToolHelper.arg(params.arguments(), Note.names_().content());
+        List<String> tags = ToolHelper.argList(params.arguments(), Note.names_().tags());
 
         try {
             Optional<Entity<Note>> updated = noteService.update(id, title, content, tags);

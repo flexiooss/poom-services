@@ -3,6 +3,7 @@ package org.codingmatters.poom.mcp.demo.prompts;
 import org.codingmatters.poom.mcp.types.GetPromptParams;
 import org.codingmatters.poom.mcp.types.GetPromptResult;
 import org.codingmatters.poom.mcp.types.PromptMessage;
+import org.codingmatters.poom.mcp.types.ToolContent;
 import org.codingmatters.value.objects.values.ObjectValue;
 
 class PromptHelper {
@@ -11,8 +12,8 @@ class PromptHelper {
         return PromptMessage.builder()
                 .role("user")
                 .content(ObjectValue.builder()
-                        .property("type", v -> v.stringValue("text"))
-                        .property("text", v -> v.stringValue(text))
+                        .property(ToolContent.names_().type(), v -> v.stringValue("text"))
+                        .property(ToolContent.names_().text(), v -> v.stringValue(text))
                         .build())
                 .build();
     }

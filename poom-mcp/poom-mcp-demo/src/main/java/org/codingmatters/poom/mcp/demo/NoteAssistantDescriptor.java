@@ -5,6 +5,7 @@ import org.codingmatters.poom.mcp.McpResourceDescriptor;
 import org.codingmatters.poom.mcp.McpServerDescriptor;
 import org.codingmatters.poom.mcp.McpToolDescriptor;
 import org.codingmatters.poom.mcp.demo.domain.NoteService;
+import org.codingmatters.poom.mcp.demo.domain.types.Note;
 import org.codingmatters.poom.mcp.demo.prompts.CompareNotesPromptHandler;
 import org.codingmatters.poom.mcp.demo.prompts.SummarizeNotePromptHandler;
 import org.codingmatters.poom.mcp.demo.resources.NoteResourceHandler;
@@ -62,9 +63,9 @@ public class NoteAssistantDescriptor {
                 .name("create_note")
                 .description("Creates a new note. Returns the note id.")
                 .inputSchema(schema(
-                        "title", "string", "Title of the note (required)",
-                        "content", "string", "Body of the note (required)",
-                        "tags", "array", "Optional list of string tags"
+                        Note.names_().title(), "string", "Title of the note (required)",
+                        Note.names_().content(), "string", "Body of the note (required)",
+                        Note.names_().tags(), "array", "Optional list of string tags"
                 ))
                 .handler(new CreateNoteTool(s))
                 .build();
@@ -85,9 +86,9 @@ public class NoteAssistantDescriptor {
                 .description("Updates one or more fields of an existing note. Only provided fields are changed.")
                 .inputSchema(schema(
                         "id", "string", "Note id (required)",
-                        "title", "string", "New title (optional)",
-                        "content", "string", "New content (optional)",
-                        "tags", "array", "New tag list (optional, replaces all existing tags)"
+                        Note.names_().title(), "string", "New title (optional)",
+                        Note.names_().content(), "string", "New content (optional)",
+                        Note.names_().tags(), "array", "New tag list (optional, replaces all existing tags)"
                 ))
                 .handler(new UpdateNoteTool(s))
                 .build();

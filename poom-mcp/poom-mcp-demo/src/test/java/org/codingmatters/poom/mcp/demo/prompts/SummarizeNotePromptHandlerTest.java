@@ -5,6 +5,7 @@ import org.codingmatters.poom.mcp.demo.domain.NoteService;
 import org.codingmatters.poom.mcp.demo.domain.types.Note;
 import org.codingmatters.poom.mcp.types.GetPromptParams;
 import org.codingmatters.poom.mcp.types.GetPromptResult;
+import org.codingmatters.poom.mcp.types.ToolContent;
 import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.value.objects.values.ObjectValue;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +37,7 @@ class SummarizeNotePromptHandlerTest {
                 .build());
 
         assertThat(result.description(), not(equalTo("Error")));
-        String text = result.messages().get(0).content().property("text").single().stringValue();
+        String text = result.messages().get(0).content().property(ToolContent.names_().text()).single().stringValue();
         assertThat(text, containsString("Annual report"));
         assertThat(text, containsString("Revenue increased"));
     }
