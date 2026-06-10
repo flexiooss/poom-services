@@ -1,0 +1,8 @@
+---
+Note:
+  title: string
+  content: string
+  tags:
+    $list: string
+  created-at: date-time
+  updated-at: date-time

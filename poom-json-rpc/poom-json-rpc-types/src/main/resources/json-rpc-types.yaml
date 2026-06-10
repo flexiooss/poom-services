@@ -8,6 +8,7 @@ RpcRequest:
     $value-object: org.codingmatters.value.objects.values.ObjectValue
   id: string
     #If empty, then it's a notification (no response awaited), a 204 response is issued
+    #NOTE: JSON-RPC 2.0 §5 also allows numeric and null ids; this impl only supports string ids
 
 RpcResponse:
   jsonrpc: string

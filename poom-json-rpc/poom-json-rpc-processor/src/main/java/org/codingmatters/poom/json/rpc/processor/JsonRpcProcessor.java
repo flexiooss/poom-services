@@ -3,6 +3,7 @@ package org.codingmatters.poom.json.rpc.processor;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import org.codingmatters.poom.json.rpc.descriptors.RpcEntryPointDescriptor;
 import org.codingmatters.poom.json.rpc.descriptors.RpcMethodDescriptor;
 import org.codingmatters.poom.json.rpc.types.RpcError;
@@ -28,32 +29,18 @@ public class JsonRpcProcessor implements Processor {
 
     public static final String JSON_RPC_VERSION = "2.0";
 
-    static public final RpcResponse INVALID_REQUEST_RESPONSE = RpcResponse.builder()
-            .jsonrpc(JSON_RPC_VERSION)
-            .error(RpcError.builder()
-                    .code(-32600)
-                    .message("Invalid Request")
-                    .build())
-            .build();
-    static public final RpcResponse METHOD_NOT_FOUND_RESPONSE = RpcResponse.builder()
-            .jsonrpc(JSON_RPC_VERSION)
-            .error(RpcError.builder()
-                    .code(-32601)
-                    .message("Method not found")
-                    .build())
-            .build();
-
     private static final byte[] PARSE_ERROR = """
                                 {"jsonrpc":"%s","error":{"code": -32700,"message": "Parse error"},"id": null}""".formatted(JSON_RPC_VERSION)
             .getBytes(StandardCharsets.UTF_8);
     private static final byte[] INTERNAL_ERROR = """
                                 {"jsonrpc":"%s","error":{"code": -32603,"message": "Internal error"},"id": null}""".formatted(JSON_RPC_VERSION)
             .getBytes(StandardCharsets.UTF_8);
-
-
+    private static final byte[] EMPTY_BATCH_ERROR =
+            ("{\"jsonrpc\":\"" + JSON_RPC_VERSION + "\",\"error\":{\"code\":-32600,\"message\":\"Invalid Request\"},\"id\":null}")
+                    .getBytes(StandardCharsets.UTF_8);
 
     private final RpcEntryPointDescriptor descriptor;
-    private final JsonFactory  jsonFactory;
+    private final JsonFactory jsonFactory;
     private final ExecutorService pool;
 
     public JsonRpcProcessor(RpcEntryPointDescriptor descriptor, JsonFactory jsonFactory, ExecutorService pool) {
@@ -64,12 +51,13 @@ public class JsonRpcProcessor implements Processor {
 
     @Override
     public void process(RequestDelegate request, ResponseDelegate response) throws IOException {
-        if(request.method() != RequestDelegate.Method.POST) {
+        if (request.method() != RequestDelegate.Method.POST) {
             response.status(405);
             response.contenType("text/plain");
             response.payload("Method Not Allowed".getBytes(StandardCharsets.UTF_8));
         } else {
-            if(! request.contentType().equals("application/json")) {
+            String ct = request.contentType();
+            if (ct == null || !ct.startsWith("application/json")) {
                 response.status(415);
                 response.contenType("text/plain");
                 response.payload("Unsupported Media Type".getBytes(StandardCharsets.UTF_8));
@@ -82,9 +70,19 @@ public class JsonRpcProcessor implements Processor {
     private void processPayload(RequestDelegate request, ResponseDelegate response) {
         response.contenType("application/json");
 
-        RpcRequest[] requests;
-        try (JsonParser parser = this.jsonFactory.createParser(request.payload())) {
-            requests = new RpcRequestReader().readArray(parser);;
+        byte[] payloadBytes;
+        try {
+            payloadBytes = request.payload().readAllBytes();
+        } catch (IOException e) {
+            log.error("error reading rpc request payload", e);
+            response.status(200);
+            response.payload(PARSE_ERROR);
+            return;
+        }
+
+        boolean isBatch;
+        try (JsonParser peekParser = this.jsonFactory.createParser(payloadBytes)) {
+            isBatch = peekParser.nextToken() == JsonToken.START_ARRAY;
         } catch (IOException e) {
             log.error("error reading rpc request", e);
             response.status(200);
@@ -92,63 +90,74 @@ public class JsonRpcProcessor implements Processor {
             return;
         }
 
-        boolean synchronousCall = Arrays.stream(requests).filter(rpcRequest -> rpcRequest.opt().id().isPresent()).findAny().isPresent();
-        if(synchronousCall) {
+        RpcRequest[] requests;
+        try (JsonParser parser = this.jsonFactory.createParser(payloadBytes)) {
+            requests = new RpcRequestReader().readArray(parser);
+        } catch (IOException e) {
+            log.error("error reading rpc request", e);
             response.status(200);
-        } else {
-            response.status(204);
+            response.payload(PARSE_ERROR);
+            return;
         }
 
-        Future<List<RpcResponse>> futures = null;
+        if (isBatch && requests.length == 0) {
+            response.status(200);
+            response.payload(EMPTY_BATCH_ERROR);
+            return;
+        }
+
+        boolean synchronousCall = Arrays.stream(requests)
+                .anyMatch(rpcRequest -> rpcRequest.opt().id().isPresent());
+        response.status(synchronousCall ? 200 : 204);
+
+        Future<List<RpcResponse>> future;
         try {
-            futures = this.executeCalls(requests);
+            future = this.executeCalls(requests);
         } catch (BusyException e) {
             response.status(200);
             response.payload(INTERNAL_ERROR);
             return;
         }
 
-        if(synchronousCall) {
+        if (synchronousCall) {
             List<RpcResponse> rpcResponses;
             try {
-                rpcResponses = futures.get();
-            } catch (InterruptedException | ExecutionException e) {
+                rpcResponses = future.get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                response.payload(INTERNAL_ERROR);
+                return;
+            } catch (ExecutionException e) {
                 response.payload(INTERNAL_ERROR);
                 return;
             }
-            RpcResponseWriter writer = new RpcResponseWriter();
-            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-                try (JsonGenerator generator = this.jsonFactory.createGenerator(out)) {
-                    if (rpcResponses.size() > 1) {
-                        writer.writeArray(generator, rpcResponses.toArray(new RpcResponse[0]));
-                    } else {
-                        writer.write(generator, rpcResponses.get(0));
-                    }
-                    generator.flush();
-                    generator.close();
-                } catch (IOException e) {
-                    response.payload(INTERNAL_ERROR);
-                    return;
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try (JsonGenerator generator = this.jsonFactory.createGenerator(out)) {
+                RpcResponseWriter writer = new RpcResponseWriter();
+                if (isBatch) {
+                    writer.writeArray(generator, rpcResponses.toArray(new RpcResponse[0]));
+                } else {
+                    writer.write(generator, rpcResponses.get(0));
                 }
-                response.payload(out.toByteArray());
             } catch (IOException e) {
                 response.payload(INTERNAL_ERROR);
                 return;
             }
+            response.payload(out.toByteArray());
         }
     }
 
     private Future<List<RpcResponse>> executeCalls(RpcRequest[] requests) throws BusyException {
-        FutureTask<List<RpcResponse>> result = new FutureTask<List<RpcResponse>>(new Callable<List<RpcResponse>>() {
-            @Override
-            public List<RpcResponse> call() throws Exception {
-                List<RpcResponse> rpcResponses = new ArrayList<>(requests.length);
-                for (RpcRequest rpcRequest : requests) {
-                    rpcResponses.add(processRpcRequest(rpcRequest));
+        FutureTask<List<RpcResponse>> result = new FutureTask<>(() -> {
+            List<RpcResponse> rpcResponses = new ArrayList<>(requests.length);
+            for (RpcRequest rpcRequest : requests) {
+                RpcResponse resp = processRpcRequest(rpcRequest);
+                if (resp != null) {
+                    rpcResponses.add(resp);
                 }
-
-                return rpcResponses;
             }
+            return rpcResponses;
         });
         try {
             this.pool.submit(result);
@@ -156,66 +165,72 @@ public class JsonRpcProcessor implements Processor {
             log.error("error submitting RPC requests, call was rejected by pool", e);
             throw new BusyException("resource exhausted", e);
         }
-
         return result;
     }
 
     private RpcResponse processRpcRequest(RpcRequest rpcRequest) {
-        if(rpcRequest.opt().jsonrpc().isEmpty()) return INVALID_REQUEST_RESPONSE;
-        if(rpcRequest.opt().method().isEmpty()) return INVALID_REQUEST_RESPONSE;
-        if(! JSON_RPC_VERSION.equals(rpcRequest.jsonrpc())) return INVALID_REQUEST_RESPONSE;
+        boolean isNotification = rpcRequest.opt().id().isEmpty();
 
+        if (rpcRequest.opt().jsonrpc().isEmpty() || rpcRequest.opt().method().isEmpty()
+                || !JSON_RPC_VERSION.equals(rpcRequest.jsonrpc())) {
+            return isNotification ? null : errorResponse(rpcRequest.id(), -32600, "Invalid Request");
+        }
 
         Optional<RpcMethodDescriptor> methodDescriptor = this.descriptor.opt().methods().safe().stream()
-                .filter(descriptor -> descriptor.method().equals(rpcRequest.method()))
+                .filter(d -> d.method().equals(rpcRequest.method()))
                 .findFirst();
-        if(methodDescriptor.isPresent()) {
-            Object param = null;
-            try {
-                param = this.processParam(methodDescriptor.get(), rpcRequest.params());
-            } catch (ParamsProcessingException e) {
-                log.error("error processing method params " + param + " with descriptor " + methodDescriptor.get(), e);
-                return RpcResponse.builder().jsonrpc(JSON_RPC_VERSION).error(RpcError.builder()
-                                .code(-32603)
-                                .message("Internal Error")
-                        .build()).build();
-            }
+        if (methodDescriptor.isEmpty()) {
+            return isNotification ? null : errorResponse(rpcRequest.id(), -32601, "Method not found");
+        }
 
-            Object result = methodDescriptor.get().handler().apply(param);
+        Object param;
+        try {
+            param = this.processParam(methodDescriptor.get(), rpcRequest.params());
+        } catch (ParamsProcessingException e) {
+            log.error("error processing params {} with descriptor {}", rpcRequest.params(), methodDescriptor.get(), e);
+            return isNotification ? null : errorResponse(rpcRequest.id(), -32603, "Internal Error");
+        }
 
-            ObjectValue resultValue;
-            try {
-                resultValue = this.processResult(methodDescriptor.get(), result);
-            } catch (ResultProcessingException e) {
-                log.error("error processing method result " + result + " with descriptor " + methodDescriptor.get(), e);
-                return RpcResponse.builder().jsonrpc(JSON_RPC_VERSION).error(RpcError.builder()
-                        .code(-32603)
-                        .message("Internal Error")
-                        .build()).build();
-            }
+        Object result;
+        try {
+            result = methodDescriptor.get().handler().apply(param);
+        } catch (RuntimeException e) {
+            log.error("handler threw for method {}", rpcRequest.method(), e);
+            return isNotification ? null : errorResponse(rpcRequest.id(), -32603, "Internal Error");
+        }
+
+        if (isNotification) {
+            return null;
+        }
+
+        try {
             return RpcResponse.builder()
                     .jsonrpc(JSON_RPC_VERSION)
-                    .result(resultValue)
+                    .result(this.processResult(methodDescriptor.get(), result))
                     .id(rpcRequest.id())
                     .build();
-        } else {
-            return METHOD_NOT_FOUND_RESPONSE;
+        } catch (ResultProcessingException e) {
+            log.error("error processing result {} with descriptor {}", result, methodDescriptor.get(), e);
+            return errorResponse(rpcRequest.id(), -32603, "Internal Error");
         }
+    }
+
+    private RpcResponse errorResponse(String id, int code, String message) {
+        return RpcResponse.builder()
+                .jsonrpc(JSON_RPC_VERSION)
+                .id(id)
+                .error(RpcError.builder().code(code).message(message).build())
+                .build();
     }
 
     private Object processParam(RpcMethodDescriptor rpcMethodDescriptor, ObjectValue params) throws ParamsProcessingException {
         try {
             Class paramsValue = rpcMethodDescriptor.paramsValue();
-
             Method fromMap = paramsValue.getMethod("fromMap", Map.class);
             fromMap.setAccessible(true);
-
-            Object builder = fromMap.invoke(paramsValue, params.toMap());
-
-
+            Object builder = fromMap.invoke(paramsValue, params != null ? params.toMap() : Map.of());
             Method build = builder.getClass().getMethod("build");
             build.setAccessible(true);
-
             return build.invoke(builder);
         } catch (Throwable e) {
             throw new ParamsProcessingException("error processing params : " + params, e);
@@ -234,32 +249,17 @@ public class JsonRpcProcessor implements Processor {
     }
 
     private class ParamsProcessingException extends Exception {
-        public ParamsProcessingException(String message) {
-            super(message);
-        }
-
-        public ParamsProcessingException(String message, Throwable cause) {
-            super(message, cause);
-        }
+        public ParamsProcessingException(String message) { super(message); }
+        public ParamsProcessingException(String message, Throwable cause) { super(message, cause); }
     }
 
     private class ResultProcessingException extends Exception {
-        public ResultProcessingException(String message) {
-            super(message);
-        }
-
-        public ResultProcessingException(String message, Throwable cause) {
-            super(message, cause);
-        }
+        public ResultProcessingException(String message) { super(message); }
+        public ResultProcessingException(String message, Throwable cause) { super(message, cause); }
     }
 
     private class BusyException extends Exception {
-        public BusyException(String message) {
-            super(message);
-        }
-
-        public BusyException(String message, Throwable cause) {
-            super(message, cause);
-        }
+        public BusyException(String message) { super(message); }
+        public BusyException(String message, Throwable cause) { super(message, cause); }
     }
 }

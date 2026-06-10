@@ -1,0 +1,123 @@
+---
+McpRequest:
+  jsonrpc: string
+  method: string
+  params:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+  id: string
+
+McpResponse:
+  jsonrpc: string
+  result:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+  error: $McpError
+  id: string
+
+McpError:
+  code: int
+  message: string
+  data:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+
+McpNotification:
+  jsonrpc: string
+  method: string
+  params:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+
+ClientInfo:
+  name: string
+  version: string
+
+ServerInfo:
+  name: string
+  version: string
+
+InitializeParams:
+  protocolVersion: string
+  capabilities:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+  clientInfo: $ClientInfo
+
+InitializeResult:
+  protocolVersion: string
+  capabilities:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+  serverInfo: $ServerInfo
+
+ToolContent:
+  type:
+    $enum: text, image, resource
+  text: string
+
+CallToolParams:
+  name: string
+  arguments:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+
+CallToolResult:
+  content:
+    $list: $ToolContent
+  isError: bool
+
+Tool:
+  name: string
+  description: string
+  inputSchema:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+
+ListToolsResult:
+  tools:
+    $list: $Tool
+
+Resource:
+  uri: string
+  name: string
+  mimeType: string
+
+ResourceContent:
+  uri: string
+  mimeType: string
+  text: string
+
+ReadResourceParams:
+  uri: string
+
+ReadResourceResult:
+  contents:
+    $list: $ResourceContent
+
+ListResourcesResult:
+  resources:
+    $list: $Resource
+
+PromptArgument:
+  name: string
+  description: string
+  required: bool
+
+Prompt:
+  name: string
+  description: string
+  arguments:
+    $list: $PromptArgument
+
+GetPromptParams:
+  name: string
+  arguments:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+
+PromptMessage:
+  role:
+    $enum: user, assistant
+  content:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+
+GetPromptResult:
+  description: string
+  messages:
+    $list: $PromptMessage
+
+ListPromptsResult:
+  prompts:
+    $list: $Prompt

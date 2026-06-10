@@ -1,0 +1,62 @@
+@startuml MCP Streamable HTTP Flow
+
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 5
+skinparam sequenceParticipant underline
+
+participant "MCP Client" as Client
+participant "McpProcessor" as Processor
+participant "McpServerDescriptor\n(tool handlers)" as Descriptor
+participant "Session Map\n(sessionId → SseChannel)" as Sessions
+
+== Initialisation ==
+
+Client -> Processor : POST /mcp\n{ method: "initialize", params: {...} }
+activate Processor
+Processor -> Sessions : create session\ngenerate sessionId
+Processor --> Client : 200 JSON\n{ result: InitializeResult }\nMcp-Session-Id: <id>
+deactivate Processor
+
+== Ouverture du canal SSE ==
+
+Client -> Processor : GET /mcp\nAccept: text/event-stream\nMcp-Session-Id: <id>
+activate Processor
+Processor -> Processor : response.openSse()
+Processor -> Sessions : register SseChannel\nfor sessionId
+Processor --> Client : 200 text/event-stream\n(connexion maintenue)
+
+loop keep-alive
+    Processor --> Client : event: ping\ndata: {}
+end
+
+== Appel d'outil long (réponse asynchrone) ==
+
+Client -> Processor : POST /mcp\n{ method: "tools/call", params: {...} }\nMcp-Session-Id: <id>
+activate Processor
+Processor -> Descriptor : handler.apply(CallToolParams)
+Processor --> Client : 202 Accepted
+note right : handler toujours en cours\nau-delà du timeout sync
+Descriptor --> Processor : CallToolResult
+Processor -> Sessions : lookup SseChannel
+Processor --> Client : event: message\ndata: { result: CallToolResult }
+deactivate Processor
+
+== Appel d'outil court (réponse synchrone) ==
+
+Client -> Processor : POST /mcp\n{ method: "tools/call", params: {...} }\nMcp-Session-Id: <id>
+activate Processor
+Processor -> Descriptor : handler.apply(CallToolParams)
+Descriptor --> Processor : CallToolResult
+Processor --> Client : 200 JSON\n{ result: CallToolResult }
+deactivate Processor
+
+== Fermeture de session ==
+
+Client -> Processor : DELETE /mcp\nMcp-Session-Id: <id>
+activate Processor
+Processor -> Sessions : lookup + remove SseChannel
+Processor -> Processor : channel.close()
+Processor --> Client : 200 OK
+deactivate Processor
+
+@enduml
