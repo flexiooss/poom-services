@@ -135,6 +135,21 @@ class McpProcessorValidationTest {
         assertThat(body, containsString("\"tools\""));
     }
 
+    @Test
+    void whenInitializeWithNumericId__thenSuccessAndIdEchoedAsString() throws Exception {
+        TestResponseDeleguate response = new TestResponseDeleguate();
+        processor.process(
+                TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
+                        .contentType("application/json")
+                        .payload(asStream("{\"jsonrpc\":\"2.0\",\"method\":\"initialize\",\"params\":{},\"id\":1}"))
+                        .build(),
+                response
+        );
+        assertThat(response.status(), is(200));
+        String body = new String(response.payload());
+        assertThat(body, containsString("\"id\":\"1\""));
+    }
+
     private ByteArrayInputStream asStream(String json) {
         return new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
     }

@@ -7,6 +7,7 @@ import org.codingmatters.poom.mcp.McpServerDescriptor;
 import org.codingmatters.poom.mcp.types.McpError;
 import org.codingmatters.poom.mcp.types.McpRequest;
 import org.codingmatters.poom.mcp.types.McpResponse;
+import org.codingmatters.poom.mcp.types.json.McpIdNormalizingParser;
 import org.codingmatters.poom.mcp.types.json.McpRequestReader;
 import org.codingmatters.poom.mcp.types.json.McpResponseWriter;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
@@ -103,7 +104,7 @@ public class McpProcessor implements Processor {
         }
 
         McpRequest mcpRequest;
-        try (JsonParser parser = jsonFactory.createParser(request.payload())) {
+        try (JsonParser parser = new McpIdNormalizingParser(jsonFactory.createParser(request.payload()))) {
             mcpRequest = new McpRequestReader().read(parser);
         } catch (IOException e) {
             writeJsonRpcError(response, null, -32700, "Parse error");
