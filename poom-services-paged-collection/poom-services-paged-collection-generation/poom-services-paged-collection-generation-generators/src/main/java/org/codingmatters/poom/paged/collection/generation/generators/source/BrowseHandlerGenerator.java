@@ -10,6 +10,8 @@ import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryQueryParsingException;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
+import org.codingmatters.poom.services.domain.entities.PagedEntityList;
+import org.codingmatters.poom.services.support.paging.Range;
 import org.codingmatters.poom.services.support.paging.Rfc7233Pager;
 
 import javax.lang.model.element.Modifier;
@@ -98,16 +100,20 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
                     .addStatement("return this.unexpectedError(token)")
                 .endControlFlow()
 
-                .beginControlFlow("if(pager.lister() == null)")
+                .beginControlFlow("if(pager.maxPageSize() <= 0)")
                     .addStatement("$T token = log.tokenized().error($S, this.provider.getClass(), request)",
-                            String.class, "provider {} implementation breaks contract, pager lister cannot be null, request was : {}"
+                            String.class, "provider {} implementation breaks contract, pager max page size  cannot be lower or equal to 0, request was : {}"
                     )
                     .addStatement("return this.unexpectedError(token)")
                 .endControlFlow()
 
-                .beginControlFlow("if(pager.maxPageSize() <= 0)")
+                // cursor path — inserted before lister check
+                .add(this.orderedBrowsingBlock())
+
+                // offset path — lister null check only reached when no cursor headers
+                .beginControlFlow("if(pager.lister() == null)")
                     .addStatement("$T token = log.tokenized().error($S, this.provider.getClass(), request)",
-                            String.class, "provider {} implementation breaks contract, pager max page size  cannot be lower or equal to 0, request was : {}"
+                            String.class, "provider {} implementation breaks contract, pager lister cannot be null, request was : {}"
                     )
                     .addStatement("return this.unexpectedError(token)")
                 .endControlFlow()
@@ -184,6 +190,118 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
                 .build();
     }
 
+    private CodeBlock orderedBrowsingBlock() {
+        return CodeBlock.builder()
+            .beginControlFlow(
+                "if(request.opt().since().isPresent() || request.opt().before().isPresent() || request.opt().initOrdered().isPresent())")
+
+                .addStatement("$T orderedLister = pager.orderedLister()", this.orderedListerClass())
+                .beginControlFlow("if(orderedLister == null)")
+                    .addStatement("$T token = log.tokenized().info($S, this.provider.getClass(), request)",
+                        String.class, "provider {} does not support ordered browsing, request was : {}")
+                    .addStatement("return this.orderedBrowsingNotAllowed(token)")
+                .endControlFlow()
+
+                .addStatement("$T range = $T.fromRequestedRange(request.range(), pager.maxPageSize(), pager.defaultPageSize())",
+                    Range.class, Range.class)
+                .beginControlFlow("if(! range.isValid())")
+                    .addStatement("$T token = log.tokenized().info($S, request)",
+                        String.class, "illegal range for ordered browsing, request was {}")
+                    .addStatement("return $T.builder().status416($T.builder()" +
+                        ".acceptRange($T.format($S, pager.unit(), pager.maxPageSize()))" +
+                        ".contentRange($T.format($S, pager.unit()))" +
+                        ".payload($T.builder()" +
+                            ".code($T.Code.ILLEGAL_RANGE_SPEC)" +
+                            ".token(token)" +
+                            ".messages(" +
+                                "$T.builder().key($S).args(request.range(), request.filter(), request.orderBy()).build()," +
+                                "$T.builder().key($S).args(token).build()" +
+                            ")" +
+                            ".build())" +
+                        ".build()).build()",
+                        this.className(this.collectionDescriptor.browse().responseValueObject()),
+                        this.relatedClassName("Status416", this.collectionDescriptor.browse().responseValueObject()),
+                        String.class, "%s %d",
+                        String.class, "%s */*",
+                        this.className(this.collectionDescriptor.types().error()),
+                        this.className(this.collectionDescriptor.types().error()),
+                        this.className(this.collectionDescriptor.types().message()), MessageKeys.ILLEGAL_SEARCH_QUERY,
+                        this.className(this.collectionDescriptor.types().message()), MessageKeys.SEE_LOGS_WITH_TOKEN
+                    )
+                .endControlFlow()
+
+                .addStatement("$T orderedPage", this.orderedPageClass())
+                .beginControlFlow("try")
+                    .addStatement("$T<$T> query = this.parseQuery(request)", Optional.class, PropertyQuery.class)
+                    .beginControlFlow("if(request.opt().initOrdered().isPresent())")
+                        .beginControlFlow("if($S.equals(request.initOrdered()))", "LATEST")
+                            .addStatement("orderedPage = orderedLister.initLatest(query, range.start(), range.end())")
+                        .nextControlFlow("else")
+                            .addStatement("orderedPage = orderedLister.initOldest(query, range.start(), range.end())")
+                        .endControlFlow()
+                    .nextControlFlow("else if(request.opt().since().isPresent())")
+                        .addStatement("orderedPage = orderedLister.since(request.since(), $T.ofNullable(request.before()), query, range.start(), range.end())",
+                            Optional.class)
+                    .nextControlFlow("else")
+                        .addStatement("orderedPage = orderedLister.before(request.before(), query, range.start(), range.end())")
+                    .endControlFlow()
+                .nextControlFlow("catch($T e)", RepositoryQueryParsingException.class)
+                    .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "query parsing failed during ordered browsing : ")
+                    .addStatement("return this.queryParsingError(token)")
+                .nextControlFlow("catch($T e)", RepositoryAccessDeniedException.class)
+                    .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "repository access denied during ordered browsing : ")
+                    .addStatement("return this.accessDeniedError(token)")
+                .nextControlFlow("catch($T e)", RepositoryException.class)
+                    .addStatement("$T token = log.tokenized().error($S + request, e)", String.class, "unexpected error during ordered browsing : ")
+                    .addStatement("return this.unexpectedError(token)")
+                .endControlFlow()
+
+                .addStatement("$T orderedList = orderedPage.list()", this.entityListClass())
+                .addStatement("$T orderedContentRange = $T.format($S, pager.unit(), orderedList.startIndex(), orderedList.endIndex(), orderedList.total())",
+                    String.class, String.class, "%s %d-%d/%d")
+                .addStatement("$T orderedAcceptRange = $T.format($S, pager.unit(), pager.maxPageSize())",
+                    String.class, String.class, "%s %d")
+
+                .beginControlFlow("if(orderedList.endIndex() < orderedList.total() - 1)")
+                    .addStatement("$T orderedStatus206Builder = $T.builder()" +
+                        ".acceptRange(orderedAcceptRange)" +
+                        ".contentRange(orderedContentRange)" +
+                        ".xEntityType(pager.unit())" +
+                        ".payload(orderedList.valueList())",
+                        this.relatedClassName("Status206", this.collectionDescriptor.browse().responseValueObject()).nestedClass("Builder"),
+                        this.relatedClassName("Status206", this.collectionDescriptor.browse().responseValueObject())
+                    )
+                    .beginControlFlow("if(orderedPage.since().isPresent())")
+                        .addStatement("orderedStatus206Builder.since(orderedPage.since().get())")
+                    .endControlFlow()
+                    .beginControlFlow("if(orderedPage.before().isPresent())")
+                        .addStatement("orderedStatus206Builder.before(orderedPage.before().get())")
+                    .endControlFlow()
+                    .addStatement("return $T.builder().status206(orderedStatus206Builder.build()).build()",
+                        this.className(this.collectionDescriptor.browse().responseValueObject()))
+                .nextControlFlow("else")
+                    .addStatement("$T orderedStatus200Builder = $T.builder()" +
+                        ".acceptRange(orderedAcceptRange)" +
+                        ".contentRange(orderedContentRange)" +
+                        ".xEntityType(pager.unit())" +
+                        ".payload(orderedList.valueList())",
+                        this.relatedClassName("Status200", this.collectionDescriptor.browse().responseValueObject()).nestedClass("Builder"),
+                        this.relatedClassName("Status200", this.collectionDescriptor.browse().responseValueObject())
+                    )
+                    .beginControlFlow("if(orderedPage.since().isPresent())")
+                        .addStatement("orderedStatus200Builder.since(orderedPage.since().get())")
+                    .endControlFlow()
+                    .beginControlFlow("if(orderedPage.before().isPresent())")
+                        .addStatement("orderedStatus200Builder.before(orderedPage.before().get())")
+                    .endControlFlow()
+                    .addStatement("return $T.builder().status200(orderedStatus200Builder.build()).build()",
+                        this.className(this.collectionDescriptor.browse().responseValueObject()))
+                .endControlFlow()
+
+            .endControlFlow()
+            .build();
+    }
+
     private Iterable<MethodSpec> privateMethods() {
         return Arrays.asList(
                 MethodSpec.methodBuilder("parseQuery").addModifiers(Modifier.PRIVATE)
@@ -200,7 +318,8 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
                 this.errorResponseMethod("unexpectedError", "Status500", "UNEXPECTED_ERROR"),
                 this.errorResponseMethod("queryParsingError", "Status400", "UNEXPECTED_ERROR"),
                 this.errorResponseMethod("accessDeniedError", "Status403", "UNAUTHORIZED"),
-                this.errorResponseMethod("browsingNotAllowed", "Status405", "COLLECTION_BROWSING_NOT_ALLOWED")
+                this.errorResponseMethod("browsingNotAllowed", "Status405", "COLLECTION_BROWSING_NOT_ALLOWED"),
+                this.errorResponseMethod("orderedBrowsingNotAllowed", "Status400", "BAD_REQUEST")
         );
     }
 
@@ -214,6 +333,27 @@ public class BrowseHandlerGenerator extends PagedCollectionHandlerGenerator {
     private ParameterizedTypeName pageClass() {
         return ParameterizedTypeName.get(
                 ClassName.get(Rfc7233Pager.Page.class),
+                this.className(this.collectionDescriptor.types().entity())
+        );
+    }
+
+    private ParameterizedTypeName orderedListerClass() {
+        return ParameterizedTypeName.get(
+                ClassName.get(PagedCollectionAdapter.OrderedLister.class),
+                this.className(this.collectionDescriptor.types().entity())
+        );
+    }
+
+    private ParameterizedTypeName orderedPageClass() {
+        return ParameterizedTypeName.get(
+                ClassName.get(PagedCollectionAdapter.OrderedPage.class),
+                this.className(this.collectionDescriptor.types().entity())
+        );
+    }
+
+    private ParameterizedTypeName entityListClass() {
+        return ParameterizedTypeName.get(
+                ClassName.get(PagedEntityList.class),
                 this.className(this.collectionDescriptor.types().entity())
         );
     }
