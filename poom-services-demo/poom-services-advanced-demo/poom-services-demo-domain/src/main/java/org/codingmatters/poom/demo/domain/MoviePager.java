@@ -36,7 +36,7 @@ public class MoviePager implements PagedCollectionAdapter.Pager<Movie>, EntityLi
 
     @Override
     public PagedCollectionAdapter.OrderedLister<Movie> orderedLister() {
-        return new MovieOrderedLister(this.repository);
+        return new MovieOrderedLister(this.repository, this.category.orElse(null));
     }
 
     @Override

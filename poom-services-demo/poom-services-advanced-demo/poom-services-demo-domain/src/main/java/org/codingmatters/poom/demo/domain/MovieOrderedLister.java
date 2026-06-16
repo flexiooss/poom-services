@@ -19,11 +19,19 @@ public class MovieOrderedLister implements PagedCollectionAdapter.OrderedLister<
 
     private static final String ASC_SORT = "facts.releaseDate asc, id asc";
     private static final String DESC_SORT = "facts.releaseDate desc, id desc";
+    // Fetch-all limit: sufficient for this demo; not intended for production use
+    private static final int FETCH_LIMIT = 9_999;
 
     private final Repository<Movie, PropertyQuery> repository;
+    private final Optional<Movie.Category> category;
 
     public MovieOrderedLister(Repository<Movie, PropertyQuery> repository) {
+        this(repository, null);
+    }
+
+    public MovieOrderedLister(Repository<Movie, PropertyQuery> repository, Movie.Category category) {
         this.repository = repository;
+        this.category = Optional.ofNullable(category);
     }
 
     @Override
@@ -96,8 +104,24 @@ public class MovieOrderedLister implements PagedCollectionAdapter.OrderedLister<
 
     private List<Entity<Movie>> fetchAll(String sort, Optional<PropertyQuery> userQuery) throws RepositoryException {
         PropertyQuery.Builder builder = PropertyQuery.builder().sort(sort);
-        userQuery.flatMap(q -> q.opt().filter()).filter(f -> !f.isEmpty()).ifPresent(builder::filter);
-        return new ArrayList<>(this.repository.search(builder.build(), 0, 9999));
+        String filter = buildFilter(userQuery);
+        if (!filter.isEmpty()) {
+            builder.filter(filter);
+        }
+        return new ArrayList<>(this.repository.search(builder.build(), 0, FETCH_LIMIT));
+    }
+
+    private String buildFilter(Optional<PropertyQuery> userQuery) {
+        String categoryFilter = this.category
+            .map(c -> "category == '" + c.name() + "'")
+            .orElse("");
+        String userFilter = userQuery
+            .flatMap(q -> q.opt().filter())
+            .filter(f -> !f.isEmpty())
+            .orElse("");
+        if (categoryFilter.isEmpty()) return userFilter;
+        if (userFilter.isEmpty()) return categoryFilter;
+        return categoryFilter + " && (" + userFilter + ")";
     }
 
     private String cursorFor(Entity<Movie> entity) {

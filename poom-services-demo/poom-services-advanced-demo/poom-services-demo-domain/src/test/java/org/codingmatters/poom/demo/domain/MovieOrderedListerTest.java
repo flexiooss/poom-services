@@ -203,4 +203,49 @@ public class MovieOrderedListerTest {
             lister.since(page1.since().get(), Optional.empty(), Optional.empty(), 0, 4);
         assertThat(values(page2), contains(M6, M7, M8, M9, M10));
     }
+
+    // ---- category scoping ----
+
+    @Test
+    public void givenCategoryFilter__whenInitLatest__thenOnlyCategoryMoviesReturned() throws Exception {
+        // Add a HORROR movie to the repository
+        Movie horrorMovie = Movie.builder()
+            .id("h-01")
+            .title("Horror Movie")
+            .category(Movie.Category.HORROR)
+            .facts(f -> f.releaseDate(LocalDate.parse("2012-05-01")))
+            .build();
+        this.repository.createWithId(horrorMovie.id(), horrorMovie);
+
+        // Category-scoped lister should only return HORROR movies
+        MovieOrderedLister horrorLister = new MovieOrderedLister(this.repository, Movie.Category.HORROR);
+        PagedCollectionAdapter.OrderedPage<Movie> page = horrorLister.initLatest(Optional.empty(), 0, 49);
+        assertThat(values(page), contains(horrorMovie));
+    }
+
+    @Test
+    public void givenCategoryFilter__whenSince__thenOnlyCategoryMoviesReturned() throws Exception {
+        // Add two HORROR movies
+        Movie horror1 = Movie.builder()
+            .id("h-01")
+            .title("Horror 1")
+            .category(Movie.Category.HORROR)
+            .facts(f -> f.releaseDate(LocalDate.parse("2012-05-01")))
+            .build();
+        Movie horror2 = Movie.builder()
+            .id("h-02")
+            .title("Horror 2")
+            .category(Movie.Category.HORROR)
+            .facts(f -> f.releaseDate(LocalDate.parse("2018-09-15")))
+            .build();
+        this.repository.createWithId(horror1.id(), horror1);
+        this.repository.createWithId(horror2.id(), horror2);
+
+        // since cursor on horror1 should return horror2, not any REGULAR movies
+        String sinceCursor = horror1.facts().releaseDate().toString() + "|" + horror1.id();
+        MovieOrderedLister horrorLister = new MovieOrderedLister(this.repository, Movie.Category.HORROR);
+        PagedCollectionAdapter.OrderedPage<Movie> page =
+            horrorLister.since(sinceCursor, Optional.empty(), Optional.empty(), 0, 49);
+        assertThat(values(page), contains(horror2));
+    }
 }
