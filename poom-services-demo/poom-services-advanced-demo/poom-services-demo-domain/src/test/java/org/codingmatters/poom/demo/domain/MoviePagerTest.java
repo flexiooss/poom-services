@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 
 public class MoviePagerTest {
@@ -105,6 +106,14 @@ public class MoviePagerTest {
                         .filter("title == 'Shining'")
                         .build(), 0, 1000).valueList(),
                 contains(HORROR_MOVIE_2)
+        );
+    }
+
+    @Test
+    public void orderedListerIsMovieOrderedLister() {
+        assertThat(
+            new MoviePager(this.repository, null).orderedLister(),
+            is(instanceOf(MovieOrderedLister.class))
         );
     }
 }

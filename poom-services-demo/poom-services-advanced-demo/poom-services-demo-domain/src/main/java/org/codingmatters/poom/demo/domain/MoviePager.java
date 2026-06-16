@@ -35,6 +35,11 @@ public class MoviePager implements PagedCollectionAdapter.Pager<Movie>, EntityLi
     }
 
     @Override
+    public PagedCollectionAdapter.OrderedLister<Movie> orderedLister() {
+        return new MovieOrderedLister(this.repository);
+    }
+
+    @Override
     public PagedEntityList<Movie> all(long startIndex, long endIndex) throws RepositoryException {
         if(this.category.isPresent()) {
             return this.repository.search(PropertyQuery.builder().filter(this.categoryFilter()).build(), startIndex, endIndex);
