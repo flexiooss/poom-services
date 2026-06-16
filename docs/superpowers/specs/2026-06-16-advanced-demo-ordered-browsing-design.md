@@ -55,35 +55,43 @@ private String[] parseCursor(String cursor) {
 
 ---
 
-## Section 2 — Filtres PropertyQuery
+## Section 2 — Stratégie de filtrage par curseur
 
-Le filtre curseur est exprimé en PropertyQuery DSL. Pour les dates ISO, la comparaison lexicographique === comparaison chronologique, donc les opérateurs `<`/`>` fonctionnent directement sur les `LocalDate` via `toString()`.
+Le filtrage par curseur est effectué **en Java** (pas via PropertyQuery) : `InMemoryRepositoryWithPropertyQuery` normalise les `LocalDate` en `LocalDateTime` avant comparaison, rendant la comparaison contre un string literal (`'YYYY-MM-DD'`) impossible (ClassCastException).
 
-### Filtre `since(cursor)` — éléments postérieurs au curseur
+### Approche : fetch-all + filtre Java
 
-```
-(facts.releaseDate > 'D') || (facts.releaseDate == 'D' && id > 'I')
-```
+1. Fetch tous les films via `repository.search(sortQuery, 0, 9999)` — avec le sort PropertyQuery et le filtre utilisateur éventuel
+2. Filtre curseur appliqué en Java sur la liste retournée
 
-Sort : `facts.releaseDate asc, id asc`
-
-### Filtre `before(cursor)` — éléments antérieurs au curseur
-
-```
-(facts.releaseDate < 'D') || (facts.releaseDate == 'D' && id < 'I')
-```
-
-Sort : `facts.releaseDate desc, id desc`
-
-### Merge avec user query (optionnel)
-
-Si un `PropertyQuery` utilisateur est présent, le filtre curseur le précède avec `&&` :
+### Prédicats Java
 
 ```java
-String mergedFilter = cursorFilter + " && (" + userQuery.filter() + ")";
+// Vrai si movie est strictement après cursor (date > D, ou date == D && id > I)
+boolean isAfterCursor(Movie movie, String[] cursorParts) {
+    LocalDate cursorDate = LocalDate.parse(cursorParts[0]);
+    int dateCmp = movie.facts().releaseDate().compareTo(cursorDate);
+    if (dateCmp != 0) return dateCmp > 0;
+    return movie.id().compareTo(cursorParts[1]) > 0;
+}
+
+// Vrai si movie est strictement avant cursor
+boolean isBeforeCursor(Movie movie, String[] cursorParts) {
+    LocalDate cursorDate = LocalDate.parse(cursorParts[0]);
+    int dateCmp = movie.facts().releaseDate().compareTo(cursorDate);
+    if (dateCmp != 0) return dateCmp < 0;
+    return movie.id().compareTo(cursorParts[1]) < 0;
+}
 ```
 
-Le sort est toujours celui du curseur (pas de sort utilisateur en mode cursor).
+### Sort PropertyQuery (pour repository.search)
+
+- Oldest-to-newest : `"facts.releaseDate asc, id asc"`
+- Newest-to-oldest : `"facts.releaseDate desc, id desc"`
+
+### Filtre utilisateur (optionnel)
+
+Si un `PropertyQuery` utilisateur est présent, son `filter()` est passé à `repository.search()` — le sort est toujours celui du curseur.
 
 ---
 
