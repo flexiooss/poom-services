@@ -139,7 +139,7 @@ request reçu
 
 **Détails d'implémentation :**
 
-- Le header `Range` reste actif en mode curseur pour contrôler la taille de page. On utilise `Range.fromRequestedRange()` directement pour extraire `start`/`end` sans instancier le `Rfc7233Pager` complet.
+- Le header `Range` reste actif en mode curseur pour contrôler la taille de page. On utilise `Range.fromRequestedRange()` directement pour extraire `start`/`end` sans instancier le `Rfc7233Pager` complet. Si le range est invalide (`Range.isValid() == false`), on retourne 416 avec `acceptRange` — même comportement que le chemin offset.
 - `contentRange` et `acceptRange` sont construits depuis le `PagedEntityList` de `OrderedPage.list()` — même format que le chemin offset.
 - Les exceptions `RepositoryException` → 500, `RepositoryAccessDeniedException` → 403, `RepositoryQueryParsingException` → 400 : même gestion que le chemin offset.
 - Priorité : `initOrdered` > `since` > `before` si plusieurs sont présents simultanément.
