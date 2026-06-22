@@ -46,7 +46,7 @@ public class MovieOrderedLister implements PagedCollectionAdapter.OrderedLister<
         return orderedPage(
             toPagedList(page, from, to, total),
             Optional.of(cursorFor(page.get(page.size() - 1))),
-            Optional.of(cursorFor(page.get(0)))
+            from > 0 ? Optional.of(cursorFor(page.get(0))) : Optional.empty()
         );
     }
 
@@ -124,9 +124,18 @@ public class MovieOrderedLister implements PagedCollectionAdapter.OrderedLister<
         return categoryFilter + " && (" + userFilter + ")";
     }
 
+    // Movies without facts.releaseDate are treated as newest (null-last, consistent with repository ASC sort).
+    private static final LocalDate NULL_DATE_SENTINEL = LocalDate.of(9999, 12, 31);
+
+    private LocalDate releaseDate(Movie movie) {
+        return (movie.facts() != null && movie.facts().releaseDate() != null)
+                ? movie.facts().releaseDate()
+                : NULL_DATE_SENTINEL;
+    }
+
     private String cursorFor(Entity<Movie> entity) {
         Movie m = entity.value();
-        return m.facts().releaseDate().toString() + "|" + m.id();
+        return releaseDate(m) + "|" + m.id();
     }
 
     private String[] parseCursor(String cursor) {
@@ -135,14 +144,14 @@ public class MovieOrderedLister implements PagedCollectionAdapter.OrderedLister<
 
     private boolean isAfterCursor(Movie movie, String[] cursorParts) {
         LocalDate cursorDate = LocalDate.parse(cursorParts[0]);
-        int dateCmp = movie.facts().releaseDate().compareTo(cursorDate);
+        int dateCmp = releaseDate(movie).compareTo(cursorDate);
         if (dateCmp != 0) return dateCmp > 0;
         return movie.id().compareTo(cursorParts[1]) > 0;
     }
 
     private boolean isBeforeCursor(Movie movie, String[] cursorParts) {
         LocalDate cursorDate = LocalDate.parse(cursorParts[0]);
-        int dateCmp = movie.facts().releaseDate().compareTo(cursorDate);
+        int dateCmp = releaseDate(movie).compareTo(cursorDate);
         if (dateCmp != 0) return dateCmp < 0;
         return movie.id().compareTo(cursorParts[1]) < 0;
     }

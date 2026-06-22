@@ -6,8 +6,8 @@ import org.codingmatters.poom.services.domain.entities.Entity;
 import org.codingmatters.poom.services.domain.property.query.PropertyQuery;
 import org.codingmatters.poom.services.domain.repositories.Repository;
 import org.codingmatters.poom.services.domain.repositories.inmemory.InMemoryRepositoryWithPropertyQuery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -44,7 +44,7 @@ public class MovieOrderedListerTest {
     private Repository<Movie, PropertyQuery> repository;
     private MovieOrderedLister lister;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.repository = InMemoryRepositoryWithPropertyQuery.validating(Movie.class);
         // Insert shuffled — ordering must come from sort, not insertion order
@@ -91,6 +91,13 @@ public class MovieOrderedListerTest {
     public void whenInitLatest__thenBeforeCursorIsOldest() throws Exception {
         PagedCollectionAdapter.OrderedPage<Movie> page = lister.initLatest(Optional.empty(), 0, 4);
         assertThat(page.before(), is(Optional.of(cursor(M6))));
+    }
+
+    @Test
+    public void whenInitLatest__andAllFitInPage__thenBeforeCursorIsEmpty() throws Exception {
+        // page larger than collection → from == 0 → nothing older exists outside the page
+        PagedCollectionAdapter.OrderedPage<Movie> page = lister.initLatest(Optional.empty(), 0, 49);
+        assertThat(page.before(), is(Optional.empty()));
     }
 
     @Test
@@ -202,6 +209,40 @@ public class MovieOrderedListerTest {
         PagedCollectionAdapter.OrderedPage<Movie> page2 =
             lister.since(page1.since().get(), Optional.empty(), Optional.empty(), 0, 4);
         assertThat(values(page2), contains(M6, M7, M8, M9, M10));
+    }
+
+    // ---- null releaseDate tolerance ----
+
+    @Test
+    void givenMovieWithNoFacts__whenSince__thenNoNPEAndNullDateMovieAppearsAfterDatedMovies() throws Exception {
+        // Movies without facts.releaseDate use sentinel 9999-12-31 (null-last, consistent with repository ASC sort).
+        // since(cursor of a 2020 movie) → null-date movie appears in results (9999-12-31 > 2020-06-01).
+        Repository<Movie, PropertyQuery> repo = InMemoryRepositoryWithPropertyQuery.validating(Movie.class);
+        Movie withDate    = movie("dated",   "2020-06-01");
+        Movie withoutDate = Movie.builder().id("nodates").title("No Facts Movie").category(Movie.Category.REGULAR).build();
+        repo.createWithId(withDate.id(), withDate);
+        repo.createWithId(withoutDate.id(), withoutDate);
+
+        String sinceCursor = withDate.facts().releaseDate() + "|" + withDate.id();
+        PagedCollectionAdapter.OrderedPage<Movie> page =
+            new MovieOrderedLister(repo).since(sinceCursor, Optional.empty(), Optional.empty(), 0, 49);
+        assertThat(values(page), contains(withoutDate));
+        assertThat(values(page), not(hasItem(withDate)));
+    }
+
+    @Test
+    void givenMovieWithNoFacts__whenInitOldest__thenNullDateMovieAppearsLast() throws Exception {
+        // InMemoryRepository sorts nulls LAST in ASC order — null-date movies appear at end of initOldest.
+        Repository<Movie, PropertyQuery> repo = InMemoryRepositoryWithPropertyQuery.validating(Movie.class);
+        Movie withDate    = movie("dated",   "2020-06-01");
+        Movie withoutDate = Movie.builder().id("aaaa-nodates").title("No Facts Movie").category(Movie.Category.REGULAR).build();
+        repo.createWithId(withDate.id(), withDate);
+        repo.createWithId(withoutDate.id(), withoutDate);
+
+        PagedCollectionAdapter.OrderedPage<Movie> page = new MovieOrderedLister(repo).initOldest(Optional.empty(), 0, 49);
+        List<Movie> movies = values(page);
+        assertThat(movies.get(0), is(withDate));      // 2020 sorts before null (null-last ASC)
+        assertThat(movies.get(1), is(withoutDate));
     }
 
     // ---- category scoping ----
