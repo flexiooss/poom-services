@@ -7,10 +7,22 @@
     <parent>
         <groupId>org.codingmatters.poom.demo</groupId>
         <artifactId>poom-services-advanced-demo</artifactId>
-        <version>1.290.0</version>
+        <version>1.291.0</version>
     </parent>
 
     <artifactId>poom-services-demo-processor</artifactId>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludedGroups>e2e</excludedGroups>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>

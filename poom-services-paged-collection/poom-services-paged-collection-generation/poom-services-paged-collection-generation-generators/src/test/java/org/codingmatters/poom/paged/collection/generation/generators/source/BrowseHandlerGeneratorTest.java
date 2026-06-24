@@ -4,6 +4,7 @@ import org.codingmatters.poom.generic.resource.domain.PagedCollectionAdapter;
 import org.codingmatters.poom.generic.resource.domain.PagerProvider;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestAdapter;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestData;
+import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestOrderedLister;
 import org.codingmatters.poom.paged.collection.generation.generators.source.test.TestPager;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryAccessDeniedException;
 import org.codingmatters.poom.services.domain.exceptions.RepositoryException;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -95,6 +97,12 @@ public class BrowseHandlerGeneratorTest {
         }
     };
 
+    private static final PagedEntityList<org.generated.api.types.Entity> EMPTY_LIST =
+        new PagedEntityList.DefaultPagedEntityList<>(0, 0, 0, new LinkedList<>());
+
+    private static final PagedEntityList<org.generated.api.types.Entity> FULL_LIST =
+        new PagedEntityList.DefaultPagedEntityList<>(0, 44, 45, new LinkedList<>());
+
 
     @Rule
     public TemporaryFolder dir = new TemporaryFolder();
@@ -123,6 +131,12 @@ public class BrowseHandlerGeneratorTest {
                 .get();
     }
 
+    private Function<NoParamsGetRequest, NoParamsGetResponse> handlerWithOrderedLister(
+            TestOrderedLister orderedLister) {
+        return this.handler((request) -> new TestAdapter(
+            new TestPager("Unit", ENTITY_LISTER, 100, 100, orderedLister)
+        ));
+    }
 
     @Test
     public void givenGeneratingBrowseHandler__whenFullCollection__thenPublicInterface() throws Exception {
@@ -362,6 +376,181 @@ public class BrowseHandlerGeneratorTest {
 
         response.opt().status416().orElseThrow(() -> new AssertionError("expected 416, got " + response));
         assertThat(response.status416().acceptRange(), is("Unit 100"));
+    }
+
+    @Test
+    public void givenOrderedListerPresent__whenSinceHeader__thenOrderedListerSinceCalled() throws Exception {
+        TestOrderedLister orderedLister = new TestOrderedLister(
+            TestOrderedLister.orderedPage(EMPTY_LIST, "cursor-since", null));
+        this.handlerWithOrderedLister(orderedLister)
+            .apply(NoParamsGetRequest.builder().since("cursor-since").build());
+
+        assertThat(orderedLister.lastCall.get().method, is(TestOrderedLister.Method.SINCE));
+        assertThat(orderedLister.lastCall.get().cursor, is("cursor-since"));
+        assertThat(orderedLister.lastCall.get().optBefore, is(Optional.empty()));
+    }
+
+    @Test
+    public void givenOrderedListerPresent__whenBeforeHeader__thenOrderedListerBeforeCalled() throws Exception {
+        TestOrderedLister orderedLister = new TestOrderedLister(
+            TestOrderedLister.orderedPage(EMPTY_LIST, null, "cursor-before"));
+        this.handlerWithOrderedLister(orderedLister)
+            .apply(NoParamsGetRequest.builder().before("cursor-before").build());
+
+        assertThat(orderedLister.lastCall.get().method, is(TestOrderedLister.Method.BEFORE));
+        assertThat(orderedLister.lastCall.get().cursor, is("cursor-before"));
+    }
+
+    @Test
+    public void givenOrderedListerPresent__whenInitOrderedLatest__thenInitLatestCalled() throws Exception {
+        TestOrderedLister orderedLister = new TestOrderedLister(
+            TestOrderedLister.orderedPage(EMPTY_LIST, "s", "b"));
+        this.handlerWithOrderedLister(orderedLister)
+            .apply(NoParamsGetRequest.builder().initOrdered("LATEST").build());
+
+        assertThat(orderedLister.lastCall.get().method, is(TestOrderedLister.Method.INIT_LATEST));
+    }
+
+    @Test
+    public void givenOrderedListerPresent__whenInitOrderedOldest__thenInitOldestCalled() throws Exception {
+        TestOrderedLister orderedLister = new TestOrderedLister(
+            TestOrderedLister.orderedPage(EMPTY_LIST, "s", null));
+        this.handlerWithOrderedLister(orderedLister)
+            .apply(NoParamsGetRequest.builder().initOrdered("OLDEST").build());
+
+        assertThat(orderedLister.lastCall.get().method, is(TestOrderedLister.Method.INIT_OLDEST));
+    }
+
+    @Test
+    public void givenOrderedListerPresent__whenSinceAndBefore__thenSinceCalledWithOptBefore() throws Exception {
+        TestOrderedLister orderedLister = new TestOrderedLister(
+            TestOrderedLister.orderedPage(EMPTY_LIST, "s", "b"));
+        this.handlerWithOrderedLister(orderedLister)
+            .apply(NoParamsGetRequest.builder().since("s").before("b").build());
+
+        assertThat(orderedLister.lastCall.get().method, is(TestOrderedLister.Method.SINCE));
+        assertThat(orderedLister.lastCall.get().cursor, is("s"));
+        assertThat(orderedLister.lastCall.get().optBefore, is(Optional.of("b")));
+    }
+
+    @Test
+    public void givenNoCursorHeaders__thenRegularListerCalled_notOrderedLister() throws Exception {
+        TestOrderedLister orderedLister = new TestOrderedLister(
+            TestOrderedLister.orderedPage(EMPTY_LIST, null, null));
+        this.handlerWithOrderedLister(orderedLister)
+            .apply(NoParamsGetRequest.builder().build());
+
+        assertThat(orderedLister.lastCall.get(), is(nullValue()));
+        assertThat(lastRequest.get(), is(new ListerRequest(0L, 99L, null)));
+    }
+
+    @Test
+    public void givenCursorHeaderPresent__whenOrderedListerIsNull__then400() throws Exception {
+        NoParamsGetResponse response = this.handler((request) ->
+            new TestAdapter(new TestPager("Unit", ENTITY_LISTER, 100)))
+            .apply(NoParamsGetRequest.builder().since("any").build());
+
+        response.opt().status400().orElseThrow(() -> new AssertionError("expected 400, got " + response));
+        assertThat(response.status400().payload().code(), is(Error.Code.BAD_REQUEST));
+    }
+
+    @Test
+    public void givenOrderedListerPresent__whenInvalidRange__then416() throws Exception {
+        TestOrderedLister orderedLister = new TestOrderedLister(
+            TestOrderedLister.orderedPage(EMPTY_LIST, null, null));
+        NoParamsGetResponse response = this.handlerWithOrderedLister(orderedLister)
+            .apply(NoParamsGetRequest.builder().since("s").range("not-a-range").build());
+
+        response.opt().status416().orElseThrow(() -> new AssertionError("expected 416, got " + response));
+    }
+
+    @Test
+    public void givenOrderedListerPresent__whenQueryParsingException__then400() throws Exception {
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager(
+            "Unit", ENTITY_LISTER, 100, 100,
+            new TestOrderedLister(null) {
+                @Override
+                public PagedCollectionAdapter.OrderedPage<org.generated.api.types.Entity> since(
+                        String since, Optional<String> before, Optional<PropertyQuery> query,
+                        long start, long end) throws RepositoryException {
+                    throw new RepositoryQueryParsingException("bad query");
+                }
+            }
+        ))).apply(NoParamsGetRequest.builder().since("s").build());
+
+        response.opt().status400().orElseThrow(() -> new AssertionError("expected 400, got " + response));
+    }
+
+    @Test
+    public void givenOrderedListerPresent__whenRepositoryException__then500() throws Exception {
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager(
+            "Unit", ENTITY_LISTER, 100, 100,
+            new TestOrderedLister(null) {
+                @Override
+                public PagedCollectionAdapter.OrderedPage<org.generated.api.types.Entity> since(
+                        String since, Optional<String> before, Optional<PropertyQuery> query,
+                        long start, long end) throws RepositoryException {
+                    throw new RepositoryException("boom");
+                }
+            }
+        ))).apply(NoParamsGetRequest.builder().since("s").build());
+
+        response.opt().status500().orElseThrow(() -> new AssertionError("expected 500, got " + response));
+    }
+
+    @Test
+    public void givenOrderedListerPresent__whenAccessDeniedException__then403() throws Exception {
+        NoParamsGetResponse response = this.handler((request) -> new TestAdapter(new TestPager(
+            "Unit", ENTITY_LISTER, 100, 100,
+            new TestOrderedLister(null) {
+                @Override
+                public PagedCollectionAdapter.OrderedPage<org.generated.api.types.Entity> since(
+                        String since, Optional<String> before, Optional<PropertyQuery> query,
+                        long start, long end) throws RepositoryException {
+                    throw new RepositoryAccessDeniedException("denied");
+                }
+            }
+        ))).apply(NoParamsGetRequest.builder().since("s").build());
+
+        response.opt().status403().orElseThrow(() -> new AssertionError("expected 403, got " + response));
+    }
+
+    @Test
+    public void givenOrderedBrowse__whenOrderedPageHasCursors__thenResponseIncludesSinceAndBefore() throws Exception {
+        TestOrderedLister orderedLister = new TestOrderedLister(
+            TestOrderedLister.orderedPage(FULL_LIST, "since-val", "before-val"));
+        NoParamsGetResponse response = this.handlerWithOrderedLister(orderedLister)
+            .apply(NoParamsGetRequest.builder().since("cursor").build());
+
+        response.opt().status200().orElseThrow(() -> new AssertionError("expected 200, got " + response));
+        assertThat(response.status200().since(), is("since-val"));
+        assertThat(response.status200().before(), is("before-val"));
+    }
+
+    @Test
+    public void givenOrderedBrowse__whenOrderedPageHasNoCursors__thenResponseHeadersAbsent() throws Exception {
+        TestOrderedLister orderedLister = new TestOrderedLister(
+            TestOrderedLister.orderedPage(FULL_LIST, null, null));
+        NoParamsGetResponse response = this.handlerWithOrderedLister(orderedLister)
+            .apply(NoParamsGetRequest.builder().since("cursor").build());
+
+        response.opt().status200().orElseThrow(() -> new AssertionError("expected 200, got " + response));
+        assertThat(response.status200().since(), is(nullValue()));
+        assertThat(response.status200().before(), is(nullValue()));
+    }
+
+    @Test
+    public void givenOrderedBrowse__whenPartialList__then206WithCursors() throws Exception {
+        PagedEntityList<org.generated.api.types.Entity> partialList =
+            new PagedEntityList.DefaultPagedEntityList<>(0, 99, 200, entities(100));
+        TestOrderedLister orderedLister = new TestOrderedLister(
+            TestOrderedLister.orderedPage(partialList, "s", "b"));
+        NoParamsGetResponse response = this.handlerWithOrderedLister(orderedLister)
+            .apply(NoParamsGetRequest.builder().since("cursor").build());
+
+        response.opt().status206().orElseThrow(() -> new AssertionError("expected 206, got " + response));
+        assertThat(response.status206().since(), is("s"));
+        assertThat(response.status206().before(), is("b"));
     }
 
     private List<Entity<org.generated.api.types.Entity>> entities(int count) {
