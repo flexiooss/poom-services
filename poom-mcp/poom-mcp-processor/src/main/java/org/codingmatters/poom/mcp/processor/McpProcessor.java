@@ -229,15 +229,23 @@ public class McpProcessor implements Processor {
 
     private ObjectValue buildCallToolResultObject(org.codingmatters.poom.mcp.types.CallToolResult result) {
         List<ObjectValue> contentList = result.opt().content().safe().stream()
-                .map(c -> ObjectValue.builder()
-                        .property("type", v -> v.stringValue(c.type() != null ? c.type().name() : null))
-                        .property("text", v -> v.stringValue(c.text()))
-                        .build())
+                .map(this::buildToolContentObject)
                 .toList();
         return ObjectValue.builder()
                 .property("content", PropertyValue.multipleObject(contentList.toArray(new ObjectValue[0])))
                 .property("isError", v -> v.booleanValue(result.isError() != null && result.isError()))
                 .build();
+    }
+
+    // Seuls les champs renseignés sont émis : un contenu image n'a pas de text, un contenu texte
+    // n'a ni data ni mimeType, et un client MCP strict refuse un champ à null.
+    private ObjectValue buildToolContentObject(org.codingmatters.poom.mcp.types.ToolContent c) {
+        ObjectValue.Builder content = ObjectValue.builder()
+                .property("type", v -> v.stringValue(c.type() != null ? c.type().name() : null));
+        if (c.text() != null) content.property("text", v -> v.stringValue(c.text()));
+        if (c.data() != null) content.property("data", v -> v.stringValue(c.data()));
+        if (c.mimeType() != null) content.property("mimeType", v -> v.stringValue(c.mimeType()));
+        return content.build();
     }
 
     private void handleDelete(RequestDelegate request, ResponseDelegate response, String sessionId) throws IOException {

@@ -49,6 +49,8 @@ ToolContent:
   type:
     $enum: text, image, resource
   text: string
+  data: string
+  mimeType: string
 
 CallToolParams:
   name: string
