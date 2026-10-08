@@ -90,6 +90,7 @@ public class McpProcessor implements Processor {
 
     private void dispatch(ResponseDelegate response, McpRequest mcpRequest) throws IOException {
         switch (mcpRequest.method()) {
+            case "server/discover" -> this.writer.json(response, this.writer.result(mcpRequest.id(), this.discoverResult()));
             case "tools/list" -> this.writer.json(response, this.buildListToolsResult(mcpRequest));
             case "tools/call" -> this.handleToolCall(response, mcpRequest);
             case "resources/list" -> this.writer.json(response, this.buildListResourcesResult(mcpRequest));
@@ -99,6 +100,30 @@ public class McpProcessor implements Processor {
             default -> this.writer.json(response,
                     this.writer.errorResponse(mcpRequest.id(), McpProtocol.METHOD_NOT_FOUND, "Method not found"));
         }
+    }
+
+    private ObjectValue discoverResult() {
+        ObjectValue empty = ObjectValue.builder().build();
+        ObjectValue.Builder capabilities = ObjectValue.builder();
+        if (!this.descriptor.opt().tools().safe().isEmpty()) capabilities.property("tools", v -> v.objectValue(empty));
+        if (!this.descriptor.opt().resources().safe().isEmpty()) capabilities.property("resources", v -> v.objectValue(empty));
+        if (!this.descriptor.opt().prompts().safe().isEmpty()) capabilities.property("prompts", v -> v.objectValue(empty));
+        if (this.descriptor.opt().tools().safe().stream().anyMatch(t -> t.tasks() != null)) {
+            capabilities.property("extensions", v -> v.objectValue(ObjectValue.builder()
+                    .property(McpProtocol.TASKS_EXTENSION, e -> e.objectValue(empty)).build()));
+        }
+        ObjectValue serverInfo = ObjectValue.builder()
+                .property("name", n -> n.stringValue(this.descriptor.name()))
+                .property("version", n -> n.stringValue(this.descriptor.version()))
+                .build();
+        return ObjectValue.builder()
+                .property("resultType", v -> v.stringValue("complete"))
+                .property("supportedVersions", PropertyValue.multipleString(McpProtocol.VERSION))
+                .property("capabilities", v -> v.objectValue(capabilities.build()))
+                .property(McpProtocol.META, v -> v.objectValue(ObjectValue.builder()
+                        .property(McpProtocol.META_SERVER_INFO, s -> s.objectValue(serverInfo))
+                        .build()))
+                .build();
     }
 
     @SuppressWarnings("unchecked")
