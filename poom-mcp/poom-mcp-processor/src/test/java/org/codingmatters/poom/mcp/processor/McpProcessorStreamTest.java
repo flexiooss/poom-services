@@ -135,4 +135,25 @@ class McpProcessorStreamTest {
         assertThat(interrupted.get(), is(true));
         assertThat(response.writesAfterGone.get(), is(1)); // le keepalive qui a révélé le départ, et rien d'autre
     }
+
+    @Test
+    void givenToolReturnsNullWithinJsonWindow__whenCall__thenJsonInternalError() throws Exception {
+        RecordingResponse response = this.call(this.processorWith("nul", p -> null), "nul");
+
+        assertThat(response.sseChannel(), is(nullValue()));
+        assertThat(new String(response.payload()), containsString("-32603"));
+    }
+
+    @Test
+    void givenToolReturnsNullAfterJsonWindow__whenCall__thenOneSseInternalError() throws Exception {
+        RecordingResponse response = this.call(this.processorWith("nul", p -> {
+            try { Thread.sleep(120); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            return null;
+        }), "nul");
+
+        List<TestSseChannel.SseEvent> events = response.sseChannel().drainEvents();
+        assertThat(events, hasSize(1));
+        assertThat(events.get(0).data(), containsString("-32603"));
+        assertThat(response.sseChannel().isOpen(), is(false));
+    }
 }

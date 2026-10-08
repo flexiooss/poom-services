@@ -16,7 +16,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Forme de la réponse d'un {@code tools/call} : JSON si l'outil rend avant {@code jsonWindow},
@@ -41,7 +40,13 @@ final class ToolCallResponder {
     void respond(ResponseDelegate response, McpRequest request, String toolName, ToolRun run, boolean clientTasks) throws IOException {
         try {
             CallToolResult result = run.result().get(this.timings.jsonWindow().toMillis(), TimeUnit.MILLISECONDS);
-            this.writer.json(response, this.writer.result(request.id(), this.writer.callToolResult(result)));
+            McpResponse built;
+            try {
+                built = this.writer.result(request.id(), this.writer.callToolResult(result));
+            } catch (RuntimeException e) {
+                built = this.internalError(request.id(), e);
+            }
+            this.writer.json(response, built);
             return;
         } catch (TimeoutException e) {
             // bascule en SSE
@@ -57,28 +62,40 @@ final class ToolCallResponder {
         response.status(200);
         response.addHeader("X-Accel-Buffering", "no");
         SseChannel channel = response.openSse();
-        AtomicBoolean gone = new AtomicBoolean(false);
+        // Un seul moniteur pour les deux écritures (keepalive / message final) : jamais d'écriture après un échec.
+        Object lock = new Object();
+        boolean[] state = new boolean[2]; // 0 = gone, 1 = done (gardés par lock)
         long period = this.timings.keepalive().toMillis();
         ScheduledFuture<?> keepalive = this.keepalives.scheduleAtFixedRate(() -> {
-            if (gone.get()) return;
-            try {
-                channel.comment("");
-            } catch (IOException | UncheckedIOException e) {
-                gone.set(true);
-                run.stopWaiting();
+            synchronized (lock) {
+                if (state[0] || state[1]) return;
+                try {
+                    channel.comment("");
+                } catch (IOException | UncheckedIOException e) {
+                    state[0] = true;
+                    run.stopWaiting();
+                }
             }
         }, period, period, TimeUnit.MILLISECONDS);
         try {
             McpResponse message = this.awaitInStream(request, toolName, run, clientTasks);
-            if (message == null || gone.get()) {
-                if (gone.get()) run.cancelTask();
-                return;
+            boolean abandoned;
+            synchronized (lock) {
+                abandoned = state[0] || message == null;
+                if (!abandoned) {
+                    try {
+                        channel.send("message", new String(this.writer.serialize(message), StandardCharsets.UTF_8));
+                    } catch (IOException | UncheckedIOException e) {
+                        state[0] = true;
+                        abandoned = true;
+                    }
+                }
+                state[1] = true;
             }
-            channel.send("message", new String(this.writer.serialize(message), StandardCharsets.UTF_8));
-        } catch (IOException | UncheckedIOException e) {
-            gone.set(true);
-            run.stopWaiting();
-            run.cancelTask();
+            if (abandoned) {
+                run.stopWaiting();
+                if (state[0]) run.cancelTask();
+            }
         } finally {
             keepalive.cancel(false);
             channel.close();
@@ -109,6 +126,8 @@ final class ToolCallResponder {
             }
         } catch (CancellationException e) {
             return null;
+        } catch (RuntimeException e) {
+            return this.internalError(request.id(), e);
         } catch (ExecutionException e) {
             return this.failure(request.id(), e);
         } catch (InterruptedException e) {
@@ -121,6 +140,11 @@ final class ToolCallResponder {
     /** Remplie par la Task 5 : rend le CreateTaskResult, ou null si la tâche n'a pas encore d'identifiant. */
     McpResponse onTaskAfter(McpRequest request, String toolName, ToolRun run) {
         return null;
+    }
+
+    private McpResponse internalError(String id, RuntimeException e) {
+        log.error("tool call response failed", e);
+        return this.writer.errorResponse(id, McpProtocol.INTERNAL_ERROR, "Internal error: " + e.getMessage());
     }
 
     private McpResponse failure(String id, ExecutionException e) {
