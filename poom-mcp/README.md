@@ -79,7 +79,7 @@ Rejections (HTTP `400`, JSON-RPC error):
 | `-32022` | `MCP-Protocol-Version` missing or not `2026-07-28` (e.g. a legacy `initialize` from a 2025 client) | `{"supported":["2026-07-28"],"requested":"<value>"}` |
 | `-32020` | `MCP-Protocol-Version` differs from `_meta`, `Mcp-Method` differs from `method`, or `Mcp-Name` differs from the body | — |
 
-Other errors: `-32700` parse error and `-32600` invalid request (HTTP `400`); `-32601` unknown method, `-32602` invalid params (unknown tool, prompt, resource or task) and `-32603` internal error (HTTP `200`).
+Other errors: `-32700` parse error and `-32600` invalid request (HTTP `400`); `-32601` unknown method, unknown resource and unknown prompt, `-32602` invalid params (unknown tool, unknown task, missing required param) and `-32603` internal error (HTTP `200`).
 
 ### `server/discover`
 
@@ -245,26 +245,26 @@ McpToolDescriptor searchTool = McpToolDescriptor.builder()
 
 ### 3 — Declare resources
 
-Resources are URI-addressable content the model can read. Declare them so they appear in `resources/list`. The handler receives `ReadResourceParams` (not yet dispatched by the processor — see [Limitations](#limitations)).
+Resources are URI-addressable content the model can read. Declare them so they appear in `resources/list`. `resources/read` is routed by URI prefix (the literal part before the first template variable) to the handler, which receives `ReadResourceParams` carrying the full URI and returns a `ReadResourceResult`. It runs synchronously on the request thread. An unknown URI answers `-32601`.
 
 ```java
 McpResourceDescriptor configResource = McpResourceDescriptor.builder()
         .uri("config://app/settings")
         .name("Application settings")
         .mimeType("application/json")
-        .handler(params -> /* not yet called by the processor */ null)
+        .handler(params -> /* build a ReadResourceResult from params.uri() */ null)
         .build();
 ```
 
 ### 4 — Declare prompts
 
-Prompts are reusable templates. Declare them for `prompts/list`. The handler receives `GetPromptParams` (not yet dispatched — see [Limitations](#limitations)).
+Prompts are reusable templates. Declare them for `prompts/list`. `prompts/get` calls the handler with `GetPromptParams` (the prompt name and its arguments) and the handler returns a `GetPromptResult`. It runs synchronously on the request thread. An unknown prompt answers `-32601`.
 
 ```java
 McpPromptDescriptor reviewPrompt = McpPromptDescriptor.builder()
         .name("review_code")
         .description("Generates a structured code review request for a given snippet.")
-        .handler(params -> /* not yet called by the processor */ null)
+        .handler(params -> /* build the result from the params */ null)
         .build();
 ```
 
@@ -502,7 +502,7 @@ public class NoteAssistantServer {
                 .uri("notes://all")
                 .name("All notes")
                 .mimeType("text/plain")
-                .handler(params -> null) // read dispatch not yet implemented
+                .handler(params -> null) // replace with a real read handler returning a ReadResourceResult
                 .build();
     }
 

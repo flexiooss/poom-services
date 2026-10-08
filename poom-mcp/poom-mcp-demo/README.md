@@ -376,7 +376,7 @@ NoteAssistantIntegrationTest     — 19 scénarios end-to-end : transport (initi
                                    erreurs -32601 / -32602
 ```
 
-Total : **66 tests**, tous en JUnit 5, sans serveur HTTP réel (TestRequestDeleguate / TestResponseDeleguate).
+Total : **68 tests**, tous en JUnit 5, sans serveur HTTP réel (TestRequestDeleguate / TestResponseDeleguate).
 
 ### Ajouter un outil
 
