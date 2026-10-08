@@ -6,6 +6,8 @@ McpToolDescriptor:
     $value-object: org.codingmatters.value.objects.values.ObjectValue
   handler:
     $type: java.util.function.Function
+  tasks:
+    $type: org.codingmatters.poom.mcp.McpToolTasks
 
 McpResourceDescriptor:
   uri: string
