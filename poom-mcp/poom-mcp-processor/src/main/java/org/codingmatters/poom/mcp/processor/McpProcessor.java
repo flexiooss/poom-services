@@ -1,32 +1,24 @@
 package org.codingmatters.poom.mcp.processor;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import org.codingmatters.poom.mcp.McpServerDescriptor;
-import org.codingmatters.poom.mcp.types.McpError;
+import org.codingmatters.poom.mcp.types.CallToolResult;
 import org.codingmatters.poom.mcp.types.McpRequest;
 import org.codingmatters.poom.mcp.types.McpResponse;
 import org.codingmatters.poom.mcp.types.json.McpIdNormalizingParser;
 import org.codingmatters.poom.mcp.types.json.McpRequestReader;
-import org.codingmatters.poom.mcp.types.json.McpResponseWriter;
 import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.rest.api.Processor;
 import org.codingmatters.rest.api.RequestDelegate;
 import org.codingmatters.rest.api.ResponseDelegate;
-import org.codingmatters.rest.api.SseChannel;
 import org.codingmatters.value.objects.values.ObjectValue;
 import org.codingmatters.value.objects.values.PropertyValue;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -34,69 +26,35 @@ import java.util.concurrent.TimeoutException;
 public class McpProcessor implements Processor {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(McpProcessor.class);
 
-    private static final String MCP_SESSION_HEADER = "Mcp-Session-Id";
-    private static final String PROTOCOL_VERSION = "2024-11-05";
-
-    private final String apiPath;
     private final JsonFactory jsonFactory;
     private final McpServerDescriptor descriptor;
     private final ExecutorService toolExecutor;
-    private final long syncTimeoutMillis;
-    private final Map<String, McpSession> sessions = new ConcurrentHashMap<>();
+    private final McpTimings timings;
+    private final JsonRpcWriter writer;
 
-    public McpProcessor(String apiPath, JsonFactory jsonFactory, McpServerDescriptor descriptor, ExecutorService toolExecutor) {
-        this(apiPath, jsonFactory, descriptor, toolExecutor, 500);
+    public McpProcessor(JsonFactory jsonFactory, McpServerDescriptor descriptor, ExecutorService toolExecutor) {
+        this(jsonFactory, descriptor, toolExecutor, McpTimings.defaults());
     }
 
-    public McpProcessor(String apiPath, JsonFactory jsonFactory, McpServerDescriptor descriptor, ExecutorService toolExecutor, long syncTimeoutMillis) {
-        this.apiPath = apiPath;
+    public McpProcessor(JsonFactory jsonFactory, McpServerDescriptor descriptor, ExecutorService toolExecutor, McpTimings timings) {
         this.jsonFactory = jsonFactory;
         this.descriptor = descriptor;
         this.toolExecutor = toolExecutor;
-        this.syncTimeoutMillis = syncTimeoutMillis;
+        this.timings = timings;
+        this.writer = new JsonRpcWriter(jsonFactory);
     }
 
     @Override
     public void process(RequestDelegate request, ResponseDelegate response) throws IOException {
-        String sessionId = headerValue(request, MCP_SESSION_HEADER);
-        switch (request.method()) {
-            case GET -> handleGet(request, response, sessionId);
-            case POST -> handlePost(request, response, sessionId);
-            case DELETE -> handleDelete(request, response, sessionId);
-            default -> {
-                response.status(405);
-                response.contenType("text/plain");
-                response.payload("Method Not Allowed".getBytes(StandardCharsets.UTF_8));
-            }
-        }
-    }
-
-    private void handleGet(RequestDelegate request, ResponseDelegate response, String sessionId) throws IOException {
-        if (sessionId == null || !sessions.containsKey(sessionId)) {
-            response.status(404);
+        if (request.method() != RequestDelegate.Method.POST) {
+            response.status(405);
+            response.addHeader("Allow", "POST");
             response.contenType("text/plain");
-            response.payload("Session not found".getBytes(StandardCharsets.UTF_8));
+            response.payload("Method Not Allowed".getBytes(StandardCharsets.UTF_8));
             return;
         }
-        McpSession session = sessions.get(sessionId);
-        SseChannel channel = response.openSse();
-        session.setSseChannel(channel);
-
-        while (channel.isOpen()) {
-            try {
-                channel.send("ping", "{}");
-                Thread.sleep(30_000);
-            } catch (IOException e) {
-                break;
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
-        }
-    }
-
-    private void handlePost(RequestDelegate request, ResponseDelegate response, String sessionId) throws IOException {
-        if (!"application/json".equals(request.contentType())) {
+        String contentType = request.contentType();
+        if (contentType == null || !contentType.toLowerCase(java.util.Locale.ROOT).startsWith("application/json")) {
             response.status(415);
             response.contenType("text/plain");
             response.payload("Unsupported Media Type".getBytes(StandardCharsets.UTF_8));
@@ -104,60 +62,47 @@ public class McpProcessor implements Processor {
         }
 
         McpRequest mcpRequest;
-        try (JsonParser parser = new McpIdNormalizingParser(jsonFactory.createParser(request.payload()))) {
+        try (JsonParser parser = new McpIdNormalizingParser(this.jsonFactory.createParser(request.payload()))) {
             mcpRequest = new McpRequestReader().read(parser);
         } catch (IOException e) {
-            writeJsonRpcError(response, null, -32700, "Parse error");
+            this.writer.error(response, 400, null, McpProtocol.PARSE_ERROR, "Parse error", null);
+            return;
+        }
+        if (mcpRequest == null || mcpRequest.method() == null) {
+            this.writer.error(response, 400, null, McpProtocol.INVALID_REQUEST, "Invalid Request", null);
+            return;
+        }
+        if (mcpRequest.id() == null) {
+            // Notification : rien à répondre (notifications/cancelled, notifications/initialized…).
+            response.status(202);
+            response.payload(new byte[0]);
             return;
         }
 
-        String method = mcpRequest.method();
-
-        if ("initialize".equals(method)) {
-            String newSessionId = UUID.randomUUID().toString();
-            sessions.put(newSessionId, new McpSession(newSessionId));
-            McpResponse resp = McpResponse.builder()
-                    .jsonrpc("2.0")
-                    .id(mcpRequest.id())
-                    .result(ObjectValue.builder()
-                            .property("protocolVersion", v -> v.stringValue(PROTOCOL_VERSION))
-                            .property("capabilities", v -> v.objectValue(ObjectValue.builder().build()))
-                            .property("serverInfo", v -> v.objectValue(ObjectValue.builder()
-                                    .property("name", n -> n.stringValue(descriptor.name()))
-                                    .property("version", ver -> ver.stringValue(descriptor.version()))
-                                    .build()))
-                            .build())
-                    .build();
-            response.addHeader(MCP_SESSION_HEADER, newSessionId);
-            writeJsonRpcResponse(response, resp);
+        Optional<RequestCheck.Rejection> rejection = RequestCheck.check(request, mcpRequest);
+        if (rejection.isPresent()) {
+            RequestCheck.Rejection r = rejection.get();
+            this.writer.error(response, r.httpStatus(), mcpRequest.id(), r.code(), r.message(), r.data());
             return;
         }
-
-        if (sessionId == null || !sessions.containsKey(sessionId)) {
-            response.status(400);
-            response.contenType("text/plain");
-            response.payload("Missing or unknown Mcp-Session-Id".getBytes(StandardCharsets.UTF_8));
-            return;
-        }
-
-        McpSession session = sessions.get(sessionId);
-        dispatchMethod(response, session, mcpRequest);
+        this.dispatch(response, mcpRequest);
     }
 
-    private void dispatchMethod(ResponseDelegate response, McpSession session, McpRequest mcpRequest) throws IOException {
+    private void dispatch(ResponseDelegate response, McpRequest mcpRequest) throws IOException {
         switch (mcpRequest.method()) {
-            case "tools/list" -> writeJsonRpcResponse(response, buildListToolsResult(mcpRequest));
-            case "tools/call" -> handleToolCall(response, session, mcpRequest);
-            case "resources/list" -> writeJsonRpcResponse(response, buildListResourcesResult(mcpRequest));
-            case "resources/read" -> handleResourceRead(response, mcpRequest);
-            case "prompts/list" -> writeJsonRpcResponse(response, buildListPromptsResult(mcpRequest));
-            case "prompts/get" -> handlePromptGet(response, mcpRequest);
-            default -> writeJsonRpcError(response, mcpRequest.id(), -32601, "Method not found");
+            case "tools/list" -> this.writer.json(response, this.buildListToolsResult(mcpRequest));
+            case "tools/call" -> this.handleToolCall(response, mcpRequest);
+            case "resources/list" -> this.writer.json(response, this.buildListResourcesResult(mcpRequest));
+            case "resources/read" -> this.handleResourceRead(response, mcpRequest);
+            case "prompts/list" -> this.writer.json(response, this.buildListPromptsResult(mcpRequest));
+            case "prompts/get" -> this.handlePromptGet(response, mcpRequest);
+            default -> this.writer.json(response,
+                    this.writer.errorResponse(mcpRequest.id(), McpProtocol.METHOD_NOT_FOUND, "Method not found"));
         }
     }
 
     @SuppressWarnings("unchecked")
-    private void handleToolCall(ResponseDelegate response, McpSession session, McpRequest mcpRequest) throws IOException {
+    private void handleToolCall(ResponseDelegate response, McpRequest mcpRequest) throws IOException {
         String toolName = mcpRequest.params() != null && mcpRequest.params().property("name") != null
                 ? mcpRequest.params().property("name").single().stringValue()
                 : null;
@@ -166,7 +111,7 @@ public class McpProcessor implements Processor {
                 .findFirst();
 
         if (tool.isEmpty()) {
-            writeJsonRpcError(response, mcpRequest.id(), -32601, "Tool not found: " + toolName);
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INVALID_PARAMS, "Tool not found: " + toolName));
             return;
         }
 
@@ -183,84 +128,21 @@ public class McpProcessor implements Processor {
                         .arguments(arguments)
                         .build();
 
-        CompletableFuture<org.codingmatters.poom.mcp.types.CallToolResult> future =
-                CompletableFuture.supplyAsync(
-                        () -> (org.codingmatters.poom.mcp.types.CallToolResult) tool.get().handler().apply(params),
-                        toolExecutor
-                );
-
+        // Provisoire jusqu'au SSE (Task 4) : réponse JSON unique, bornée par streamMax.
+        java.util.concurrent.Future<CallToolResult> future = this.toolExecutor.submit(
+                () -> (CallToolResult) tool.get().handler().apply(params));
         try {
-            org.codingmatters.poom.mcp.types.CallToolResult result =
-                    future.get(syncTimeoutMillis, TimeUnit.MILLISECONDS);
-            writeJsonRpcResponse(response, McpResponse.builder()
-                    .jsonrpc("2.0").id(mcpRequest.id())
-                    .result(buildCallToolResultObject(result))
-                    .build());
+            CallToolResult result = future.get(this.timings.streamMax().toMillis(), TimeUnit.MILLISECONDS);
+            this.writer.json(response, this.writer.result(mcpRequest.id(), this.writer.callToolResult(result)));
         } catch (TimeoutException e) {
-            handleAsyncToolCall(response, session, mcpRequest, future);
+            future.cancel(true);
+            this.writer.json(response, this.writer.result(mcpRequest.id(), this.writer.callToolResult(this.writer.noResult())));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            writeJsonRpcError(response, mcpRequest.id(), -32603, "Internal error: request interrupted");
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INTERNAL_ERROR, "Internal error: request interrupted"));
         } catch (Exception e) {
-            writeJsonRpcError(response, mcpRequest.id(), -32603, "Internal error: " + e.getMessage());
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INTERNAL_ERROR, "Internal error: " + e.getMessage()));
         }
-    }
-
-    private void handleAsyncToolCall(ResponseDelegate response, McpSession session, McpRequest mcpRequest,
-            CompletableFuture<org.codingmatters.poom.mcp.types.CallToolResult> future) throws IOException {
-        response.status(202);
-        response.payload(new byte[0]);
-        future.thenAccept(result -> {
-            if (!session.hasSseChannel()) {
-                log.error("async tool result ready but no SSE channel for session {}", session.id());
-                return;
-            }
-            try {
-                McpResponse mcpResponse = McpResponse.builder()
-                        .jsonrpc("2.0").id(mcpRequest.id())
-                        .result(buildCallToolResultObject(result))
-                        .build();
-                session.sseChannel().send("message", new String(serializeResponse(mcpResponse), StandardCharsets.UTF_8));
-            } catch (IOException ex) {
-                log.error("failed to push async result to SSE channel for session {}", session.id(), ex);
-            }
-        });
-    }
-
-    private ObjectValue buildCallToolResultObject(org.codingmatters.poom.mcp.types.CallToolResult result) {
-        List<ObjectValue> contentList = result.opt().content().safe().stream()
-                .map(this::buildToolContentObject)
-                .toList();
-        return ObjectValue.builder()
-                .property("content", PropertyValue.multipleObject(contentList.toArray(new ObjectValue[0])))
-                .property("isError", v -> v.booleanValue(result.isError() != null && result.isError()))
-                .build();
-    }
-
-    // Seuls les champs renseignés sont émis : un contenu image n'a pas de text, un contenu texte
-    // n'a ni data ni mimeType, et un client MCP strict refuse un champ à null.
-    private ObjectValue buildToolContentObject(org.codingmatters.poom.mcp.types.ToolContent c) {
-        ObjectValue.Builder content = ObjectValue.builder()
-                .property("type", v -> v.stringValue(c.type() != null ? c.type().name() : null));
-        if (c.text() != null) content.property("text", v -> v.stringValue(c.text()));
-        if (c.data() != null) content.property("data", v -> v.stringValue(c.data()));
-        if (c.mimeType() != null) content.property("mimeType", v -> v.stringValue(c.mimeType()));
-        return content.build();
-    }
-
-    private void handleDelete(RequestDelegate request, ResponseDelegate response, String sessionId) throws IOException {
-        if (sessionId == null || !sessions.containsKey(sessionId)) {
-            response.status(404);
-            response.contenType("text/plain");
-            response.payload("Session not found".getBytes(StandardCharsets.UTF_8));
-            return;
-        }
-        McpSession session = sessions.remove(sessionId);
-        if (session.hasSseChannel()) {
-            session.sseChannel().close();
-        }
-        response.status(200);
-        response.payload(new byte[0]);
     }
 
     private McpResponse buildListToolsResult(McpRequest request) {
@@ -286,7 +168,7 @@ public class McpProcessor implements Processor {
                 ? mcpRequest.params().property("uri").single().stringValue()
                 : null;
         if (uri == null) {
-            writeJsonRpcError(response, mcpRequest.id(), -32602, "Invalid params: uri required");
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INVALID_PARAMS, "Invalid params: uri required"));
             return;
         }
         // Prefix routing: match by the literal portion before the first template variable.
@@ -296,7 +178,7 @@ public class McpProcessor implements Processor {
                         .filter(r -> r.uri() != null && uri.startsWith(uriPrefix(r.uri())))
                         .findFirst();
         if (resource.isEmpty()) {
-            writeJsonRpcError(response, mcpRequest.id(), -32601, "Resource not found: " + uri);
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.METHOD_NOT_FOUND, "Resource not found: " + uri));
             return;
         }
         org.codingmatters.poom.mcp.types.ReadResourceParams params =
@@ -304,13 +186,13 @@ public class McpProcessor implements Processor {
         try {
             org.codingmatters.poom.mcp.types.ReadResourceResult result =
                     (org.codingmatters.poom.mcp.types.ReadResourceResult) resource.get().handler().apply(params);
-            writeJsonRpcResponse(response, McpResponse.builder()
+            this.writer.json(response, McpResponse.builder()
                     .jsonrpc("2.0").id(mcpRequest.id())
                     .result(buildReadResourceResultObject(result))
                     .build());
         } catch (RuntimeException e) {
             log.error("resource handler threw for uri {}", uri, e);
-            writeJsonRpcError(response, mcpRequest.id(), -32603, "Internal error");
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INTERNAL_ERROR, "Internal error"));
         }
     }
 
@@ -362,7 +244,7 @@ public class McpProcessor implements Processor {
                         .filter(p -> name != null && name.equals(p.name()))
                         .findFirst();
         if (prompt.isEmpty()) {
-            writeJsonRpcError(response, mcpRequest.id(), -32601, "Prompt not found: " + name);
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.METHOD_NOT_FOUND, "Prompt not found: " + name));
             return;
         }
         ObjectValue arguments = mcpRequest.params() != null && mcpRequest.params().property("arguments") != null
@@ -376,13 +258,13 @@ public class McpProcessor implements Processor {
         try {
             org.codingmatters.poom.mcp.types.GetPromptResult result =
                     (org.codingmatters.poom.mcp.types.GetPromptResult) prompt.get().handler().apply(params);
-            writeJsonRpcResponse(response, McpResponse.builder()
+            this.writer.json(response, McpResponse.builder()
                     .jsonrpc("2.0").id(mcpRequest.id())
                     .result(buildGetPromptResultObject(result))
                     .build());
         } catch (RuntimeException e) {
             log.error("prompt handler threw for name {}", name, e);
-            writeJsonRpcError(response, mcpRequest.id(), -32603, "Internal error");
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INTERNAL_ERROR, "Internal error"));
         }
     }
 
@@ -412,37 +294,5 @@ public class McpProcessor implements Processor {
                         .property("prompts", PropertyValue.multipleObject(prompts.toArray(new ObjectValue[0])))
                         .build())
                 .build();
-    }
-
-    private void writeJsonRpcResponse(ResponseDelegate response, McpResponse mcpResponse) throws IOException {
-        response.status(200);
-        response.contenType("application/json");
-        response.payload(serializeResponse(mcpResponse));
-    }
-
-    private void writeJsonRpcError(ResponseDelegate response, String id, int code, String message) throws IOException {
-        McpResponse errorResponse = McpResponse.builder()
-                .jsonrpc("2.0")
-                .id(id)
-                .error(McpError.builder().code(code).message(message).build())
-                .build();
-        response.status(200);
-        response.contenType("application/json");
-        response.payload(serializeResponse(errorResponse));
-    }
-
-    private byte[] serializeResponse(McpResponse mcpResponse) throws IOException {
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-             JsonGenerator gen = jsonFactory.createGenerator(out)) {
-            new McpResponseWriter().write(gen, mcpResponse);
-            gen.flush();
-            return out.toByteArray();
-        }
-    }
-
-    private String headerValue(RequestDelegate request, String name) {
-        List<String> values = request.headers().get(name);
-        if (values == null || values.isEmpty()) return null;
-        return values.get(0);
     }
 }
