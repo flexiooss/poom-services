@@ -1,6 +1,6 @@
 # poom-mcp-demo — Note Assistant MCP server
 
-Implémentation de référence d'un serveur MCP avec `poom-mcp`. Le Note Assistant est un serveur de prise de notes en mémoire qui illustre tous les primitives MCP : outils synchrones et asynchrones, ressources, prompts et cycle de vie de session.
+Implémentation de référence d'un serveur MCP avec `poom-mcp`. Le Note Assistant est un serveur de prise de notes en mémoire qui illustre tous les primitives MCP : outils rapides et lents, ressources, prompts, sur le protocole MCP 2026-07-28 (sans état, sans session).
 
 ---
 
@@ -19,9 +19,9 @@ Le Note Assistant permet à un modèle d'IA de gérer une collection de notes te
 | `update_note` | Mise à jour partielle — seuls les champs fournis changent | Synchrone |
 | `delete_note` | Supprime définitivement une note | Synchrone |
 | `list_notes` | Liste toutes les notes, avec filtre optionnel par tag | Synchrone |
-| `search_notes` | Recherche full-text dans titres et contenus | **Asynchrone** — retourne 202, résultat poussé via SSE |
+| `search_notes` | Recherche full-text dans titres et contenus | **Lent** — dépasse le seuil `jsonWindow` : la réponse bascule en flux SSE |
 
-`search_notes` simule une opération lente (600 ms) pour illustrer le chemin asynchrone : le serveur répond `202 Accepted` immédiatement et pousse le résultat sur le canal SSE de la session quand la recherche se termine.
+`search_notes` simule une opération lente (600 ms). Avec le seuil `jsonWindow` par défaut (1 s), elle répond quand même en JSON ; si l'on abaisse `jsonWindow` sous 600 ms (via `McpTimings`), la réponse du `POST` devient un flux SSE (`text/event-stream`) qui porte un unique `event: message` avec le résultat, puis se ferme.
 
 #### Ressources
 
@@ -67,28 +67,33 @@ SERVICE_HOST=0.0.0.0 SERVICE_PORT=8080 java \
 
 Le serveur expose un unique endpoint : `http://host:port/mcp`.
 
-Le chemin `/mcp` est configurable en premier argument du constructeur `McpProcessor` dans `NoteAssistantServer` — il n'est pas validé par le processor lui-même, donc n'importe quel chemin URL fonctionne (ex. `/notes/assistant/mcp`).
+Le `McpProcessor` ne connaît plus de chemin : il répond sur toute URL que le serveur HTTP lui route. Le chemin n'est donc qu'une affaire de montage (ex. `/notes/assistant/mcp`).
 
 ### Vérification
 
 ```bash
 curl -s -X POST http://localhost:8080/mcp \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"initialize","params":{},"id":"1"}'
+  -H "MCP-Protocol-Version: 2026-07-28" \
+  -H "Mcp-Method: server/discover" \
+  -d '{"jsonrpc":"2.0","id":"1","method":"server/discover","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientInfo":{"name":"curl","version":"1"},"io.modelcontextprotocol/clientCapabilities":{}}}}'
 ```
 
 Réponse attendue :
 ```json
 {
   "jsonrpc": "2.0",
+  "id": "1",
   "result": {
-    "serverInfo": { "name": "note-assistant", "version": "1.0.0" },
-    "protocolVersion": "2024-11-05",
-    "capabilities": {}
-  },
-  "id": "1"
+    "resultType": "complete",
+    "supportedVersions": ["2026-07-28"],
+    "capabilities": { "tools": {}, "resources": {}, "prompts": {} },
+    "_meta": { "io.modelcontextprotocol/serverInfo": { "name": "note-assistant", "version": "1.0.0" } }
+  }
 }
 ```
+
+Un `GET` ou un `DELETE` répond `405` : le serveur n'a ni session ni canal SSE permanent.
 
 ---
 
@@ -96,13 +101,13 @@ Réponse attendue :
 
 Cette section illustre une session réelle avec le Note Assistant connecté à Claude via le protocole MCP. Le serveur tourne à `http://127.0.0.1:8080/notes/assistant/mcp`.
 
-### Initialisation de la session
+### Connexion
 
 ```
 Utilisateur : connecte-toi au serveur MCP http://127.0.0.1:8080/notes/assistant/mcp
 ```
 
-Claude initialise une session MCP (POST `initialize`) et reçoit un `Mcp-Session-Id`. Il découvre automatiquement les 6 outils, 2 ressources et 2 prompts disponibles.
+Claude interroge le serveur (POST `server/discover`, sans session) et découvre automatiquement les 6 outils, 2 ressources et 2 prompts disponibles.
 
 ---
 
@@ -127,13 +132,13 @@ Claude appelle `create_note` dix-huit fois, en générant un contenu riche pour 
 
 ---
 
-### Recherche full-text (chemin asynchrone)
+### Recherche full-text (outil lent)
 
 ```
 Utilisateur : montre-moi toutes les notes citant Hari Seldon
 ```
 
-Claude appelle `search_notes` avec `{"query": "Seldon"}`. Le serveur retourne **202 Accepted** immédiatement (la recherche prend plus de 500 ms). Claude attend le résultat sur le canal SSE — il arrive ~600 ms plus tard sous la forme d'un event `message` :
+Claude appelle `search_notes` avec `{"query": "Seldon"}`. La recherche prend ~600 ms, sous le `jsonWindow` de 1 s : la réponse du `POST` est un JSON classique. Si elle dépassait le seuil, le même message arriverait dans un flux SSE, sous la forme d'un unique event `message` :
 
 ```
 event: message
@@ -271,21 +276,21 @@ public class CreateNoteTool implements Function<CallToolParams, CallToolResult> 
 
 Les résultats d'erreur utilisent `isError: true` dans `CallToolResult` — c'est la convention MCP pour signaler une erreur métier (opposé à une erreur protocole JSON-RPC).
 
-### Outil asynchrone — search_notes
+### Outil lent — search_notes
 
-`SearchNotesTool` appelle `noteService.search()` qui contient un `Thread.sleep(600)` intentionnel pour simuler une opération lente. `McpProcessor` attend 500 ms (`syncTimeoutMillis`) avant de switcher sur le chemin asynchrone :
+`SearchNotesTool` appelle `noteService.search()` qui contient un `Thread.sleep(600)` intentionnel pour simuler une opération lente. `McpProcessor` lance l'outil dans `toolExecutor` et attend `jsonWindow` (1 s par défaut) :
 
 ```
 POST tools/call search_notes  →  lancé dans toolExecutor
-  ↓ après 500ms : TimeoutException
-  →  202 Accepted (réponse HTTP libérée)
-  →  handleAsyncToolCall() enregistre un callback sur le CompletableFuture
-  ↓ après ~100ms : handler termine
-  →  résultat sérialisé en JSON-RPC
-  →  session.sseChannel().send("message", json)
+  ↓ le handler rend avant jsonWindow (600 ms < 1 s)
+  →  200 application/json
+  ↓ sinon (jsonWindow < durée de l'outil)
+  →  200 text/event-stream, X-Accel-Buffering: no
+  →  commentaires ":" de keepalive tant que l'outil tourne
+  →  event: message  (la réponse JSON-RPC), puis fermeture du flux
 ```
 
-Le canal SSE doit être ouvert (GET) avant d'appeler un outil lent. Sans canal SSE, le résultat est perdu et une erreur est loggée.
+Aucun canal SSE n'est à ouvrir au préalable : le flux est la réponse du `POST` lui-même. Si le client ferme la connexion avant la fin, l'outil est interrompu.
 
 ### Ressources — Function\<ReadResourceParams, ReadResourceResult\>
 
@@ -364,10 +369,11 @@ resources/NoteResourceHandlerTest        — found (markdown) + tags + not found
 resources/TaggedNotesResourceHandlerTest — tagged + empty + mixed tags
 prompts/SummarizeNotePromptHandlerTest   — found + arg manquant + not found
 prompts/CompareNotesPromptHandlerTest    — two notes + missing id + one not found
-NoteAssistantIntegrationTest     — 17 scénarios end-to-end : session lifecycle,
-                                   CRUD roundtrip, async search (202+SSE),
+NoteAssistantIntegrationTest     — 19 scénarios end-to-end : transport (initialize
+                                   hérité refusé, GET 405, server/discover), CRUD roundtrip,
+                                   recherche en JSON puis en SSE (jsonWindow réduit),
                                    resources/list+read, prompts/list+get,
-                                   erreurs -32601
+                                   erreurs -32601 / -32602
 ```
 
 Total : **66 tests**, tous en JUnit 5, sans serveur HTTP réel (TestRequestDeleguate / TestResponseDeleguate).

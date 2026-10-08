@@ -16,104 +16,124 @@ The [Model Context Protocol](https://spec.modelcontextprotocol.io/) is a standar
 
 The model discovers available tools/resources/prompts, calls them during generation, and incorporates the results into its response — without the user doing anything.
 
-`poom-mcp` implements MCP over **Streamable HTTP**: each client session is a persistent SSE channel on which the server can push results asynchronously, while synchronous short-running calls are answered inline on the POST response.
+`poom-mcp` implements MCP over **Streamable HTTP**, protocol version **`2026-07-28`**. The server is **stateless**: there is no session and no `initialize` handshake. Every request is self-describing and can be served by any replica behind a load balancer.
 
 ---
 
-## The Streamable HTTP transport
+## The transport (protocol 2026-07-28)
 
-MCP can run over several transports. `poom-mcp` implements **Streamable HTTP** (MCP spec 2025-03-26), the current standard transport, which replaced the legacy HTTP+SSE transport in early 2025.
-
-### The problem Streamable HTTP solves
-
-Plain HTTP is request/response: the client asks, the server answers once. That works for short tool calls. But two situations break it:
-
-- **Slow tools** — a tool that runs for several seconds would leave the HTTP connection open waiting, blocking server threads and confusing clients with timeouts.
-- **Server-initiated messages** — the server may want to push progress updates or notifications to the client without being asked.
-
-The legacy transport solved this by separating GET (SSE channel for server→client messages) and POST (JSON-RPC calls), but it required a dedicated SSE endpoint alongside the JSON-RPC endpoint.
-
-### How Streamable HTTP works
-
-Streamable HTTP uses a **single endpoint** for everything. The same URL accepts three HTTP methods with different semantics:
-
-| Method | Body / headers | Purpose |
-|--------|---------------|---------|
-| `POST` | JSON-RPC 2.0 message + optional `Mcp-Session-Id` | Send a request or notification to the server |
-| `GET` | `Accept: text/event-stream` + `Mcp-Session-Id` | Open a persistent SSE channel for server→client messages |
-| `DELETE` | `Mcp-Session-Id` | Terminate the session |
+A single endpoint accepts **`POST` only**. `GET` and `DELETE` answer `405 Method Not Allowed` (`Allow: POST`); a request whose `Content-Type` is not `application/json` answers `415`. A JSON-RPC notification (a message without `id`) is accepted with `202` and an empty body.
 
 ### JSON-RPC 2.0 as the message format
 
-All `POST` bodies and all server responses are **JSON-RPC 2.0** messages. MCP doesn't invent a new wire format — it defines which method names exist and what their `params`/`result` shapes look like.
+All `POST` bodies and all server responses are **JSON-RPC 2.0** messages. A tool call looks like:
 
-A tool call POST body looks like:
+```
+POST /mcp
+Content-Type: application/json
+MCP-Protocol-Version: 2026-07-28
+Mcp-Method: tools/call
+Mcp-Name: search_notes
+```
 ```json
-{"jsonrpc":"2.0","method":"tools/call","params":{"name":"search_notes","arguments":{"query":"meeting"}},"id":"3"}
+{"jsonrpc":"2.0","id":"3","method":"tools/call","params":{
+  "name":"search_notes","arguments":{"query":"meeting"},
+  "_meta":{
+    "io.modelcontextprotocol/protocolVersion":"2026-07-28",
+    "io.modelcontextprotocol/clientInfo":{"name":"my-client","version":"1.0"},
+    "io.modelcontextprotocol/clientCapabilities":{}
+  }}}
 ```
 
-A synchronous server response looks like:
+and its response:
 ```json
-{"jsonrpc":"2.0","result":{"content":[{"type":"text","text":"note-42: team meeting notes…"}],"isError":false},"id":"3"}
+{"jsonrpc":"2.0","id":"3","result":{"content":[{"type":"text","text":"note-42: team meeting notes…"}],"isError":false}}
 ```
 
-An error response follows the standard JSON-RPC error shape:
+An error follows the standard JSON-RPC shape:
 ```json
-{"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found"},"id":"3"}
+{"jsonrpc":"2.0","id":"3","error":{"code":-32602,"message":"…"}}
 ```
 
-The same response is sent inline (200) for fast tools or pushed as an `event: message` on the SSE channel (after a 202) for slow tools — the wire format is identical in both cases.
+A numeric `id` is accepted; the response echoes it as a string.
 
-**Note — `McpProcessor` and `poom-json-rpc`:** `poom-services` already has a JSON-RPC 2.0 processor (`poom-json-rpc`). `McpProcessor` does not reuse it. The reason is architectural: `poom-json-rpc` blocks the HTTP thread until all handlers return, which is incompatible with the SSE channel (the `GET` handler must hold the thread open indefinitely) and with the async 202 path (which must release the POST thread before the handler finishes). `McpProcessor` therefore handles JSON-RPC parsing and serialization directly — the overlap with `poom-json-rpc` is intentional, not an oversight.
+**Note — `McpProcessor` and `poom-json-rpc`:** `poom-services` already has a JSON-RPC 2.0 processor (`poom-json-rpc`). `McpProcessor` does not reuse it, because `poom-json-rpc` writes a single response once all handlers return, which is incompatible with the SSE reply of a slow `tools/call`. `McpProcessor` therefore handles JSON-RPC parsing and serialization directly — the overlap is intentional.
 
-The server can respond to a `POST` in two ways depending on how long the handler takes:
+### Required headers and `_meta`
+
+Each request carries its context, and the server checks it against the body:
+
+| Where | Name | Content |
+|-------|------|---------|
+| Header | `MCP-Protocol-Version` | `2026-07-28` |
+| Header | `Mcp-Method` | the JSON-RPC `method` |
+| Header | `Mcp-Name` | `params.name` for `tools/call` and `prompts/get`, `params.uri` for `resources/read`, `params.taskId` for `tasks/*`. May be encoded `=?base64?<base64 of the UTF-8 value>?=`. Not required for other methods. |
+| `params._meta` | `io.modelcontextprotocol/protocolVersion` | must equal the header |
+| `params._meta` | `io.modelcontextprotocol/clientInfo` | `{name, version}` |
+| `params._meta` | `io.modelcontextprotocol/clientCapabilities` | e.g. `{"extensions":{"io.modelcontextprotocol/tasks":{}}}` to accept tasks |
+
+Rejections (HTTP `400`, JSON-RPC error):
+
+| Code | Cause | `error.data` |
+|------|-------|--------------|
+| `-32022` | `MCP-Protocol-Version` missing or not `2026-07-28` (e.g. a legacy `initialize` from a 2025 client) | `{"supported":["2026-07-28"],"requested":"<value>"}` |
+| `-32020` | `MCP-Protocol-Version` differs from `_meta`, `Mcp-Method` differs from `method`, or `Mcp-Name` differs from the body | — |
+
+Other errors: `-32700` parse error and `-32600` invalid request (HTTP `400`); `-32601` unknown method, `-32602` invalid params (unknown tool, prompt, resource or task) and `-32603` internal error (HTTP `200`).
+
+### `server/discover`
+
+Replaces `initialize`. It returns what the server supports:
+
+```json
+{"jsonrpc":"2.0","id":"1","result":{
+  "resultType":"complete",
+  "supportedVersions":["2026-07-28"],
+  "capabilities":{"tools":{},"resources":{},"prompts":{},"extensions":{"io.modelcontextprotocol/tasks":{}}},
+  "_meta":{"io.modelcontextprotocol/serverInfo":{"name":"my-assistant","version":"1.0.0"}}}}
+```
+
+`tools`, `resources` and `prompts` appear when the descriptor declares at least one; `extensions` appears when at least one tool is a task tool (see [Task tools](#task-tools)).
+
+### The shape of a `tools/call` response
+
+The `POST` thread stays on the request until it has the answer. The shape depends on how long the tool takes, governed by `McpTimings`:
+
+| Threshold | Default | Meaning |
+|-----------|---------|---------|
+| `jsonWindow` | 1 s | Below it, the answer is a plain `application/json` response. Past it, the response switches to an SSE stream. |
+| `keepalive` | 15 s | Interval of SSE keepalive comments, under the 40 s idle limit of clients and proxies. |
+| `taskAfter` | 20 s | Past it, a task tool answers with a `CreateTaskResult` — if the client declared the tasks extension. |
+| `streamMax` | 5 min | Maximum stream duration. Past it, the stream ends with an `isError` result whose text is `{"error":"no_result",…}`. |
+
+`McpTimings` also holds `toolPollInterval` (how often a task tool is read while the stream is open, 1 s), `taskTtl` (1 h) and `clientPollInterval` (2 s), the last two being advertised to the client in `CreateTaskResult`.
 
 ```
 Client                                  Server
-  │                                        │
   │  POST /mcp  { tools/call }             │
   │───────────────────────────────────────►│
-  │                                        │  handler finishes in < 500ms
-  │  200 { result: ... }                   │
-  │◄───────────────────────────────────────│  ← synchronous response
+  │                                        │  tool finishes within jsonWindow
+  │  200 application/json { result }       │
+  │◄───────────────────────────────────────│
   │                                        │
   │  POST /mcp  { tools/call (slow) }      │
   │───────────────────────────────────────►│
-  │                                        │  handler still running at 500ms
-  │  202 Accepted                          │
-  │◄───────────────────────────────────────│  ← accepted, will push result later
-  │                                        │
-  │                    event: message      │  ← result arrives on SSE channel
-  │◄───────────────────────────────────────│    once the handler completes
+  │                                        │  tool still running at jsonWindow
+  │  200 text/event-stream                 │  headers: X-Accel-Buffering: no
+  │◄───────────────────────────────────────│
+  │  :                                     │  keepalive comment, every keepalive
+  │  :                                     │
+  │  event: message                        │  one single event: the JSON-RPC response
+  │  data: { result }                      │
+  │◄───────────────────────────────────────│
+  │                                        │  stream closed
 ```
 
-The `202` path requires a live SSE channel (opened with `GET`) to be available for the session. The server pushes the result as a `message` event once the handler finishes.
-
-### SSE channel
-
-The SSE channel (`GET /mcp`) is a long-lived HTTP response with `Content-Type: text/event-stream`. The connection stays open for the duration of the session. The server sends:
-
-- `event: ping` — keepalive every 30 seconds (no data)
-- `event: message` — async tool call result (JSON-RPC response payload)
-
-The channel is closed when the client sends `DELETE /mcp` or disconnects.
-
-### Session lifecycle
-
-```
-POST /mcp { initialize }         → session created, Mcp-Session-Id returned
-GET  /mcp (SSE)                  → channel registered for the session
-POST /mcp { tools/list }         → sync response
-POST /mcp { tools/call (fast) }  → sync response (< syncTimeoutMillis)
-POST /mcp { tools/call (slow) }  → 202, then event: message on SSE channel
-DELETE /mcp                      → session closed, SSE channel closed
-```
-
-Every request after `initialize` must carry the `Mcp-Session-Id` header returned during initialization. Without it the server returns `400` (for `POST`) or `404` (for `GET`/`DELETE`).
+The stream carries exactly one `event: message`, then closes. If the client closes the connection first, the tool is interrupted and, for a task tool, its task is cancelled.
 
 ### Why not just use WebSocket?
 
-WebSocket is bidirectional but requires a dedicated upgrade handshake and persistent connection management at the load balancer / proxy layer. Streamable HTTP is two standard HTTP semantics (request/response + SSE) that work out-of-the-box with any HTTP/1.1 infrastructure.
+WebSocket is bidirectional but requires a dedicated upgrade handshake and persistent connection management at the load balancer / proxy layer. Streamable HTTP is standard request/response, optionally upgraded to SSE for a single reply, and works with any HTTP/1.1 infrastructure.
 
 ---
 
@@ -257,14 +277,20 @@ ExecutorService toolExecutor = Executors.newFixedThreadPool(4);
 JsonFactory jsonFactory = new JsonFactory();
 
 McpProcessor mcpProcessor = new McpProcessor(
-        "/mcp",           // URL path this processor is mounted at
         jsonFactory,
         descriptor,
         toolExecutor
 );
 ```
 
-The optional fifth argument `syncTimeoutMillis` (default: 500 ms) controls whether a tool call is answered synchronously or asynchronously (see [Async tool calls](#async-tool-calls)).
+The processor is mounted wherever you route it: it no longer takes a path. To change the transport thresholds, pass an `McpTimings` as a fourth argument (see [The shape of a `tools/call` response](#the-shape-of-a-toolscall-response)):
+
+```java
+McpTimings timings = McpTimings.defaults().withStreamMax(Duration.ofMinutes(2));
+McpProcessor mcpProcessor = new McpProcessor(jsonFactory, descriptor, toolExecutor, timings);
+```
+
+The constructors are `McpProcessor(JsonFactory, McpServerDescriptor, ExecutorService)` and `McpProcessor(JsonFactory, McpServerDescriptor, ExecutorService, McpTimings)`. The executor runs the tool handlers; the processor also owns a daemon scheduler for the SSE keepalives.
 
 ### 6 — Wire into an HTTP server
 
@@ -274,7 +300,7 @@ The optional fifth argument `syncTimeoutMillis` (default: 500 ms) controls wheth
 import org.codingmatters.poom.services.runtime.Service;
 
 public static void main(String[] args) {
-    McpProcessor processor = new McpProcessor("/mcp", new JsonFactory(), descriptor,
+    McpProcessor processor = new McpProcessor(new JsonFactory(), descriptor,
             Executors.newFixedThreadPool(4));
 
     Service.fromEnv(processor, "my-mcp-server", new JsonFactory())
@@ -298,68 +324,64 @@ server.start();
 
 ---
 
-## Session lifecycle
+## Task tools
 
-The MCP Streamable HTTP protocol is session-based. Each client goes through this sequence:
-
-```
-Client                                    Server
-  |                                          |
-  |  POST /mcp  (initialize)                 |
-  |  Content-Type: application/json          |
-  |  {"jsonrpc":"2.0","method":"initialize"} |
-  |----------------------------------------->|
-  |  200 + Mcp-Session-Id: <uuid>            |
-  |<-----------------------------------------|
-  |                                          |
-  |  GET /mcp                                |
-  |  Accept: text/event-stream               |
-  |  Mcp-Session-Id: <uuid>                  |
-  |----------------------------------------->|
-  |  200 text/event-stream (SSE channel)     |
-  |  event: ping                             |  ← keepalive every 30s
-  |<-----------------------------------------|
-  |                                          |
-  |  POST /mcp  (tools/list, tools/call...)  |
-  |  Mcp-Session-Id: <uuid>                  |
-  |----------------------------------------->|
-  |  200 (sync result) or 202 (async)        |
-  |<-----------------------------------------|
-  |                      event: message      |  ← async result via SSE
-  |<-----------------------------------------|
-  |                                          |
-  |  DELETE /mcp                             |
-  |  Mcp-Session-Id: <uuid>                  |
-  |----------------------------------------->|
-  |  200                                     |
-  |<-----------------------------------------|
-```
-
-The SSE channel (`GET`) must be open before any async tool call can push a result. The client is responsible for opening it after initialization.
-
-**Session headers:**
-- `Mcp-Session-Id` — assigned by the server on `initialize`, must be sent on all subsequent requests.
-- Protocol version negotiated: `2024-11-05`.
-
----
-
-## Async tool calls
-
-By default, `McpProcessor` waits up to **500 ms** for a tool handler to complete. If the handler returns before the timeout, the result is sent inline in the `POST` response (HTTP 200). If the handler is still running at the timeout, the server responds with HTTP **202** and sends the result as a `message` SSE event once the handler completes.
-
-```
-Tool finishes within 500ms    →  POST responds 200 with result
-Tool takes longer than 500ms  →  POST responds 202 (accepted)
-                                 SSE: event: message\ndata: <json-rpc result>
-```
-
-Tune the timeout at construction time:
+A tool whose work outlives the request (a long export, a batch job) can be declared a **task tool** by giving its descriptor a `McpToolTasks` instead of a `handler`. The server is stateless, so the tool owns the durable storage: `get` and `cancel` may be called on a different replica than the one that ran `start`.
 
 ```java
-new McpProcessor("/mcp", jsonFactory, descriptor, toolExecutor, 2_000); // 2s
+McpToolDescriptor exportTool = McpToolDescriptor.builder()
+        .name("export_notes")
+        .description("Exports all notes. Long running.")
+        .tasks(new McpToolTasks() {
+            @Override public Start start(CallToolParams params) {
+                String jobId = jobs.submit(params);           // durable storage
+                return new Start.Running(jobId);              // or new Start.Done(result) for an immediate answer/refusal
+            }
+            @Override public McpTaskState get(String jobId) {
+                // throw McpTaskNotFoundException if jobId is unknown or belongs to another context
+                return jobs.state(jobId);
+            }
+            @Override public void cancel(String jobId) { jobs.cancel(jobId); }
+        })
+        .build();
 ```
 
-For a tool that will always be slow, setting `syncTimeoutMillis = 0` forces 202 immediately.
+When a descriptor carries `tasks`, the processor uses it and ignores `handler`.
+
+**Contract**
+
+- `start` returns `Start.Running(toolTaskId)` or `Start.Done(CallToolResult)` for an answer or a refusal that needs no task.
+- `get` returns an `McpTaskState`: `WORKING`, `COMPLETED` (with a `CallToolResult`) or `FAILED` (with a JSON-RPC error code and message). It throws `McpTaskNotFoundException` for an unknown id, or one that is foreign to the current request context — the implementation checks ownership.
+- `cancel` requests the stop without waiting for it, and must not throw when the stop is impossible.
+- **`COMPLETED` + `isError: true` is for a business failure** (the work ran and its outcome is an error the model should read). **`FAILED` is reserved for the failure of the task itself** and is carried as a JSON-RPC error.
+
+**What the client sees**
+
+1. A client that declared `io.modelcontextprotocol/tasks` in `_meta.io.modelcontextprotocol/clientCapabilities.extensions` calls the tool with a plain `tools/call`. It follows the usual `jsonWindow` then SSE flow; if the task is still running at `taskAfter`, the stream ends with a flat `CreateTaskResult`:
+
+```json
+{"jsonrpc":"2.0","id":"7","result":{"resultType":"task","taskId":"ZXhwb3J0X25vdGVz.1790000000000.job-17",
+  "status":"working","createdAt":"2026-10-08T10:00:00Z","lastUpdatedAt":"2026-10-08T10:00:20Z",
+  "ttlMs":3600000,"pollIntervalMs":2000}}
+```
+
+   A client that did not declare the extension keeps the plain stream, bounded by `streamMax`.
+
+2. The public `taskId` is `base64url(toolName).createdAtEpochMillis.toolTaskId`, so any replica can find the tool and the creation date from the id alone.
+
+3. `tasks/get` (`Mcp-Name` = the `taskId`) returns the state; `resultType` is `"complete"`:
+
+```json
+{"jsonrpc":"2.0","id":"8","result":{"resultType":"complete","taskId":"…","status":"completed",
+  "createdAt":"…","lastUpdatedAt":"…","ttlMs":3600000,"pollIntervalMs":2000,
+  "result":{"content":[{"type":"text","text":"done"}],"isError":false}}}
+```
+
+   `status` is `working`, `completed` or `failed`; a completed task carries `result`, a failed one carries `error: {code, message}`. `lastUpdatedAt` is the time of the read.
+
+4. `tasks/cancel` asks the tool to stop and answers `{"resultType":"complete"}`; it is acknowledged even if the stop failed.
+
+An unknown, malformed or foreign `taskId` answers `-32602`. If the client closes the stream before the answer, the tool is interrupted and its task is cancelled.
 
 ---
 
@@ -400,7 +422,6 @@ public class NoteAssistantServer {
                 .build();
 
         McpProcessor processor = new McpProcessor(
-                "/mcp",
                 new JsonFactory(),
                 descriptor,
                 Executors.newFixedThreadPool(4)
@@ -523,43 +544,36 @@ Return an error result (rather than throwing) to signal a handled failure. The m
 })
 ```
 
-If the handler throws an unchecked exception, `McpProcessor` catches it and returns a JSON-RPC `-32603 Internal error` response — the session is not terminated.
+If the handler throws an unchecked exception, `McpProcessor` catches it and returns a JSON-RPC `-32603 Internal error` response — the server stays up and the next request is unaffected.
 
 ---
 
 ## Testing
 
-Use `TestRequestDeleguate` and `TestResponseDeleguate` from `cdm-rest-tests-support` to test your tool handlers directly against `McpProcessor` without a running HTTP server:
+Use `TestRequestDeleguate` and `TestResponseDeleguate` from `cdm-rest-tests-support` to test your tools against `McpProcessor` without an HTTP server. A request must carry the 2026-07-28 headers and `_meta`; the processor tests show how:
+
+- `McpTestRequests` (in `poom-mcp-processor/src/test`) builds conformant requests: `post(method, name, body)` sets `MCP-Protocol-Version`, `Mcp-Method` and `Mcp-Name`, and `body(id, method, paramsJson, tasks)` injects `_meta` into `params`. It is package-private to the processor tests, so copy its approach into your own test (the demo's `NoteAssistantIntegrationTest` does).
+- `RecordingResponse` extends `TestResponseDeleguate` with an SSE channel that counts keepalive comments and can simulate a client that closed the stream. Use it to check the SSE path.
 
 ```java
 @Test
-void createNoteReturnssId() throws Exception {
-    McpProcessor processor = new McpProcessor("/mcp", new JsonFactory(),
-            descriptor, Executors.newSingleThreadExecutor());
+void givenCreateNote__whenToolsCall__thenIdReturned() throws Exception {
+    McpProcessor processor = new McpProcessor(new JsonFactory(), descriptor, Executors.newSingleThreadExecutor());
 
-    // initialize to get a session
-    TestResponseDeleguate initResp = new TestResponseDeleguate();
-    processor.process(
-            TestRequestDeleguate.request(RequestDelegate.Method.POST, "http://test/mcp")
-                    .contentType("application/json")
-                    .payload(new ByteArrayInputStream(
-                        "{\"jsonrpc\":\"2.0\",\"method\":\"initialize\",\"params\":{},\"id\":\"1\"}"
-                        .getBytes(StandardCharsets.UTF_8)))
-                    .build(),
-            initResp);
-    String sessionId = initResp.headers().get("Mcp-Session-Id")[0];
+    String body = "{\"jsonrpc\":\"2.0\",\"id\":\"2\",\"method\":\"tools/call\",\"params\":{"
+            + "\"name\":\"create_note\",\"arguments\":{\"text\":\"hello\"},"
+            + "\"_meta\":{\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\","
+            + "\"io.modelcontextprotocol/clientInfo\":{\"name\":\"test\",\"version\":\"1\"},"
+            + "\"io.modelcontextprotocol/clientCapabilities\":{}}}}";
 
-    // call the tool
     TestResponseDeleguate resp = new TestResponseDeleguate();
     processor.process(
             TestRequestDeleguate.request(RequestDelegate.Method.POST, "http://test/mcp")
                     .contentType("application/json")
-                    .addHeader("Mcp-Session-Id", sessionId)
-                    .payload(new ByteArrayInputStream(
-                        "{\"jsonrpc\":\"2.0\",\"method\":\"tools/call\"," +
-                        "\"params\":{\"name\":\"create_note\",\"arguments\":{\"text\":\"hello\"}}," +
-                        "\"id\":\"2\"}"
-                        .getBytes(StandardCharsets.UTF_8)))
+                    .addHeader("MCP-Protocol-Version", "2026-07-28")
+                    .addHeader("Mcp-Method", "tools/call")
+                    .addHeader("Mcp-Name", "create_note")
+                    .payload(new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8)))
                     .build(),
             resp);
 
@@ -574,13 +588,14 @@ void createNoteReturnssId() throws Exception {
 
 | Feature | Status |
 |---------|--------|
+| `server/discover` | ✅ implemented (replaces `initialize`) |
 | `tools/list` | ✅ implemented |
-| `tools/call` (sync) | ✅ implemented |
-| `tools/call` (async via SSE) | ✅ implemented |
-| `resources/list` | ✅ implemented (listing only) |
-| `resources/read` | ✅ implemented |
-| `prompts/list` | ✅ implemented (listing only) |
-| `prompts/get` | ✅ implemented |
-| Numeric / null `id` | ❌ `id` is typed `string`; numeric ids cause a parse error |
-| Tool call cancellation | ❌ not implemented |
+| `tools/call` (JSON, or SSE past `jsonWindow`) | ✅ implemented |
+| Task tools (`CreateTaskResult`, `tasks/get`, `tasks/cancel`) | ✅ implemented |
+| `resources/list`, `resources/read` | ✅ implemented |
+| `prompts/list`, `prompts/get` | ✅ implemented |
+| Numeric / string `id` | ✅ echoed as received |
+| Cancellation by closing the stream | ✅ the tool is interrupted, its task cancelled |
+| `notifications/progress` | ❌ not emitted |
+| Pagination (`cursor`) of list methods | ❌ not implemented |
 | Roots negotiation | ❌ not implemented |
