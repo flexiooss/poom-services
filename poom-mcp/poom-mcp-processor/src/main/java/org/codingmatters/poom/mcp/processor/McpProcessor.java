@@ -3,6 +3,10 @@ package org.codingmatters.poom.mcp.processor;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import org.codingmatters.poom.mcp.McpServerDescriptor;
+import org.codingmatters.poom.mcp.McpTaskNotFoundException;
+import org.codingmatters.poom.mcp.McpTaskState;
+import org.codingmatters.poom.mcp.McpToolDescriptor;
+import org.codingmatters.poom.mcp.McpToolTasks;
 import org.codingmatters.poom.mcp.types.McpRequest;
 import org.codingmatters.poom.mcp.types.McpResponse;
 import org.codingmatters.poom.mcp.types.json.McpIdNormalizingParser;
@@ -103,6 +107,8 @@ public class McpProcessor implements Processor {
             case "resources/read" -> this.handleResourceRead(response, mcpRequest);
             case "prompts/list" -> this.writer.json(response, this.buildListPromptsResult(mcpRequest));
             case "prompts/get" -> this.handlePromptGet(response, mcpRequest);
+            case "tasks/get" -> this.handleTaskGet(response, mcpRequest);
+            case "tasks/cancel" -> this.handleTaskCancel(response, mcpRequest);
             default -> this.writer.json(response,
                     this.writer.errorResponse(mcpRequest.id(), McpProtocol.METHOD_NOT_FOUND, "Method not found"));
         }
@@ -312,5 +318,52 @@ public class McpProcessor implements Processor {
                         .property("prompts", PropertyValue.multipleObject(prompts.toArray(new ObjectValue[0])))
                         .build())
                 .build();
+    }
+
+    private Optional<McpToolTasks> taskTool(TaskIds.Ref ref) {
+        return this.descriptor.opt().tools().safe().stream()
+                .filter(t -> ref.toolName().equals(t.name()) && t.tasks() != null)
+                .map(McpToolDescriptor::tasks)
+                .findFirst();
+    }
+
+    private Optional<TaskIds.Ref> taskRef(McpRequest mcpRequest) {
+        ObjectValue params = mcpRequest.params();
+        String taskId = params != null && params.property("taskId") != null ? params.property("taskId").single().stringValue() : null;
+        return TaskIds.decode(taskId).filter(ref -> this.taskTool(ref).isPresent());
+    }
+
+    private void handleTaskGet(ResponseDelegate response, McpRequest mcpRequest) throws IOException {
+        Optional<TaskIds.Ref> ref = this.taskRef(mcpRequest);
+        if (ref.isEmpty()) {
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INVALID_PARAMS, "Unknown task"));
+            return;
+        }
+        try {
+            McpTaskState state = this.taskTool(ref.get()).get().get(ref.get().toolTaskId());
+            String taskId = TaskIds.encode(ref.get().toolName(), ref.get().createdAt(), ref.get().toolTaskId());
+            this.writer.json(response, this.writer.result(mcpRequest.id(),
+                    this.writer.taskState(taskId, ref.get().createdAt(), state, this.timings)));
+        } catch (McpTaskNotFoundException e) {
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INVALID_PARAMS, "Unknown task"));
+        } catch (RuntimeException e) {
+            log.error("tasks/get failed for tool {}", ref.get().toolName(), e);
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INTERNAL_ERROR, "Internal error"));
+        }
+    }
+
+    private void handleTaskCancel(ResponseDelegate response, McpRequest mcpRequest) throws IOException {
+        Optional<TaskIds.Ref> ref = this.taskRef(mcpRequest);
+        if (ref.isEmpty()) {
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INVALID_PARAMS, "Unknown task"));
+            return;
+        }
+        try {
+            this.taskTool(ref.get()).get().cancel(ref.get().toolTaskId());
+        } catch (RuntimeException e) {
+            log.warn("tasks/cancel failed for tool {}, acknowledged anyway", ref.get().toolName(), e);
+        }
+        this.writer.json(response, this.writer.result(mcpRequest.id(),
+                ObjectValue.builder().property("resultType", v -> v.stringValue("complete")).build()));
     }
 }

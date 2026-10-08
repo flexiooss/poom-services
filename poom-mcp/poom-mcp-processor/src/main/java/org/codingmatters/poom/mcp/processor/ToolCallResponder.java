@@ -10,6 +10,8 @@ import org.codingmatters.rest.api.SseChannel;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -137,9 +139,14 @@ final class ToolCallResponder {
         }
     }
 
-    /** Remplie par la Task 5 : rend le CreateTaskResult, ou null si la tâche n'a pas encore d'identifiant. */
+    /** Rend le CreateTaskResult, ou null si la tâche n'a pas encore d'identifiant. */
     McpResponse onTaskAfter(McpRequest request, String toolName, ToolRun run) {
-        return null;
+        Optional<String> id = run.toolTaskId();
+        Optional<Instant> createdAt = run.createdAt();
+        if (id.isEmpty() || createdAt.isEmpty()) return null;
+        run.stopWaiting(); // l'attente locale s'arrête, le travail durable continue
+        return this.writer.result(request.id(), this.writer.createTaskResult(
+                TaskIds.encode(toolName, createdAt.get(), id.get()), createdAt.get(), this.timings));
     }
 
     private McpResponse internalError(String id, RuntimeException e) {

@@ -8,6 +8,7 @@ import org.codingmatters.poom.mcp.types.CallToolResult;
 import org.codingmatters.poom.mcp.types.McpError;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -30,6 +31,7 @@ final class ToolRun {
 
     private final McpToolTasks tasks;
     private final AtomicReference<String> toolTaskId = new AtomicReference<>();
+    private final AtomicReference<Instant> createdAt = new AtomicReference<>();
     private Future<CallToolResult> result;
 
     private ToolRun(McpToolTasks tasks) {
@@ -52,6 +54,7 @@ final class ToolRun {
         McpToolTasks.Start start = this.tasks.start(params);
         if (start instanceof McpToolTasks.Start.Done done) return done.result();
         String id = ((McpToolTasks.Start.Running) start).toolTaskId();
+        this.createdAt.set(Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS)); // la précision du taskId
         this.toolTaskId.set(id);
         while (true) {
             McpTaskState state = this.tasks.get(id);
@@ -73,6 +76,11 @@ final class ToolRun {
 
     Optional<String> toolTaskId() {
         return Optional.ofNullable(this.toolTaskId.get());
+    }
+
+    /** Instant où {@code start} a rendu {@code Running}. Renseigné avant {@link #toolTaskId()}. */
+    Optional<Instant> createdAt() {
+        return Optional.ofNullable(this.createdAt.get());
     }
 
     /** Arrête l'attente locale. Pour un outil à tâches, le travail durable continue. */

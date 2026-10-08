@@ -2,6 +2,7 @@ package org.codingmatters.poom.mcp.processor;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import org.codingmatters.poom.mcp.McpTaskState;
 import org.codingmatters.poom.mcp.types.CallToolResult;
 import org.codingmatters.poom.mcp.types.McpError;
 import org.codingmatters.poom.mcp.types.McpResponse;
@@ -13,6 +14,7 @@ import org.codingmatters.value.objects.values.PropertyValue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 
 final class JsonRpcWriter {
@@ -66,6 +68,36 @@ final class JsonRpcWriter {
                 .property("content", PropertyValue.multipleObject(contentList.toArray(new ObjectValue[0])))
                 .property("isError", v -> v.booleanValue(result.isError() != null && result.isError()))
                 .build();
+    }
+
+    ObjectValue createTaskResult(String taskId, Instant createdAt, McpTimings timings) {
+        return ObjectValue.builder()
+                .property("resultType", v -> v.stringValue("task"))
+                .property("taskId", v -> v.stringValue(taskId))
+                .property("status", v -> v.stringValue("working"))
+                .property("createdAt", v -> v.stringValue(createdAt.toString()))
+                .property("lastUpdatedAt", v -> v.stringValue(Instant.now().toString()))
+                .property("ttlMs", v -> v.longValue(timings.taskTtl().toMillis()))
+                .property("pollIntervalMs", v -> v.longValue(timings.clientPollInterval().toMillis()))
+                .build();
+    }
+
+    /** {@code lastUpdatedAt} vaut l'instant de la lecture : l'outil ne fournit pas de date de mise à jour. */
+    ObjectValue taskState(String taskId, Instant createdAt, McpTaskState state, McpTimings timings) {
+        ObjectValue.Builder b = ObjectValue.builder()
+                .property("resultType", v -> v.stringValue("complete"))
+                .property("taskId", v -> v.stringValue(taskId))
+                .property("status", v -> v.stringValue(state.status().name().toLowerCase(java.util.Locale.ROOT)))
+                .property("createdAt", v -> v.stringValue(createdAt.toString()))
+                .property("lastUpdatedAt", v -> v.stringValue(Instant.now().toString()))
+                .property("ttlMs", v -> v.longValue(timings.taskTtl().toMillis()))
+                .property("pollIntervalMs", v -> v.longValue(timings.clientPollInterval().toMillis()));
+        if (state.result() != null) b.property("result", v -> v.objectValue(this.callToolResult(state.result())));
+        if (state.error() != null) b.property("error", v -> v.objectValue(ObjectValue.builder()
+                .property("code", c -> c.longValue((long) state.error().code()))
+                .property("message", m -> m.stringValue(state.error().message()))
+                .build()));
+        return b.build();
     }
 
     /** Résultat rendu quand un flux atteint {@code streamMax} : l'outil tourne peut-être encore. */
