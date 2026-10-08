@@ -43,10 +43,9 @@ final class RequestCheck {
 
     /** Le client a-t-il déclaré l'extension des tâches dans ses capacités ? */
     static boolean clientDeclaresTasks(McpRequest mcpRequest) {
-        ObjectValue capabilities = metaObject(mcpRequest, McpProtocol.META_CLIENT_CAPABILITIES);
-        if (capabilities == null || capabilities.property("extensions") == null) return false;
-        ObjectValue extensions = capabilities.property("extensions").single().objectValue();
-        return extensions != null && extensions.property(McpProtocol.TASKS_EXTENSION) != null;
+        ObjectValue capabilities = Params.object(meta(mcpRequest), McpProtocol.META_CLIENT_CAPABILITIES);
+        ObjectValue extensions = Params.object(capabilities, "extensions");
+        return Params.present(extensions, McpProtocol.TASKS_EXTENSION);
     }
 
     /** Lecture d'en-tête insensible à la casse : le délégué de test ne normalise pas les noms. */
@@ -87,26 +86,14 @@ final class RequestCheck {
     }
 
     private static String paramString(McpRequest mcpRequest, String name) {
-        ObjectValue params = mcpRequest.params();
-        if (params == null || params.property(name) == null) return null;
-        return params.property(name).single().stringValue();
+        return Params.string(mcpRequest.params(), name);
     }
 
     private static ObjectValue meta(McpRequest mcpRequest) {
-        ObjectValue params = mcpRequest.params();
-        if (params == null || params.property(McpProtocol.META) == null) return null;
-        return params.property(McpProtocol.META).single().objectValue();
+        return Params.object(mcpRequest.params(), McpProtocol.META);
     }
 
     private static String metaString(McpRequest mcpRequest, String key) {
-        ObjectValue meta = meta(mcpRequest);
-        if (meta == null || meta.property(key) == null) return null;
-        return meta.property(key).single().stringValue();
-    }
-
-    private static ObjectValue metaObject(McpRequest mcpRequest, String key) {
-        ObjectValue meta = meta(mcpRequest);
-        if (meta == null || meta.property(key) == null) return null;
-        return meta.property(key).single().objectValue();
+        return Params.string(meta(mcpRequest), key);
     }
 }

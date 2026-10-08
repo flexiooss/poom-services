@@ -183,6 +183,28 @@ class McpProcessorTasksTest {
     }
 
     @Test
+    void givenClientWithTasksGoneBeforeTaskAfter__whenKeepaliveFails__thenTaskCancelledWithToolTaskId() throws Exception {
+        RecordingResponse response = new RecordingResponse();
+        Thread client = new Thread(() -> {
+            try {
+                this.processor.process(post("tools/call", "slow",
+                        body("5", "tools/call", "{\"name\":\"slow\",\"arguments\":{}}", true)), response);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        client.start();
+        long deadline = System.currentTimeMillis() + 1_000;
+        while (response.sseChannel() == null && System.currentTimeMillis() < deadline) Thread.sleep(5); // le flux est ouvert
+        response.clientGone.set(true); // bien avant taskAfter (200 ms)
+        client.join(2_000);
+
+        assertThat(client.isAlive(), is(false));
+        assertThat(response.sseChannel().drainEvents(), is(empty()));
+        assertThat(this.tasks.cancelled, contains("exec-1"));
+    }
+
+    @Test
     void givenTask__whenTasksCancel__thenCompleteAckAndToolAsked() throws Exception {
         JsonNode response = this.tasksCall("tasks/cancel", TaskIds.encode("slow", CREATED, "exec-1"));
 

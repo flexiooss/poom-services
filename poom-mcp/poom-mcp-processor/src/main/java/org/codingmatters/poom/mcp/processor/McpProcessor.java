@@ -138,11 +138,8 @@ public class McpProcessor implements Processor {
                 .build();
     }
 
-    @SuppressWarnings("unchecked")
     private void handleToolCall(ResponseDelegate response, McpRequest mcpRequest) throws IOException {
-        String toolName = mcpRequest.params() != null && mcpRequest.params().property("name") != null
-                ? mcpRequest.params().property("name").single().stringValue()
-                : null;
+        String toolName = Params.string(mcpRequest.params(), "name");
         Optional<org.codingmatters.poom.mcp.McpToolDescriptor> tool = descriptor.opt().tools().safe().stream()
                 .filter(t -> toolName != null && toolName.equals(t.name()))
                 .findFirst();
@@ -152,11 +149,10 @@ public class McpProcessor implements Processor {
             return;
         }
 
-        ObjectValue arguments = mcpRequest.params() != null && mcpRequest.params().property("arguments") != null
-                ? mcpRequest.params().property("arguments").single().objectValue()
-                : ObjectValue.builder().build();
+        ObjectValue arguments = this.arguments(mcpRequest);
         if (arguments == null) {
-            arguments = ObjectValue.builder().build();
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INVALID_PARAMS, "Invalid params: arguments must be an object"));
+            return;
         }
 
         org.codingmatters.poom.mcp.types.CallToolParams params =
@@ -167,6 +163,15 @@ public class McpProcessor implements Processor {
 
         ToolRun run = ToolRun.start(tool.get(), params, this.toolExecutor, this.timings.toolPollInterval());
         this.responder.respond(response, mcpRequest, toolName, run, RequestCheck.clientDeclaresTasks(mcpRequest));
+    }
+
+    /** Les arguments de l'appel : vides si absents ou nuls, null s'ils sont d'un autre type qu'un objet. */
+    private ObjectValue arguments(McpRequest mcpRequest) {
+        ObjectValue params = mcpRequest.params();
+        if (!Params.present(params, "arguments") || params.property("arguments").isNullValue()) {
+            return ObjectValue.builder().build();
+        }
+        return Params.object(params, "arguments");
     }
 
     private McpResponse buildListToolsResult(McpRequest request) {
@@ -188,9 +193,7 @@ public class McpProcessor implements Processor {
 
     @SuppressWarnings("unchecked")
     private void handleResourceRead(ResponseDelegate response, McpRequest mcpRequest) throws IOException {
-        String uri = mcpRequest.params() != null && mcpRequest.params().property("uri") != null
-                ? mcpRequest.params().property("uri").single().stringValue()
-                : null;
+        String uri = Params.string(mcpRequest.params(), "uri");
         if (uri == null) {
             this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INVALID_PARAMS, "Invalid params: uri required"));
             return;
@@ -260,9 +263,7 @@ public class McpProcessor implements Processor {
 
     @SuppressWarnings("unchecked")
     private void handlePromptGet(ResponseDelegate response, McpRequest mcpRequest) throws IOException {
-        String name = mcpRequest.params() != null && mcpRequest.params().property("name") != null
-                ? mcpRequest.params().property("name").single().stringValue()
-                : null;
+        String name = Params.string(mcpRequest.params(), "name");
         Optional<org.codingmatters.poom.mcp.McpPromptDescriptor> prompt =
                 descriptor.opt().prompts().safe().stream()
                         .filter(p -> name != null && name.equals(p.name()))
@@ -271,10 +272,11 @@ public class McpProcessor implements Processor {
             this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.METHOD_NOT_FOUND, "Prompt not found: " + name));
             return;
         }
-        ObjectValue arguments = mcpRequest.params() != null && mcpRequest.params().property("arguments") != null
-                ? mcpRequest.params().property("arguments").single().objectValue()
-                : ObjectValue.builder().build();
-        if (arguments == null) arguments = ObjectValue.builder().build();
+        ObjectValue arguments = this.arguments(mcpRequest);
+        if (arguments == null) {
+            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INVALID_PARAMS, "Invalid params: arguments must be an object"));
+            return;
+        }
 
         org.codingmatters.poom.mcp.types.GetPromptParams params =
                 org.codingmatters.poom.mcp.types.GetPromptParams.builder()
@@ -328,8 +330,7 @@ public class McpProcessor implements Processor {
     }
 
     private Optional<TaskIds.Ref> taskRef(McpRequest mcpRequest) {
-        ObjectValue params = mcpRequest.params();
-        String taskId = params != null && params.property("taskId") != null ? params.property("taskId").single().stringValue() : null;
+        String taskId = Params.string(mcpRequest.params(), "taskId");
         return TaskIds.decode(taskId).filter(ref -> this.taskTool(ref).isPresent());
     }
 

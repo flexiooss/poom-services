@@ -18,6 +18,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Forme de la réponse d'un {@code tools/call} : JSON si l'outil rend avant {@code jsonWindow},
@@ -64,35 +65,45 @@ final class ToolCallResponder {
         response.status(200);
         response.addHeader("X-Accel-Buffering", "no");
         SseChannel channel = response.openSse();
-        // Un seul moniteur pour les deux écritures (keepalive / message final) : jamais d'écriture après un échec.
-        Object lock = new Object();
+        // Un verrou par flux pour les deux écritures (keepalive / message final) : jamais d'écriture après
+        // un échec, jamais de keepalive après le message final. Le keepalive ne fait que tryLock : un
+        // client lent qui bloque l'envoi final ne doit pas affamer le thread partagé des autres flux.
+        ReentrantLock lock = new ReentrantLock();
         boolean[] state = new boolean[2]; // 0 = gone, 1 = done (gardés par lock)
         long period = this.timings.keepalive().toMillis();
         ScheduledFuture<?> keepalive = this.keepalives.scheduleAtFixedRate(() -> {
-            synchronized (lock) {
+            if (!lock.tryLock()) return; // écriture en cours sur ce flux : ce battement est sauté
+            try {
                 if (state[0] || state[1]) return;
                 try {
                     channel.comment("");
-                } catch (IOException | UncheckedIOException e) {
+                } catch (IOException | RuntimeException e) {
+                    // RuntimeException aussi : une tâche périodique qui lève est annulée sans bruit.
                     state[0] = true;
                     run.stopWaiting();
                 }
+            } finally {
+                lock.unlock();
             }
-        }, period, period, TimeUnit.MILLISECONDS);
+        }, 0, period, TimeUnit.MILLISECONDS); // délai initial nul : un premier commentaire valide tout de suite les en-têtes
         try {
             McpResponse message = this.awaitInStream(request, toolName, run, clientTasks);
+            String payload = message != null ? this.serialize(request.id(), message) : null;
             boolean abandoned;
-            synchronized (lock) {
-                abandoned = state[0] || message == null;
+            lock.lock();
+            try {
+                abandoned = state[0] || payload == null;
                 if (!abandoned) {
                     try {
-                        channel.send("message", new String(this.writer.serialize(message), StandardCharsets.UTF_8));
+                        channel.send("message", payload);
                     } catch (IOException | UncheckedIOException e) {
                         state[0] = true;
                         abandoned = true;
                     }
                 }
                 state[1] = true;
+            } finally {
+                lock.unlock();
             }
             if (abandoned) {
                 run.stopWaiting();
@@ -101,6 +112,25 @@ final class ToolCallResponder {
         } finally {
             keepalive.cancel(false);
             channel.close();
+        }
+    }
+
+    /**
+     * Sérialise le message final hors verrou ; un échec ici n'est pas un départ du client : il devient une
+     * erreur interne (et null seulement si même celle-ci ne se sérialise pas).
+     */
+    private String serialize(String id, McpResponse message) {
+        try {
+            return new String(this.writer.serialize(message), StandardCharsets.UTF_8);
+        } catch (IOException | RuntimeException e) {
+            log.error("tool call response serialization failed", e);
+            try {
+                return new String(this.writer.serialize(this.writer.errorResponse(id, McpProtocol.INTERNAL_ERROR, "Internal error")),
+                        StandardCharsets.UTF_8);
+            } catch (IOException | RuntimeException again) {
+                log.error("tool call internal error serialization failed", again);
+                return null; // le flux se clôt sans message
+            }
         }
     }
 
@@ -151,7 +181,7 @@ final class ToolCallResponder {
 
     private McpResponse internalError(String id, RuntimeException e) {
         log.error("tool call response failed", e);
-        return this.writer.errorResponse(id, McpProtocol.INTERNAL_ERROR, "Internal error: " + e.getMessage());
+        return this.writer.errorResponse(id, McpProtocol.INTERNAL_ERROR, "Internal error");
     }
 
     private McpResponse failure(String id, ExecutionException e) {
@@ -159,7 +189,6 @@ final class ToolCallResponder {
             return this.writer.errorResponse(id, failed.error.code(), failed.error.message());
         }
         log.error("tool call failed", e.getCause());
-        return this.writer.errorResponse(id, McpProtocol.INTERNAL_ERROR, "Internal error: "
-                + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
+        return this.writer.errorResponse(id, McpProtocol.INTERNAL_ERROR, "Internal error");
     }
 }

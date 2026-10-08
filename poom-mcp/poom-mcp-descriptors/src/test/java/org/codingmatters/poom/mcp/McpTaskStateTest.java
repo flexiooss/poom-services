@@ -1,10 +1,12 @@
 package org.codingmatters.poom.mcp;
 
 import org.codingmatters.poom.mcp.types.CallToolResult;
+import org.codingmatters.poom.mcp.types.McpError;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class McpTaskStateTest {
 
@@ -26,6 +28,23 @@ class McpTaskStateTest {
 
         assertThat(state.status(), is(McpTaskState.Status.COMPLETED));
         assertThat(state.result(), is(result));
+    }
+
+    @Test
+    void givenInconsistentStates__whenBuilt__thenRefused() {
+        CallToolResult result = CallToolResult.builder().isError(false).build();
+        McpError error = McpError.builder().code(-32603).message("boom").build();
+
+        assertThrows(IllegalArgumentException.class, () -> new McpTaskState(null, null, null));
+        assertThrows(IllegalArgumentException.class, () -> new McpTaskState(McpTaskState.Status.FAILED, null, null));
+        assertThrows(IllegalArgumentException.class, () -> new McpTaskState(McpTaskState.Status.FAILED, null,
+                McpError.builder().message("no code").build()));
+        assertThrows(IllegalArgumentException.class, () -> new McpTaskState(McpTaskState.Status.FAILED, result, error));
+        assertThrows(IllegalArgumentException.class, () -> new McpTaskState(McpTaskState.Status.COMPLETED, null, null));
+        assertThrows(IllegalArgumentException.class, () -> new McpTaskState(McpTaskState.Status.COMPLETED, result, error));
+        assertThrows(IllegalArgumentException.class, () -> new McpTaskState(McpTaskState.Status.WORKING, result, null));
+        assertThrows(IllegalArgumentException.class, () -> new McpTaskState(McpTaskState.Status.WORKING, null, error));
+        assertThrows(IllegalArgumentException.class, () -> McpTaskState.completed(null));
     }
 
     @Test

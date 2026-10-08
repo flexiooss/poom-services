@@ -97,7 +97,7 @@ class McpProcessorStreamTest {
     }
 
     @Test
-    void givenToolThrowsAfterJsonWindow__whenCall__thenStreamEndsWithInternalError() throws Exception {
+    void givenToolThrowsAfterJsonWindow__whenCall__thenStreamEndsWithInternalErrorWithoutTheExceptionMessage() throws Exception {
         RecordingResponse response = this.call(this.processorWith("boom", p -> {
             try { Thread.sleep(100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             throw new IllegalStateException("kaput");
@@ -105,7 +105,7 @@ class McpProcessorStreamTest {
 
         List<TestSseChannel.SseEvent> events = response.sseChannel().drainEvents();
         assertThat(events, hasSize(1));
-        assertThat(events.get(0).data(), allOf(containsString("-32603"), containsString("kaput")));
+        assertThat(events.get(0).data(), allOf(containsString("-32603"), containsString("\"Internal error\""), not(containsString("kaput"))));
     }
 
     @Test

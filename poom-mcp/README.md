@@ -129,7 +129,9 @@ Client                                  Server
   │                                        │  stream closed
 ```
 
-The stream carries exactly one `event: message`, then closes. If the client closes the connection first, the tool is interrupted and, for a task tool, its task is cancelled.
+The stream carries exactly one `event: message`, then closes. A first keepalive comment is written as soon as the stream opens, so the headers reach the client at once. If the client closes the connection first, the tool is interrupted and, for a task tool, its task is cancelled. The departure is detected at the next keepalive write (up to `keepalive` later) or when the final message is written — never during `jsonWindow`, where nothing is written yet.
+
+**Sizing.** Each in-flight `tools/call` holds two threads: an Undertow worker thread (the request thread blocks until the answer) and a tool-executor thread, for up to `taskAfter` (a task tool called by a client that declared the extension) or `streamMax` (all other calls). A task tool polls its state on that executor thread (`toolPollInterval`). Size both the tool executor and the Undertow worker pool for the number of long calls you expect at the same time: a call that finds no free executor thread waits in the queue, and its `jsonWindow` and `streamMax` keep running.
 
 ### Why not just use WebSocket?
 
@@ -273,7 +275,8 @@ McpPromptDescriptor reviewPrompt = McpPromptDescriptor.builder()
 `McpProcessor` is a `Processor` — the standard poom-services HTTP handler interface.
 
 ```java
-ExecutorService toolExecutor = Executors.newFixedThreadPool(4);
+// one thread per concurrent tool call, long ones included — see "Sizing" above
+ExecutorService toolExecutor = Executors.newFixedThreadPool(32);
 JsonFactory jsonFactory = new JsonFactory();
 
 McpProcessor mcpProcessor = new McpProcessor(
@@ -301,7 +304,7 @@ import org.codingmatters.poom.services.runtime.Service;
 
 public static void main(String[] args) {
     McpProcessor processor = new McpProcessor(new JsonFactory(), descriptor,
-            Executors.newFixedThreadPool(4));
+            Executors.newFixedThreadPool(32)); // sized for concurrent long calls, see "Sizing"
 
     Service.fromEnv(processor, "my-mcp-server", new JsonFactory())
             .main(log);
@@ -341,7 +344,10 @@ McpToolDescriptor exportTool = McpToolDescriptor.builder()
                 // throw McpTaskNotFoundException if jobId is unknown or belongs to another context
                 return jobs.state(jobId);
             }
-            @Override public void cancel(String jobId) { jobs.cancel(jobId); }
+            @Override public void cancel(String jobId) {
+                // ignore silently if jobId is unknown or belongs to another context
+                jobs.cancel(jobId);
+            }
         })
         .build();
 ```
@@ -352,7 +358,8 @@ When a descriptor carries `tasks`, the processor uses it and ignores `handler`.
 
 - `start` returns `Start.Running(toolTaskId)` or `Start.Done(CallToolResult)` for an answer or a refusal that needs no task.
 - `get` returns an `McpTaskState`: `WORKING`, `COMPLETED` (with a `CallToolResult`) or `FAILED` (with a JSON-RPC error code and message). It throws `McpTaskNotFoundException` for an unknown id, or one that is foreign to the current request context — the implementation checks ownership.
-- `cancel` requests the stop without waiting for it, and must not throw when the stop is impossible.
+- `cancel` requests the stop without waiting for it, and must not throw when the stop is impossible. Like `get`, it must check that the id belongs to the current request context, and silently ignore a foreign or unknown id: the server acknowledges `tasks/cancel` whatever happens, so the tool is the only place where ownership is enforced.
+- The `toolTaskId` travels inside the public `taskId`, which any client can present: make it unguessable (a random UUID, not a sequence), or check its ownership in both `get` and `cancel`.
 - **`COMPLETED` + `isError: true` is for a business failure** (the work ran and its outcome is an error the model should read). **`FAILED` is reserved for the failure of the task itself** and is carried as a JSON-RPC error.
 
 **What the client sees**
@@ -381,7 +388,7 @@ When a descriptor carries `tasks`, the processor uses it and ignores `handler`.
 
 4. `tasks/cancel` asks the tool to stop and answers `{"resultType":"complete"}`; it is acknowledged even if the stop failed.
 
-An unknown, malformed or foreign `taskId` answers `-32602`. If the client closes the stream before the answer, the tool is interrupted and its task is cancelled.
+A malformed `taskId`, or one that names no task tool, answers `-32602` for both methods. A `toolTaskId` unknown to the tool or foreign to the context answers `-32602` on `tasks/get` (the tool throws `McpTaskNotFoundException`), whereas `tasks/cancel` acknowledges it — the tool ignores it. If the client closes the stream before the answer, the tool is interrupted and its task is cancelled.
 
 ---
 
@@ -424,7 +431,7 @@ public class NoteAssistantServer {
         McpProcessor processor = new McpProcessor(
                 new JsonFactory(),
                 descriptor,
-                Executors.newFixedThreadPool(4)
+                Executors.newFixedThreadPool(32) // sized for concurrent long calls, see "Sizing"
         );
 
         Undertow.builder()
@@ -594,7 +601,7 @@ void givenCreateNote__whenToolsCall__thenIdReturned() throws Exception {
 | Task tools (`CreateTaskResult`, `tasks/get`, `tasks/cancel`) | ✅ implemented |
 | `resources/list`, `resources/read` | ✅ implemented |
 | `prompts/list`, `prompts/get` | ✅ implemented |
-| Numeric / string `id` | ✅ echoed as received |
+| Numeric / string `id` | ✅ accepted; echoed as a string |
 | Cancellation by closing the stream | ✅ the tool is interrupted, its task cancelled |
 | `notifications/progress` | ❌ not emitted |
 | Pagination (`cursor`) of list methods | ❌ not implemented |
