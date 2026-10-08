@@ -3,7 +3,6 @@ package org.codingmatters.poom.mcp.processor;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import org.codingmatters.poom.mcp.McpServerDescriptor;
-import org.codingmatters.poom.mcp.types.CallToolResult;
 import org.codingmatters.poom.mcp.types.McpRequest;
 import org.codingmatters.poom.mcp.types.McpResponse;
 import org.codingmatters.poom.mcp.types.json.McpIdNormalizingParser;
@@ -20,8 +19,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class McpProcessor implements Processor {
     static private final CategorizedLogger log = CategorizedLogger.getLogger(McpProcessor.class);
@@ -31,6 +30,7 @@ public class McpProcessor implements Processor {
     private final ExecutorService toolExecutor;
     private final McpTimings timings;
     private final JsonRpcWriter writer;
+    private final ToolCallResponder responder;
 
     public McpProcessor(JsonFactory jsonFactory, McpServerDescriptor descriptor, ExecutorService toolExecutor) {
         this(jsonFactory, descriptor, toolExecutor, McpTimings.defaults());
@@ -42,6 +42,12 @@ public class McpProcessor implements Processor {
         this.toolExecutor = toolExecutor;
         this.timings = timings;
         this.writer = new JsonRpcWriter(jsonFactory);
+        ScheduledExecutorService keepalives = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "mcp-sse-keepalive");
+            t.setDaemon(true);
+            return t;
+        });
+        this.responder = new ToolCallResponder(this.writer, timings, keepalives);
     }
 
     @Override
@@ -153,21 +159,8 @@ public class McpProcessor implements Processor {
                         .arguments(arguments)
                         .build();
 
-        // Provisoire jusqu'au SSE (Task 4) : réponse JSON unique, bornée par streamMax.
-        java.util.concurrent.Future<CallToolResult> future = this.toolExecutor.submit(
-                () -> (CallToolResult) tool.get().handler().apply(params));
-        try {
-            CallToolResult result = future.get(this.timings.streamMax().toMillis(), TimeUnit.MILLISECONDS);
-            this.writer.json(response, this.writer.result(mcpRequest.id(), this.writer.callToolResult(result)));
-        } catch (TimeoutException e) {
-            future.cancel(true);
-            this.writer.json(response, this.writer.result(mcpRequest.id(), this.writer.callToolResult(this.writer.noResult())));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INTERNAL_ERROR, "Internal error: request interrupted"));
-        } catch (Exception e) {
-            this.writer.json(response, this.writer.errorResponse(mcpRequest.id(), McpProtocol.INTERNAL_ERROR, "Internal error: " + e.getMessage()));
-        }
+        ToolRun run = ToolRun.start(tool.get(), params, this.toolExecutor, this.timings.toolPollInterval());
+        this.responder.respond(response, mcpRequest, toolName, run, RequestCheck.clientDeclaresTasks(mcpRequest));
     }
 
     private McpResponse buildListToolsResult(McpRequest request) {
