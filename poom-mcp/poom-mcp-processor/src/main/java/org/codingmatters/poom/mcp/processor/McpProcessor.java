@@ -159,6 +159,9 @@ public class McpProcessor implements Processor {
                 org.codingmatters.poom.mcp.types.CallToolParams.builder()
                         .name(toolName)
                         .arguments(arguments)
+                        .inputResponses(Params.object(mcpRequest.params(), "inputResponses"))
+                        .requestState(Params.string(mcpRequest.params(), "requestState"))
+                        .clientCapabilities(RequestCheck.clientCapabilities(mcpRequest))
                         .build();
 
         ToolRun run = ToolRun.start(tool.get(), params, this.toolExecutor, this.timings.toolPollInterval());

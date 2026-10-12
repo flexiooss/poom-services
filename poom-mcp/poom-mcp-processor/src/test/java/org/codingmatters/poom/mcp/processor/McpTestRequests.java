@@ -25,11 +25,16 @@ final class McpTestRequests {
 
     /** {@code paramsJson} : un objet JSON sans {@code _meta}, ou {@code "{}"}. */
     static String body(String id, String method, String paramsJson, boolean tasks) {
-        String capabilities = tasks ? "{\"extensions\":{\"" + McpProtocol.TASKS_EXTENSION + "\":{}}}" : "{}";
+        return body(id, method, paramsJson,
+                tasks ? "{\"extensions\":{\"" + McpProtocol.TASKS_EXTENSION + "\":{}}}" : "{}");
+    }
+
+    /** Comme {@link #body(String, String, String, boolean)}, avec les capacités client données telles quelles. */
+    static String body(String id, String method, String paramsJson, String capabilitiesJson) {
         String meta = "\"_meta\":{"
                 + "\"" + McpProtocol.META_PROTOCOL_VERSION + "\":\"" + McpProtocol.VERSION + "\","
                 + "\"" + McpProtocol.META_CLIENT_INFO + "\":{\"name\":\"test\",\"version\":\"1\"},"
-                + "\"" + McpProtocol.META_CLIENT_CAPABILITIES + "\":" + capabilities + "}";
+                + "\"" + McpProtocol.META_CLIENT_CAPABILITIES + "\":" + capabilitiesJson + "}";
         String rest = paramsJson.trim().substring(1).trim();
         String params = rest.equals("}") ? "{" + meta + "}" : "{" + meta + "," + rest;
         return "{\"jsonrpc\":\"2.0\",\"id\":\"" + id + "\",\"method\":\"" + method + "\",\"params\":" + params + "}";

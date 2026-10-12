@@ -41,11 +41,24 @@ final class RequestCheck {
         return Optional.empty();
     }
 
+    /** Les capacités déclarées par le client dans {@code _meta} ; un objet vide si absentes ou mal formées. */
+    static ObjectValue clientCapabilities(McpRequest mcpRequest) {
+        ObjectValue capabilities = Params.object(meta(mcpRequest), McpProtocol.META_CLIENT_CAPABILITIES);
+        return capabilities != null ? capabilities : ObjectValue.builder().build();
+    }
+
     /** Le client a-t-il déclaré l'extension des tâches dans ses capacités ? */
     static boolean clientDeclaresTasks(McpRequest mcpRequest) {
-        ObjectValue capabilities = Params.object(meta(mcpRequest), McpProtocol.META_CLIENT_CAPABILITIES);
-        ObjectValue extensions = Params.object(capabilities, "extensions");
+        ObjectValue extensions = Params.object(clientCapabilities(mcpRequest), "extensions");
         return Params.present(extensions, McpProtocol.TASKS_EXTENSION);
+    }
+
+    /**
+     * Le client a-t-il déclaré l'elicitation ? Un objet vide vaut {@code form} (spec 2026-07-28) ;
+     * seul le mode {@code form} est utilisé par les outils.
+     */
+    static boolean clientDeclaresElicitation(McpRequest mcpRequest) {
+        return Params.object(clientCapabilities(mcpRequest), "elicitation") != null;
     }
 
     /** Lecture d'en-tête insensible à la casse : le délégué de test ne normalise pas les noms. */
