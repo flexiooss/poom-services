@@ -61,6 +61,16 @@ final class JsonRpcWriter {
     }
 
     ObjectValue callToolResult(CallToolResult result) {
+        if (result.inputRequired() != null) {
+            ObjectValue.Builder b = ObjectValue.builder().property("resultType", v -> v.stringValue("input_required"));
+            if (result.inputRequired().inputRequests() != null) {
+                b.property("inputRequests", v -> v.objectValue(result.inputRequired().inputRequests()));
+            }
+            if (result.inputRequired().requestState() != null) {
+                b.property("requestState", v -> v.stringValue(result.inputRequired().requestState()));
+            }
+            return b.build();
+        }
         List<ObjectValue> contentList = result.opt().content().safe().stream()
                 .map(this::toolContent)
                 .toList();

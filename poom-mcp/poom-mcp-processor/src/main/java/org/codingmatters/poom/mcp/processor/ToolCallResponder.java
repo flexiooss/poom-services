@@ -41,11 +41,12 @@ final class ToolCallResponder {
     }
 
     void respond(ResponseDelegate response, McpRequest request, String toolName, ToolRun run, boolean clientTasks) throws IOException {
+        boolean clientElicitation = RequestCheck.clientDeclaresElicitation(request);
         try {
             CallToolResult result = run.result().get(this.timings.jsonWindow().toMillis(), TimeUnit.MILLISECONDS);
             McpResponse built;
             try {
-                built = this.writer.result(request.id(), this.writer.callToolResult(result));
+                built = this.writer.result(request.id(), this.writer.callToolResult(InputRequiredGuard.check(result, clientElicitation)));
             } catch (RuntimeException e) {
                 built = this.internalError(request.id(), e);
             }
@@ -87,7 +88,7 @@ final class ToolCallResponder {
             }
         }, 0, period, TimeUnit.MILLISECONDS); // délai initial nul : un premier commentaire valide tout de suite les en-têtes
         try {
-            McpResponse message = this.awaitInStream(request, toolName, run, clientTasks);
+            McpResponse message = this.awaitInStream(request, toolName, run, clientTasks, clientElicitation);
             String payload = message != null ? this.serialize(request.id(), message) : null;
             boolean abandoned;
             lock.lock();
@@ -135,14 +136,15 @@ final class ToolCallResponder {
     }
 
     /** La réponse finale du flux, ou null si l'attente a été abandonnée (client parti). */
-    private McpResponse awaitInStream(McpRequest request, String toolName, ToolRun run, boolean clientTasks) {
+    private McpResponse awaitInStream(McpRequest request, String toolName, ToolRun run, boolean clientTasks, boolean clientElicitation) {
         boolean asTask = clientTasks && run.taskCapable();
         long elapsed = this.timings.jsonWindow().toMillis();
         try {
             if (asTask) {
                 try {
-                    return this.writer.result(request.id(), this.writer.callToolResult(
-                            run.result().get(Math.max(0, this.timings.taskAfter().toMillis() - elapsed), TimeUnit.MILLISECONDS)));
+                    return this.writer.result(request.id(), this.writer.callToolResult(InputRequiredGuard.check(
+                            run.result().get(Math.max(0, this.timings.taskAfter().toMillis() - elapsed), TimeUnit.MILLISECONDS),
+                            clientElicitation)));
                 } catch (TimeoutException e) {
                     McpResponse task = this.onTaskAfter(request, toolName, run);
                     if (task != null) return task;
@@ -150,8 +152,9 @@ final class ToolCallResponder {
                 }
             }
             try {
-                return this.writer.result(request.id(), this.writer.callToolResult(
-                        run.result().get(Math.max(0, this.timings.streamMax().toMillis() - elapsed), TimeUnit.MILLISECONDS)));
+                return this.writer.result(request.id(), this.writer.callToolResult(InputRequiredGuard.check(
+                        run.result().get(Math.max(0, this.timings.streamMax().toMillis() - elapsed), TimeUnit.MILLISECONDS),
+                        clientElicitation)));
             } catch (TimeoutException e) {
                 run.stopWaiting();
                 return this.writer.result(request.id(), this.writer.callToolResult(this.writer.noResult()));
