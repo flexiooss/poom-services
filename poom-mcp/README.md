@@ -392,19 +392,30 @@ A malformed `taskId`, or one that names no task tool, answers `-32602` for both 
 
 ---
 
-### Demander une entrée au client (MRTR, 2026-07-28)
+## Asking the client for input (MRTR, 2026-07-28)
 
-Un outil peut répondre « il me faut une entrée » au lieu d'un résultat : il rend un `CallToolResult`
-dont `inputRequired` est renseigné (`inputRequests` et/ou `requestState`). Le processeur l'écrit en
-`{"resultType":"input_required", ...}`, en JSON ou en dernier événement du flux SSE.
+A tool can answer "I need some input" instead of a result: it returns a `CallToolResult` whose
+`inputRequired` is set (`inputRequests` and/or `requestState`). The processor writes it as
+`{"resultType":"input_required", ...}`, as a JSON body or as the last event of the SSE stream.
 
-Le client rejoue ensuite le même `tools/call` avec `inputResponses` et le `requestState` reçu ; l'outil
-les lit dans `CallToolParams.inputResponses()` et `CallToolParams.requestState()`.
-`CallToolParams.clientCapabilities()` porte les capacités déclarées par le client : un outil ne doit
-demander une `elicitation/create` qu'à un client qui déclare `elicitation` (sinon erreur interne
-`-32603`). `requestState` vient du client : l'outil doit en vérifier l'intégrité (HMAC) s'il en dépend.
+The client then replays the same `tools/call` with `inputResponses` and the `requestState` it received;
+the tool reads them from `CallToolParams.inputResponses()` and `CallToolParams.requestState()`.
 
-Non pris en charge pour un outil à tâches (`McpToolTasks`).
+Rules enforced by the processor before writing the result (a violation is a tool programming error and
+is answered with the internal error `-32603`):
+
+- each value of `inputRequests` must be an object whose `method` is `elicitation/create`,
+  `sampling/createMessage` or `roots/list`;
+- the client must have declared the matching capability (`elicitation`, `sampling` or `roots`) —
+  `CallToolParams.clientCapabilities()` carries what the client declared;
+- an empty `inputRequests` counts as absent, so the result then needs a `requestState`.
+
+The elicitation mode is not checked: tools only use the `form` mode, and a tool that cares must inspect
+`clientCapabilities()` itself. `requestState` comes from the client: the tool must verify its integrity
+(HMAC) if it depends on it.
+
+Not supported for task tools (`McpToolTasks`): a task whose result carries `inputRequired` is reported
+as `failed` with `-32603` by `tasks/get`.
 
 ## Complete example — Note assistant
 

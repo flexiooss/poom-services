@@ -8,6 +8,7 @@ import org.codingmatters.poom.mcp.types.McpError;
 import org.codingmatters.poom.mcp.types.McpResponse;
 import org.codingmatters.poom.mcp.types.ToolContent;
 import org.codingmatters.poom.mcp.types.json.McpResponseWriter;
+import org.codingmatters.poom.services.logging.CategorizedLogger;
 import org.codingmatters.rest.api.ResponseDelegate;
 import org.codingmatters.value.objects.values.ObjectValue;
 import org.codingmatters.value.objects.values.PropertyValue;
@@ -18,6 +19,8 @@ import java.time.Instant;
 import java.util.List;
 
 final class JsonRpcWriter {
+
+    private static final CategorizedLogger log = CategorizedLogger.getLogger(JsonRpcWriter.class);
 
     private final JsonFactory jsonFactory;
 
@@ -63,7 +66,8 @@ final class JsonRpcWriter {
     ObjectValue callToolResult(CallToolResult result) {
         if (result.inputRequired() != null) {
             ObjectValue.Builder b = ObjectValue.builder().property("resultType", v -> v.stringValue("input_required"));
-            if (result.inputRequired().inputRequests() != null) {
+            ObjectValue requests = result.inputRequired().inputRequests();
+            if (requests != null && requests.propertyNames().length > 0) { // {} vaut absent
                 b.property("inputRequests", v -> v.objectValue(result.inputRequired().inputRequests()));
             }
             if (result.inputRequired().requestState() != null) {
@@ -94,18 +98,26 @@ final class JsonRpcWriter {
 
     /** {@code lastUpdatedAt} vaut l'instant de la lecture : l'outil ne fournit pas de date de mise à jour. */
     ObjectValue taskState(String taskId, Instant createdAt, McpTaskState state, McpTimings timings) {
+        // MRTR n'est pas pris en charge pour un outil à tâches : un résultat input_required serait invalide ici,
+        // la tâche est rendue en échec.
+        boolean inputRequired = state.result() != null && state.result().inputRequired() != null;
+        if (inputRequired) log.error("task {} carries an input_required result, which tasks do not support", taskId);
+        String status = inputRequired ? "failed" : state.status().name().toLowerCase(java.util.Locale.ROOT);
+        McpError error = inputRequired
+                ? McpError.builder().code(McpProtocol.INTERNAL_ERROR).message("input_required is not supported for task tools").build()
+                : state.error();
         ObjectValue.Builder b = ObjectValue.builder()
                 .property("resultType", v -> v.stringValue("complete"))
                 .property("taskId", v -> v.stringValue(taskId))
-                .property("status", v -> v.stringValue(state.status().name().toLowerCase(java.util.Locale.ROOT)))
+                .property("status", v -> v.stringValue(status))
                 .property("createdAt", v -> v.stringValue(createdAt.toString()))
                 .property("lastUpdatedAt", v -> v.stringValue(Instant.now().toString()))
                 .property("ttlMs", v -> v.longValue(timings.taskTtl().toMillis()))
                 .property("pollIntervalMs", v -> v.longValue(timings.clientPollInterval().toMillis()));
-        if (state.result() != null) b.property("result", v -> v.objectValue(this.callToolResult(state.result())));
-        if (state.error() != null) b.property("error", v -> v.objectValue(ObjectValue.builder()
-                .property("code", c -> c.longValue((long) state.error().code()))
-                .property("message", m -> m.stringValue(state.error().message()))
+        if (state.result() != null && !inputRequired) b.property("result", v -> v.objectValue(this.callToolResult(state.result())));
+        if (error != null) b.property("error", v -> v.objectValue(ObjectValue.builder()
+                .property("code", c -> c.longValue((long) error.code()))
+                .property("message", m -> m.stringValue(error.message()))
                 .build()));
         return b.build();
     }

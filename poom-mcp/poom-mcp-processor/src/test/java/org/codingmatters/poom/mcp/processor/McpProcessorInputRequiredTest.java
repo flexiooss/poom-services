@@ -80,6 +80,13 @@ class McpProcessorInputRequiredTest {
     }
 
     @Test
+    void givenRequestStateNotAString__whenToolsCall__thenIgnored() throws Exception {
+        this.call(this.recording(), "{\"name\":\"rec\",\"arguments\":{},\"requestState\":42}", ELICITATION);
+
+        assertThat(this.received.get().requestState(), is(nullValue()));
+    }
+
+    @Test
     void givenClientCapabilities__whenToolsCall__thenHandlerSeesThem() throws Exception {
         this.call(this.recording(), "{\"name\":\"rec\",\"arguments\":{}}", ELICITATION);
 
@@ -171,5 +178,80 @@ class McpProcessorInputRequiredTest {
         List<TestSseChannel.SseEvent> events = response.sseChannel().drainEvents();
         assertThat(events, hasSize(1));
         assertThat(events.get(0).data(), allOf(containsString("\"id\":\"8\""), containsString("\"resultType\":\"input_required\"")));
+    }
+
+    private static CallToolResult requesting(String method) {
+        return CallToolResult.builder().inputRequired(InputRequired.builder()
+                .inputRequests(ObjectValue.builder().property("q", c -> c.objectValue(ObjectValue.builder()
+                        .property("method", m -> m.stringValue(method)).build())).build())
+                .build()).build();
+    }
+
+    @Test
+    void givenSamplingToClientWithoutCapability__whenToolsCall__thenInternalError() throws Exception {
+        String body = this.jsonCall(this.answering(p -> requesting("sampling/createMessage"), McpTimings.defaults()), ELICITATION);
+
+        assertThat(body, allOf(containsString("-32603"), not(containsString("sampling/createMessage"))));
+    }
+
+    @Test
+    void givenRootsToClientWithoutCapability__whenToolsCall__thenInternalError() throws Exception {
+        String body = this.jsonCall(this.answering(p -> requesting("roots/list"), McpTimings.defaults()), "{}");
+
+        assertThat(body, allOf(containsString("-32603"), not(containsString("roots/list"))));
+    }
+
+    @Test
+    void givenSamplingAndRootsToDeclaringClient__whenToolsCall__thenInputRequired() throws Exception {
+        assertThat(this.jsonCall(this.answering(p -> requesting("sampling/createMessage"), McpTimings.defaults()), "{\"sampling\":{}}"),
+                containsString("\"resultType\":\"input_required\""));
+        assertThat(this.jsonCall(this.answering(p -> requesting("roots/list"), McpTimings.defaults()), "{\"roots\":{}}"),
+                containsString("\"resultType\":\"input_required\""));
+    }
+
+    @Test
+    void givenUnknownRequestMethod__whenToolsCall__thenInternalError() throws Exception {
+        String body = this.jsonCall(this.answering(p -> requesting("tools/call"), McpTimings.defaults()), ELICITATION);
+
+        assertThat(body, allOf(containsString("-32603"), not(containsString("input_required"))));
+    }
+
+    @Test
+    void givenNonObjectInputRequest__whenToolsCall__thenInternalError() throws Exception {
+        String body = this.jsonCall(this.answering(p -> CallToolResult.builder().inputRequired(InputRequired.builder()
+                .inputRequests(ObjectValue.builder().property("q", c -> c.stringValue("elicitation/create")).build())
+                .build()).build(), McpTimings.defaults()), ELICITATION);
+
+        assertThat(body, allOf(containsString("-32603"), not(containsString("input_required"))));
+    }
+
+    @Test
+    void givenEmptyInputRequestsWithoutState__whenToolsCall__thenInternalError() throws Exception {
+        String body = this.jsonCall(this.answering(p -> CallToolResult.builder().inputRequired(InputRequired.builder()
+                .inputRequests(ObjectValue.builder().build()).build()).build(), McpTimings.defaults()), ELICITATION);
+
+        assertThat(body, allOf(containsString("-32603"), not(containsString("input_required"))));
+    }
+
+    @Test
+    void givenEmptyInputRequestsWithState__whenToolsCall__thenNoInputRequestsEmitted() throws Exception {
+        String body = this.jsonCall(this.answering(p -> CallToolResult.builder().inputRequired(InputRequired.builder()
+                .inputRequests(ObjectValue.builder().build()).requestState("st-3").build()).build(), McpTimings.defaults()), "{}");
+
+        assertThat(body, allOf(containsString("\"requestState\":\"st-3\""), not(containsString("inputRequests"))));
+    }
+
+    @Test
+    void givenSlowElicitationToClientWithoutCapability__whenToolsCall__thenLastSseEventIsInternalError() throws Exception {
+        RecordingResponse response = new RecordingResponse();
+        this.answering(p -> {
+            try { Thread.sleep(150); } catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new RuntimeException(e); }
+            return confirmation();
+        }, FAST).process(post("tools/call", "del", body("9", "tools/call", "{\"name\":\"del\",\"arguments\":{}}", "{}")), response);
+
+        List<TestSseChannel.SseEvent> events = response.sseChannel().drainEvents();
+        assertThat(events, hasSize(1));
+        assertThat(events.get(0).data(), allOf(containsString("\"id\":\"9\""), containsString("-32603"),
+                not(containsString("elicitation/create"))));
     }
 }

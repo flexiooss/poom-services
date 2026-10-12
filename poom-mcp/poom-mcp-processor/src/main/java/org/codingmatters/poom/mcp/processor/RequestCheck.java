@@ -55,7 +55,9 @@ final class RequestCheck {
 
     /**
      * Le client a-t-il déclaré l'elicitation ? Un objet vide vaut {@code form} (spec 2026-07-28) ;
-     * seul le mode {@code form} est utilisé par les outils.
+     * seul le mode {@code form} est utilisé par les outils. Le mode n'est pas vérifié ici (un client qui ne
+     * déclare que {@code {"url":{}}} est accepté) : cette vérification est laissée à l'outil, via
+     * {@code clientCapabilities()}.
      */
     static boolean clientDeclaresElicitation(McpRequest mcpRequest) {
         return Params.object(clientCapabilities(mcpRequest), "elicitation") != null;

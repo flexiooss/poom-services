@@ -175,6 +175,19 @@ class McpProcessorTasksTest {
     }
 
     @Test
+    void givenCompletedTaskCarryingInputRequired__whenTasksGet__thenFailedWithInternalError() throws Exception {
+        this.tasks.states.put("exec-1", McpTaskState.completed(CallToolResult.builder().inputRequired(
+                org.codingmatters.poom.mcp.types.InputRequired.builder().requestState("st").build()).build()));
+
+        JsonNode result = this.tasksCall("tasks/get", TaskIds.encode("slow", CREATED, "exec-1")).path("result");
+
+        assertThat(result.path("status").asText(), is("failed"));
+        assertThat(result.path("error").path("code").asInt(), is(-32603));
+        assertThat(result.path("error").path("message").asText(), is("input_required is not supported for task tools"));
+        assertThat(result.has("result"), is(false));
+    }
+
+    @Test
     void givenGarbageTaskId__whenTasksGet__thenUnknownTask() throws Exception {
         assertThat(this.tasksCall("tasks/get", "%%%").path("error").path("code").asInt(), is(-32602));
         assertThat(this.tasksCall("tasks/get", TaskIds.encode("nope", CREATED, "x")).path("error").path("code").asInt(), is(-32602));
