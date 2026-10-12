@@ -392,6 +392,20 @@ A malformed `taskId`, or one that names no task tool, answers `-32602` for both 
 
 ---
 
+### Demander une entrée au client (MRTR, 2026-07-28)
+
+Un outil peut répondre « il me faut une entrée » au lieu d'un résultat : il rend un `CallToolResult`
+dont `inputRequired` est renseigné (`inputRequests` et/ou `requestState`). Le processeur l'écrit en
+`{"resultType":"input_required", ...}`, en JSON ou en dernier événement du flux SSE.
+
+Le client rejoue ensuite le même `tools/call` avec `inputResponses` et le `requestState` reçu ; l'outil
+les lit dans `CallToolParams.inputResponses()` et `CallToolParams.requestState()`.
+`CallToolParams.clientCapabilities()` porte les capacités déclarées par le client : un outil ne doit
+demander une `elicitation/create` qu'à un client qui déclare `elicitation` (sinon erreur interne
+`-32603`). `requestState` vient du client : l'outil doit en vérifier l'intégrité (HMAC) s'il en dépend.
+
+Non pris en charge pour un outil à tâches (`McpToolTasks`).
+
 ## Complete example — Note assistant
 
 This example implements a small in-memory note-taking MCP server with two tools and a resource listing.
