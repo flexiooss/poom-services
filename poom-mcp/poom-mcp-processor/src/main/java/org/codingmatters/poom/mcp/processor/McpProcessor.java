@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import org.codingmatters.poom.mcp.McpServerDescriptor;
 import org.codingmatters.poom.mcp.McpTaskNotFoundException;
 import org.codingmatters.poom.mcp.McpTaskState;
+import org.codingmatters.poom.mcp.McpToolAnnotations;
 import org.codingmatters.poom.mcp.McpToolDescriptor;
 import org.codingmatters.poom.mcp.McpToolTasks;
 import org.codingmatters.poom.mcp.types.McpRequest;
@@ -179,12 +180,16 @@ public class McpProcessor implements Processor {
 
     private McpResponse buildListToolsResult(McpRequest request) {
         List<ObjectValue> tools = descriptor.opt().tools().safe().stream()
-                .map(t -> ObjectValue.builder()
-                        .property("name", v -> v.stringValue(t.name()))
-                        .property("description", v -> v.stringValue(t.description() != null ? t.description() : ""))
-                        .property("inputSchema", v -> v.objectValue(
-                                t.inputSchema() != null ? t.inputSchema() : ObjectValue.builder().build()))
-                        .build())
+                .map(t -> {
+                    ObjectValue.Builder tool = ObjectValue.builder()
+                            .property("name", v -> v.stringValue(t.name()))
+                            .property("description", v -> v.stringValue(t.description() != null ? t.description() : ""))
+                            .property("inputSchema", v -> v.objectValue(
+                                    t.inputSchema() != null ? t.inputSchema() : ObjectValue.builder().build()));
+                    ObjectValue annotations = annotations(t.annotations());
+                    if (annotations != null) tool.property("annotations", v -> v.objectValue(annotations));
+                    return tool.build();
+                })
                 .toList();
         return McpResponse.builder()
                 .jsonrpc("2.0").id(request.id())
@@ -192,6 +197,19 @@ public class McpProcessor implements Processor {
                         .property("tools", PropertyValue.multipleObject(tools.toArray(new ObjectValue[0])))
                         .build())
                 .build();
+    }
+
+    /** Les annotations renseignées d'un outil, ou {@code null} s'il n'y en a aucune. */
+    private static ObjectValue annotations(McpToolAnnotations a) {
+        if (a == null) return null;
+        ObjectValue.Builder b = ObjectValue.builder();
+        if (a.title() != null) b.property("title", v -> v.stringValue(a.title()));
+        if (a.readOnlyHint() != null) b.property("readOnlyHint", v -> v.booleanValue(a.readOnlyHint()));
+        if (a.destructiveHint() != null) b.property("destructiveHint", v -> v.booleanValue(a.destructiveHint()));
+        if (a.idempotentHint() != null) b.property("idempotentHint", v -> v.booleanValue(a.idempotentHint()));
+        if (a.openWorldHint() != null) b.property("openWorldHint", v -> v.booleanValue(a.openWorldHint()));
+        ObjectValue built = b.build();
+        return built.propertyNames().length == 0 ? null : built;
     }
 
     @SuppressWarnings("unchecked")

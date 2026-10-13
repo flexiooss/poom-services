@@ -245,6 +245,23 @@ McpToolDescriptor searchTool = McpToolDescriptor.builder()
         .build();
 ```
 
+To tell the client how a tool behaves, attach `McpToolAnnotations` (MCP tool annotations). Only the hints you set are listed in `tools/list`; a tool without any has no `annotations`. They are hints for the client — for example, to ask the user before running a destructive tool — not a guarantee: the server must still protect itself.
+
+```java
+McpToolDescriptor deleteTool = McpToolDescriptor.builder()
+        .name("delete_note")
+        .description("Deletes a note.")
+        .annotations(McpToolAnnotations.builder()
+                .title("Delete a note")
+                .readOnlyHint(false)
+                .destructiveHint(true)
+                .idempotentHint(true)
+                .openWorldHint(false)
+                .build())
+        .handler(params -> ...)
+        .build();
+```
+
 ### 3 — Declare resources
 
 Resources are URI-addressable content the model can read. Declare them so they appear in `resources/list`. `resources/read` is routed by URI prefix (the literal part before the first template variable) to the handler, which receives `ReadResourceParams` carrying the full URI and returns a `ReadResourceResult`. It runs synchronously on the request thread. An unknown URI answers `-32601`.
@@ -621,7 +638,7 @@ void givenCreateNote__whenToolsCall__thenIdReturned() throws Exception {
 | Feature | Status |
 |---------|--------|
 | `server/discover` | ✅ implemented (replaces `initialize`) |
-| `tools/list` | ✅ implemented |
+| `tools/list` | ✅ implemented, with tool annotations (`McpToolAnnotations`) |
 | `tools/call` (JSON, or SSE past `jsonWindow`) | ✅ implemented |
 | Task tools (`CreateTaskResult`, `tasks/get`, `tasks/cancel`) | ✅ implemented |
 | `resources/list`, `resources/read` | ✅ implemented |
