@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import org.codingmatters.poom.mcp.demo.domain.NoteRepository;
 import org.codingmatters.poom.mcp.demo.domain.NoteService;
 import org.codingmatters.poom.mcp.processor.McpProcessor;
-import org.codingmatters.poom.services.tests.Eventually;
+import org.codingmatters.poom.mcp.processor.McpTimings;
 import org.codingmatters.rest.api.RequestDelegate;
 import org.codingmatters.rest.tests.api.TestRequestDeleguate;
 import org.codingmatters.rest.tests.api.TestResponseDeleguate;
@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,45 +25,58 @@ import static org.hamcrest.Matchers.*;
 class NoteAssistantIntegrationTest {
 
     private static final String URL = "http://test/mcp";
+    private static final String VERSION = "2026-07-28";
 
     private final JsonFactory jsonFactory = new JsonFactory();
     private final ExecutorService pool = Executors.newFixedThreadPool(4);
+    private NoteService noteService;
     private McpProcessor processor;
-    private String sessionId;
 
     @BeforeEach
-    void setUp() throws Exception {
-        NoteService noteService = new NoteService(NoteRepository.create());
-        processor = new McpProcessor(
-                "/mcp",
-                jsonFactory,
-                NoteAssistantDescriptor.build(noteService),
-                pool,
-                500
-        );
-        sessionId = initialize();
+    void setUp() {
+        this.noteService = new NoteService(NoteRepository.create());
+        this.processor = new McpProcessor(this.jsonFactory, NoteAssistantDescriptor.build(this.noteService), this.pool);
     }
 
     @AfterEach
     void tearDown() {
-        pool.shutdownNow();
+        this.pool.shutdownNow();
     }
 
     // -------------------------------------------------------------------------
-    // Session lifecycle
+    // Transport
     // -------------------------------------------------------------------------
 
     @Test
-    void initialize_returnsSessionId() {
-        assertThat(sessionId, notNullValue());
-        assertThat(sessionId, not(emptyString()));
-    }
-
-    @Test
-    void deleteSession_thenSubsequentPostReturns400() throws Exception {
-        deleteSession();
-        TestResponseDeleguate resp = post("{\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"id\":\"1\"}");
+    void givenLegacyInitialize__thenUnsupportedVersion() throws Exception {
+        TestResponseDeleguate resp = new TestResponseDeleguate();
+        this.processor.process(
+                TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
+                        .contentType("application/json")
+                        .addHeader("MCP-Protocol-Version", "2025-06-18")
+                        .addHeader("Mcp-Method", "initialize")
+                        .payload(stream("{\"jsonrpc\":\"2.0\",\"method\":\"initialize\",\"params\":{},\"id\":\"0\"}"))
+                        .build(),
+                resp
+        );
         assertThat(resp.status(), is(400));
+        assertThat(new String(resp.payload(), StandardCharsets.UTF_8), containsString("-32022"));
+    }
+
+    @Test
+    void givenGet__then405() throws Exception {
+        TestResponseDeleguate resp = new TestResponseDeleguate();
+        this.processor.process(TestRequestDeleguate.request(RequestDelegate.Method.GET, URL).build(), resp);
+        assertThat(resp.status(), is(405));
+    }
+
+    @Test
+    void givenServerDiscover__thenServerInfoAndCapabilities() throws Exception {
+        TestResponseDeleguate resp = post("1", "server/discover", null, "{}");
+        assertThat(resp.status(), is(200));
+        String body = new String(resp.payload(), StandardCharsets.UTF_8);
+        assertThat(body, containsString("\"supportedVersions\""));
+        assertThat(body, containsString(VERSION));
     }
 
     // -------------------------------------------------------------------------
@@ -71,7 +85,7 @@ class NoteAssistantIntegrationTest {
 
     @Test
     void toolsList_returnsAll6Tools() throws Exception {
-        TestResponseDeleguate resp = post("{\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"id\":\"1\"}");
+        TestResponseDeleguate resp = post("1", "tools/list", null, "{}");
         assertThat(resp.status(), is(200));
         String body = new String(resp.payload(), StandardCharsets.UTF_8);
         assertThat(body, containsString("\"create_note\""));
@@ -90,11 +104,7 @@ class NoteAssistantIntegrationTest {
     void createNote_thenGetNote_roundtrip() throws Exception {
         String id = createNoteAndGetId("Integration Test", "This is a test note");
 
-        TestResponseDeleguate getResp = post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"tools/call\","
-                        + "\"params\":{\"name\":\"get_note\",\"arguments\":{\"id\":\"" + id + "\"}},"
-                        + "\"id\":\"3\"}"
-        );
+        TestResponseDeleguate getResp = callTool("3", "get_note", "{\"id\":\"" + id + "\"}");
         assertThat(getResp.status(), is(200));
         String body = new String(getResp.payload(), StandardCharsets.UTF_8);
         assertThat(body, containsString("Integration Test"));
@@ -105,18 +115,9 @@ class NoteAssistantIntegrationTest {
     void updateNote_changesContent() throws Exception {
         String id = createNoteAndGetId("Original Title", "Original content");
 
-        post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"tools/call\","
-                        + "\"params\":{\"name\":\"update_note\","
-                        + "\"arguments\":{\"id\":\"" + id + "\",\"content\":\"Updated content\"}},"
-                        + "\"id\":\"3\"}"
-        );
+        callTool("3", "update_note", "{\"id\":\"" + id + "\",\"content\":\"Updated content\"}");
 
-        TestResponseDeleguate getResp = post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"tools/call\","
-                        + "\"params\":{\"name\":\"get_note\",\"arguments\":{\"id\":\"" + id + "\"}},"
-                        + "\"id\":\"4\"}"
-        );
+        TestResponseDeleguate getResp = callTool("4", "get_note", "{\"id\":\"" + id + "\"}");
         String body = new String(getResp.payload(), StandardCharsets.UTF_8);
         assertThat(body, containsString("Updated content"));
         assertThat(body, containsString("Original Title"));
@@ -126,17 +127,9 @@ class NoteAssistantIntegrationTest {
     void deleteNote_thenGetReturnsError() throws Exception {
         String id = createNoteAndGetId("To Delete", "Delete me");
 
-        post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"tools/call\","
-                        + "\"params\":{\"name\":\"delete_note\",\"arguments\":{\"id\":\"" + id + "\"}},"
-                        + "\"id\":\"3\"}"
-        );
+        callTool("3", "delete_note", "{\"id\":\"" + id + "\"}");
 
-        TestResponseDeleguate getResp = post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"tools/call\","
-                        + "\"params\":{\"name\":\"get_note\",\"arguments\":{\"id\":\"" + id + "\"}},"
-                        + "\"id\":\"4\"}"
-        );
+        TestResponseDeleguate getResp = callTool("4", "get_note", "{\"id\":\"" + id + "\"}");
         String body = new String(getResp.payload(), StandardCharsets.UTF_8);
         assertThat(body, containsString("\"isError\":true"));
     }
@@ -150,11 +143,7 @@ class NoteAssistantIntegrationTest {
         createNoteWithTag("Work Note", "Work content", "work");
         createNoteWithTag("Personal Note", "Personal content", "personal");
 
-        TestResponseDeleguate listResp = post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"tools/call\","
-                        + "\"params\":{\"name\":\"list_notes\",\"arguments\":{\"tag\":\"work\"}},"
-                        + "\"id\":\"3\"}"
-        );
+        TestResponseDeleguate listResp = callTool("3", "list_notes", "{\"tag\":\"work\"}");
         assertThat(listResp.status(), is(200));
         String body = new String(listResp.payload(), StandardCharsets.UTF_8);
         assertThat(body, containsString("Work Note"));
@@ -162,47 +151,35 @@ class NoteAssistantIntegrationTest {
     }
 
     @Test
-    void searchNotes_triggers202AndSseResult() throws Exception {
+    void searchNotes_answersAsJsonUnderTheJsonWindow() throws Exception {
         createNoteAndGetId("Searchable Note", "This note contains the search term findme");
 
-        // Open SSE channel in background thread
-        TestResponseDeleguate sseResp = new TestResponseDeleguate();
-        Thread sseThread = new Thread(() -> {
-            try {
-                processor.process(
-                        TestRequestDeleguate.request(RequestDelegate.Method.GET, URL)
-                                .addHeader("Accept", "text/event-stream")
-                                .addHeader("Mcp-Session-Id", sessionId)
-                                .build(),
-                        sseResp
-                );
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-        sseThread.setDaemon(true);
-        sseThread.start();
+        // search_notes sleeps 600 ms, under the default 1 s jsonWindow
+        TestResponseDeleguate toolResp = callTool("42", "search_notes", "{\"query\":\"findme\"}");
 
-        // Wait for channel to open
-        Eventually.timeout(2000).assertThat(() -> sseResp.sseChannel(), notNullValue());
-        // Drain initial ping
-        sseResp.sseChannel().poll(2000);
+        assertThat(toolResp.status(), is(200));
+        assertThat(toolResp.contentType(), containsString("application/json"));
+        assertThat(new String(toolResp.payload(), StandardCharsets.UTF_8), containsString("findme"));
+    }
 
-        // Call search_notes — expect 202 (async, exceeds syncTimeoutMillis=500ms)
-        TestResponseDeleguate toolResp = post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"tools/call\","
-                        + "\"params\":{\"name\":\"search_notes\",\"arguments\":{\"query\":\"findme\"}},"
-                        + "\"id\":\"42\"}"
-        );
-        assertThat(toolResp.status(), is(202));
+    @Test
+    void givenJsonWindowShorterThanTheTool__whenSearchNotes__thenAnswersAsSse() throws Exception {
+        McpTimings timings = new McpTimings(Duration.ofMillis(100), Duration.ofSeconds(15), Duration.ofSeconds(20),
+                Duration.ofMinutes(5), Duration.ofSeconds(1), Duration.ofHours(1), Duration.ofSeconds(2));
+        McpProcessor sseProcessor = new McpProcessor(this.jsonFactory, NoteAssistantDescriptor.build(this.noteService), this.pool, timings);
+        createNoteAndGetId("Searchable Note", "This note contains the search term findme");
 
-        // Wait for SSE result (search sleeps 600ms)
-        TestSseChannel.SseEvent event = sseResp.sseChannel().poll(3000);
+        TestResponseDeleguate resp = new TestResponseDeleguate();
+        sseProcessor.process(request("42", "tools/call", "search_notes",
+                "{\"name\":\"search_notes\",\"arguments\":{\"query\":\"findme\"}}"), resp);
+
+        assertThat(resp.status(), is(200));
+        // the test response records no content type for an SSE reply: opening the channel is the SSE witness
+        assertThat(resp.sseChannel(), notNullValue());
+        TestSseChannel.SseEvent event = resp.sseChannel().poll(3000);
         assertThat(event, notNullValue());
         assertThat(event.event(), is("message"));
         assertThat(event.data(), containsString("findme"));
-
-        sseResp.sseChannel().close();
     }
 
     // -------------------------------------------------------------------------
@@ -211,7 +188,7 @@ class NoteAssistantIntegrationTest {
 
     @Test
     void resourcesList_returnsBothResources() throws Exception {
-        TestResponseDeleguate resp = post("{\"jsonrpc\":\"2.0\",\"method\":\"resources/list\",\"id\":\"1\"}");
+        TestResponseDeleguate resp = post("1", "resources/list", null, "{}");
         assertThat(resp.status(), is(200));
         String body = new String(resp.payload(), StandardCharsets.UTF_8);
         assertThat(body, containsString("note://"));
@@ -222,11 +199,7 @@ class NoteAssistantIntegrationTest {
     void resourcesRead_noteUri_returnsMarkdown() throws Exception {
         String id = createNoteAndGetId("Resource Test Title", "Resource test content");
 
-        TestResponseDeleguate resp = post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"resources/read\","
-                        + "\"params\":{\"uri\":\"note://" + id + "\"},"
-                        + "\"id\":\"2\"}"
-        );
+        TestResponseDeleguate resp = post("2", "resources/read", "note://" + id, "{\"uri\":\"note://" + id + "\"}");
         assertThat(resp.status(), is(200));
         String body = new String(resp.payload(), StandardCharsets.UTF_8);
         assertThat(body, containsString("Resource Test Title"));
@@ -237,11 +210,7 @@ class NoteAssistantIntegrationTest {
     void resourcesRead_taggedUri_returnsNoteList() throws Exception {
         createNoteWithTag("Tagged Resource Note", "Tagged content", "mytag");
 
-        TestResponseDeleguate resp = post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"resources/read\","
-                        + "\"params\":{\"uri\":\"notes://tagged/mytag\"},"
-                        + "\"id\":\"2\"}"
-        );
+        TestResponseDeleguate resp = post("2", "resources/read", "notes://tagged/mytag", "{\"uri\":\"notes://tagged/mytag\"}");
         assertThat(resp.status(), is(200));
         String body = new String(resp.payload(), StandardCharsets.UTF_8);
         assertThat(body, containsString("Tagged Resource Note"));
@@ -253,7 +222,7 @@ class NoteAssistantIntegrationTest {
 
     @Test
     void promptsList_returnsBothPrompts() throws Exception {
-        TestResponseDeleguate resp = post("{\"jsonrpc\":\"2.0\",\"method\":\"prompts/list\",\"id\":\"1\"}");
+        TestResponseDeleguate resp = post("1", "prompts/list", null, "{}");
         assertThat(resp.status(), is(200));
         String body = new String(resp.payload(), StandardCharsets.UTF_8);
         assertThat(body, containsString("\"summarize_note\""));
@@ -264,12 +233,8 @@ class NoteAssistantIntegrationTest {
     void promptsGet_summarize_returnsPromptWithContent() throws Exception {
         String id = createNoteAndGetId("Summarize Me", "Content to summarize");
 
-        TestResponseDeleguate resp = post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"prompts/get\","
-                        + "\"params\":{\"name\":\"summarize_note\","
-                        + "\"arguments\":{\"note_id\":\"" + id + "\"}},"
-                        + "\"id\":\"2\"}"
-        );
+        TestResponseDeleguate resp = post("2", "prompts/get", "summarize_note",
+                "{\"name\":\"summarize_note\",\"arguments\":{\"note_id\":\"" + id + "\"}}");
         assertThat(resp.status(), is(200));
         String body = new String(resp.payload(), StandardCharsets.UTF_8);
         assertThat(body, containsString("Summarize Me"));
@@ -281,13 +246,8 @@ class NoteAssistantIntegrationTest {
         String id1 = createNoteAndGetId("First Note", "First note content");
         String id2 = createNoteAndGetId("Second Note", "Second note content");
 
-        TestResponseDeleguate resp = post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"prompts/get\","
-                        + "\"params\":{\"name\":\"compare_notes\","
-                        + "\"arguments\":{\"note_id_1\":\"" + id1 + "\","
-                        + "\"note_id_2\":\"" + id2 + "\"}},"
-                        + "\"id\":\"2\"}"
-        );
+        TestResponseDeleguate resp = post("2", "prompts/get", "compare_notes",
+                "{\"name\":\"compare_notes\",\"arguments\":{\"note_id_1\":\"" + id1 + "\",\"note_id_2\":\"" + id2 + "\"}}");
         assertThat(resp.status(), is(200));
         String body = new String(resp.payload(), StandardCharsets.UTF_8);
         assertThat(body, containsString("First note content"));
@@ -299,24 +259,16 @@ class NoteAssistantIntegrationTest {
     // -------------------------------------------------------------------------
 
     @Test
-    void callTool_unknownTool_returnsMethodNotFound() throws Exception {
-        TestResponseDeleguate resp = post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"tools/call\","
-                        + "\"params\":{\"name\":\"nonexistent_tool\",\"arguments\":{}},"
-                        + "\"id\":\"1\"}"
-        );
+    void callTool_unknownTool_returnsInvalidParams() throws Exception {
+        TestResponseDeleguate resp = callTool("1", "nonexistent_tool", "{}");
         assertThat(resp.status(), is(200));
         String body = new String(resp.payload(), StandardCharsets.UTF_8);
-        assertThat(body, containsString("-32601"));
+        assertThat(body, containsString("-32602"));
     }
 
     @Test
     void resourcesRead_unknownUri_returnsMethodNotFound() throws Exception {
-        TestResponseDeleguate resp = post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"resources/read\","
-                        + "\"params\":{\"uri\":\"unknown://xyz\"},"
-                        + "\"id\":\"1\"}"
-        );
+        TestResponseDeleguate resp = post("1", "resources/read", "unknown://xyz", "{\"uri\":\"unknown://xyz\"}");
         assertThat(resp.status(), is(200));
         String body = new String(resp.payload(), StandardCharsets.UTF_8);
         assertThat(body, containsString("-32601"));
@@ -324,11 +276,8 @@ class NoteAssistantIntegrationTest {
 
     @Test
     void promptsGet_unknownPrompt_returnsMethodNotFound() throws Exception {
-        TestResponseDeleguate resp = post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"prompts/get\","
-                        + "\"params\":{\"name\":\"nonexistent_prompt\",\"arguments\":{}},"
-                        + "\"id\":\"1\"}"
-        );
+        TestResponseDeleguate resp = post("1", "prompts/get", "nonexistent_prompt",
+                "{\"name\":\"nonexistent_prompt\",\"arguments\":{}}");
         assertThat(resp.status(), is(200));
         String body = new String(resp.payload(), StandardCharsets.UTF_8);
         assertThat(body, containsString("-32601"));
@@ -338,61 +287,47 @@ class NoteAssistantIntegrationTest {
     // Helper methods
     // -------------------------------------------------------------------------
 
-    private String initialize() throws Exception {
-        TestResponseDeleguate initResp = new TestResponseDeleguate();
-        processor.process(
-                TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
-                        .contentType("application/json")
-                        .payload(body("{\"jsonrpc\":\"2.0\",\"method\":\"initialize\",\"params\":{},\"id\":\"0\"}"))
-                        .build(),
-                initResp
-        );
-        return initResp.headers().get("Mcp-Session-Id")[0];
+    private TestResponseDeleguate callTool(String id, String tool, String argumentsJson) throws Exception {
+        return post(id, "tools/call", tool, "{\"name\":\"" + tool + "\",\"arguments\":" + argumentsJson + "}");
     }
 
-    private TestResponseDeleguate post(String json) throws Exception {
+    /** @param name the Mcp-Name header value (null when the method has none), @param paramsJson params object without _meta */
+    private TestResponseDeleguate post(String id, String method, String name, String paramsJson) throws Exception {
         TestResponseDeleguate resp = new TestResponseDeleguate();
-        processor.process(
-                TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
-                        .contentType("application/json")
-                        .addHeader("Mcp-Session-Id", sessionId)
-                        .payload(body(json))
-                        .build(),
-                resp
-        );
+        this.processor.process(request(id, method, name, paramsJson), resp);
         return resp;
     }
 
-    private void deleteSession() throws Exception {
-        TestResponseDeleguate resp = new TestResponseDeleguate();
-        processor.process(
-                TestRequestDeleguate.request(RequestDelegate.Method.DELETE, URL)
-                        .addHeader("Mcp-Session-Id", sessionId)
-                        .build(),
-                resp
-        );
+    private RequestDelegate request(String id, String method, String name, String paramsJson) {
+        TestRequestDeleguate.Builder builder = TestRequestDeleguate.request(RequestDelegate.Method.POST, URL)
+                .contentType("application/json")
+                .addHeader("MCP-Protocol-Version", VERSION)
+                .addHeader("Mcp-Method", method)
+                .payload(stream(body(id, method, paramsJson)));
+        if (name != null) builder.addHeader("Mcp-Name", name);
+        return builder.build();
+    }
+
+    /** Same construction as McpTestRequests.body of the processor tests: _meta is injected in params. */
+    private String body(String id, String method, String paramsJson) {
+        String meta = "\"_meta\":{"
+                + "\"io.modelcontextprotocol/protocolVersion\":\"" + VERSION + "\","
+                + "\"io.modelcontextprotocol/clientInfo\":{\"name\":\"test\",\"version\":\"1\"},"
+                + "\"io.modelcontextprotocol/clientCapabilities\":{}}";
+        String rest = paramsJson.trim().substring(1).trim();
+        String params = rest.equals("}") ? "{" + meta + "}" : "{" + meta + "," + rest;
+        return "{\"jsonrpc\":\"2.0\",\"id\":\"" + id + "\",\"method\":\"" + method + "\",\"params\":" + params + "}";
     }
 
     private String createNoteAndGetId(String title, String content) throws Exception {
-        TestResponseDeleguate resp = post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"tools/call\","
-                        + "\"params\":{\"name\":\"create_note\","
-                        + "\"arguments\":{\"title\":\"" + title + "\",\"content\":\"" + content + "\"}},"
-                        + "\"id\":\"create\"}"
-        );
-        String body = new String(resp.payload(), StandardCharsets.UTF_8);
-        return extractNoteId(body);
+        TestResponseDeleguate resp = callTool("create", "create_note",
+                "{\"title\":\"" + title + "\",\"content\":\"" + content + "\"}");
+        return extractNoteId(new String(resp.payload(), StandardCharsets.UTF_8));
     }
 
     private void createNoteWithTag(String title, String content, String tag) throws Exception {
-        post(
-                "{\"jsonrpc\":\"2.0\",\"method\":\"tools/call\","
-                        + "\"params\":{\"name\":\"create_note\","
-                        + "\"arguments\":{\"title\":\"" + title + "\","
-                        + "\"content\":\"" + content + "\","
-                        + "\"tags\":[\"" + tag + "\"]}},"
-                        + "\"id\":\"create-tagged\"}"
-        );
+        callTool("create-tagged", "create_note",
+                "{\"title\":\"" + title + "\",\"content\":\"" + content + "\",\"tags\":[\"" + tag + "\"]}");
     }
 
     private String extractNoteId(String responseBody) {
@@ -403,7 +338,7 @@ class NoteAssistantIntegrationTest {
         return end >= 0 ? after.substring(0, end) : after.trim();
     }
 
-    private ByteArrayInputStream body(String json) {
+    private static ByteArrayInputStream stream(String json) {
         return new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
     }
 }

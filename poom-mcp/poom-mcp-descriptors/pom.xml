@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.codingmatters.poom.mcp</groupId>
         <artifactId>poom-mcp</artifactId>
-        <version>1.296.0</version>
+        <version>1.297.0</version>
     </parent>
 
     <artifactId>poom-mcp-descriptors</artifactId>
@@ -20,6 +20,11 @@
         <dependency>
             <groupId>org.codingmatters.value.objects</groupId>
             <artifactId>cdm-value-objects-values</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codingmatters.poom</groupId>
+            <artifactId>poom-services-test-support</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

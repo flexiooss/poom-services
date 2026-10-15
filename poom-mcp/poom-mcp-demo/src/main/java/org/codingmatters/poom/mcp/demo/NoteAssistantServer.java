@@ -22,7 +22,6 @@ public class NoteAssistantServer {
         ExecutorService executor = Executors.newFixedThreadPool(4);
         String path = "/notes/assstant/mcp";
         McpProcessor processor = new McpProcessor(
-                path,
                 new JsonFactory(),
                 NoteAssistantDescriptor.build(noteService),
                 executor

@@ -56,11 +56,25 @@ CallToolParams:
   name: string
   arguments:
     $value-object: org.codingmatters.value.objects.values.ObjectValue
+  # MRTR (2026-07-28) : réponses du client aux inputRequests d'un appel précédent, et état opaque renvoyé tel quel.
+  inputResponses:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+  requestState: string
+  # _meta["io.modelcontextprotocol/clientCapabilities"] de la requête, pour qu'un outil sache ce que le client accepte.
+  clientCapabilities:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
 
 CallToolResult:
   content:
     $list: $ToolContent
   isError: bool
+  # Présent : la réponse est un InputRequiredResult (resultType "input_required"), content et isError sont ignorés.
+  inputRequired: $InputRequired
+
+InputRequired:
+  inputRequests:
+    $value-object: org.codingmatters.value.objects.values.ObjectValue
+  requestState: string
 
 Tool:
   name: string
